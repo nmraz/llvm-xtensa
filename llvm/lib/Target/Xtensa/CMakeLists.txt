@@ -22,6 +22,7 @@ set(LLVM_TARGET_DEFINITIONS Xtensa.td)
 # add_public_tablegen_target(MipsCommonTableGen)
 
 add_llvm_target(XtensaCodeGen
+  XtensaTargetInfo.cpp
   XtensaTargetMachine.cpp
 
   LINK_COMPONENTS
