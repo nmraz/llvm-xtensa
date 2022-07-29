@@ -1,5 +1,5 @@
 #include "XtensaTargetMachine.h"
-#include "XtensaTargetInfo.h"
+#include "TargetInfo/XtensaTargetInfo.h"
 #include "llvm/ADT/Optional.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/Triple.h"
