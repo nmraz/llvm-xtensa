@@ -1,50 +1,66 @@
 include "XtensaInstrFormats.td"
 
-// 8-bit immediate sign-extended to 32 bits
-def simm8 : Operand<i32> {
-  // TODO: define these
-  // let ParserMatchClass = SImm8Operand;
-  // let DecoderMethod = "DecodeSImm<8>";
+let OperandType = "OPERAND_IMMEDIATE" in {
+  // 8-bit immediate sign-extended to 32 bits
+  def simm8 : Operand<i32> {
+    // TODO: define these
+    // let ParserMatchClass = SImm8Operand;
+    // let DecoderMethod = "DecodeSImm<8>";
+  }
+
+  // 8-bit immediate, shifted left by 8 and sign-extended to 32 bits
+  def simm8sl8 : Operand<i32> {
+    // TODO: define these
+    // let ParserMatchClass = SImm8Sl8Operand;
+    // let DecoderMethod = "DecodeSImm<8>";
+  }
 }
 
-// 8-bit immediate, shifted left by 8 and sign-extended to 32 bits
-def simm8sl8 : Operand<i32> {
-  // TODO: define these
-  // let ParserMatchClass = SImm8Sl8Operand;
-  // let DecoderMethod = "DecodeSImm<8>";
+
+let OperandType = "OPERAND_PCREL" in {
+  // 8-bit immediate, sign-extended to 32 bits and added to PC+4
+  def brtarget8 : Operand<OtherVT> {
+    // TODO: define these
+    // let EncoderMethod = "getBranchTargetOpValue";
+    // let DecoderMethod = "DecodeBranchTarget";
+    // let ParserMatchClass = MipsJumpTargetAsmOperand;
+    // let PrintMethod = "printBranchOperand";
+  }
+
+  // 12-bit immediate, sign-extended to 32 bits and added to PC+4
+  def brtarget12 : Operand<OtherVT> {
+    // TODO: define these
+    // let EncoderMethod = "getBranchTargetOpValue";
+    // let DecoderMethod = "DecodeBranchTarget";
+    // let ParserMatchClass = MipsJumpTargetAsmOperand;
+    // let PrintMethod = "printBranchOperand";
+  }
+
+  // 18-bit immediate, shifted left by 2, sign extended to 32 bits and added to
+  // PC+4
+  def calltarget18 : Operand<OtherVT> {
+    // TODO: define these
+    // let EncoderMethod = "getBranchTargetOpValue";
+    // let DecoderMethod = "DecodeBranchTarget";
+    // let ParserMatchClass = MipsJumpTargetAsmOperand;
+    // let PrintMethod = "printBranchOperand";
+  }
 }
 
-// 8-bit immediate, sign-extended to 32 bits and added to PC+4
-def brtarget8 : Operand<OtherVT> {
-  let OperandType = "OPERAND_PCREL";
-  // TODO: define these
-  // let EncoderMethod = "getBranchTargetOpValue";
-  // let DecoderMethod = "DecodeBranchTarget";
-  // let ParserMatchClass = MipsJumpTargetAsmOperand;
-  // let PrintMethod = "printBranchOperand";
+let OperandType = "OPERAND_IMMEDIATE" in {
+  def b4const : Operand<i32> {
+    // TODO: define these
+    // let ParserMatchClass = B4ConstOperand;
+    // let DecoderMethod = "DecodeB4Const";
+  }
+
+  def b4constu : Operand<i32> {
+    // TODO: define these
+    // let ParserMatchClass = B4ConstUOperand;
+    // let DecoderMethod = "DecodeB4ConstU";
+  }
 }
 
-// 12-bit immediate, sign-extended to 32 bits and added to PC+4
-def brtarget12 : Operand<OtherVT> {
-  let OperandType = "OPERAND_PCREL";
-  // TODO: define these
-  // let EncoderMethod = "getBranchTargetOpValue";
-  // let DecoderMethod = "DecodeBranchTarget";
-  // let ParserMatchClass = MipsJumpTargetAsmOperand;
-  // let PrintMethod = "printBranchOperand";
-}
-
-def b4const : Operand<i32> {
-  // TODO: define these
-  // let ParserMatchClass = B4ConstOperand;
-  // let DecoderMethod = "DecodeB4Const";
-}
-
-def b4constu : Operand<i32> {
-  // TODO: define these
-  // let ParserMatchClass = B4ConstUOperand;
-  // let DecoderMethod = "DecodeB4ConstU";
-}
 
 class ArithRRR<string name, bits<4> op1, bits<4> op2>
    : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
@@ -84,10 +100,23 @@ let isBranch = true, isTerminator = true in {
 class BranchRR8I<string name, bits<2> m> : BranchRR8C<name, m, 0b10, b4const>;
 class BranchRR8UI<string name, bits<2> m> : BranchRR8C<name, m, 0b11, b4constu>;
 
+let isCall = true in {
+  class Call<string name, bits<2> n>
+     : I_CALL<0b0101, n, (outs), (ins calltarget18:$offset),
+              !strconcat(name, "\t$offset"), []>;
+
+  class CallX<string name, bits<2> n>
+     :  I_CALLX<0b0000, 0b0000, 0b0000, 0b11, n, (outs), (ins GPR:$as),
+              !strconcat(name, "\t$as"), []> {
+    let ar = 0b0000;
+  }
+}
+
+
 def ABS : ArithRR<"abs", 0b0110, 0b0110, 0b0001>;
 
-def ADD : ArithRRR<"add", 0b0000, 0b1000>;
-def ADDI : ArithRRI8<"addi", 0b0010, 0b1100, simm8>;
+def ADD   : ArithRRR<"add", 0b0000, 0b1000>;
+def ADDI  : ArithRRI8<"addi", 0b0010, 0b1100, simm8>;
 def ADDMI : ArithRRI8<"addmi", 0b0010, 0b1101, simm8sl8>;
 def ADDX2 : ArithRRR<"addx2", 0b0000, 0b1001>;
 def ADDX4 : ArithRRR<"addx4", 0b0000, 0b1010>;
@@ -120,3 +149,12 @@ def BNEI : BranchRR8I<"bnei", 0b01>;
 def BNEZ : BranchRR12Z<"bnez", 0b01>;
 def BNONE : BranchRR8<"bnone", 0b0000>;
 
+def CALL0  : Call<"call0", 0b00>;
+def CALL4  : Call<"call4", 0b01>;
+def CALL8  : Call<"call8", 0b10>;
+def CALL12 : Call<"call12", 0b11>;
+
+def CALLX0  : CallX<"callx0", 0b00>;
+def CALLX4  : CallX<"callx4", 0b01>;
+def CALLX8  : CallX<"callx8", 0b10>;
+def CALLX12 : CallX<"callx12", 0b11>;

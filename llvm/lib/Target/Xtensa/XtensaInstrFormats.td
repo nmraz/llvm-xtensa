@@ -94,8 +94,8 @@ class I_RSR<bits<4> op0, bits<4> op1, bits<4> op2, dag outs, dag ins,
   let Inst{15...8} = rs;
 }
 
-class I_CALL<bits<4> op0, bits<2> n, string asmstr, list<dag> pattern>
-   : Inst24<op0, (outs), (ins), asmstr, pattern> {
+class I_CALL<bits<4> op0, bits<2> n, dag outs, dag ins, string asmstr, list<dag> pattern>
+   : Inst24<op0, outs, ins, asmstr, pattern> {
   bits<18> offset;
 
   let Inst{5...4} = n;
