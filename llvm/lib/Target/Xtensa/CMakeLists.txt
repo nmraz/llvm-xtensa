@@ -4,6 +4,7 @@ set(LLVM_TARGET_DEFINITIONS Xtensa.td)
 
 tablegen(LLVM XtensaGenInstrInfo.inc -gen-instr-info)
 tablegen(LLVM XtensaGenRegisterInfo.inc -gen-register-info)
+tablegen(LLVM XtensaGenMCCodeEmitter.inc -gen-emitter)
 
 # tablegen(LLVM MipsGenAsmMatcher.inc -gen-asm-matcher)
 # tablegen(LLVM MipsGenAsmWriter.inc -gen-asm-writer)
