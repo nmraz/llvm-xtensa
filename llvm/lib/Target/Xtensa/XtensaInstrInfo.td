@@ -60,7 +60,7 @@ class BranchRR8<string name, bits<4> r>
 
 class BranchRR8C<string name, bits<2> m, bits<2> n, Operand Imm>
    : I_BRI8<0b0111, m, n, (outs), (ins GPR:$as, Imm:$imm, brtarget8:$off),
-            !strconcat(name, "\t$as, $imm, $off")>;
+            !strconcat(name, "\t$as, $imm, $off"), []>;
 
 class BranchRR8I<string name, bits<2> m> : BranchRR8C<name, m, 0b10, b4const>;
 class BranchRR8UI<string name, bits<2> m> : BranchRR8C<name, m, 0b11, b4constu>;
