@@ -106,7 +106,7 @@ let isCall = true in {
               !strconcat(name, "\t$offset"), []>;
 
   class CallX<string name, bits<2> n>
-     :  I_CALLX<0b0000, 0b0000, 0b0000, 0b11, n, (outs), (ins GPR:$as),
+     : I_CALLX<0b0000, 0b0000, 0b0000, 0b11, n, (outs), (ins GPR:$as),
               !strconcat(name, "\t$as"), []> {
     let ar = 0b0000;
   }
