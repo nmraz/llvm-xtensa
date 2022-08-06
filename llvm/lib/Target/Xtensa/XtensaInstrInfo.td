@@ -24,6 +24,16 @@ def brtarget8 : Operand<OtherVT> {
   // let PrintMethod = "printBranchOperand";
 }
 
+// 12-bit immediate, sign-extended to 32 bits and added to PC+4
+def brtarget12 : Operand<OtherVT> {
+  let OperandType = "OPERAND_PCREL";
+  // TODO: define these
+  // let EncoderMethod = "getBranchTargetOpValue";
+  // let DecoderMethod = "DecodeBranchTarget";
+  // let ParserMatchClass = MipsJumpTargetAsmOperand;
+  // let PrintMethod = "printBranchOperand";
+}
+
 def b4const : Operand<i32> {
   // TODO: define these
   // let ParserMatchClass = B4ConstOperand;
@@ -52,18 +62,24 @@ class ArithRRI8<string name, bits<4> op0, bits<4> r, Operand Imm>
   let ar = r;
 }
 
-class BranchRR8<string name, bits<4> r>
-   : I_RRI8<0b0111, (outs), (ins GPR:$as, GPR:$at, brtarget8:$offset),
-            !strconcat(name, "\t$at, $as, $offset"), []>  {
-  bits<8> offset;
+let isBranch = true, isTerminator = true in {
+  class BranchRR8<string name, bits<4> r>
+    : I_RRI8<0b0111, (outs), (ins GPR:$as, GPR:$at, brtarget8:$offset),
+              !strconcat(name, "\t$at, $as, $offset"), []>  {
+    bits<8> offset;
 
-  let imm8 = offset;
-  let ar = r;
+    let imm8 = offset;
+    let ar = r;
+  }
+
+  class BranchRR8C<string name, bits<2> m, bits<2> n, Operand Imm>
+    : I_BRI8<0b0111, m, n, (outs), (ins GPR:$as, Imm:$imm, brtarget8:$offset),
+              !strconcat(name, "\t$as, $imm, $offset"), []>;
+
+  class BranchRR12Z<string name, bits<2> m>
+    : I_BRI12<0b0110, m, 0b01, (outs), (ins GPR:$as, brtarget12:$offset),
+              !strconcat(name, "\t$as, $offset"), []>;
 }
-
-class BranchRR8C<string name, bits<2> m, bits<2> n, Operand Imm>
-   : I_BRI8<0b0111, m, n, (outs), (ins GPR:$as, Imm:$imm, brtarget8:$offset),
-            !strconcat(name, "\t$as, $imm, $offset"), []>;
 
 class BranchRR8I<string name, bits<2> m> : BranchRR8C<name, m, 0b10, b4const>;
 class BranchRR8UI<string name, bits<2> m> : BranchRR8C<name, m, 0b11, b4constu>;
@@ -87,20 +103,20 @@ def BBS : BranchRR8<"bbs", 0b1101>;
 // def BBSI : big bad sad infestation
 def BEQ : BranchRR8<"beq", 0b0001>;
 def BEQI : BranchRR8I<"beqi", 0b00>;
-// def BEQZ
+def BEQZ : BranchRR12Z<"beqz", 0b00>;
 def BGE : BranchRR8<"bge", 0b1010>;
 def BGEI : BranchRR8I<"begi", 0b11>;
 def BGEU : BranchRR8<"bgeu", 0b1011>;
 def BGEUI : BranchRR8UI<"bgeui", 0b11>;
-// def BGEZ
+def BGEZ : BranchRR12Z<"bgez", 0b11>;
 def BLT : BranchRR8<"blt", 0b0010>;
 def BLTI : BranchRR8I<"blti", 0b10>;
 def BLTU : BranchRR8<"bltu", 0b0011>;
 def BLTUI : BranchRR8UI<"bltui", 0b10>;
-// def BLTZ
+def BLTZ : BranchRR12Z<"bltz", 0b10>;
 def BNALL : BranchRR8<"bnall", 0b1100>;
 def BNE : BranchRR8<"bne", 0b1001>;
 def BNEI : BranchRR8I<"bnei", 0b01>;
-// def BNEZ
+def BNEZ : BranchRR12Z<"bnez", 0b01>;
 def BNONE : BranchRR8<"bnone", 0b0000>;
 
