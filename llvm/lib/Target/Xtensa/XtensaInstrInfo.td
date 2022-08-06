@@ -93,7 +93,7 @@ def BGEUI : BranchRR8UI<"bgeui", 0b11>;
 def BLT : BranchRR8<"blt", 0b0010>;
 def BLTI : BranchRR8I<"blti", 0b10>;
 def BLTU : BranchRR8<"bltu", 0b0011>;
-def BLTUI : BranchRR8UIUI<"bltui", 0b10>;
+def BLTUI : BranchRR8UI<"bltui", 0b10>;
 // def BLTZ
 def BNALL : BranchRR8<"bnall", 0b1100>;
 def BNE : BranchRR8<"bne", 0b1001>;
