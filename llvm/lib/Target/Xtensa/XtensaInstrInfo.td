@@ -43,24 +43,27 @@ class ArithRRR<string name, bits<4> op1, bits<4> op2>
 class ArithRR<string name, bits<4> op1, bits<4> op2, bits<4> s>
    : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$at),
            !strconcat(name, "\t$ar, $at"), []> {
-  let S = s;
+  let as = s;
 }
 
 class ArithRRI8<string name, bits<4> op0, bits<4> r, Operand Imm>
-   : I_RRI8<op0, (outs GPR:$at), (ins GPR:$as, Imm:$imm),
-            !strconcat(name, "\t$at, $as, $imm"), []> {
-  let R = r;
+   : I_RRI8<op0, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
+            !strconcat(name, "\t$at, $as, $imm8"), []> {
+  let ar = r;
 }
 
 class BranchRR8<string name, bits<4> r>
-   : I_RRI8<0b0111, (outs), (ins GPR:$as, GPR:$at, brtarget8:$off),
-            !strconcat(name, "\t$at, $as, $off"), []>  {
-  let R = r;
+   : I_RRI8<0b0111, (outs), (ins GPR:$as, GPR:$at, brtarget8:$offset),
+            !strconcat(name, "\t$at, $as, $offset"), []>  {
+  bits<8> offset;
+
+  let imm8 = offset;
+  let ar = r;
 }
 
 class BranchRR8C<string name, bits<2> m, bits<2> n, Operand Imm>
-   : I_BRI8<0b0111, m, n, (outs), (ins GPR:$as, Imm:$imm, brtarget8:$off),
-            !strconcat(name, "\t$as, $imm, $off"), []>;
+   : I_BRI8<0b0111, m, n, (outs), (ins GPR:$as, Imm:$imm, brtarget8:$offset),
+            !strconcat(name, "\t$as, $imm, $offset"), []>;
 
 class BranchRR8I<string name, bits<2> m> : BranchRR8C<name, m, 0b10, b4const>;
 class BranchRR8UI<string name, bits<2> m> : BranchRR8C<name, m, 0b11, b4constu>;
