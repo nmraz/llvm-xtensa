@@ -3,8 +3,11 @@
 #include "llvm/ADT/Optional.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/Triple.h"
+#include "llvm/Analysis/TargetTransformInfo.h"
+#include "llvm/CodeGen/TargetPassConfig.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Support/CodeGen.h"
+#include "llvm/Support/ErrorHandling.h"
 #include "llvm/Target/TargetLoweringObjectFile.h"
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
@@ -25,3 +28,12 @@ XtensaTargetMachine::XtensaTargetMachine(const Target &T, const Triple &TT,
                         Options, Reloc::Static, CodeModel::Small, OL) {}
 
 XtensaTargetMachine::~XtensaTargetMachine() = default;
+
+TargetTransformInfo
+XtensaTargetMachine::getTargetTransformInfo(const Function &F) const {
+  llvm_unreachable("unimplemented");
+}
+
+TargetPassConfig *XtensaTargetMachine::createPassConfig(PassManagerBase &PM) {
+  llvm_unreachable("unimplemented");
+}

@@ -32,7 +32,9 @@ public:
     return TLOF.get();
   }
 
-  bool isNoopAddrSpaceCast(unsigned SrcAS, unsigned DestAS) const override;
+  bool isNoopAddrSpaceCast(unsigned SrcAS, unsigned DestAS) const override {
+    return true;
+  }
 };
 
 } // namespace llvm
