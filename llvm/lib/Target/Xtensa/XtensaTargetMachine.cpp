@@ -24,7 +24,7 @@ XtensaTargetMachine::XtensaTargetMachine(const Target &T, const Triple &TT,
                                          Optional<Reloc::Model> RM,
                                          Optional<CodeModel::Model> CM,
                                          CodeGenOpt::Level OL, bool JIT)
-    : LLVMTargetMachine(T, "e-m:e-p:32:32-i64:64-n8:16:32-S128", TT, CPU, FS,
+    : LLVMTargetMachine(T, "e-m:e-p:32:32-i64:64-n32-S128", TT, CPU, FS,
                         Options, Reloc::Static, CodeModel::Small, OL) {}
 
 XtensaTargetMachine::~XtensaTargetMachine() = default;
