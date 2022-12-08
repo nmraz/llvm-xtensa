@@ -29,11 +29,6 @@ XtensaTargetMachine::XtensaTargetMachine(const Target &T, const Triple &TT,
 
 XtensaTargetMachine::~XtensaTargetMachine() = default;
 
-TargetTransformInfo
-XtensaTargetMachine::getTargetTransformInfo(const Function &F) const {
-  llvm_unreachable("unimplemented");
-}
-
 TargetPassConfig *XtensaTargetMachine::createPassConfig(PassManagerBase &PM) {
   llvm_unreachable("unimplemented");
 }
