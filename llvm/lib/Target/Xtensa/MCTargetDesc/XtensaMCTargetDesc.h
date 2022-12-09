@@ -11,4 +11,7 @@
 #define GET_INSTRINFO_MC_HELPER_DECLS
 #include "XtensaGenInstrInfo.inc"
 
+#define GET_SUBTARGETINFO_ENUM
+#include "XtensaGenSubtargetInfo.inc"
+
 #endif
