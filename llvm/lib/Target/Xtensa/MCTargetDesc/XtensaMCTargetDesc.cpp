@@ -54,6 +54,7 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaTargetMC() {
   TargetRegistry::RegisterMCInstrInfo(T, createXtensaMCInstrInfo);
   TargetRegistry::RegisterMCRegInfo(T, createXtensaMCRegisterInfo);
   TargetRegistry::RegisterMCSubtargetInfo(T, createXtensaMCSubtargetInfo);
+  TargetRegistry::RegisterMCCodeEmitter(T, createXtensaMCCodeEmitter);
 
   // TODO: Register these:
   // * MCInstrAnalysis
