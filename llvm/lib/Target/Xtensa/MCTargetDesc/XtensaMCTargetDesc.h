@@ -6,4 +6,9 @@
 #define GET_REGINFO_ENUM
 #include "XtensaGenRegisterInfo.inc"
 
+// Defines symbolic names for the Xtensa instructions.
+#define GET_INSTRINFO_ENUM
+#define GET_INSTRINFO_MC_HELPER_DECLS
+#include "XtensaGenInstrInfo.inc"
+
 #endif
