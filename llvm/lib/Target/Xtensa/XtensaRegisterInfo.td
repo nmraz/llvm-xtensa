@@ -7,6 +7,6 @@ foreach Index = 0...15 in {
   def A#Index : XtensaReg<"a"#Index, Index>;
 }
 
-def SAR : XtensaReg<"SAR", 3>;
+def SAR : XtensaReg<"sar", 3>;
 
 def GPR : RegisterClass<"Xtensa", [i32], 32, (sequence "A%u", 0, 15)>;
