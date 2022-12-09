@@ -8,7 +8,6 @@ tablegen(LLVM XtensaGenMCCodeEmitter.inc -gen-emitter)
 tablegen(LLVM XtensaGenAsmWriter.inc -gen-asm-writer)
 
 # tablegen(LLVM MipsGenAsmMatcher.inc -gen-asm-matcher)
-# tablegen(LLVM MipsGenAsmWriter.inc -gen-asm-writer)
 # tablegen(LLVM MipsGenCallingConv.inc -gen-callingconv)
 # tablegen(LLVM MipsGenDAGISel.inc -gen-dag-isel)
 # tablegen(LLVM MipsGenDisassemblerTables.inc -gen-disassembler)
