@@ -29,6 +29,20 @@ XtensaTargetMachine::XtensaTargetMachine(const Target &T, const Triple &TT,
 
 XtensaTargetMachine::~XtensaTargetMachine() = default;
 
+namespace {
+
+class XtensaPassConfig : public TargetPassConfig {
+public:
+  XtensaPassConfig(XtensaTargetMachine &TM, PassManagerBase &PM)
+      : TargetPassConfig(TM, PM) {}
+
+  bool addInstSelector() override;
+};
+
+bool XtensaPassConfig::addInstSelector() { return true; }
+
+} // namespace
+
 TargetPassConfig *XtensaTargetMachine::createPassConfig(PassManagerBase &PM) {
-  llvm_unreachable("unimplemented");
+  return new XtensaPassConfig(*this, PM);
 }
