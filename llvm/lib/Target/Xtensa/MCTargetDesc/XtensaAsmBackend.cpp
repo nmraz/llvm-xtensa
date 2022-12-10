@@ -15,7 +15,7 @@ using namespace llvm;
 
 std::unique_ptr<MCObjectTargetWriter>
 XtensaAsmBackend::createObjectTargetWriter() const {
-  return nullptr;
+  return createXtensaELFObjectWriter(TheTriple);
 }
 
 void XtensaAsmBackend::applyFixup(const MCAssembler &Asm, const MCFixup &Fixup,

@@ -1,6 +1,9 @@
 #ifndef LLVM_LIB_TARGET_XTENSA_XTENSAMCTARGETDESC_H
 #define LLVM_LIB_TARGET_XTENSA_XTENSAMCTARGETDESC_H
 
+#include "llvm/MC/MCObjectWriter.h"
+#include <memory>
+
 namespace llvm {
 class MCAsmBackend;
 class MCCodeEmitter;
@@ -18,6 +21,9 @@ MCAsmBackend *createXtensaAsmBackend(const Target &T,
                                      const MCSubtargetInfo &STI,
                                      const MCRegisterInfo &MRI,
                                      const MCTargetOptions &Options);
+
+std::unique_ptr<MCObjectTargetWriter>
+createXtensaELFObjectWriter(const Triple &TT);
 
 } // namespace llvm
 
