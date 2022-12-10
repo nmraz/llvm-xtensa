@@ -8,8 +8,8 @@ tablegen(LLVM XtensaGenMCCodeEmitter.inc -gen-emitter)
 tablegen(LLVM XtensaGenAsmWriter.inc -gen-asm-writer)
 tablegen(LLVM XtensaGenSubtargetInfo.inc -gen-subtarget)
 tablegen(LLVM XtensaGenMCCodeEmitter.inc -gen-emitter)
+tablegen(LLVM XtensaGenAsmMatcher.inc -gen-asm-matcher)
 
-# tablegen(LLVM XtensaGenAsmMatcher.inc -gen-asm-matcher)
 # tablegen(LLVM XtensaGenCallingConv.inc -gen-callingconv)
 # tablegen(LLVM XtensaGenDAGISel.inc -gen-dag-isel)
 # tablegen(LLVM XtensaGenDisassemblerTables.inc -gen-disassembler)
@@ -44,3 +44,4 @@ add_llvm_target(XtensaCodeGen
 
 add_subdirectory(MCTargetDesc)
 add_subdirectory(TargetInfo)
+add_subdirectory(AsmParser)
