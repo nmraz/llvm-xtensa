@@ -9,6 +9,7 @@
 #include "llvm/MC/MCTargetOptions.h"
 #include "llvm/MC/TargetRegistry.h"
 #include <cassert>
+#include <cstdint>
 #include <memory>
 
 using namespace llvm;
@@ -33,6 +34,44 @@ Optional<MCFixupKind> XtensaAsmBackend::getFixupKind(StringRef Name) const {
 const MCFixupKindInfo &
 XtensaAsmBackend::getFixupKindInfo(MCFixupKind Kind) const {
   assert(false && "Fixup kind info not implemented!");
+}
+
+bool XtensaAsmBackend::writeNopData(raw_ostream &OS, uint64_t Count,
+                                    const MCSubtargetInfo *STI) const {
+  if (Count == 0) {
+    return true;
+  }
+
+  if (Count == 1) {
+    // Xtensa doesn't do 1-byte NOPs.
+    return false;
+  }
+
+  uint64_t NarrowCount = 0;
+
+  // Why is this loop guaranteed to terminate? At this point we know that
+  // `Count >= 2`. If it is even, at worst the loop will terminate with
+  // `Count == 0` as we always subtract 2. If it is odd, we can write it as
+  // `2 * n + 1`, yet `n > 0`, so it is effectively `2 * (m + 1) + 1
+  // = 2 * m + 3`, and the loop will terminate at 3.
+  while (Count % 3 != 0) {
+    Count -= 2;
+    NarrowCount += 1;
+  }
+
+  uint64_t WideCount = Count / 3;
+
+  for (uint64_t i = 0; i < WideCount; i++) {
+    // TODO: wide nop
+    OS.write("\3\3\3", 3);
+  }
+
+  for (uint64_t i = 0; i < NarrowCount; i++) {
+    // TODO: narrow nop
+    OS.write("\2\2", 2);
+  }
+
+  return true;
 }
 
 MCAsmBackend *llvm::createXtensaAsmBackend(const Target &T,
