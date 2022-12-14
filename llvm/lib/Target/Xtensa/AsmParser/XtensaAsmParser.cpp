@@ -7,6 +7,8 @@
 #include "llvm/MC/MCInstrInfo.h"
 #include "llvm/MC/MCParser/MCAsmLexer.h"
 #include "llvm/MC/MCParser/MCTargetAsmParser.h"
+#include "llvm/MC/MCStreamer.h"
+#include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Support/Compiler.h"
 #include "llvm/Support/Debug.h"
@@ -109,20 +111,25 @@ public:
   bool isReg() const override { return Kind == k_Register; }
   bool isMem() const override { return false; }
 
-  unsigned getReg() const override {
-    assert(isReg() && "Invalid access!");
-    return Reg.RegNo;
-  }
-
   StringRef getToken() const {
     assert(isToken() && "Invalid access!");
     return StringRef(Tok.Data, Tok.Length);
   }
 
+  const MCExpr *getImm() const {
+    assert(isImm() && "Invalid access!");
+    return Imm.Val;
+  }
+
+  unsigned getReg() const override {
+    assert(isReg() && "Invalid access!");
+    return Reg.RegNo;
+  }
+
   void print(raw_ostream &OS) const override;
 
-  void addRegOperands(MCInst &Inst, unsigned N) const {}
-  void addImmOperands(MCInst &Inst, unsigned N) const {}
+  void addRegOperands(MCInst &Inst, unsigned N) const;
+  void addImmOperands(MCInst &Inst, unsigned N) const;
 };
 
 void XtensaOperand::print(raw_ostream &OS) const {
@@ -139,10 +146,23 @@ void XtensaOperand::print(raw_ostream &OS) const {
   }
 }
 
+void XtensaOperand::addRegOperands(MCInst &Inst, unsigned int N) const {
+  assert(N == 1 && "Invalid number of operands");
+  Inst.addOperand(MCOperand::createReg(getReg()));
+}
+
+void XtensaOperand::addImmOperands(MCInst &Inst, unsigned int N) const {
+  assert(N == 1 && "Invalid number of operands");
+  Inst.addOperand(MCOperand::createExpr(getImm()));
+}
+
 } // namespace
 
 // Auto-generated implementation below
 static unsigned MatchRegisterName(StringRef Name);
+static std::string XtensaMnemonicSpellCheck(StringRef S,
+                                            const FeatureBitset &FBS,
+                                            unsigned VariantID = 0);
 
 bool XtensaAsmParser::ParseRegister(unsigned int &RegNo, SMLoc &StartLoc,
                                     SMLoc &EndLoc) {
@@ -237,7 +257,37 @@ bool XtensaAsmParser::MatchAndEmitInstruction(SMLoc IDLoc, unsigned int &Opcode,
                                               MCStreamer &Out,
                                               uint64_t &ErrorInfo,
                                               bool MatchingInlineAsm) {
-  return true;
+  MCInst Inst;
+
+  switch (MatchInstructionImpl(Operands, Inst, ErrorInfo, MatchingInlineAsm)) {
+  case Match_Success:
+    Inst.setLoc(IDLoc);
+    Out.emitInstruction(Inst, getSTI());
+    return false;
+  case Match_MissingFeature:
+    return Error(IDLoc, "instruction use requires an option to be enabled");
+  case Match_MnemonicFail: {
+    FeatureBitset FBS = ComputeAvailableFeatures(getSTI().getFeatureBits());
+    std::string Suggestion = XtensaMnemonicSpellCheck(
+        ((XtensaOperand &)*Operands[0]).getToken(), FBS);
+    return Error(IDLoc, "invalid instruction" + Suggestion);
+  }
+  case Match_InvalidOperand: {
+    SMLoc ErrorLoc = IDLoc;
+    if (ErrorInfo != ~0ULL) {
+      if (ErrorInfo >= Operands.size())
+        return Error(IDLoc, "too few operands for instruction");
+
+      ErrorLoc = ((XtensaOperand &)*Operands[ErrorInfo]).getStartLoc();
+      if (ErrorLoc == SMLoc())
+        ErrorLoc = IDLoc;
+    }
+
+    return Error(ErrorLoc, "invalid operand for instruction");
+  }
+  }
+
+  llvm_unreachable("Implement any new match types added!");
 }
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaAsmParser() {
