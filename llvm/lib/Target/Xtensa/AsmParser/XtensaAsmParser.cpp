@@ -9,6 +9,7 @@
 #include "llvm/MC/MCParser/MCTargetAsmParser.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Support/Compiler.h"
+#include "llvm/Support/Debug.h"
 #include "llvm/Support/SMLoc.h"
 #include "llvm/Support/raw_ostream.h"
 #include <cassert>
@@ -145,42 +146,35 @@ static unsigned MatchRegisterName(StringRef Name);
 
 bool XtensaAsmParser::ParseRegister(unsigned int &RegNo, SMLoc &StartLoc,
                                     SMLoc &EndLoc) {
-  return tryParseRegister(RegNo, StartLoc, EndLoc) != MatchOperand_Success;
+  if (tryParseRegister(RegNo, StartLoc, EndLoc) != MatchOperand_Success) {
+    Error(getTok().getLoc(), "expected a register name");
+    return true;
+  }
+
+  return false;
 }
 
 OperandMatchResultTy XtensaAsmParser::tryParseRegister(unsigned int &RegNo,
                                                        SMLoc &StartLoc,
                                                        SMLoc &EndLoc) {
-  if (!getLexer().is(AsmToken::Dollar)) {
-    return MatchOperand_NoMatch;
-  }
-
-  StartLoc = getLexer().getLoc();
-
-  // Consume the dollar; we currently take advantage of the fact that dollars
-  // unambiguously signify register names in Xtensa assembly, so we can advance
-  // the stream now and be confident that any unexpected tokens beyond this
-  // point are parse errors and not a non-matching operand.
-  getParser().Lex();
-
   if (!getLexer().is(AsmToken::Identifier)) {
-    Error(StartLoc, "expected a register name");
-    return MatchOperand_ParseFail;
+    return MatchOperand_NoMatch;
   }
 
   auto NameTok = getParser().getTok();
   StringRef Name = NameTok.getString();
 
+  StartLoc = NameTok.getLoc();
   EndLoc = NameTok.getEndLoc();
 
   unsigned MatchedRegNo = MatchRegisterName(Name);
   if (MatchedRegNo) {
+    getParser().Lex();
     RegNo = MatchedRegNo;
     return MatchOperand_Success;
   }
 
-  Error(StartLoc, "unknown register name '" + Name + "'");
-  return MatchOperand_ParseFail;
+  return MatchOperand_NoMatch;
 }
 
 bool XtensaAsmParser::parseOperand(OperandVector &Operands) {
@@ -193,7 +187,7 @@ bool XtensaAsmParser::parseOperand(OperandVector &Operands) {
   switch (RegResult) {
   case MatchOperand_Success:
     Operands.push_back(XtensaOperand::createReg(RegNo, StartLoc, EndLoc));
-    break;
+    return false;
   case MatchOperand_NoMatch:
     break;
   case MatchOperand_ParseFail:
