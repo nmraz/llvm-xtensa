@@ -1,13 +1,29 @@
+#include "MCTargetDesc/XtensaMCTargetDesc.h"
 #include "TargetInfo/XtensaTargetInfo.h"
+#include "llvm/ADT/StringRef.h"
+#include "llvm/MC/MCAsmMacro.h"
+#include "llvm/MC/MCExpr.h"
+#include "llvm/MC/MCInst.h"
+#include "llvm/MC/MCInstrInfo.h"
+#include "llvm/MC/MCParser/MCAsmLexer.h"
 #include "llvm/MC/MCParser/MCTargetAsmParser.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Support/Compiler.h"
+#include "llvm/Support/SMLoc.h"
+#include "llvm/Support/raw_ostream.h"
+#include <cassert>
+#include <cstdint>
+#include <memory>
 
 using namespace llvm;
 
 namespace {
 
 class XtensaAsmParser : public MCTargetAsmParser {
+private:
+#define GET_ASSEMBLER_HEADER
+#include "XtensaGenAsmMatcher.inc"
+
 public:
   XtensaAsmParser(const MCSubtargetInfo &STI, MCAsmParser &Parser,
                   const MCInstrInfo &MII, const MCTargetOptions &Options)
@@ -18,6 +34,8 @@ public:
   OperandMatchResultTy tryParseRegister(unsigned &RegNo, SMLoc &StartLoc,
                                         SMLoc &EndLoc) override;
 
+  bool parseOperand(OperandVector &Operands);
+
   bool ParseInstruction(ParseInstructionInfo &Info, StringRef Name,
                         SMLoc NameLoc, OperandVector &Operands) override;
 
@@ -27,13 +45,212 @@ public:
                                OperandVector &Operands, MCStreamer &Out,
                                uint64_t &ErrorInfo,
                                bool MatchingInlineAsm) override;
-
-  void convertToMapAndConstraints(unsigned Kind,
-                                  const OperandVector &Operands) override;
 };
 
+class XtensaOperand : public MCParsedAsmOperand {
+private:
+  enum KindTy {
+    k_Token,
+    k_Register,
+    k_Immediate,
+  } Kind;
+
+  SMLoc StartLoc, EndLoc;
+
+  struct TokOp {
+    const char *Data;
+    unsigned Length;
+  };
+
+  struct RegOp {
+    unsigned RegNo;
+  };
+
+  struct ImmOp {
+    const MCExpr *Val;
+  };
+
+  union {
+    struct TokOp Tok;
+    struct RegOp Reg;
+    struct ImmOp Imm;
+  };
+
+public:
+  XtensaOperand(KindTy K, SMLoc S, SMLoc E) : Kind(K), StartLoc(S), EndLoc(E) {}
+
+  static std::unique_ptr<XtensaOperand> createToken(StringRef Token, SMLoc S) {
+    auto Operand = std::make_unique<XtensaOperand>(k_Token, S, S);
+    Operand->Tok.Data = Token.data();
+    Operand->Tok.Length = Token.size();
+    return Operand;
+  }
+
+  static std::unique_ptr<XtensaOperand> createReg(unsigned RegNo, SMLoc S,
+                                                  SMLoc E) {
+    auto Operand = std::make_unique<XtensaOperand>(k_Register, S, E);
+    Operand->Reg.RegNo = RegNo;
+    return Operand;
+  }
+
+  static std::unique_ptr<XtensaOperand> createImm(const MCExpr *Val, SMLoc S,
+                                                  SMLoc E) {
+    auto Operand = std::make_unique<XtensaOperand>(k_Immediate, S, E);
+    Operand->Imm.Val = Val;
+    return Operand;
+  }
+
+  SMLoc getStartLoc() const override { return StartLoc; }
+  SMLoc getEndLoc() const override { return EndLoc; }
+
+  bool isToken() const override { return Kind == k_Token; }
+  bool isImm() const override { return Kind == k_Immediate; }
+  bool isReg() const override { return Kind == k_Register; }
+  bool isMem() const override { return false; }
+
+  unsigned getReg() const override {
+    assert(isReg() && "Invalid access!");
+    return Reg.RegNo;
+  }
+
+  StringRef getToken() const {
+    assert(isToken() && "Invalid access!");
+    return StringRef(Tok.Data, Tok.Length);
+  }
+
+  void print(raw_ostream &OS) const override;
+
+  void addRegOperands(MCInst &Inst, unsigned N) const {}
+  void addImmOperands(MCInst &Inst, unsigned N) const {}
+};
+
+void XtensaOperand::print(raw_ostream &OS) const {
+  switch (Kind) {
+  case k_Token:
+    OS << getToken();
+    break;
+
+  case k_Register:
+    break;
+
+  case k_Immediate:
+    break;
+  }
+}
+
 } // namespace
+
+// Auto-generated implementation below
+static unsigned MatchRegisterName(StringRef Name);
+
+bool XtensaAsmParser::ParseRegister(unsigned int &RegNo, SMLoc &StartLoc,
+                                    SMLoc &EndLoc) {
+  return tryParseRegister(RegNo, StartLoc, EndLoc) != MatchOperand_Success;
+}
+
+OperandMatchResultTy XtensaAsmParser::tryParseRegister(unsigned int &RegNo,
+                                                       SMLoc &StartLoc,
+                                                       SMLoc &EndLoc) {
+  if (!getLexer().is(AsmToken::Dollar)) {
+    return MatchOperand_NoMatch;
+  }
+
+  StartLoc = getLexer().getLoc();
+
+  // Consume the dollar; we currently take advantage of the fact that dollars
+  // unambiguously signify register names in Xtensa assembly, so we can advance
+  // the stream now and be confident that any unexpected tokens beyond this
+  // point are parse errors and not a non-matching operand.
+  getParser().Lex();
+
+  if (!getLexer().is(AsmToken::Identifier)) {
+    Error(StartLoc, "expected a register name");
+    return MatchOperand_ParseFail;
+  }
+
+  auto NameTok = getParser().getTok();
+  StringRef Name = NameTok.getString();
+
+  EndLoc = NameTok.getEndLoc();
+
+  unsigned MatchedRegNo = MatchRegisterName(Name);
+  if (MatchedRegNo) {
+    RegNo = MatchedRegNo;
+    return MatchOperand_Success;
+  }
+
+  Error(StartLoc, "unknown register name '" + Name + "'");
+  return MatchOperand_ParseFail;
+}
+
+bool XtensaAsmParser::parseOperand(OperandVector &Operands) {
+  SMLoc StartLoc;
+  SMLoc EndLoc;
+  unsigned RegNo;
+
+  OperandMatchResultTy RegResult = tryParseRegister(RegNo, StartLoc, EndLoc);
+
+  switch (RegResult) {
+  case MatchOperand_Success:
+    Operands.push_back(XtensaOperand::createReg(RegNo, StartLoc, EndLoc));
+    break;
+  case MatchOperand_NoMatch:
+    break;
+  case MatchOperand_ParseFail:
+    return true;
+  }
+
+  StartLoc = getLexer().getLoc();
+
+  const MCExpr *ImmVal;
+  if (getParser().parseExpression(ImmVal, EndLoc)) {
+    // `parseExpression` will print the error itself.
+    return true;
+  }
+
+  Operands.push_back(XtensaOperand::createImm(ImmVal, StartLoc, EndLoc));
+
+  return false;
+}
+
+bool XtensaAsmParser::ParseInstruction(ParseInstructionInfo &Info,
+                                       StringRef Name, SMLoc NameLoc,
+                                       OperandVector &Operands) {
+  Operands.push_back(XtensaOperand::createToken(Name, NameLoc));
+
+  if (getLexer().isNot(AsmToken::EndOfStatement)) {
+    if (parseOperand(Operands)) {
+      return true;
+    }
+
+    while (parseOptionalToken(AsmToken::Comma)) {
+      if (parseOperand(Operands)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool XtensaAsmParser::ParseDirective(AsmToken DirectiveID) {
+  // We have no custom directives for now
+  return true;
+}
+
+bool XtensaAsmParser::MatchAndEmitInstruction(SMLoc IDLoc, unsigned int &Opcode,
+                                              OperandVector &Operands,
+                                              MCStreamer &Out,
+                                              uint64_t &ErrorInfo,
+                                              bool MatchingInlineAsm) {
+  return true;
+}
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaAsmParser() {
   RegisterMCAsmParser<XtensaAsmParser> X(getTheXtensaTarget());
 }
+
+#define GET_REGISTER_MATCHER
+#define GET_MATCHER_IMPLEMENTATION
+#define GET_MNEMONIC_SPELL_CHECKER
+#include "XtensaGenAsmMatcher.inc"
