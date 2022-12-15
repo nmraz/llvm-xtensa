@@ -231,7 +231,11 @@ let hasSideEffects = false, mayLoad = false, mayStore = false,
 
   class BranchRR8C<bits<2> m, bits<2> n, Operand Imm, string name>
     : I_BRI8<0b0111, m, n, (outs), (ins GPR:$as, Imm:$imm, brtarget8:$offset),
-              !strconcat(name, "\t$as, $imm, $offset"), []>;
+              !strconcat(name, "\t$as, $imm, $offset"), []> {
+    bits<4> imm;
+
+    let ar = imm;
+  }
 
   class BranchRR12Z<bits<2> m, string name>
     : GenericBRI12<0b0110, m, 0b01, brtarget12, name>;
