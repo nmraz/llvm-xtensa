@@ -3,124 +3,78 @@ include "XtensaInstrFormats.td"
 let OperandType = "OPERAND_IMMEDIATE" in {
   // 4-bit immediate
   def uimm4 : Operand<i32> {
-
   }
 
   // 4-bit immediate, incremented by 1 and zero-extended to 32 bits
   def uimm4p1 : Operand<i32> {
-
   }
 
   // 4-bit immediate, shifted left by 2 and zero-extended to 32 bits
   def uimm4sl2 : Operand<i32> {
-    // TODO: define these
-    // let ParserMatchClass = SImm8Operand;
-    // let DecoderMethod = "DecodeSImm<8>";
   }
 
   // 5-bit immediate zero-extended to 32 bits
   def uimm5 : Operand<i32> {
-
   }
 
   // 5-bit immediate subtracted from 32
   def uimm5s32 : Operand<i32> {
-
   }
 
   // 7-bit immediate, extended to 32 bits by the bitwise AND of its top 2 bits
   // (bits 5 and 6)
   def imm7_ext_highbits : Operand<i32> {
-
   }
 
   // 8-bit immediate sign-extended to 32 bits
   def simm8 : Operand<i32> {
-    // TODO: define these
-    // let ParserMatchClass = SImm8Operand;
-    // let DecoderMethod = "DecodeSImm<8>";
   }
 
   // 8-bit immediate zero-extended to 32 bits
   def uimm8 : Operand<i32> {
-    // TODO: define these
-    // let ParserMatchClass = SImm8Operand;
-    // let DecoderMethod = "DecodeSImm<8>";
   }
 
   // 8-bit immediate, shifted left by 1 and zero-extended to 32 bits
   def uimm8sl1 : Operand<i32> {
-    // TODO: define these
-    // let ParserMatchClass = SImm8Sl8Operand;
-    // let DecoderMethod = "DecodeSImm<8>";
   }
 
   // 8-bit immediate, shifted left by 2 and zero-extended to 32 bits
   def uimm8sl2 : Operand<i32> {
-    // TODO: define these
-    // let ParserMatchClass = SImm8Sl8Operand;
-    // let DecoderMethod = "DecodeSImm<8>";
   }
 
   // 8-bit immediate, shifted left by 8 and sign-extended to 32 bits
   def simm8sl8 : Operand<i32> {
-    // TODO: define these
-    // let ParserMatchClass = SImm8Sl8Operand;
-    // let DecoderMethod = "DecodeSImm<8>";
   }
 
   // 12-bit immediate sign-extended to 32 bits
   def simm12 : Operand<i32> {
-
   }
 
   // 12-bit immediate, shifted left by 3 zero-extended to 32 bits
   def uimm12sl3 : Operand<i32> {
-    // TODO: parser/encoder/decoder
   }
 
   // Special 4-bit encoded immediate for signed branch comparisons
   def b4const : Operand<i32> {
-    // TODO: define these
-    // let ParserMatchClass = B4ConstOperand;
-    // let DecoderMethod = "DecodeB4Const";
   }
 
   // Special 4-bit encoded immediate for unsigned branch comparisons
   def b4constu : Operand<i32> {
-    // TODO: define these
-    // let ParserMatchClass = B4ConstUOperand;
-    // let DecoderMethod = "DecodeB4ConstU";
   }
 }
 
 let OperandType = "OPERAND_PCREL" in {
   // 8-bit immediate, sign-extended to 32 bits and added to PC+4
   def brtarget8 : Operand<OtherVT> {
-    // TODO: define these
-    // let EncoderMethod = "getBranchTargetOpValue";
-    // let DecoderMethod = "DecodeBranchTarget";
-    // let ParserMatchClass = MipsJumpTargetAsmOperand;
-    // let PrintMethod = "printBranchOperand";
   }
 
   // 12-bit immediate, sign-extended to 32 bits and added to PC+4
   def brtarget12 : Operand<OtherVT> {
-    // TODO: define these
-    // let EncoderMethod = "getBranchTargetOpValue";
-    // let DecoderMethod = "DecodeBranchTarget";
-    // let ParserMatchClass = MipsJumpTargetAsmOperand;
-    // let PrintMethod = "printBranchOperand";
   }
 
   // 18-bit immediate, shifted left by 2, sign extended to 32 bits and added to
   // PC+4
   def calltarget18 : Operand<OtherVT> {
-    // TODO: define these
-    // let EncoderMethod = "getBranchTargetOpValue";
-    // let DecoderMethod = "DecodeBranchTarget";
-    // let ParserMatchClass = MipsJumpTargetAsmOperand;
-    // let PrintMethod = "printBranchOperand";
   }
 }
 
