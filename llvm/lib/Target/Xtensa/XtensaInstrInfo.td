@@ -131,13 +131,13 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
     : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
             !strconcat(name, "\t$ar, $as, $at"), []>;
 
-  class ArithRRs<bits<4> op1, bits<4> op2, bits<4> s, string name>
+  class ArithRRrt<bits<4> op1, bits<4> op2, bits<4> s, string name>
     : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$at),
             !strconcat(name, "\t$ar, $at"), []> {
     let as = s;
   }
 
-  class ArithRRt<bits<4> op1, bits<4> op2, bits<4> t, string name>
+  class ArithRRrs<bits<4> op1, bits<4> op2, bits<4> t, string name>
     : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as),
             !strconcat(name, "\t$ar, $as"), []> {
     let at = t;
@@ -156,7 +156,7 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
     let ar = r;
   }
 
-  class ArithRRI12<bits<4> op0, bits<4> r, Operand Imm, string name>
+  class ArithRI12<bits<4> op0, bits<4> r, Operand Imm, string name>
     : I_RRI8<op0, (outs GPR:$at), (ins Imm:$imm12),
              !strconcat(name, "\t$at, $imm12"), []> {
     bits<12> imm12;
@@ -250,7 +250,7 @@ let isCall = true in {
 }
 
 
-def ABS : ArithRRs<0b0110, 0b0110, 0b0001, "abs">;
+def ABS : ArithRRrt<0b0110, 0b0110, 0b0001, "abs">;
 
 def ADD   : ArithRRR<0b0000, 0b1000, "add">;
 def ADDI  : ArithRRI8<0b0010, 0b1100, simm8, "addi">;
@@ -360,7 +360,7 @@ let isSelect = 1 in {
   def MOVGEZ : ArithRRR<0b0011, 0b1011, "movgez">;
 }
 
-def MOVI : ArithRRI12<0b0010, 0b1010, simm12, "movi">;
+def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi">;
 def MOVIN : ArithRI7N<0b1100, 0, imm7_ext_highbits, "movi.n">;
 
 def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s">;
@@ -370,7 +370,7 @@ def MULL : ArithRRR<0b0010, 0b1000, "mull">;
 def MULSH : ArithRRR<0b0010, 0b1011, "mulsh">;
 def MULUH : ArithRRR<0b0010, 0b1010, "muluh">;
 
-def NEG : ArithRRs<0b0000, 0b0110, 0b0000, "neg">;
+def NEG : ArithRRrt<0b0000, 0b0110, 0b0000, "neg">;
 
 def NOP : I_Fixed24<0x0020f0, "nop", []>;
 def NOPN : I_Fixed16<0xf03d, "nop.n", []>;
@@ -410,10 +410,10 @@ def SALT : ArithRRR<0b0010, 0b0111, "salt">;
 def SALTU : ArithRRR<0b0010, 0b0110, "saltu">;
 
 let Uses = [SAR] in {
-  def SLL : ArithRRt<0b0001, 0b1010, 0b0000, "sll">;
-  def SRA : ArithRRs<0b0001, 0b1011, 0b0000, "sra">;
+  def SLL : ArithRRrs<0b0001, 0b1010, 0b0000, "sll">;
+  def SRA : ArithRRrt<0b0001, 0b1011, 0b0000, "sra">;
   def SRC : ArithRRR<0b0001, 0b1000, "src">;
-  def SRL : ArithRRs<0b0001, 0b1001, 0b0000, "srl">;
+  def SRL : ArithRRrt<0b0001, 0b1001, 0b0000, "srl">;
 }
 
 let hasSideEffects = false, mayLoad = false, mayStore = false in {
