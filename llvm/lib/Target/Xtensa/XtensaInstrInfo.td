@@ -43,8 +43,8 @@ let OperandType = "OPERAND_IMMEDIATE" in {
     // let DecoderMethod = "DecodeSImm<8>";
   }
 
-  // 12-bit immediate zero-extended to 32 bits, used only in `entry` instruction
-  def uimm12 : Operand<i32> {
+  // 12-bit immediate, shifted left by 3 zero-extended to 32 bits
+  def uimm12sl3 : Operand<i32> {
     // TODO: parser/encoder/decoder
   }
 }
@@ -94,64 +94,81 @@ let OperandType = "OPERAND_IMMEDIATE" in {
   }
 }
 
-
-class ArithRRR<bits<4> op1, bits<4> op2, string name>
-   : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
-           !strconcat(name, "\t$ar, $as, $at"), []>;
-
-class ArithRRs<bits<4> op1, bits<4> op2, bits<4> s, string name>
-   : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$at),
-           !strconcat(name, "\t$ar, $at"), []> {
-  let as = s;
-}
-
-class ArithRRt<bits<4> op1, bits<4> op2, bits<4> t, string name>
-   : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as),
-           !strconcat(name, "\t$ar, $as"), []> {
-  let at = t;
-}
-
-class ArithRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
-   : I_RRI8<op0, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
-            !strconcat(name, "\t$at, $as, $imm8"), []> {
-  let ar = r;
-}
-
-class LoadRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
-   : ArithRRI8<op0, r, Imm, name> {
-  let mayLoad = true;
-}
-
-class StoreRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
-   : ArithRRI8<op0, r, Imm, name> {
-  let mayStore = true;
-}
-
-class ArithRRRN<bits<4> op0, string name>
-   : I_RRRN<op0, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
+// Arithmetic instruction classes
+let hasSideEffects = false, mayLoad = false, mayStore = false in {
+  class ArithRRR<bits<4> op1, bits<4> op2, string name>
+    : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
             !strconcat(name, "\t$ar, $as, $at"), []>;
 
-class LoadRRRN<bits<4> op0, Operand Imm, string name>
-   : I_RRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
-            !strconcat(name, "\t$at, $as, $offset"), []> {
-  bits<4> offset;
-  let ar = offset;
-  let mayLoad = true;
+  class ArithRRs<bits<4> op1, bits<4> op2, bits<4> s, string name>
+    : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$at),
+            !strconcat(name, "\t$ar, $at"), []> {
+    let as = s;
+  }
+
+  class ArithRRt<bits<4> op1, bits<4> op2, bits<4> t, string name>
+    : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as),
+            !strconcat(name, "\t$ar, $as"), []> {
+    let at = t;
+  }
+
+  class ArithRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
+    : I_RRI8<op0, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
+              !strconcat(name, "\t$at, $as, $imm8"), []> {
+    let ar = r;
+  }
+
+  class ArithRRRN<bits<4> op0, string name>
+   : I_RRRN<op0, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
+            !strconcat(name, "\t$ar, $as, $at"), []>;
 }
 
-class StoreRRRN<bits<4> op0, Operand Imm, string name>
-   : I_RRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
-            !strconcat(name, "\t$at, $as, $offset"), []> {
-  bits<4> offset;
-  let ar = offset;
-  let mayStore = true;
+// Load instruction classes
+let hasSideEffects = false, mayLoad = true, mayStore = false in {
+  class LoadRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
+    : ArithRRI8<op0, r, Imm, name>;
+
+  class LoadRRRN<bits<4> op0, Operand Imm, string name>
+    : I_RRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
+              !strconcat(name, "\t$at, $as, $offset"), []> {
+    bits<4> offset;
+    let ar = offset;
+  }
 }
 
-class GenericBRI12<bits<4> op0, bits<2> m, bits<2> n, Operand Imm, string name>
-  : I_BRI12<op0, m, n, (outs), (ins GPR:$as, Imm:$offset),
-            !strconcat(name, "\t$as, $offset"), []>;
+// Store instruction classes
+let hasSideEffects = false, mayLoad = false, mayStore = true in {
+  class StoreRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
+    : ArithRRI8<op0, r, Imm, name>;
 
-let isBranch = true, isTerminator = true in {
+  class StoreRRRN<bits<4> op0, Operand Imm, string name>
+    : I_RRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
+              !strconcat(name, "\t$at, $as, $offset"), []> {
+    bits<4> offset;
+    let ar = offset;
+  }
+}
+
+// Branch and call helpers
+let hasSideEffects = false, mayLoad = false, mayStore = false in {
+  class GenericBRI12<bits<4> op0, bits<2> m, bits<2> n, Operand Imm, string name>
+    : I_BRI12<op0, m, n, (outs), (ins GPR:$as, Imm:$offset),
+              !strconcat(name, "\t$as, $offset"), []>;
+
+  class GenericCall<bits<4> op0, bits<2> n, string name>
+    : I_CALL<op0, n, (outs), (ins calltarget18:$offset),
+              !strconcat(name, "\t$offset"), []>;
+
+  class GenericCallX<bits<2> m, bits<2> n, string name>
+      : I_CALLX<0b0000, 0b0000, 0b0000, m, n, (outs), (ins GPR:$as),
+                !strconcat(name, "\t$as"), []> {
+    let ar = 0b0000;
+  }
+}
+
+// Branch instruction classes
+let hasSideEffects = false, mayLoad = false, mayStore = false,
+    isBranch = true, isTerminator = true in {
   class BranchRR8<bits<4> r, string name>
     : I_RRI8<0b0111, (outs), (ins GPR:$as, GPR:$at, brtarget8:$offset),
               !strconcat(name, "\t$at, $as, $offset"), []>  {
@@ -172,16 +189,7 @@ let isBranch = true, isTerminator = true in {
 class BranchRR8I<bits<2> m, string name> : BranchRR8C<m, 0b10, b4const, name>;
 class BranchRR8UI<bits<2> m, string name> : BranchRR8C<m, 0b11, b4constu, name>;
 
-class GenericCall<bits<4> op0, bits<2> n, string name>
-   : I_CALL<op0, n, (outs), (ins calltarget18:$offset),
-            !strconcat(name, "\t$offset"), []>;
-
-class GenericCallX<bits<2> m, bits<2> n, string name>
-     : I_CALLX<0b0000, 0b0000, 0b0000, m, n, (outs), (ins GPR:$as),
-              !strconcat(name, "\t$as"), []> {
-  let ar = 0b0000;
-}
-
+// Call instruction classes
 let isCall = true in {
   class Call<bits<2> n, string name>
      : GenericCall<0b0101, n, name>;
@@ -241,7 +249,10 @@ def CALLX12 : CallX<0b11, "callx12">;
 
 def DSYNC : I_Fixed24<0x002030, "dsync", []>;
 
-def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12, "entry">;
+def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12sl3, "entry"> {
+  // We currently don't model `WindowBase` explicitly
+  let hasSideEffects = true;
+}
 
 def ESYNC : I_Fixed24<0x002020, "esync", []>;
 
@@ -249,7 +260,7 @@ def ESYNC : I_Fixed24<0x002020, "esync", []>;
 
 def EXTW : I_Fixed24<0x0020d0, "extw", []>;
 
-let isTrap = 1 in {
+let isTrap = true in {
   def ILL : I_Fixed24<0x000000, "ill", []>;
   def ILLN : I_Fixed16<0xf06d, "ill.n", []>;
 }
@@ -304,7 +315,8 @@ def REMU : ArithRRR<0b0010, 0b1110, "remu">;
 
 // def RER
 
-let isTerminator = true, isBarrier = true in {
+let mayLoad = false, mayStore = false,
+    isTerminator = true, isBarrier = true in {
   def RET : I_Fixed24<0x000080, "ret", []>;
   def RETN : I_Fixed16<0xf00d, "ret.n", []>;
   def RETW : I_Fixed24<0x000090, "retw", []>;
