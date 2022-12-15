@@ -229,7 +229,7 @@ let hasSideEffects = false, mayLoad = false, mayStore = false,
     let ar = r;
   }
 
-  class BranchRR8C<bits<2> m, bits<2> n, Operand Imm, string name>
+  class BranchRI8<bits<2> m, bits<2> n, Operand Imm, string name>
     : I_BRI8<0b0111, m, n, (outs), (ins GPR:$as, Imm:$imm, brtarget8:$offset),
               !strconcat(name, "\t$as, $imm, $offset"), []> {
     bits<4> imm;
@@ -237,12 +237,23 @@ let hasSideEffects = false, mayLoad = false, mayStore = false,
     let ar = imm;
   }
 
+  class BranchRB8<bits<3> arhi, string name>
+    : I_BRI8<0b0111, 0b00, 0b00, (outs), (ins GPR:$as, uimm5:$bbi, brtarget8:$offset),
+             !strconcat(name, "\t$as, $bbi, $offset"), []> {
+    bits<5> bbi;
+
+    let ar{0} = bbi{4};
+    let ar{3...1} = arhi;
+
+    let Inst{7...4} = bbi{3...0};
+  }
+
   class BranchRR12Z<bits<2> m, string name>
     : GenericBRI12<0b0110, m, 0b01, brtarget12, name>;
 }
 
-class BranchRR8I<bits<2> m, string name> : BranchRR8C<m, 0b10, b4const, name>;
-class BranchRR8UI<bits<2> m, string name> : BranchRR8C<m, 0b11, b4constu, name>;
+class BranchRR8I<bits<2> m, string name> : BranchRI8<m, 0b10, b4const, name>;
+class BranchRR8UI<bits<2> m, string name> : BranchRI8<m, 0b11, b4constu, name>;
 
 // Call instruction classes
 let isCall = true in {
@@ -270,9 +281,9 @@ def AND : ArithRRR<0b0000, 0b0001, "and">;
 def BALL : BranchRR8<0b0100, "ball">;
 def BANY : BranchRR8<0b1000, "bany">;
 def BBC : BranchRR8<0b0101, "bbc">;
-// def BBCI
+def BBCI : BranchRB8<0b011, "bbci">;
 def BBS : BranchRR8<0b1101, "bbs">;
-// def BBSI
+def BBSI : BranchRB8<0b111, "bbsi">;
 def BEQ : BranchRR8<0b0001, "beq">;
 def BEQI : BranchRR8I<0b00, "beqi">;
 def BEQZ : BranchRR12Z<0b00, "beqz">;
