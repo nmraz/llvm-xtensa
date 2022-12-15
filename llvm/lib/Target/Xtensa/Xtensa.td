@@ -12,4 +12,5 @@ def XtensaAsmParser : AsmParser {
 def Xtensa : Target {
   let InstructionSet = XtensaInstrInfo;
   let AssemblyParsers = [XtensaAsmParser];
+  let AllowRegisterRenaming = true;
 }
