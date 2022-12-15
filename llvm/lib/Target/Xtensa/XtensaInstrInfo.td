@@ -143,6 +143,13 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
     let at = t;
   }
 
+  class ArithRs<bits<4> op1, bits<4> op2, bits<4> t, bits<4> r, string name>
+    : I_RRR<0b0000, op1, op2, (outs), (ins GPR:$as),
+            !strconcat(name, "\t$as"), []> {
+    let at = t;
+    let ar = r;
+  }
+
   class ArithRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
     : I_RRI8<op0, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
               !strconcat(name, "\t$at, $as, $imm8"), []> {
@@ -434,11 +441,26 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
   }
 }
 
-// def SSA8B
-// def SSA8L
-// def SSAI
-// def SSL
-// def SSR
+let Defs = [SAR] in {
+  def SSA8B : ArithRs<0b0000, 0b0100, 0b0000, 0b0011, "ssa8b">;
+  def SSA8L : ArithRs<0b0000, 0b0100, 0b0000, 0b0010, "ssa8l">;
+  def SSL : ArithRs<0b0000, 0b0100, 0b0000, 0b0001, "ssl">;
+  def SSR : ArithRs<0b0000, 0b0100, 0b0000, 0b0000, "ssr">;
+
+  def SSAI : I_RRR<0b0000, 0b0000, 0b0100, (outs), (ins uimm5:$imm),
+                  "ssai $imm", []> {
+    let hasSideEffects = false;
+    let mayLoad = false;
+    let mayStore = false;
+
+    bits<5> imm;
+
+    let at = 0b0000;
+    let at{0} = imm{4};
+    let as = imm{3...0};
+    let ar = 0b0100;
+  }
+}
 
 def SUB : ArithRRR<0b0000, 0b1100, "sub">;
 def SUBX2 : ArithRRR<0b0000, 0b1101, "subx2">;
