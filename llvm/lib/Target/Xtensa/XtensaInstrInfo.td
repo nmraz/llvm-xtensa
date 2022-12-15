@@ -47,8 +47,21 @@ let OperandType = "OPERAND_IMMEDIATE" in {
   def uimm12sl3 : Operand<i32> {
     // TODO: parser/encoder/decoder
   }
-}
 
+  // Special 4-bit encoded immediate for signed branch comparisons
+  def b4const : Operand<i32> {
+    // TODO: define these
+    // let ParserMatchClass = B4ConstOperand;
+    // let DecoderMethod = "DecodeB4Const";
+  }
+
+  // Special 4-bit encoded immediate for unsigned branch comparisons
+  def b4constu : Operand<i32> {
+    // TODO: define these
+    // let ParserMatchClass = B4ConstUOperand;
+    // let DecoderMethod = "DecodeB4ConstU";
+  }
+}
 
 let OperandType = "OPERAND_PCREL" in {
   // 8-bit immediate, sign-extended to 32 bits and added to PC+4
@@ -80,19 +93,6 @@ let OperandType = "OPERAND_PCREL" in {
   }
 }
 
-let OperandType = "OPERAND_IMMEDIATE" in {
-  def b4const : Operand<i32> {
-    // TODO: define these
-    // let ParserMatchClass = B4ConstOperand;
-    // let DecoderMethod = "DecodeB4Const";
-  }
-
-  def b4constu : Operand<i32> {
-    // TODO: define these
-    // let ParserMatchClass = B4ConstUOperand;
-    // let DecoderMethod = "DecodeB4ConstU";
-  }
-}
 
 // Arithmetic instruction classes
 let hasSideEffects = false, mayLoad = false, mayStore = false in {
