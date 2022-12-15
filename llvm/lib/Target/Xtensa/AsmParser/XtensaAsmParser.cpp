@@ -154,7 +154,12 @@ void XtensaOperand::addRegOperands(MCInst &Inst, unsigned int N) const {
 
 void XtensaOperand::addImmOperands(MCInst &Inst, unsigned int N) const {
   assert(N == 1 && "Invalid number of operands");
-  Inst.addOperand(MCOperand::createExpr(getImm()));
+  const MCExpr *Expr = getImm();
+  if (const MCConstantExpr *CE = dyn_cast<MCConstantExpr>(Expr)) {
+    Inst.addOperand(MCOperand::createImm(CE->getValue()));
+  } else {
+    Inst.addOperand(MCOperand::createExpr(getImm()));
+  }
 }
 
 } // namespace
