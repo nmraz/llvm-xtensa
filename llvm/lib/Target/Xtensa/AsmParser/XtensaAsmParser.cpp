@@ -10,6 +10,7 @@
 #include "llvm/MC/MCStreamer.h"
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/Casting.h"
 #include "llvm/Support/Compiler.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/SMLoc.h"
@@ -235,6 +236,10 @@ bool XtensaAsmParser::parseOperand(OperandVector &Operands) {
 bool XtensaAsmParser::ParseInstruction(ParseInstructionInfo &Info,
                                        StringRef Name, SMLoc NameLoc,
                                        OperandVector &Operands) {
+  if (Name.consume_front("_")) {
+    // TODO: force wide/narrow instruction
+  }
+
   Operands.push_back(XtensaOperand::createToken(Name, NameLoc));
 
   if (getLexer().isNot(AsmToken::EndOfStatement)) {
