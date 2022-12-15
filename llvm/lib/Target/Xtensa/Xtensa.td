@@ -5,6 +5,11 @@ include "XtensaInstrInfo.td"
 
 def XtensaInstrInfo : InstrInfo;
 
+def XtensaAsmParser : AsmParser {
+  let ShouldEmitMatchRegisterAltName = true;
+}
+
 def Xtensa : Target {
   let InstructionSet = XtensaInstrInfo;
+  let AssemblyParsers = [XtensaAsmParser];
 }

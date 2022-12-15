@@ -160,6 +160,7 @@ void XtensaOperand::addImmOperands(MCInst &Inst, unsigned int N) const {
 
 // Auto-generated implementation below
 static unsigned MatchRegisterName(StringRef Name);
+static unsigned MatchRegisterAltName(StringRef Name);
 static std::string XtensaMnemonicSpellCheck(StringRef S,
                                             const FeatureBitset &FBS,
                                             unsigned VariantID = 0);
@@ -188,6 +189,10 @@ OperandMatchResultTy XtensaAsmParser::tryParseRegister(unsigned int &RegNo,
   EndLoc = NameTok.getEndLoc();
 
   unsigned MatchedRegNo = MatchRegisterName(Name);
+  if (!MatchedRegNo) {
+    MatchedRegNo = MatchRegisterAltName(Name);
+  }
+
   if (MatchedRegNo) {
     getParser().Lex();
     RegNo = MatchedRegNo;
