@@ -95,43 +95,43 @@ let OperandType = "OPERAND_IMMEDIATE" in {
 }
 
 
-class ArithRRR<string name, bits<4> op1, bits<4> op2>
+class ArithRRR<bits<4> op1, bits<4> op2, string name>
    : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
            !strconcat(name, "\t$ar, $as, $at"), []>;
 
-class ArithRRs<string name, bits<4> op1, bits<4> op2, bits<4> s>
+class ArithRRs<bits<4> op1, bits<4> op2, bits<4> s, string name>
    : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$at),
            !strconcat(name, "\t$ar, $at"), []> {
   let as = s;
 }
 
-class ArithRRt<string name, bits<4> op1, bits<4> op2, bits<4> t>
+class ArithRRt<bits<4> op1, bits<4> op2, bits<4> t, string name>
    : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as),
            !strconcat(name, "\t$ar, $as"), []> {
   let at = t;
 }
 
-class ArithRRI8<string name, bits<4> op0, bits<4> r, Operand Imm>
+class ArithRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
    : I_RRI8<op0, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
             !strconcat(name, "\t$at, $as, $imm8"), []> {
   let ar = r;
 }
 
-class LoadRRI8<string name, bits<4> op0, bits<4> r, Operand Imm>
-   : ArithRRI8<name, op0, r, Imm> {
+class LoadRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
+   : ArithRRI8<op0, r, Imm, name> {
   let mayLoad = true;
 }
 
-class StoreRRI8<string name, bits<4> op0, bits<4> r, Operand Imm>
-   : ArithRRI8<name, op0, r, Imm> {
+class StoreRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
+   : ArithRRI8<op0, r, Imm, name> {
   let mayStore = true;
 }
 
-class ArithRRRN<string name, bits<4> op0>
+class ArithRRRN<bits<4> op0, string name>
    : I_RRRN<op0, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
             !strconcat(name, "\t$ar, $as, $at"), []>;
 
-class LoadRRRN<string name, bits<4> op0, Operand Imm>
+class LoadRRRN<bits<4> op0, Operand Imm, string name>
    : I_RRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
             !strconcat(name, "\t$at, $as, $offset"), []> {
   bits<4> offset;
@@ -139,7 +139,7 @@ class LoadRRRN<string name, bits<4> op0, Operand Imm>
   let mayLoad = true;
 }
 
-class StoreRRRN<string name, bits<4> op0, Operand Imm>
+class StoreRRRN<bits<4> op0, Operand Imm, string name>
    : I_RRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
             !strconcat(name, "\t$at, $as, $offset"), []> {
   bits<4> offset;
@@ -147,12 +147,12 @@ class StoreRRRN<string name, bits<4> op0, Operand Imm>
   let mayStore = true;
 }
 
-class GenericBRI12<string name, bits<4> op0, bits<2> m, bits<2> n, Operand Imm>
+class GenericBRI12<bits<4> op0, bits<2> m, bits<2> n, Operand Imm, string name>
   : I_BRI12<op0, m, n, (outs), (ins GPR:$as, Imm:$offset),
             !strconcat(name, "\t$as, $offset"), []>;
 
 let isBranch = true, isTerminator = true in {
-  class BranchRR8<string name, bits<4> r>
+  class BranchRR8<bits<4> r, string name>
     : I_RRI8<0b0111, (outs), (ins GPR:$as, GPR:$at, brtarget8:$offset),
               !strconcat(name, "\t$at, $as, $offset"), []>  {
     bits<8> offset;
@@ -161,87 +161,87 @@ let isBranch = true, isTerminator = true in {
     let ar = r;
   }
 
-  class BranchRR8C<string name, bits<2> m, bits<2> n, Operand Imm>
+  class BranchRR8C<bits<2> m, bits<2> n, Operand Imm, string name>
     : I_BRI8<0b0111, m, n, (outs), (ins GPR:$as, Imm:$imm, brtarget8:$offset),
               !strconcat(name, "\t$as, $imm, $offset"), []>;
 
-  class BranchRR12Z<string name, bits<2> m>
-    : GenericBRI12<name, 0b0110, m, 0b01, brtarget12>;
+  class BranchRR12Z<bits<2> m, string name>
+    : GenericBRI12<0b0110, m, 0b01, brtarget12, name>;
 }
 
-class BranchRR8I<string name, bits<2> m> : BranchRR8C<name, m, 0b10, b4const>;
-class BranchRR8UI<string name, bits<2> m> : BranchRR8C<name, m, 0b11, b4constu>;
+class BranchRR8I<bits<2> m, string name> : BranchRR8C<m, 0b10, b4const, name>;
+class BranchRR8UI<bits<2> m, string name> : BranchRR8C<m, 0b11, b4constu, name>;
 
-class GenericCall<string name, bits<4> op0, bits<2> n>
+class GenericCall<bits<4> op0, bits<2> n, string name>
    : I_CALL<op0, n, (outs), (ins calltarget18:$offset),
             !strconcat(name, "\t$offset"), []>;
 
-class GenericCallX<string name, bits<2> m, bits<2> n>
+class GenericCallX<bits<2> m, bits<2> n, string name>
      : I_CALLX<0b0000, 0b0000, 0b0000, m, n, (outs), (ins GPR:$as),
               !strconcat(name, "\t$as"), []> {
   let ar = 0b0000;
 }
 
 let isCall = true in {
-  class Call<string name, bits<2> n>
-     : GenericCall<name, 0b0101, n>;
+  class Call<bits<2> n, string name>
+     : GenericCall<0b0101, n, name>;
 
-  class CallX<string name, bits<2> n>
-     : GenericCallX<name, 0b11, n>;
+  class CallX<bits<2> n, string name>
+     : GenericCallX<0b11, n, name>;
 }
 
 
-def ABS : ArithRRs<"abs", 0b0110, 0b0110, 0b0001>;
+def ABS : ArithRRs<0b0110, 0b0110, 0b0001, "abs">;
 
-def ADD   : ArithRRR<"add", 0b0000, 0b1000>;
-def ADDI  : ArithRRI8<"addi", 0b0010, 0b1100, simm8>;
-def ADDMI : ArithRRI8<"addmi", 0b0010, 0b1101, simm8sl8>;
-def ADDX2 : ArithRRR<"addx2", 0b0000, 0b1001>;
-def ADDX4 : ArithRRR<"addx4", 0b0000, 0b1010>;
-def ADDX8 : ArithRRR<"addx8", 0b0000, 0b1011>;
+def ADD   : ArithRRR<0b0000, 0b1000, "add">;
+def ADDI  : ArithRRI8<0b0010, 0b1100, simm8, "addi">;
+def ADDMI : ArithRRI8<0b0010, 0b1101, simm8sl8, "addmi">;
+def ADDX2 : ArithRRR<0b0000, 0b1001, "addx2">;
+def ADDX4 : ArithRRR<0b0000, 0b1010, "addx4">;
+def ADDX8 : ArithRRR<0b0000, 0b1011, "addx8">;
 
-def ADDN : ArithRRRN<"add.n", 0b1010>;
+def ADDN : ArithRRRN<0b1010, "add.n">;
 
-def AND : ArithRRR<"and", 0b0000, 0b0001>;
+def AND : ArithRRR<0b0000, 0b0001, "and">;
 
-def BALL : BranchRR8<"ball", 0b0100>;
-def BANY : BranchRR8<"bany", 0b1000>;
-def BBC : BranchRR8<"bbc", 0b0101>;
+def BALL : BranchRR8<0b0100, "ball">;
+def BANY : BranchRR8<0b1000, "bany">;
+def BBC : BranchRR8<0b0101, "bbc">;
 // def BBCI
-def BBS : BranchRR8<"bbs", 0b1101>;
+def BBS : BranchRR8<0b1101, "bbs">;
 // def BBSI
-def BEQ : BranchRR8<"beq", 0b0001>;
-def BEQI : BranchRR8I<"beqi", 0b00>;
-def BEQZ : BranchRR12Z<"beqz", 0b00>;
-def BGE : BranchRR8<"bge", 0b1010>;
-def BGEI : BranchRR8I<"begi", 0b11>;
-def BGEU : BranchRR8<"bgeu", 0b1011>;
-def BGEUI : BranchRR8UI<"bgeui", 0b11>;
-def BGEZ : BranchRR12Z<"bgez", 0b11>;
-def BLT : BranchRR8<"blt", 0b0010>;
-def BLTI : BranchRR8I<"blti", 0b10>;
-def BLTU : BranchRR8<"bltu", 0b0011>;
-def BLTUI : BranchRR8UI<"bltui", 0b10>;
-def BLTZ : BranchRR12Z<"bltz", 0b10>;
-def BNALL : BranchRR8<"bnall", 0b1100>;
-def BNE : BranchRR8<"bne", 0b1001>;
-def BNEI : BranchRR8I<"bnei", 0b01>;
-def BNEZ : BranchRR12Z<"bnez", 0b01>;
-def BNONE : BranchRR8<"bnone", 0b0000>;
+def BEQ : BranchRR8<0b0001, "beq">;
+def BEQI : BranchRR8I<0b00, "beqi">;
+def BEQZ : BranchRR12Z<0b00, "beqz">;
+def BGE : BranchRR8<0b1010, "bge">;
+def BGEI : BranchRR8I<0b11, "begi">;
+def BGEU : BranchRR8<0b1011, "bgeu">;
+def BGEUI : BranchRR8UI<0b11, "bgeui">;
+def BGEZ : BranchRR12Z<0b11, "bgez">;
+def BLT : BranchRR8<0b0010, "blt">;
+def BLTI : BranchRR8I<0b10, "blti">;
+def BLTU : BranchRR8<0b0011, "bltu">;
+def BLTUI : BranchRR8UI<0b10, "bltui">;
+def BLTZ : BranchRR12Z<0b10, "bltz">;
+def BNALL : BranchRR8<0b1100, "bnall">;
+def BNE : BranchRR8<0b1001, "bne">;
+def BNEI : BranchRR8I<0b01, "bnei">;
+def BNEZ : BranchRR12Z<0b01, "bnez">;
+def BNONE : BranchRR8<0b0000, "bnone">;
 
-def CALL0  : Call<"call0", 0b00>;
-def CALL4  : Call<"call4", 0b01>;
-def CALL8  : Call<"call8", 0b10>;
-def CALL12 : Call<"call12", 0b11>;
+def CALL0  : Call<0b00, "call0">;
+def CALL4  : Call<0b01, "call4">;
+def CALL8  : Call<0b10, "call8">;
+def CALL12 : Call<0b11, "call12">;
 
-def CALLX0  : CallX<"callx0", 0b00>;
-def CALLX4  : CallX<"callx4", 0b01>;
-def CALLX8  : CallX<"callx8", 0b10>;
-def CALLX12 : CallX<"callx12", 0b11>;
+def CALLX0  : CallX<0b00, "callx0">;
+def CALLX4  : CallX<0b01, "callx4">;
+def CALLX8  : CallX<0b10, "callx8">;
+def CALLX12 : CallX<0b11, "callx12">;
 
 def DSYNC : I_Fixed24<0x002030, "dsync", []>;
 
-def ENTRY : GenericBRI12<"entry", 0b0110, 0b00, 0b11, uimm12>;
+def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12, "entry">;
 
 def ESYNC : I_Fixed24<0x002020, "esync", []>;
 
@@ -257,16 +257,16 @@ let isTrap = 1 in {
 def ISYNC : I_Fixed24<0x002000, "isync", []>;
 
 let isBranch = true, isTerminator = true, isBarrier = true in {
-  def J : GenericCall<"j", 0b0110, 0b00>;
+  def J : GenericCall<0b0110, 0b00, "j">;
   // def J.L
-  def JX : GenericCallX<"jx", 0b10, 0b10>;
+  def JX : GenericCallX<0b10, 0b10, "jx">;
 }
 
-def L8UI : LoadRRI8<"l8ui", 0b0010, 0b0000, uimm8>;
-def L16SI : LoadRRI8<"l16si", 0b0010, 0b1001, uimm8sl1>;
-def L16UI : LoadRRI8<"l16ui", 0b0010, 0b0001, uimm8sl1>;
-def L32I : LoadRRI8<"l32i", 0b0010, 0b0010, uimm8sl2>;
-def L32IN : LoadRRRN<"l32i.n", 0b1000, uimm4sl2>;
+def L8UI : LoadRRI8<0b0010, 0b0000, uimm8, "l8ui">;
+def L16SI : LoadRRI8<0b0010, 0b1001, uimm8sl1, "l16si">;
+def L16UI : LoadRRI8<0b0010, 0b0001, uimm8sl1, "l16ui">;
+def L32I : LoadRRI8<0b0010, 0b0010, uimm8sl2, "l32i">;
+def L32IN : LoadRRRN<0b1000, uimm4sl2, "l32i.n">;
 // def L32R
 
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
@@ -274,33 +274,33 @@ def MEMW : I_Fixed24<0x0020c0, "memw", []>;
 // def MOV : InstAlias<"mov $ar, $as", (OR GPR:$ar, GPR:$as, GPR:$as)>;
 
 let isSelect = 1 in {
-  def MOVEQZ : ArithRRR<"moveqz", 0b0011, 0b1000>;
-  def MOVNEZ : ArithRRR<"movgez", 0b0011, 0b1001>;
-  def MOVLTZ : ArithRRR<"movgez", 0b0011, 0b1010>;
-  def MOVGEZ : ArithRRR<"movgez", 0b0011, 0b1011>;
+  def MOVEQZ : ArithRRR<0b0011, 0b1000, "moveqz">;
+  def MOVNEZ : ArithRRR<0b0011, 0b1001, "movnez">;
+  def MOVLTZ : ArithRRR<0b0011, 0b1010, "movltz">;
+  def MOVGEZ : ArithRRR<0b0011, 0b1011, "movgez">;
 }
 
 // def MOVI
 // def MOVIN
 
-def MUL16S : ArithRRR<"mul16s", 0b0001, 0b1101>;
-def MUL16U : ArithRRR<"mul16u", 0b0001, 0b1100>;
+def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s">;
+def MUL16U : ArithRRR<0b0001, 0b1100, "mul16u">;
 
-def MULL : ArithRRR<"mull", 0b0010, 0b1000>;
-def MULSH : ArithRRR<"mulsh", 0b0010, 0b1011>;
-def MULUH : ArithRRR<"muluh", 0b0010, 0b1010>;
+def MULL : ArithRRR<0b0010, 0b1000, "mull">;
+def MULSH : ArithRRR<0b0010, 0b1011, "mulsh">;
+def MULUH : ArithRRR<0b0010, 0b1010, "muluh">;
 
-def NEG : ArithRRs<"neg", 0b0000, 0b0110, 0b0000>;
+def NEG : ArithRRs<0b0000, 0b0110, 0b0000, "neg">;
 
 def NOP : I_Fixed24<0x0020f0, "nop", []>;
 def NOPN : I_Fixed16<0xf03d, "nop.n", []>;
 
-def OR : ArithRRR<"or", 0b0000, 0b0010>;
+def OR : ArithRRR<0b0000, 0b0010, "or">;
 
-def QUOS : ArithRRR<"quos", 0b0010, 0b1101>;
-def QUOU : ArithRRR<"quou", 0b0010, 0b1100>;
-def REMS : ArithRRR<"rems", 0b0010, 0b1111>;
-def REMU : ArithRRR<"remu", 0b0010, 0b1110>;
+def QUOS : ArithRRR<0b0010, 0b1101, "quos">;
+def QUOU : ArithRRR<0b0010, 0b1100, "quou">;
+def REMS : ArithRRR<0b0010, 0b1111, "rems">;
+def REMU : ArithRRR<0b0010, 0b1110, "remu">;
 
 // def RER
 
@@ -317,22 +317,22 @@ def RSYNC : I_Fixed24<0x002010, "rsync", []>;
 
 // def RUR
 
-def S8I : StoreRRI8<"s8i", 0b0010, 0b0100, uimm8>;
-def S16I : StoreRRI8<"s16i", 0b0010, 0b0101, uimm8sl1>;
-def S32I : StoreRRI8<"s32i", 0b0010, 0b0101, uimm8sl2>;
-def S32IN : StoreRRRN<"s32i.n", 0b1001, uimm4sl2>;
+def S8I : StoreRRI8<0b0010, 0b0100, uimm8, "s8i">;
+def S16I : StoreRRI8<0b0010, 0b0101, uimm8sl1, "s16i">;
+def S32I : StoreRRI8<0b0010, 0b0101, uimm8sl2, "s32i">;
+def S32IN : StoreRRRN<0b1001, uimm4sl2, "s32i.n">;
 
 // def S32NB
 
-def SALT : ArithRRR<"salt", 0b0010, 0b0111>;
-def SALTU : ArithRRR<"saltu", 0b0010, 0b0110>;
+def SALT : ArithRRR<0b0010, 0b0111, "salt">;
+def SALTU : ArithRRR<0b0010, 0b0110, "saltu">;
 
-def SLL : ArithRRt<"sll", 0b0001, 0b1010, 0b0000>;
+def SLL : ArithRRt<0b0001, 0b1010, 0b0000, "sll">;
 // def SLLI
-def SRA : ArithRRs<"sra", 0b0001, 0b1011, 0b0000>;
+def SRA : ArithRRs<0b0001, 0b1011, 0b0000, "sra">;
 // def SRAI
-def SRC : ArithRRR<"src", 0b0001, 0b1000>;
-def SRL : ArithRRs<"srl", 0b0001, 0b1001, 0b0000>;
+def SRC : ArithRRR<0b0001, 0b1000, "src">;
+def SRL : ArithRRs<0b0001, 0b1001, 0b0000, "srl">;
 // def SRLI
 
 // def SSA8B
@@ -341,15 +341,15 @@ def SRL : ArithRRs<"srl", 0b0001, 0b1001, 0b0000>;
 // def SSL
 // def SSR
 
-def SUB : ArithRRR<"sub", 0b0000, 0b1100>;
-def SUBX2 : ArithRRR<"subx2", 0b0000, 0b1101>;
-def SUBX4 : ArithRRR<"subx4", 0b0000, 0b1110>;
-def SUBX8 : ArithRRR<"subx8", 0b0000, 0b1111>;
+def SUB : ArithRRR<0b0000, 0b1100, "sub">;
+def SUBX2 : ArithRRR<0b0000, 0b1101, "subx2">;
+def SUBX4 : ArithRRR<0b0000, 0b1110, "subx4">;
+def SUBX8 : ArithRRR<0b0000, 0b1111, "subx8">;
 
 // def WER
 // def WSR
 // def WUR
 
-def XOR : ArithRRR<"xor", 0b0000, 0b0011>;
+def XOR : ArithRRR<0b0000, 0b0011, "xor">;
 
 // def XSR
