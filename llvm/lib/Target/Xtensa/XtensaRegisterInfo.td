@@ -23,3 +23,11 @@ def A15 : XtensaReg<"a15", 15>;
 def SAR : XtensaReg<"sar", 3>;
 
 def GPR : RegisterClass<"Xtensa", [i32], 32, (sequence "A%u", 0, 15)>;
+def SARC : RegisterClass<"Xtensa", [i8], 8, (add SAR)> {
+  // Copies don't make sense within this class, it has only one member anyway.
+  let CopyCost = -1;
+
+  // There are dedicated instructions to set SAR when necessary, but it isn't
+  // usable directly in general code.
+  let isAllocatable = false;
+}
