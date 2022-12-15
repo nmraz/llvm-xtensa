@@ -282,8 +282,6 @@ def L32IN : LoadRRRN<0b1000, uimm4sl2, "l32i.n">;
 
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
 
-// def MOV : InstAlias<"mov $ar, $as", (OR GPR:$ar, GPR:$as, GPR:$as)>;
-
 let isSelect = 1 in {
   def MOVEQZ : ArithRRR<0b0011, 0b1000, "moveqz">;
   def MOVNEZ : ArithRRR<0b0011, 0b1001, "movnez">;
@@ -307,6 +305,7 @@ def NOP : I_Fixed24<0x0020f0, "nop", []>;
 def NOPN : I_Fixed16<0xf03d, "nop.n", []>;
 
 def OR : ArithRRR<0b0000, 0b0010, "or">;
+def MOV : InstAlias<"mov $ar, $as", (OR GPR:$ar, GPR:$as, GPR:$as)>;
 
 def QUOS : ArithRRR<0b0010, 0b1101, "quos">;
 def QUOU : ArithRRR<0b0010, 0b1100, "quou">;
