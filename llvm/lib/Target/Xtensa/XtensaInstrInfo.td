@@ -1,6 +1,11 @@
 include "XtensaInstrFormats.td"
 
 let OperandType = "OPERAND_IMMEDIATE" in {
+  // 4-bit immediate
+  def uimm4 : Operand<i32> {
+
+  }
+
   // 4-bit immediate, incremented by 1 and zero-extended to 32 bits
   def uimm4p1 : Operand<i32> {
 
@@ -15,6 +20,11 @@ let OperandType = "OPERAND_IMMEDIATE" in {
 
   // 5-bit immediate zero-extended to 32 bits
   def uimm5 : Operand<i32> {
+
+  }
+
+  // 5-bit immediate subtracted from 32
+  def uimm5s32 : Operand<i32> {
 
   }
 
@@ -399,9 +409,30 @@ let Uses = [SAR] in {
   def SRL : ArithRRs<0b0001, 0b1001, 0b0000, "srl">;
 }
 
-// def SLLI
-// def SRAI
-// def SRLI
+let hasSideEffects = false, mayLoad = false, mayStore = false in {
+  def SLLI : I_RRR<0b0000, 0b0001, 0b0000, (outs GPR:$ar), (ins GPR:$as, uimm5s32:$imm),
+                   "slli $ar, $as, $imm", []> {
+    bits<5> imm;
+
+    let at = imm{3...0};
+    let Inst{20} = imm{4};
+  }
+
+  def SRAI : I_RRR<0b0000, 0b0001, 0b0010, (outs GPR:$ar), (ins GPR:$at, uimm5:$imm),
+                   "srai $ar, $at, $imm", []> {
+    bits<5> imm;
+
+    let as = imm{3...0};
+    let Inst{20} = imm{4};
+  }
+
+  def SRLI : I_RRR<0b0000, 0b0001, 0b0100, (outs GPR:$ar), (ins GPR:$at, uimm4:$imm),
+                   "srli $ar, $at, $imm", []> {
+    bits<4> imm;
+
+    let as = imm;
+  }
+}
 
 // def SSA8B
 // def SSA8L
