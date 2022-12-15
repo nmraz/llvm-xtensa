@@ -18,6 +18,12 @@ let OperandType = "OPERAND_IMMEDIATE" in {
 
   }
 
+  // 7-bit immediate, extended to 32 bits by the bitwise AND of its top 2 bits
+  // (bits 5 and 6)
+  def imm7_ext_highbits : Operand<i32> {
+
+  }
+
   // 8-bit immediate sign-extended to 32 bits
   def simm8 : Operand<i32> {
     // TODO: define these
@@ -51,6 +57,11 @@ let OperandType = "OPERAND_IMMEDIATE" in {
     // TODO: define these
     // let ParserMatchClass = SImm8Sl8Operand;
     // let DecoderMethod = "DecodeSImm<8>";
+  }
+
+  // 12-bit immediate sign-extended to 32 bits
+  def simm12 : Operand<i32> {
+
   }
 
   // 12-bit immediate, shifted left by 3 zero-extended to 32 bits
@@ -128,9 +139,22 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
     let ar = r;
   }
 
+  class ArithRRI12<bits<4> op0, bits<4> r, Operand Imm, string name>
+    : I_RRI8<op0, (outs GPR:$at), (ins Imm:$imm12),
+             !strconcat(name, "\t$at, $imm12"), []> {
+    bits<12> imm12;
+    let ar = r;
+    let as = imm12{11...8};
+    let imm8 = imm12{7...0};
+  }
+
   class ArithRRRN<bits<4> op0, string name>
    : I_RRRN<op0, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
             !strconcat(name, "\t$ar, $as, $at"), []>;
+
+  class ArithRI7N<bits<4> op0, bit i, Operand Imm, string name>
+    : I_RI7<op0, i, (outs GPR:$as), (ins Imm:$imm7),
+            !strconcat(name, "\t$as, $imm7"), []>;
 }
 
 // Load instruction classes
@@ -319,8 +343,8 @@ let isSelect = 1 in {
   def MOVGEZ : ArithRRR<0b0011, 0b1011, "movgez">;
 }
 
-// def MOVI
-// def MOVIN
+def MOVI : ArithRRI12<0b0010, 0b1010, simm12, "movi">;
+def MOVIN : ArithRI7N<0b1100, 0, imm7_ext_highbits, "movi.n">;
 
 def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s">;
 def MUL16U : ArithRRR<0b0001, 0b1100, "mul16u">;
