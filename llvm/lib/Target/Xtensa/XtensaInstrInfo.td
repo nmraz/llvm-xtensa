@@ -1,11 +1,21 @@
 include "XtensaInstrFormats.td"
 
 let OperandType = "OPERAND_IMMEDIATE" in {
+  // 4-bit immediate, incremented by 1 and zero-extended to 32 bits
+  def uimm4p1 : Operand<i32> {
+
+  }
+
   // 4-bit immediate, shifted left by 2 and zero-extended to 32 bits
   def uimm4sl2 : Operand<i32> {
     // TODO: define these
     // let ParserMatchClass = SImm8Operand;
     // let DecoderMethod = "DecodeSImm<8>";
+  }
+
+  // 5-bit immediate zero-extended to 32 bits
+  def uimm5 : Operand<i32> {
+
   }
 
   // 8-bit immediate sign-extended to 32 bits
@@ -256,7 +266,27 @@ def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12sl3, "entry"> {
 
 def ESYNC : I_Fixed24<0x002020, "esync", []>;
 
-// def EXTUI
+// This instruction is so unusual that it's easiest to just define manually
+def EXTUI
+   : Inst24<0b0000, (outs GPR:$ar), (ins GPR:$at, uimm5:$shiftimm, uimm4p1:$maskimm),
+            "extui $ar, $at, $shiftimm, $maskimm", []> {
+  let hasSideEffects = false;
+  let mayLoad = false;
+  let mayStore = false;
+
+  bits<4> ar;
+  bits<4> at;
+
+  bits<5> shiftimm;
+  bits<4> maskimm;
+
+  let Inst{7...4} = at;
+  let Inst{11...8} = shiftimm{3...0};
+  let Inst{15...12} = ar;
+  let Inst{16} = shiftimm{4};
+  let Inst{19...17} = 0b010;
+  let Inst{23...20} = maskimm;
+}
 
 def EXTW : I_Fixed24<0x0020d0, "extw", []>;
 
