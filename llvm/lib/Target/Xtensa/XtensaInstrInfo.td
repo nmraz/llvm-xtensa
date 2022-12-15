@@ -250,7 +250,7 @@ let isCall = true in {
 }
 
 
-def ABS : ArithRRrt<0b0110, 0b0110, 0b0001, "abs">;
+def ABS : ArithRRrt<0b0000, 0b0110, 0b0001, "abs">;
 
 def ADD   : ArithRRR<0b0000, 0b1000, "add">;
 def ADDI  : ArithRRI8<0b0010, 0b1100, simm8, "addi">;
