@@ -25,6 +25,18 @@ class Inst24<bits<4> op0, dag outs, dag ins, string asmstr, list<dag> pattern>
   let Inst{3...0} = op0;
 }
 
+class I_Fixed16<bits<16> inst, string asmstr, list<dag> pattern>
+   : XtensaInst<(outs), (ins), asmstr, pattern> {
+  field bits<16> Inst = inst;
+  let Size = 2;
+}
+
+class I_Fixed24<bits<24> inst, string asmstr, list<dag> pattern>
+   : XtensaInst<(outs), (ins), asmstr, pattern> {
+  field bits<24> Inst = inst;
+  let Size = 3;
+}
+
 class I_RRR<bits<4> op0, bits<4> op1, bits<4> op2, dag outs, dag ins,
             string asmstr, list<dag> pattern>
    : Inst24<op0, outs, ins, asmstr, pattern> {
