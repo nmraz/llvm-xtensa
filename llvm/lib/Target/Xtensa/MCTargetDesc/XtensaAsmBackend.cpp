@@ -62,13 +62,11 @@ bool XtensaAsmBackend::writeNopData(raw_ostream &OS, uint64_t Count,
   uint64_t WideCount = Count / 3;
 
   for (uint64_t i = 0; i < WideCount; i++) {
-    // TODO: wide nop
-    OS.write("\3\3\3", 3);
+    OS.write("\xf0\x20\x00", 3);
   }
 
   for (uint64_t i = 0; i < NarrowCount; i++) {
-    // TODO: narrow nop
-    OS.write("\2\2", 2);
+    OS.write("\x3d\xf0", 2);
   }
 
   return true;
