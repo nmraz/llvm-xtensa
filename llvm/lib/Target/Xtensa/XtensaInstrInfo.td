@@ -338,12 +338,15 @@ def S32IN : StoreRRRN<0b1001, uimm4sl2, "s32i.n">;
 def SALT : ArithRRR<0b0010, 0b0111, "salt">;
 def SALTU : ArithRRR<0b0010, 0b0110, "saltu">;
 
-def SLL : ArithRRt<0b0001, 0b1010, 0b0000, "sll">;
+let Uses = [SAR] in {
+  def SLL : ArithRRt<0b0001, 0b1010, 0b0000, "sll">;
+  def SRA : ArithRRs<0b0001, 0b1011, 0b0000, "sra">;
+  def SRC : ArithRRR<0b0001, 0b1000, "src">;
+  def SRL : ArithRRs<0b0001, 0b1001, 0b0000, "srl">;
+}
+
 // def SLLI
-def SRA : ArithRRs<0b0001, 0b1011, 0b0000, "sra">;
 // def SRAI
-def SRC : ArithRRR<0b0001, 0b1000, "src">;
-def SRL : ArithRRs<0b0001, 0b1001, 0b0000, "srl">;
 // def SRLI
 
 // def SSA8B
