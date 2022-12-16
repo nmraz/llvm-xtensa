@@ -1,16 +1,16 @@
 include "XtensaInstrFormats.td"
 
 let OperandType = "OPERAND_IMMEDIATE" in {
-  // 4-bit immediate
-  def uimm4 : Operand<i32> {
+  // unsigned 4-bit immediate
+  def uimm4 : Operand<i4> {
   }
 
-  // 4-bit immediate, incremented by 1 and zero-extended to 32 bits
-  def uimm4p1 : Operand<i32> {
+  // unsigned 4-bit immediate incremented by 1 (used only in `extui` instruction)
+  def uimm4_plus1 : Operand<i4> {
   }
 
   // 4-bit immediate, shifted left by 2 and zero-extended to 32 bits
-  def uimm4sl2 : Operand<i32> {
+  def uimm4_sl2 : Operand<i32> {
   }
 
   // 5-bit immediate zero-extended to 32 bits
@@ -18,12 +18,12 @@ let OperandType = "OPERAND_IMMEDIATE" in {
   }
 
   // 5-bit immediate subtracted from 32
-  def uimm5s32 : Operand<i32> {
+  def uimm5_sub32 : Operand<i32> {
   }
 
   // 7-bit immediate, extended to 32 bits by the bitwise AND of its top 2 bits
-  // (bits 5 and 6)
-  def imm7_ext_highbits : Operand<i32> {
+  // (bits 5 and 6); used only in narrow `movi` instruction
+  def movin_imm7 : Operand<i32> {
   }
 
   // 8-bit immediate sign-extended to 32 bits
@@ -35,23 +35,23 @@ let OperandType = "OPERAND_IMMEDIATE" in {
   }
 
   // 8-bit immediate, shifted left by 1 and zero-extended to 32 bits
-  def uimm8sl1 : Operand<i32> {
+  def uimm8_sl1 : Operand<i32> {
   }
 
   // 8-bit immediate, shifted left by 2 and zero-extended to 32 bits
-  def uimm8sl2 : Operand<i32> {
+  def uimm8_sl2 : Operand<i32> {
   }
 
   // 8-bit immediate, shifted left by 8 and sign-extended to 32 bits
-  def simm8sl8 : Operand<i32> {
+  def simm8_sl8 : Operand<i32> {
   }
 
   // 12-bit immediate sign-extended to 32 bits
-  def simm12 : Operand<i32> {
+  def movi_simm12 : Operand<i32> {
   }
 
   // 12-bit immediate, shifted left by 3 zero-extended to 32 bits
-  def uimm12sl3 : Operand<i32> {
+  def uimm12_sl3 : Operand<i32> {
   }
 
   // Special 4-bit encoded immediate for signed branch comparisons
@@ -73,7 +73,7 @@ let OperandType = "OPERAND_PCREL" in {
   }
 
   // 18-bit immediate, shifted left by 2, sign extended to 32 bits and added to
-  // PC+4
+  // AlignDown(PC, 4) + 4
   def calltarget18 : Operand<OtherVT> {
   }
 }
@@ -223,7 +223,7 @@ def ABS : ArithRRrt<0b0000, 0b0110, 0b0001, "abs">;
 
 def ADD   : ArithRRR<0b0000, 0b1000, "add">;
 def ADDI  : ArithRRI8<0b0010, 0b1100, simm8, "addi">;
-def ADDMI : ArithRRI8<0b0010, 0b1101, simm8sl8, "addmi">;
+def ADDMI : ArithRRI8<0b0010, 0b1101, simm8_sl8, "addmi">;
 def ADDX2 : ArithRRR<0b0000, 0b1001, "addx2">;
 def ADDX4 : ArithRRR<0b0000, 0b1010, "addx4">;
 def ADDX8 : ArithRRR<0b0000, 0b1011, "addx8">;
@@ -269,7 +269,7 @@ def CALLX12 : CallX<0b11, "callx12">;
 
 def DSYNC : I_Fixed24<0x002030, "dsync", []>;
 
-def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12sl3, "entry"> {
+def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12_sl3, "entry"> {
   // We currently don't model `WindowBase` explicitly
   let hasSideEffects = true;
 }
@@ -278,7 +278,7 @@ def ESYNC : I_Fixed24<0x002020, "esync", []>;
 
 // This instruction is so unusual that it's easiest to just define manually
 def EXTUI
-   : Inst24<0b0000, (outs GPR:$ar), (ins GPR:$at, uimm5:$shiftimm, uimm4p1:$maskimm),
+   : Inst24<0b0000, (outs GPR:$ar), (ins GPR:$at, uimm5:$shiftimm, uimm4_plus1:$maskimm),
             "extui $ar, $at, $shiftimm, $maskimm", []> {
   let hasSideEffects = false;
   let mayLoad = false;
@@ -314,10 +314,10 @@ let isBranch = true, isTerminator = true, isBarrier = true in {
 }
 
 def L8UI : LoadRRI8<0b0010, 0b0000, uimm8, "l8ui">;
-def L16SI : LoadRRI8<0b0010, 0b1001, uimm8sl1, "l16si">;
-def L16UI : LoadRRI8<0b0010, 0b0001, uimm8sl1, "l16ui">;
-def L32I : LoadRRI8<0b0010, 0b0010, uimm8sl2, "l32i">;
-def L32IN : LoadRRRN<0b1000, uimm4sl2, "l32i.n">;
+def L16SI : LoadRRI8<0b0010, 0b1001, uimm8_sl1, "l16si">;
+def L16UI : LoadRRI8<0b0010, 0b0001, uimm8_sl1, "l16ui">;
+def L32I : LoadRRI8<0b0010, 0b0010, uimm8_sl2, "l32i">;
+def L32IN : LoadRRRN<0b1000, uimm4_sl2, "l32i.n">;
 // def L32R
 
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
@@ -329,8 +329,8 @@ let isSelect = 1 in {
   def MOVGEZ : ArithRRR<0b0011, 0b1011, "movgez">;
 }
 
-def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi">;
-def MOVIN : ArithRI7N<0b1100, 0, imm7_ext_highbits, "movi.n">;
+def MOVI : ArithRI12<0b0010, 0b1010, movi_simm12, "movi">;
+def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n">;
 
 def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s">;
 def MUL16U : ArithRRR<0b0001, 0b1100, "mul16u">;
@@ -369,9 +369,9 @@ def RSYNC : I_Fixed24<0x002010, "rsync", []>;
 // def RUR
 
 def S8I : StoreRRI8<0b0010, 0b0100, uimm8, "s8i">;
-def S16I : StoreRRI8<0b0010, 0b0101, uimm8sl1, "s16i">;
-def S32I : StoreRRI8<0b0010, 0b0101, uimm8sl2, "s32i">;
-def S32IN : StoreRRRN<0b1001, uimm4sl2, "s32i.n">;
+def S16I : StoreRRI8<0b0010, 0b0101, uimm8_sl1, "s16i">;
+def S32I : StoreRRI8<0b0010, 0b0101, uimm8_sl2, "s32i">;
+def S32IN : StoreRRRN<0b1001, uimm4_sl2, "s32i.n">;
 
 // def S32NB
 
@@ -386,7 +386,7 @@ let Uses = [SAR] in {
 }
 
 let hasSideEffects = false, mayLoad = false, mayStore = false in {
-  def SLLI : I_RRR<0b0000, 0b0001, 0b0000, (outs GPR:$ar), (ins GPR:$as, uimm5s32:$imm),
+  def SLLI : I_RRR<0b0000, 0b0001, 0b0000, (outs GPR:$ar), (ins GPR:$as, uimm5_sub32:$imm),
                    "slli $ar, $as, $imm", []> {
     bits<5> imm;
 
