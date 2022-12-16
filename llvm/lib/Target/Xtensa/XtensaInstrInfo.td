@@ -1,66 +1,118 @@
 include "XtensaInstrFormats.td"
 
-let OperandType = "OPERAND_IMMEDIATE" in {
-  // unsigned 4-bit immediate
-  def uimm4 : Operand<i4> {
-  }
+class ConstantImmOperandClass<string name, string diag> : AsmOperandClass {
+  let Name = name;
+  let ParserMethod = "parseConstantImm";
+  let RenderMethod = "addImmOperands";
+  let DiagnosticString = diag;
+}
 
-  // unsigned 4-bit immediate incremented by 1 (used only in `extui` instruction)
-  def uimm4_plus1 : Operand<i4> {
-  }
+class ImmOperand<ValueType ty> : Operand<ty> {
+  let OperandType = "OPERAND_IMMEDIATE";
+}
 
-  // 4-bit immediate, shifted left by 2 and zero-extended to 32 bits
-  def uimm4_sl2 : Operand<i32> {
-  }
+class ConstantImmWithNameOperandClass<string name, string friendlyName>
+   : ConstantImmOperandClass<name, !strconcat("invalid ", friendlyName, " immediate")>;
 
-  // 5-bit immediate zero-extended to 32 bits
-  def uimm5 : Operand<i32> {
-  }
+class ShiftedUImmOperandClass<string name, string friendlyName, int width, int shift>
+   : ConstantImmWithNameOperandClass<name, friendlyName> {
+  let PredicateMethod = "isShiftedUImm<" # width # ", " # shift # ">";
+}
 
-  // 5-bit immediate subtracted from 32
-  def uimm5_sub32 : Operand<i32> {
-  }
+class ShiftedSImmOperandClass<string name, string friendlyName, int width, int shift>
+   : ConstantImmWithNameOperandClass<name, friendlyName> {
+  let PredicateMethod = "isShiftedSImm<" # width # ", " # shift # ">";
+}
 
-  // 7-bit immediate, extended to 32 bits by the bitwise AND of its top 2 bits
-  // (bits 5 and 6); used only in narrow `movi` instruction
-  def movin_imm7 : Operand<i32> {
-  }
+// 4-bit immediate
+def UImm4OperandClass : ShiftedUImmOperandClass<"UImm4", "4-bit", 4, 0>;
+def uimm4 : ImmOperand<i4> {
+  let ParserMatchClass = UImm4OperandClass;
+}
 
-  // 8-bit immediate sign-extended to 32 bits
-  def simm8 : Operand<i32> {
-  }
+// 4-bit immediate incremented by 1 (used only in `extui`)
+def UImm4Plus1OperandClass : ShiftedUImmOperandClass<"UImm4Plus1", "offset 4-bit", 4, 0>;
+def uimm4_plus1 : ImmOperand<i4> {
+  let ParserMatchClass = UImm4Plus1OperandClass;
+}
 
-  // 8-bit immediate zero-extended to 32 bits
-  def uimm8 : Operand<i32> {
-  }
+// 4-bit immediate, shifted left by 2 and zero-extended to 32 bits
+def UImm4Sl2OperandClass : ShiftedUImmOperandClass<"UImm4Sl2", "shifted 4-bit", 4, 2>;
+def uimm4_sl2 : Operand<i32> {
+  let ParserMatchClass = UImm4Sl2OperandClass;
+}
 
-  // 8-bit immediate, shifted left by 1 and zero-extended to 32 bits
-  def uimm8_sl1 : Operand<i32> {
-  }
+// 5-bit immediate zero-extended to 32 bits
+def UImm5OperandClass : ShiftedUImmOperandClass<"UImm5", "5-bit", 5, 0>;
+def uimm5 : Operand<i32> {
+  let ParserMatchClass = UImm5OperandClass;
+}
 
-  // 8-bit immediate, shifted left by 2 and zero-extended to 32 bits
-  def uimm8_sl2 : Operand<i32> {
-  }
+// 5-bit immediate subtracted from 32
+def UImm5Sub32OperandClass : ShiftedUImmOperandClass<"UImm5Sub32", "5-bit", 5, 0>;
+def uimm5_sub32 : Operand<i32> {
+  let ParserMatchClass = UImm5Sub32OperandClass;
+}
 
-  // 8-bit immediate, shifted left by 8 and sign-extended to 32 bits
-  def simm8_sl8 : Operand<i32> {
-  }
+// 7-bit immediate, extended to 32 bits by the bitwise AND of its top 2 bits
+// (bits 5 and 6); used only in narrow `movi` instruction
+def MoviNImm7OperandClass : ConstantImmOperandClass<"MoviNImm7", "expected a constant in the range [-32, 95]">;
+def movin_imm7 : Operand<i32> {
+  let ParserMatchClass = MoviNImm7OperandClass;
+}
 
-  // 12-bit immediate sign-extended to 32 bits
-  def movi_simm12 : Operand<i32> {
-  }
+// 8-bit immediate sign-extended to 32 bits
+def SImm8OperandClass : ShiftedSImmOperandClass<"SImm8", "signed 8-bit", 8, 0>;
+def simm8 : Operand<i32> {
+  let ParserMatchClass = SImm8OperandClass;
+}
 
-  // 12-bit immediate, shifted left by 3 zero-extended to 32 bits
-  def uimm12_sl3 : Operand<i32> {
-  }
+// 8-bit immediate zero-extended to 32 bits
+def UImm8OperandClass : ShiftedUImmOperandClass<"UImm8", "8-bit", 8, 0>;
+def uimm8 : Operand<i32> {
+  let ParserMatchClass = UImm8OperandClass;
+}
 
-  // Special 4-bit encoded immediate for signed branch comparisons
-  def b4const : Operand<i32> {
-  }
+// 8-bit immediate, shifted left by 1 and zero-extended to 32 bits
+def UImm8Sl1OperandClass : ShiftedUImmOperandClass<"UImm8Sl1", "shifted 8-bit", 8, 1>;
+def uimm8_sl1 : Operand<i32> {
+  let ParserMatchClass = UImm8Sl1OperandClass;
+}
 
-  // Special 4-bit encoded immediate for unsigned branch comparisons
-  def b4constu : Operand<i32> {
-  }
+// 8-bit immediate, shifted left by 2 and zero-extended to 32 bits
+def UImm8Sl2OperandClass : ShiftedUImmOperandClass<"UImm8Sl2", "shifted 8-bit", 8, 2>;
+def uimm8_sl2 : Operand<i32> {
+  let ParserMatchClass = UImm8Sl2OperandClass;
+}
+
+// 8-bit immediate, shifted left by 8 and sign-extended to 32 bits
+def SImm8Sl8OperandClass : ShiftedSImmOperandClass<"SImm8Sl1", "shifted 8-bit", 8, 8>;
+def simm8_sl8 : Operand<i32> {
+  let ParserMatchClass = SImm8Sl8OperandClass;
+}
+
+// 12-bit immediate sign-extended to 32 bits
+def SImm12OperandClass : ShiftedSImmOperandClass<"SImm12", "signed 12-bit", 12, 0>;
+def simm12 : Operand<i32> {
+  let ParserMatchClass = SImm12OperandClass;
+}
+
+// 12-bit immediate, shifted left by 3 zero-extended to 32 bits
+def UImm12Sl3OperandClass : ShiftedUImmOperandClass<"UImm12Sl3", "shifted 12-bit", 12, 3>;
+def uimm12_sl3 : Operand<i32> {
+  let ParserMatchClass = UImm12Sl3OperandClass;
+}
+
+// Special 4-bit encoded immediate for signed branch comparisons
+def B4ConstOperandClass : ConstantImmOperandClass<"B4Const", "invalid b4const operand">;
+def b4const : Operand<i32> {
+  let ParserMatchClass = B4ConstOperandClass;
+}
+
+// Special 4-bit encoded immediate for unsigned branch comparisons
+def B4ConstUOperandClass : ConstantImmOperandClass<"B4ConstU", "invalid b4constu operand">;
+def b4constu : Operand<i32> {
+  let ParserMatchClass = B4ConstUOperandClass;
 }
 
 let OperandType = "OPERAND_PCREL" in {
@@ -77,7 +129,6 @@ let OperandType = "OPERAND_PCREL" in {
   def calltarget18 : Operand<OtherVT> {
   }
 }
-
 
 // Arithmetic instruction classes
 let hasSideEffects = false, mayLoad = false, mayStore = false in {
@@ -329,7 +380,7 @@ let isSelect = 1 in {
   def MOVGEZ : ArithRRR<0b0011, 0b1011, "movgez">;
 }
 
-def MOVI : ArithRI12<0b0010, 0b1010, movi_simm12, "movi">;
+def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi">;
 def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n">;
 
 def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s">;

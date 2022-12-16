@@ -13,9 +13,11 @@
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/Compiler.h"
 #include "llvm/Support/Debug.h"
+#include "llvm/Support/MathExtras.h"
 #include "llvm/Support/SMLoc.h"
 #include "llvm/Support/raw_ostream.h"
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 
@@ -29,6 +31,12 @@ private:
 #include "XtensaGenAsmMatcher.inc"
 
 public:
+  enum XtensaMatchResultTy {
+    Match_XtensaFirst = FIRST_TARGET_MATCH_RESULT_TY,
+#define GET_OPERAND_DIAGNOSTIC_TYPES
+#include "XtensaGenAsmMatcher.inc"
+  };
+
   XtensaAsmParser(const MCSubtargetInfo &STI, MCAsmParser &Parser,
                   const MCInstrInfo &MII, const MCTargetOptions &Options)
       : MCTargetAsmParser(Options, STI, MII) {}
@@ -38,7 +46,9 @@ public:
   OperandMatchResultTy tryParseRegister(unsigned &RegNo, SMLoc &StartLoc,
                                         SMLoc &EndLoc) override;
 
-  bool parseOperand(OperandVector &Operands);
+  OperandMatchResultTy parseConstantImm(OperandVector &Operands);
+
+  bool parseOperand(OperandVector &Operands, StringRef Mnemonic);
 
   bool ParseInstruction(ParseInstructionInfo &Info, StringRef Name,
                         SMLoc NameLoc, OperandVector &Operands) override;
@@ -122,16 +132,49 @@ public:
     return Imm.Val;
   }
 
+  uint64_t getConstImm() const {
+    return cast<MCConstantExpr>(getImm())->getValue();
+  }
+
   unsigned getReg() const override {
     assert(isReg() && "Invalid access!");
     return Reg.RegNo;
   }
+
+  template <size_t Bits, size_t Shift> bool isShiftedUImm() const {
+    return isShiftedUInt<Bits, Shift>(getConstImm());
+  }
+
+  template <size_t Bits, size_t Shift> bool isShiftedSImm() const {
+    return isShiftedInt<Bits, Shift>(getConstImm());
+  }
+
+  bool isMoviNImm7() const;
+  bool isB4Const() const;
+  bool isB4ConstU() const;
 
   void print(raw_ostream &OS) const override;
 
   void addRegOperands(MCInst &Inst, unsigned N) const;
   void addImmOperands(MCInst &Inst, unsigned N) const;
 };
+
+bool XtensaOperand::isMoviNImm7() const {
+  // We want to check whether `Val` is a 7-bit immediate, extended by the AND of
+  // its top 2 bits (bits 5 and 6). This holds exactly when it is in the range
+  // [-32, 95]. To see why, note the following:
+  // * When the value is negative, all bits from the MSB through bit 5 must be
+  //   set, bounding it from below by -(2 ^ 5) = -32.
+  // * When the value is positive, all bits beyond 6 must be 0, and at least one
+  //   of bits 5 and 6 must be 0. When bit 6 is 0, we get the range [0, 63] with
+  //   the low 6 bits, and when bit 6 is set we can count up to 31 with the low
+  //   5 bits, covering 64 + [0, 31] = [64, 95].
+  int64_t Val = static_cast<int64_t>(getConstImm());
+  return Val >= -32 && Val <= 95;
+}
+
+bool XtensaOperand::isB4Const() const { return false; }
+bool XtensaOperand::isB4ConstU() const { return false; }
 
 void XtensaOperand::print(raw_ostream &OS) const {
   switch (Kind) {
@@ -170,6 +213,8 @@ static unsigned MatchRegisterAltName(StringRef Name);
 static std::string XtensaMnemonicSpellCheck(StringRef S,
                                             const FeatureBitset &FBS,
                                             unsigned VariantID = 0);
+static const char *
+getMatchKindDiag(XtensaAsmParser::XtensaMatchResultTy MatchResult);
 
 bool XtensaAsmParser::ParseRegister(unsigned int &RegNo, SMLoc &StartLoc,
                                     SMLoc &EndLoc) {
@@ -208,9 +253,39 @@ OperandMatchResultTy XtensaAsmParser::tryParseRegister(unsigned int &RegNo,
   return MatchOperand_NoMatch;
 }
 
-bool XtensaAsmParser::parseOperand(OperandVector &Operands) {
+OperandMatchResultTy
+XtensaAsmParser::parseConstantImm(OperandVector &Operands) {
+  SMLoc StartLoc = getTok().getLoc();
+  SMLoc EndLoc;
+  const MCExpr *ImmVal;
+
+  if (getParser().parseExpression(ImmVal, EndLoc)) {
+    return MatchOperand_ParseFail;
+  }
+
+  if (!isa<MCConstantExpr>(ImmVal)) {
+    Error(StartLoc, "operand must be a constant", SMRange(StartLoc, EndLoc));
+    return MatchOperand_ParseFail;
+  }
+
+  Operands.push_back(XtensaOperand::createImm(ImmVal, StartLoc, EndLoc));
+  return MatchOperand_Success;
+}
+
+bool XtensaAsmParser::parseOperand(OperandVector &Operands,
+                                   StringRef Mnemonic) {
   SMLoc StartLoc;
   SMLoc EndLoc;
+
+  OperandMatchResultTy Result = MatchOperandParserImpl(Operands, Mnemonic);
+  if (Result == MatchOperand_Success) {
+    return false;
+  }
+
+  if (Result == MatchOperand_ParseFail) {
+    return true;
+  }
+
   unsigned RegNo;
 
   OperandMatchResultTy RegResult = tryParseRegister(RegNo, StartLoc, EndLoc);
@@ -248,12 +323,12 @@ bool XtensaAsmParser::ParseInstruction(ParseInstructionInfo &Info,
   Operands.push_back(XtensaOperand::createToken(Name, NameLoc));
 
   if (getLexer().isNot(AsmToken::EndOfStatement)) {
-    if (parseOperand(Operands)) {
+    if (parseOperand(Operands, Name)) {
       return true;
     }
 
     while (parseOptionalToken(AsmToken::Comma)) {
-      if (parseOperand(Operands)) {
+      if (parseOperand(Operands, Name)) {
         return true;
       }
     }
@@ -267,6 +342,17 @@ bool XtensaAsmParser::ParseDirective(AsmToken DirectiveID) {
   return true;
 }
 
+static SMLoc refineErrorLoc(const SMLoc Loc, const OperandVector &Operands,
+                            uint64_t ErrorInfo) {
+  if (ErrorInfo != ~0ULL && ErrorInfo < Operands.size()) {
+    SMLoc ErrorLoc = Operands[ErrorInfo]->getStartLoc();
+    if (ErrorLoc == SMLoc())
+      return Loc;
+    return ErrorLoc;
+  }
+  return Loc;
+}
+
 bool XtensaAsmParser::MatchAndEmitInstruction(SMLoc IDLoc, unsigned int &Opcode,
                                               OperandVector &Operands,
                                               MCStreamer &Out,
@@ -274,32 +360,38 @@ bool XtensaAsmParser::MatchAndEmitInstruction(SMLoc IDLoc, unsigned int &Opcode,
                                               bool MatchingInlineAsm) {
   MCInst Inst;
 
-  switch (MatchInstructionImpl(Operands, Inst, ErrorInfo, MatchingInlineAsm)) {
+  unsigned Res =
+      MatchInstructionImpl(Operands, Inst, ErrorInfo, MatchingInlineAsm);
+
+  switch (Res) {
   case Match_Success:
     Inst.setLoc(IDLoc);
     Out.emitInstruction(Inst, getSTI());
     return false;
+
   case Match_MissingFeature:
     return Error(IDLoc, "instruction use requires an option to be enabled");
+
   case Match_MnemonicFail: {
     FeatureBitset FBS = ComputeAvailableFeatures(getSTI().getFeatureBits());
     std::string Suggestion = XtensaMnemonicSpellCheck(
         ((XtensaOperand &)*Operands[0]).getToken(), FBS);
     return Error(IDLoc, "invalid instruction" + Suggestion);
   }
+
   case Match_InvalidOperand: {
-    SMLoc ErrorLoc = IDLoc;
     if (ErrorInfo != ~0ULL) {
       if (ErrorInfo >= Operands.size())
         return Error(IDLoc, "too few operands for instruction");
-
-      ErrorLoc = ((XtensaOperand &)*Operands[ErrorInfo]).getStartLoc();
-      if (ErrorLoc == SMLoc())
-        ErrorLoc = IDLoc;
     }
 
-    return Error(ErrorLoc, "invalid operand for instruction");
+    return Error(refineErrorLoc(IDLoc, Operands, ErrorInfo),
+                 "invalid operand for instruction");
   }
+  }
+
+  if (const char *Diagnostic = getMatchKindDiag((XtensaMatchResultTy)Res)) {
+    return Error(refineErrorLoc(IDLoc, Operands, ErrorInfo), Diagnostic);
   }
 
   llvm_unreachable("Implement any new match types added!");
