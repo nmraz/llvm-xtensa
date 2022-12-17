@@ -151,6 +151,7 @@ public:
     return isShiftedInt<Bits, Shift>(getConstImm());
   }
 
+  bool isUImm4Plus1() const;
   bool isMoviNImm7() const;
   bool isB4Const() const;
   bool isB4ConstU() const;
@@ -160,6 +161,12 @@ public:
   void addRegOperands(MCInst &Inst, unsigned N) const;
   void addImmOperands(MCInst &Inst, unsigned N) const;
 };
+
+bool XtensaOperand::isUImm4Plus1() const {
+  uint64_t Val = getConstImm();
+  // Note: this behaves correctly even in the face of underflow
+  return isUInt<4>(Val - 1);
+}
 
 bool XtensaOperand::isMoviNImm7() const {
   // We want to check whether `Val` is a 7-bit immediate, extended by the AND of

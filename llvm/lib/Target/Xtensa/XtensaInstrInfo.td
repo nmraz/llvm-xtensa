@@ -14,19 +14,6 @@ def ExprImmOperandClass : AsmOperandClass {
   let RenderMethod = "addImmOperands";
 }
 
-
-class OperandWithClass<ValueType ty, string Name> : Operand<ty> {
-  let ParserMatchClass = !cast<AsmOperandClass>(Name # "OperandClass");
-}
-
-class PCRelOperand<ValueType ty> : OperandWithClass<ty, "ExprImm"> {
-  let OperandType = "OPERAND_PCREL";
-}
-
-class ImmOperand<ValueType ty, string Name> : OperandWithClass<ty, Name> {
-  let OperandType = "OPERAND_IMMEDIATE";
-}
-
 class ConstantImmWithNameOperandClass<string name, string friendlyName>
    : ConstantImmOperandClass<name, !strconcat("invalid ", friendlyName, " immediate")>;
 
@@ -41,12 +28,25 @@ class ShiftedSImmOperandClass<string name, string friendlyName, int width, int s
 }
 
 
+class OperandWithClass<ValueType ty, string Name> : Operand<ty> {
+  let ParserMatchClass = !cast<AsmOperandClass>(Name # "OperandClass");
+}
+
+class PCRelOperand<ValueType ty> : OperandWithClass<ty, "ExprImm"> {
+  let OperandType = "OPERAND_PCREL";
+}
+
+class ImmOperand<ValueType ty, string Name> : OperandWithClass<ty, Name> {
+  let OperandType = "OPERAND_IMMEDIATE";
+}
+
+
 // 4-bit immediate
 def UImm4OperandClass : ShiftedUImmOperandClass<"UImm4", "4-bit", 4, 0>;
 def uimm4 : ImmOperand<i4, "UImm4">;
 
 // 4-bit immediate incremented by 1 (used only in `extui`)
-def UImm4Plus1OperandClass : ShiftedUImmOperandClass<"UImm4Plus1", "offset 4-bit", 4, 0>;
+def UImm4Plus1OperandClass : ConstantImmWithNameOperandClass<"UImm4Plus1", "offset 4-bit">;
 def uimm4_plus1 : ImmOperand<i4, "UImm4Plus1">;
 
 // 4-bit immediate, shifted left by 2 and zero-extended to 32 bits
