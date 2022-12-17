@@ -5,6 +5,11 @@ include "XtensaInstrInfo.td"
 
 def XtensaInstrInfo : InstrInfo;
 
+class Proc<string Name, list<SubtargetFeature> Features>
+   : ProcessorModel<Name, NoSchedModel, Features>;
+
+def : Proc<"generic", []>;
+
 def XtensaAsmParser : AsmParser {
   let ShouldEmitMatchRegisterAltName = true;
 }
