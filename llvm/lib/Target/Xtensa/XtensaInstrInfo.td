@@ -28,79 +28,107 @@ class ShiftedSImmOperandClass<string name, string friendlyName, int width, int s
 }
 
 
-class OperandWithClass<ValueType ty, string Name> : Operand<ty> {
-  let ParserMatchClass = !cast<AsmOperandClass>(Name # "OperandClass");
+class OperandWithClass<ValueType ty, string className> : Operand<ty> {
+  let ParserMatchClass = !cast<AsmOperandClass>(className # "OperandClass");
 }
 
 class PCRelOperand<ValueType ty> : OperandWithClass<ty, "ExprImm"> {
   let OperandType = "OPERAND_PCREL";
 }
 
-class ImmOperand<ValueType ty, string Name> : OperandWithClass<ty, Name> {
+class ImmOperand<ValueType ty, string className> : OperandWithClass<ty, className> {
   let OperandType = "OPERAND_IMMEDIATE";
 }
 
+class UImmOperand<ValueType ty, int width> : ImmOperand<ty, "UImm" # width>;
+class SImmOperand<ValueType ty, int width> : ImmOperand<ty, "SImm" # width>;
+
+class ShiftedUImmOperand<ValueType ty, int width, int shift>
+   : ImmOperand<ty, "UImm" # width # "Sl" # shift> {
+  let EncoderMethod = "getShiftedImmOpValue<" # shift # ">";
+}
+
+class ShiftedSImmOperand<ValueType ty, int width, int shift>
+   : ImmOperand<ty, "SImm" # width # "Sl" # shift> {
+  let EncoderMethod = "getShiftedImmOpValue<" # shift # ">";
+}
+
+
+// "Simple" operands
 
 // 4-bit immediate
 def UImm4OperandClass : ShiftedUImmOperandClass<"UImm4", "4-bit", 4, 0>;
-def uimm4 : ImmOperand<i4, "UImm4">;
-
-// 4-bit immediate incremented by 1 (used only in `extui`)
-def UImm4Plus1OperandClass : ConstantImmOperandClass<"UImm4Plus1", "expected a constant in the range [1, 16]">;
-def uimm4_plus1 : ImmOperand<i4, "UImm4Plus1">;
+def uimm4 : UImmOperand<i4, 4>;
 
 // 4-bit immediate, shifted left by 2 and zero-extended to 32 bits
 def UImm4Sl2OperandClass : ShiftedUImmOperandClass<"UImm4Sl2", "shifted 4-bit", 4, 2>;
-def uimm4_sl2 : ImmOperand<i32, "UImm4Sl2">;
-
-// Special 4-bit encoded immediate for signed branch comparisons
-def B4ConstOperandClass : ConstantImmOperandClass<"B4Const", "invalid b4const operand">;
-def b4const : ImmOperand<i32, "B4Const">;
-
-// Special 4-bit encoded immediate for unsigned branch comparisons
-def B4ConstUOperandClass : ConstantImmOperandClass<"B4ConstU", "invalid b4constu operand">;
-def b4constu : ImmOperand<i32, "B4ConstU">;
+def uimm4_sl2 : ShiftedUImmOperand<i32, 4, 2>;
 
 // 5-bit immediate zero-extended to 32 bits
 def UImm5OperandClass : ShiftedUImmOperandClass<"UImm5", "5-bit", 5, 0>;
-def uimm5 : ImmOperand<i32, "UImm5">;
+def uimm5 : UImmOperand<i32, 5>;
 
-// 5-bit immediate subtracted from 32
-def uimm5_sub32 : ImmOperand<i32, "UImm5">;
+// 8-bit immediate sign-extended to 32 bits
+def SImm8OperandClass : ShiftedSImmOperandClass<"SImm8", "signed 8-bit", 8, 0>;
+def simm8 : SImmOperand<i32, 8>;
+
+// 8-bit immediate zero-extended to 32 bits
+def UImm8OperandClass : ShiftedUImmOperandClass<"UImm8", "8-bit", 8, 0>;
+def uimm8 : UImmOperand<i32, 8>;
+
+// 8-bit immediate, shifted left by 1 and zero-extended to 32 bits
+def UImm8Sl1OperandClass : ShiftedUImmOperandClass<"UImm8Sl1", "shifted 8-bit", 8, 1>;
+def uimm8_sl1 : ShiftedUImmOperand<i32, 8, 1>;
+
+// 8-bit immediate, shifted left by 2 and zero-extended to 32 bits
+def UImm8Sl2OperandClass : ShiftedUImmOperandClass<"UImm8Sl2", "shifted 8-bit", 8, 2>;
+def uimm8_sl2 : ShiftedUImmOperand<i32, 8, 2>;
+
+// 8-bit immediate, shifted left by 8 and sign-extended to 32 bits
+def SImm8Sl8OperandClass : ShiftedSImmOperandClass<"SImm8Sl1", "shifted 8-bit", 8, 8>;
+def simm8_sl8 : ShiftedSImmOperand<i32, 8, 8>;
+
+// 12-bit immediate sign-extended to 32 bits
+def SImm12OperandClass : ShiftedSImmOperandClass<"SImm12", "signed 12-bit", 12, 0>;
+def simm12 : SImmOperand<i32, 12>;
+
+// 12-bit immediate, shifted left by 3 zero-extended to 32 bits
+def UImm12Sl3OperandClass : ShiftedUImmOperandClass<"UImm12Sl3", "shifted 12-bit", 12, 3>;
+def uimm12_sl3 : ShiftedUImmOperand<i32, 12, 3>;
+
+
+// "Special" operands
+
+// 4-bit encoded immediate for signed branch comparisons
+def B4ConstOperandClass : ConstantImmOperandClass<"B4Const", "invalid b4const operand">;
+def b4const : ImmOperand<i32, "B4Const"> {
+  let EncoderMethod = "getB4ConstOpValue";
+}
+
+// 4-bit encoded immediate for unsigned branch comparisons
+def B4ConstUOperandClass : ConstantImmOperandClass<"B4ConstU", "invalid b4constu operand">;
+def b4constu : ImmOperand<i32, "B4ConstU"> {
+  let EncoderMethod = "getB4ConstUOpValue";
+}
+
+// 4-bit immediate incremented by 1 (used only in `extui`)
+def UImm4Plus1OperandClass : ConstantImmOperandClass<"UImm4Plus1", "expected a constant in the range [1, 16]">;
+def uimm4_plus1 : ImmOperand<i4, "UImm4Plus1"> {
+  let EncoderMethod = "getUImm4Plus1OpValue";
+}
+
+// 5-bit immediate subtracted from 32; used only in `slli` instruction
+def uimm5_sub32 : ImmOperand<i32, "UImm5"> {
+  let EncoderMethod = "getUImm5Sub32OpValue";
+}
 
 // 7-bit immediate, extended to 32 bits by the bitwise AND of its top 2 bits
 // (bits 5 and 6); used only in narrow `movi` instruction
 def MoviNImm7OperandClass : ConstantImmOperandClass<"MoviNImm7", "expected a constant in the range [-32, 95]">;
 def movin_imm7 : ImmOperand<i32, "MoviNImm7">;
 
-// 8-bit immediate sign-extended to 32 bits
-def SImm8OperandClass : ShiftedSImmOperandClass<"SImm8", "signed 8-bit", 8, 0>;
-def simm8 : ImmOperand<i32, "SImm8">;
 
-// 8-bit immediate zero-extended to 32 bits
-def UImm8OperandClass : ShiftedUImmOperandClass<"UImm8", "8-bit", 8, 0>;
-def uimm8 : ImmOperand<i32, "UImm8">;
-
-// 8-bit immediate, shifted left by 1 and zero-extended to 32 bits
-def UImm8Sl1OperandClass : ShiftedUImmOperandClass<"UImm8Sl1", "shifted 8-bit", 8, 1>;
-def uimm8_sl1 : ImmOperand<i32, "UImm8Sl1">;
-
-// 8-bit immediate, shifted left by 2 and zero-extended to 32 bits
-def UImm8Sl2OperandClass : ShiftedUImmOperandClass<"UImm8Sl2", "shifted 8-bit", 8, 2>;
-def uimm8_sl2 : ImmOperand<i32, "UImm8Sl2">;
-
-// 8-bit immediate, shifted left by 8 and sign-extended to 32 bits
-def SImm8Sl8OperandClass : ShiftedSImmOperandClass<"SImm8Sl1", "shifted 8-bit", 8, 8>;
-def simm8_sl8 : ImmOperand<i32, "SImm8Sl8">;
-
-// 12-bit immediate sign-extended to 32 bits
-def SImm12OperandClass : ShiftedSImmOperandClass<"SImm12", "signed 12-bit", 12, 0>;
-def simm12 : ImmOperand<i32, "SImm12">;
-
-// 12-bit immediate, shifted left by 3 zero-extended to 32 bits
-def UImm12Sl3OperandClass : ShiftedUImmOperandClass<"UImm12Sl3", "shifted 12-bit", 12, 3>;
-def uimm12_sl3 : ImmOperand<i32, "UImm12Sl3">;
-
+// PC-relative operands (branches and loads)
 
 // 8-bit immediate, sign-extended to 32 bits and added to PC+4
 def brtarget8 : PCRelOperand<OtherVT>;

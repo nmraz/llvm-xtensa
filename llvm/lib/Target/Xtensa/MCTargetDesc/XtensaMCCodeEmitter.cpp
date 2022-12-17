@@ -1,4 +1,5 @@
 #include "XtensaMCCodeEmitter.h"
+#include "XtensaBaseInfo.h"
 #include "XtensaMCTargetDesc.h"
 #include "llvm/MC/MCCodeEmitter.h"
 #include "llvm/MC/MCContext.h"
@@ -45,6 +46,53 @@ XtensaMCCodeEmitter::getMachineOpValue(const MCInst &MI, const MCOperand &MO,
   assert(MO.isExpr());
   // TODO: record fixups here
   return 0;
+}
+
+template <unsigned S>
+unsigned
+XtensaMCCodeEmitter::getShiftedImmOpValue(const MCInst &MI, unsigned OpIdx,
+                                          SmallVectorImpl<MCFixup> &Fixups,
+                                          const MCSubtargetInfo &STI) const {
+  uint64_t Val = MI.getOperand(OpIdx).getImm();
+  return Val >> S;
+}
+
+unsigned
+XtensaMCCodeEmitter::getUImm4Plus1OpValue(const MCInst &MI, unsigned int OpIdx,
+                                          SmallVectorImpl<MCFixup> &Fixups,
+                                          const MCSubtargetInfo &STI) const {
+  uint64_t Val = MI.getOperand(OpIdx).getImm();
+  assert(Val >= 1 && Val <= 16 && "Invalid uimm4p1 value");
+  return Val - 1;
+}
+
+unsigned
+XtensaMCCodeEmitter::getUImm5Sub32OpValue(const MCInst &MI, unsigned int OpIdx,
+                                          SmallVectorImpl<MCFixup> &Fixups,
+                                          const MCSubtargetInfo &STI) const {
+  uint64_t Val = MI.getOperand(OpIdx).getImm();
+  assert(Val < 32 && "Invalid uimm5s32 value");
+  return 32 - Val;
+}
+
+unsigned
+XtensaMCCodeEmitter::getB4ConstOpValue(const MCInst &MI, unsigned int OpIdx,
+                                       SmallVectorImpl<MCFixup> &Fixups,
+                                       const MCSubtargetInfo &STI) const {
+  uint64_t Val = MI.getOperand(OpIdx).getImm();
+  Optional<uint64_t> Encoded = XtensaII::encodeB4Const(Val);
+  assert(Encoded.has_value() && "Invalid b4const value");
+  return *Encoded;
+}
+
+unsigned
+XtensaMCCodeEmitter::getB4ConstUOpValue(const MCInst &MI, unsigned int OpIdx,
+                                        SmallVectorImpl<MCFixup> &Fixups,
+                                        const MCSubtargetInfo &STI) const {
+  uint64_t Val = MI.getOperand(OpIdx).getImm();
+  Optional<uint64_t> Encoded = XtensaII::encodeB4ConstU(Val);
+  assert(Encoded.has_value() && "Invalid b4constu value");
+  return *Encoded;
 }
 
 MCCodeEmitter *llvm::createXtensaMCCodeEmitter(const MCInstrInfo &MCII,
