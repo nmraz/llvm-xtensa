@@ -316,7 +316,7 @@ def BEQ : BranchRR8<0b0001, "beq">;
 def BEQI : BranchRI8<0b00, "beqi">;
 def BEQZ : BranchRZ12<0b00, "beqz">;
 def BGE : BranchRR8<0b1010, "bge">;
-def BGEI : BranchRI8<0b11, "begi">;
+def BGEI : BranchRI8<0b11, "bgei">;
 def BGEU : BranchRR8<0b1011, "bgeu">;
 def BGEUI : BranchRUI8<0b11, "bgeui">;
 def BGEZ : BranchRZ12<0b11, "bgez">;
