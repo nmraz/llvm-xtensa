@@ -46,7 +46,7 @@ def UImm4OperandClass : ShiftedUImmOperandClass<"UImm4", "4-bit", 4, 0>;
 def uimm4 : ImmOperand<i4, "UImm4">;
 
 // 4-bit immediate incremented by 1 (used only in `extui`)
-def UImm4Plus1OperandClass : ConstantImmWithNameOperandClass<"UImm4Plus1", "offset 4-bit">;
+def UImm4Plus1OperandClass : ConstantImmOperandClass<"UImm4Plus1", "expected a constant in the range [1, 16]">;
 def uimm4_plus1 : ImmOperand<i4, "UImm4Plus1">;
 
 // 4-bit immediate, shifted left by 2 and zero-extended to 32 bits
