@@ -254,7 +254,7 @@ let hasSideEffects = false, mayLoad = false, mayStore = false,
   }
 
   class BranchRC8<bits<2> m, bits<2> n, Operand Imm, string name>
-    : I_BRI8<0b0111, m, n, (outs), (ins GPR:$as, Imm:$imm, brtarget8:$offset),
+    : I_BRI8<0b0110, m, n, (outs), (ins GPR:$as, Imm:$imm, brtarget8:$offset),
               !strconcat(name, "\t$as, $imm, $offset"), []> {
     bits<4> imm;
 
