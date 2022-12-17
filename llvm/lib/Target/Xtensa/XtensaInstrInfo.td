@@ -40,6 +40,14 @@ def uimm4_plus1 : ImmOperand<i4, "UImm4Plus1">;
 def UImm4Sl2OperandClass : ShiftedUImmOperandClass<"UImm4Sl2", "shifted 4-bit", 4, 2>;
 def uimm4_sl2 : ImmOperand<i32, "UImm4Sl2">;
 
+// Special 4-bit encoded immediate for signed branch comparisons
+def B4ConstOperandClass : ConstantImmOperandClass<"B4Const", "invalid b4const operand">;
+def b4const : ImmOperand<i32, "B4Const">;
+
+// Special 4-bit encoded immediate for unsigned branch comparisons
+def B4ConstUOperandClass : ConstantImmOperandClass<"B4ConstU", "invalid b4constu operand">;
+def b4constu : ImmOperand<i32, "B4ConstU">;
+
 // 5-bit immediate zero-extended to 32 bits
 def UImm5OperandClass : ShiftedUImmOperandClass<"UImm5", "5-bit", 5, 0>;
 def uimm5 : ImmOperand<i32, "UImm5">;
@@ -80,14 +88,6 @@ def simm12 : ImmOperand<i32, "SImm12">;
 def UImm12Sl3OperandClass : ShiftedUImmOperandClass<"UImm12Sl3", "shifted 12-bit", 12, 3>;
 def uimm12_sl3 : ImmOperand<i32, "UImm12Sl3">;
 
-// Special 4-bit encoded immediate for signed branch comparisons
-def B4ConstOperandClass : ConstantImmOperandClass<"B4Const", "invalid b4const operand">;
-def b4const : ImmOperand<i32, "B4Const">;
-
-// Special 4-bit encoded immediate for unsigned branch comparisons
-def B4ConstUOperandClass : ConstantImmOperandClass<"B4ConstU", "invalid b4constu operand">;
-def b4constu : ImmOperand<i32, "B4ConstU">;
-
 let OperandType = "OPERAND_PCREL" in {
   // 8-bit immediate, sign-extended to 32 bits and added to PC+4
   def brtarget8 : Operand<OtherVT> {
@@ -95,6 +95,11 @@ let OperandType = "OPERAND_PCREL" in {
 
   // 12-bit immediate, sign-extended to 32 bits and added to PC+4
   def brtarget12 : Operand<OtherVT> {
+  }
+
+  // 16-bit immediate, one-extended to signed 32 bits, shifted left by 2,
+  // and added to AlignDown(PC + 3, 4)
+  def l32rtarget16 : Operand<i32> {
   }
 
   // 18-bit immediate, shifted left by 2, sign extended to 32 bits and added to
@@ -163,6 +168,10 @@ let hasSideEffects = false, mayLoad = true, mayStore = false in {
     bits<4> offset;
     let ar = offset;
   }
+
+  class LoadRI16<bits<4> op0, Operand Imm, string name>
+    : I_RI16<op0, (outs GPR:$at), (ins Imm:$imm16),
+             !strconcat(name, "\t$at, $imm16"), []>;
 }
 
 // Store instruction classes
@@ -342,7 +351,7 @@ def L16SI : LoadRRI8<0b0010, 0b1001, uimm8_sl1, "l16si">;
 def L16UI : LoadRRI8<0b0010, 0b0001, uimm8_sl1, "l16ui">;
 def L32I : LoadRRI8<0b0010, 0b0010, uimm8_sl2, "l32i">;
 def L32IN : LoadRRRN<0b1000, uimm4_sl2, "l32i.n">;
-// def L32R
+def L32R : LoadRI16<0b0001, l32rtarget16, "l32r">;
 
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
 
