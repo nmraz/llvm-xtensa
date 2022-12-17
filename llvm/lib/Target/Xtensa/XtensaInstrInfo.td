@@ -253,11 +253,15 @@ class BranchRUI8<bits<2> m, string name> : BranchRC8<m, 0b11, b4constu, name>;
 
 // Call instruction classes
 let isCall = true in {
-  class Call<bits<2> n, string name>
-     : GenericCall<0b0101, n, name>;
+  class Call<bits<2> n, Register retAddr, string name>
+     : GenericCall<0b0101, n, name> {
+    let Defs = [retAddr];
+  }
 
-  class CallX<bits<2> n, string name>
-     : GenericCallX<0b11, n, name>;
+  class CallX<bits<2> n, Register retAddr, string name>
+     : GenericCallX<0b11, n, name> {
+    let Defs = [retAddr];
+  }
 }
 
 
@@ -299,20 +303,20 @@ def BNEI : BranchRI8<0b01, "bnei">;
 def BNEZ : BranchRZ12<0b01, "bnez">;
 def BNONE : BranchRR8<0b0000, "bnone">;
 
-def CALL0  : Call<0b00, "call0">;
-def CALL4  : Call<0b01, "call4">;
-def CALL8  : Call<0b10, "call8">;
-def CALL12 : Call<0b11, "call12">;
+def CALL0  : Call<0b00, A0, "call0">;
+def CALL4  : Call<0b01, A4, "call4">;
+def CALL8  : Call<0b10, A8, "call8">;
+def CALL12 : Call<0b11, A12, "call12">;
 
-def CALLX0  : CallX<0b00, "callx0">;
-def CALLX4  : CallX<0b01, "callx4">;
-def CALLX8  : CallX<0b10, "callx8">;
-def CALLX12 : CallX<0b11, "callx12">;
+def CALLX0  : CallX<0b00, A0, "callx0">;
+def CALLX4  : CallX<0b01, A4, "callx4">;
+def CALLX8  : CallX<0b10, A8, "callx8">;
+def CALLX12 : CallX<0b11, A12, "callx12">;
 
 def DSYNC : I_Fixed24<0x002030, "dsync", []>;
 
 def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12_sl3, "entry"> {
-  // We currently don't model `WindowBase` explicitly
+  // This essentially renames all registers.
   let hasSideEffects = true;
 }
 
@@ -396,10 +400,16 @@ def REMU : ArithRRR<0b0010, 0b1110, "remu">;
 
 // def RER
 
-let mayLoad = false, mayStore = false,
-    isTerminator = true, isBarrier = true in {
-  def RET : I_Fixed24<0x000080, "ret", []>;
-  def RETN : I_Fixed16<0xf00d, "ret.n", []>;
+let Uses = [A0],
+    isTerminator = true, isBarrier = true, isReturn = true,
+    mayLoad = false, mayStore = false in {
+  let hasSideEffects = false in {
+    def RET : I_Fixed24<0x000080, "ret", []>;
+    def RETN : I_Fixed16<0xf00d, "ret.n", []>;
+  }
+
+  // These instructions also have the side effect of incrementing the window
+  // before performing the return.
   def RETW : I_Fixed24<0x000090, "retw", []>;
   def RETWN : I_Fixed16<0xf01d, "retw.n", []>;
 }
