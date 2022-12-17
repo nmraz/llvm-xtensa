@@ -1,3 +1,4 @@
+#include "MCTargetDesc/XtensaBaseInfo.h"
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
 #include "TargetInfo/XtensaTargetInfo.h"
 #include "llvm/ADT/StringRef.h"
@@ -173,8 +174,13 @@ bool XtensaOperand::isMoviNImm7() const {
   return Val >= -32 && Val <= 95;
 }
 
-bool XtensaOperand::isB4Const() const { return false; }
-bool XtensaOperand::isB4ConstU() const { return false; }
+bool XtensaOperand::isB4Const() const {
+  return XtensaII::encodeB4Const(getConstImm()).has_value();
+}
+
+bool XtensaOperand::isB4ConstU() const {
+  return XtensaII::encodeB4ConstU(getConstImm()).has_value();
+}
 
 void XtensaOperand::print(raw_ostream &OS) const {
   switch (Kind) {
