@@ -327,7 +327,10 @@ bool XtensaAsmParser::parseOperand(OperandVector &Operands,
     return true;
   }
 
-  return Error(getLexer().getLoc(), "expected a register name");
+  // Try to parse a generic expression. In practice, this case should not be hit
+  // for any recognized instructions, but it should let us get far enough
+  // through the parsing to report invalid instructions later.
+  return parseExprImm(Operands) != MatchOperand_Success;
 }
 
 bool XtensaAsmParser::ParseInstruction(ParseInstructionInfo &Info,
