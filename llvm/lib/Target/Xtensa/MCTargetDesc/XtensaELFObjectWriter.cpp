@@ -1,4 +1,5 @@
 #include "XtensaMCTargetDesc.h"
+#include "llvm/BinaryFormat/ELF.h"
 #include "llvm/MC/MCELFObjectWriter.h"
 #include <cassert>
 #include <cstdint>
@@ -19,7 +20,7 @@ public:
 };
 
 XtensaELFObjectWriter::XtensaELFObjectWriter(uint8_t OSABI)
-    : MCELFObjectTargetWriter(false, OSABI, 0, false) {}
+    : MCELFObjectTargetWriter(false, OSABI, ELF::EM_XTENSA, false) {}
 
 unsigned XtensaELFObjectWriter::getRelocType(MCContext &Ctx,
                                              const MCValue &Target,
