@@ -7,8 +7,20 @@ class ConstantImmOperandClass<string name, string diag> : AsmOperandClass {
   let DiagnosticString = diag;
 }
 
+def ExprImmOperandClass : AsmOperandClass {
+  let Name = "ExprImm";
+  let ParserMethod = "parseExprImm";
+  let PredicateMethod = "isImm";
+  let RenderMethod = "addImmOperands";
+}
+
+
 class OperandWithClass<ValueType ty, string Name> : Operand<ty> {
   let ParserMatchClass = !cast<AsmOperandClass>(Name # "OperandClass");
+}
+
+class PCRelOperand<ValueType ty> : OperandWithClass<ty, "ExprImm"> {
+  let OperandType = "OPERAND_PCREL";
 }
 
 class ImmOperand<ValueType ty, string Name> : OperandWithClass<ty, Name> {
@@ -27,6 +39,7 @@ class ShiftedSImmOperandClass<string name, string friendlyName, int width, int s
    : ConstantImmWithNameOperandClass<name, friendlyName> {
   let PredicateMethod = "isShiftedSImm<" # width # ", " # shift # ">";
 }
+
 
 // 4-bit immediate
 def UImm4OperandClass : ShiftedUImmOperandClass<"UImm4", "4-bit", 4, 0>;
@@ -88,25 +101,21 @@ def simm12 : ImmOperand<i32, "SImm12">;
 def UImm12Sl3OperandClass : ShiftedUImmOperandClass<"UImm12Sl3", "shifted 12-bit", 12, 3>;
 def uimm12_sl3 : ImmOperand<i32, "UImm12Sl3">;
 
-let OperandType = "OPERAND_PCREL" in {
-  // 8-bit immediate, sign-extended to 32 bits and added to PC+4
-  def brtarget8 : Operand<OtherVT> {
-  }
 
-  // 12-bit immediate, sign-extended to 32 bits and added to PC+4
-  def brtarget12 : Operand<OtherVT> {
-  }
+// 8-bit immediate, sign-extended to 32 bits and added to PC+4
+def brtarget8 : PCRelOperand<OtherVT>;
 
-  // 16-bit immediate, one-extended to signed 32 bits, shifted left by 2,
-  // and added to AlignDown(PC + 3, 4)
-  def l32rtarget16 : Operand<i32> {
-  }
+// 12-bit immediate, sign-extended to 32 bits and added to PC+4
+def brtarget12 : PCRelOperand<OtherVT>;
 
-  // 18-bit immediate, shifted left by 2, sign extended to 32 bits and added to
-  // AlignDown(PC, 4) + 4
-  def calltarget18 : Operand<OtherVT> {
-  }
-}
+// 16-bit immediate, one-extended to signed 32 bits, shifted left by 2,
+// and added to AlignDown(PC + 3, 4)
+def l32rtarget16 : PCRelOperand<i32>;
+
+// 18-bit immediate, shifted left by 2, sign extended to 32 bits and added to
+// AlignDown(PC, 4) + 4
+def calltarget18 : PCRelOperand<OtherVT>;
+
 
 // Arithmetic instruction classes
 let hasSideEffects = false, mayLoad = false, mayStore = false in {

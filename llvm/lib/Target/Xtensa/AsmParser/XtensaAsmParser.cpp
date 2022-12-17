@@ -47,6 +47,7 @@ public:
   OperandMatchResultTy tryParseRegister(unsigned &RegNo, SMLoc &StartLoc,
                                         SMLoc &EndLoc) override;
 
+  OperandMatchResultTy parseExprImm(OperandVector &Operands);
   OperandMatchResultTy parseConstantImm(OperandVector &Operands);
 
   bool parseOperand(OperandVector &Operands, StringRef Mnemonic);
@@ -259,6 +260,19 @@ OperandMatchResultTy XtensaAsmParser::tryParseRegister(unsigned int &RegNo,
   return MatchOperand_NoMatch;
 }
 
+OperandMatchResultTy XtensaAsmParser::parseExprImm(OperandVector &Operands) {
+  SMLoc StartLoc = getTok().getLoc();
+  SMLoc EndLoc;
+  const MCExpr *ImmVal;
+
+  if (getParser().parseExpression(ImmVal, EndLoc)) {
+    return MatchOperand_ParseFail;
+  }
+
+  Operands.push_back(XtensaOperand::createImm(ImmVal, StartLoc, EndLoc));
+  return MatchOperand_Success;
+}
+
 OperandMatchResultTy
 XtensaAsmParser::parseConstantImm(OperandVector &Operands) {
   SMLoc StartLoc = getTok().getLoc();
@@ -283,6 +297,7 @@ bool XtensaAsmParser::parseOperand(OperandVector &Operands,
   SMLoc StartLoc;
   SMLoc EndLoc;
 
+  // Our custom parsers handle everything but registers
   OperandMatchResultTy Result = MatchOperandParserImpl(Operands, Mnemonic);
   if (Result == MatchOperand_Success) {
     return false;
@@ -293,30 +308,19 @@ bool XtensaAsmParser::parseOperand(OperandVector &Operands,
   }
 
   unsigned RegNo;
-
   OperandMatchResultTy RegResult = tryParseRegister(RegNo, StartLoc, EndLoc);
 
-  switch (RegResult) {
-  case MatchOperand_Success:
+  if (RegResult == MatchOperand_Success) {
     Operands.push_back(XtensaOperand::createReg(RegNo, StartLoc, EndLoc));
     return false;
-  case MatchOperand_NoMatch:
-    break;
-  case MatchOperand_ParseFail:
+  }
+
+  if (RegResult == MatchOperand_ParseFail) {
+    // We've already emitted an error, just propagate it.
     return true;
   }
 
-  StartLoc = getLexer().getLoc();
-
-  const MCExpr *ImmVal;
-  if (getParser().parseExpression(ImmVal, EndLoc)) {
-    // `parseExpression` will print the error itself.
-    return true;
-  }
-
-  Operands.push_back(XtensaOperand::createImm(ImmVal, StartLoc, EndLoc));
-
-  return false;
+  return Error(getLexer().getLoc(), "expected a register name");
 }
 
 bool XtensaAsmParser::ParseInstruction(ParseInstructionInfo &Info,
