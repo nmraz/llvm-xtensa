@@ -65,6 +65,22 @@ public:
   unsigned getB4ConstUOpValue(const MCInst &MI, unsigned OpIdx,
                               SmallVectorImpl<MCFixup> &Fixups,
                               const MCSubtargetInfo &STI) const;
+
+  unsigned getBrTarget8OpValue(const MCInst &MI, unsigned OpIdx,
+                               SmallVectorImpl<MCFixup> &Fixups,
+                               const MCSubtargetInfo &STI) const;
+
+  unsigned getBrTarget12OpValue(const MCInst &MI, unsigned OpIdx,
+                                SmallVectorImpl<MCFixup> &Fixups,
+                                const MCSubtargetInfo &STI) const;
+
+  unsigned getL32RTarget16OpValue(const MCInst &MI, unsigned OpIdx,
+                                  SmallVectorImpl<MCFixup> &Fixups,
+                                  const MCSubtargetInfo &STI) const;
+
+  unsigned getCallTarget18OpValue(const MCInst &MI, unsigned OpIdx,
+                                  SmallVectorImpl<MCFixup> &Fixups,
+                                  const MCSubtargetInfo &STI) const;
 };
 
 } // end namespace llvm

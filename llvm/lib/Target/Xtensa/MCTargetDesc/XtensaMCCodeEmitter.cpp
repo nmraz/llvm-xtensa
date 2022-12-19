@@ -1,8 +1,10 @@
 #include "XtensaMCCodeEmitter.h"
 #include "XtensaBaseInfo.h"
+#include "XtensaFixupKinds.h"
 #include "XtensaMCTargetDesc.h"
 #include "llvm/MC/MCCodeEmitter.h"
 #include "llvm/MC/MCContext.h"
+#include "llvm/MC/MCExpr.h"
 #include "llvm/MC/MCFixup.h"
 #include "llvm/MC/MCInst.h"
 #include "llvm/MC/MCInstrInfo.h"
@@ -13,6 +15,10 @@
 #include <cstdint>
 
 using namespace llvm;
+
+static MCFixup createExprFixup(const MCExpr *Expr, unsigned Kind) {
+  return MCFixup::create(0, Expr, (MCFixupKind)Kind, Expr->getLoc());
+}
 
 void XtensaMCCodeEmitter::encodeInstruction(const MCInst &MI, raw_ostream &OS,
                                             SmallVectorImpl<MCFixup> &Fixups,
@@ -39,13 +45,9 @@ XtensaMCCodeEmitter::getMachineOpValue(const MCInst &MI, const MCOperand &MO,
     return Ctx.getRegisterInfo()->getEncodingValue(MO.getReg());
   }
 
-  if (MO.isImm()) {
-    return MO.getImm();
-  }
+  assert(MO.isImm() && "Unsupported custom operand");
 
-  assert(MO.isExpr());
-  // TODO: record fixups here
-  return 0;
+  return MO.getImm();
 }
 
 template <unsigned S>
@@ -93,6 +95,60 @@ XtensaMCCodeEmitter::getB4ConstUOpValue(const MCInst &MI, unsigned int OpIdx,
   Optional<uint64_t> Encoded = XtensaII::encodeB4ConstU(Val);
   assert(Encoded.has_value() && "Invalid b4constu value");
   return *Encoded;
+}
+
+unsigned
+XtensaMCCodeEmitter::getBrTarget8OpValue(const MCInst &MI, unsigned int OpIdx,
+                                         SmallVectorImpl<MCFixup> &Fixups,
+                                         const MCSubtargetInfo &STI) const {
+  const MCOperand &MO = MI.getOperand(OpIdx);
+  if (MO.isImm()) {
+    return getMachineOpValue(MI, MO, Fixups, STI);
+  }
+
+  Fixups.push_back(
+      createExprFixup(MO.getExpr(), Xtensa::fixup_xtensa_brtarget8));
+  return 0;
+}
+
+unsigned
+XtensaMCCodeEmitter::getBrTarget12OpValue(const MCInst &MI, unsigned int OpIdx,
+                                          SmallVectorImpl<MCFixup> &Fixups,
+                                          const MCSubtargetInfo &STI) const {
+  const MCOperand &MO = MI.getOperand(OpIdx);
+  if (MO.isImm()) {
+    return getMachineOpValue(MI, MO, Fixups, STI);
+  }
+
+  Fixups.push_back(
+      createExprFixup(MO.getExpr(), Xtensa::fixup_xtensa_brtarget12));
+  return 0;
+}
+
+unsigned XtensaMCCodeEmitter::getL32RTarget16OpValue(
+    const MCInst &MI, unsigned int OpIdx, SmallVectorImpl<MCFixup> &Fixups,
+    const MCSubtargetInfo &STI) const {
+  const MCOperand &MO = MI.getOperand(OpIdx);
+  if (MO.isImm()) {
+    return getMachineOpValue(MI, MO, Fixups, STI);
+  }
+
+  Fixups.push_back(
+      createExprFixup(MO.getExpr(), Xtensa::fixup_xtensa_l32rtarget16));
+  return 0;
+}
+
+unsigned XtensaMCCodeEmitter::getCallTarget18OpValue(
+    const MCInst &MI, unsigned int OpIdx, SmallVectorImpl<MCFixup> &Fixups,
+    const MCSubtargetInfo &STI) const {
+  const MCOperand &MO = MI.getOperand(OpIdx);
+  if (MO.isImm()) {
+    return getMachineOpValue(MI, MO, Fixups, STI);
+  }
+
+  Fixups.push_back(
+      createExprFixup(MO.getExpr(), Xtensa::fixup_xtensa_calltarget18));
+  return 0;
 }
 
 MCCodeEmitter *llvm::createXtensaMCCodeEmitter(const MCInstrInfo &MCII,

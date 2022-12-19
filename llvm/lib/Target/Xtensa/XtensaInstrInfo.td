@@ -131,18 +131,26 @@ def movin_imm7 : ImmOperand<i32, "MoviNImm7">;
 // PC-relative operands (branches and loads)
 
 // 8-bit immediate, sign-extended to 32 bits and added to PC+4
-def brtarget8 : PCRelOperand<OtherVT>;
+def brtarget8 : PCRelOperand<OtherVT> {
+  let EncoderMethod = "getBrTarget8OpValue";
+}
 
 // 12-bit immediate, sign-extended to 32 bits and added to PC+4
-def brtarget12 : PCRelOperand<OtherVT>;
+def brtarget12 : PCRelOperand<OtherVT> {
+  let EncoderMethod = "getBrTarget12OpValue";
+}
 
 // 16-bit immediate, one-extended to signed 32 bits, shifted left by 2,
-// and added to AlignDown(PC + 3, 4)
-def l32rtarget16 : PCRelOperand<i32>;
+// and added to AlignUp(PC, 4)
+def l32rtarget16 : PCRelOperand<i32> {
+  let EncoderMethod = "getL32RTarget16OpValue";
+}
 
 // 18-bit immediate, shifted left by 2, sign extended to 32 bits and added to
 // AlignDown(PC, 4) + 4
-def calltarget18 : PCRelOperand<OtherVT>;
+def calltarget18 : PCRelOperand<OtherVT> {
+  let EncoderMethod = "getCallTarget18OpValue";
+}
 
 
 // Arithmetic instruction classes
