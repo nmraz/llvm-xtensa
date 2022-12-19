@@ -24,6 +24,7 @@ tablegen(LLVM XtensaGenAsmMatcher.inc -gen-asm-matcher)
 add_public_tablegen_target(XtensaCommonTableGen)
 
 add_llvm_target(XtensaCodeGen
+  XtensaSubtarget.cpp
   XtensaTargetMachine.cpp
 
   LINK_COMPONENTS

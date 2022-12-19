@@ -25,7 +25,8 @@ XtensaTargetMachine::XtensaTargetMachine(const Target &T, const Triple &TT,
                                          Optional<CodeModel::Model> CM,
                                          CodeGenOpt::Level OL, bool JIT)
     : LLVMTargetMachine(T, "e-m:e-p:32:32-i64:64-n32-S128", TT, CPU, FS,
-                        Options, Reloc::Static, CodeModel::Small, OL) {
+                        Options, Reloc::Static, CodeModel::Small, OL),
+      Subtarget(TT, CPU, FS, *this) {
   initAsmInfo();
 }
 
@@ -37,11 +38,7 @@ class XtensaPassConfig : public TargetPassConfig {
 public:
   XtensaPassConfig(XtensaTargetMachine &TM, PassManagerBase &PM)
       : TargetPassConfig(TM, PM) {}
-
-  bool addInstSelector() override;
 };
-
-bool XtensaPassConfig::addInstSelector() { return true; }
 
 } // namespace
 
