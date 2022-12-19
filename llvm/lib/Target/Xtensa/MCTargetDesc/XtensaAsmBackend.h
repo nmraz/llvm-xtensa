@@ -3,11 +3,11 @@
 
 #include "llvm/ADT/Triple.h"
 #include "llvm/MC/MCAsmBackend.h"
-#include "llvm/Support/Endian.h"
 
 namespace llvm {
 
 class MCAssembler;
+class MCAlignFragment;
 struct MCFixupKindInfo;
 class MCRegisterInfo;
 class Target;
@@ -38,6 +38,13 @@ public:
                             const MCAsmLayout &Layout) const override {
     return false;
   }
+
+  // Note: we intentionally don't override `getMinimumNopSize`, as that is
+  // treated as a NOP size GCD and not as the size of the smallest NOP that can
+  // be emitted.
+
+  bool shouldInsertExtraNopBytesForCodeAlign(const MCAlignFragment &AF,
+                                             unsigned &Size) override;
 
   bool writeNopData(raw_ostream &OS, uint64_t Count,
                     const MCSubtargetInfo *STI) const override;

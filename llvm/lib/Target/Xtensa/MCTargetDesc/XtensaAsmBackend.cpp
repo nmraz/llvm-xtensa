@@ -171,6 +171,18 @@ XtensaAsmBackend::getFixupKindInfo(MCFixupKind Kind) const {
   return Infos[Kind - FirstTargetFixupKind];
 }
 
+bool XtensaAsmBackend::shouldInsertExtraNopBytesForCodeAlign(
+    const MCAlignFragment &AF, unsigned int &Size) {
+  if (Size == 1) {
+    // We support every byte count except 1, so incrementing the offset by the
+    // alignment value once more should be sufficient.
+    Size += AF.getAlignment().value();
+    return true;
+  }
+
+  return false;
+}
+
 bool XtensaAsmBackend::writeNopData(raw_ostream &OS, uint64_t Count,
                                     const MCSubtargetInfo *STI) const {
   if (Count == 0) {
