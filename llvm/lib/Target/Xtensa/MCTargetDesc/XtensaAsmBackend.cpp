@@ -47,6 +47,9 @@ static unsigned adjustFixupValue(const MCFixup &Fixup, int64_t Value,
   case Xtensa::fixup_xtensa_brtarget12:
     return adjustPCRelFixupValue<12>(Fixup, Value, Ctx, "brtarget12");
 
+  case Xtensa::fixup_xtensa_jmptarget18:
+    return adjustPCRelFixupValue<18>(Fixup, Value, Ctx, "jmptarget18");
+
   case Xtensa::fixup_xtensa_l32rtarget16:
     if (Fixup.getOffset() % 4 != 0) {
       // This fixup actually needs to be relative to AlignUp(PC, 4) and not
@@ -152,6 +155,7 @@ XtensaAsmBackend::getFixupKindInfo(MCFixupKind Kind) const {
       {"fixup_xtensa_l32rtarget16", 8, 16,
        MCFixupKindInfo::FKF_IsPCRel |
            MCFixupKindInfo::FKF_IsAlignedDownTo32Bits},
+      {"fixup_xtensa_jmptarget18", 6, 18, MCFixupKindInfo::FKF_IsPCRel},
       {"fixup_xtensa_calltarget18", 6, 18,
        MCFixupKindInfo::FKF_IsPCRel |
            MCFixupKindInfo::FKF_IsAlignedDownTo32Bits},

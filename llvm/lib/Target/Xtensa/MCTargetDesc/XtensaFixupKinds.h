@@ -28,7 +28,10 @@ enum Fixups {
   // AlignUp(PC, 4)
   fixup_xtensa_l32rtarget16,
 
-  // 18-bit PC relative relocation for calls and jumps: value added to
+  // 18-bit PC relative relocation for jumps: value added to PC+4
+  fixup_xtensa_jmptarget18,
+
+  // 18-bit PC relative relocation for calls: value added to
   // AlignDown(PC, 4) + 4
   fixup_xtensa_calltarget18,
 

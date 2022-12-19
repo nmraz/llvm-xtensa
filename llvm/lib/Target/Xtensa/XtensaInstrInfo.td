@@ -146,6 +146,11 @@ def l32rtarget16 : PCRelOperand<i32> {
   let EncoderMethod = "getL32RTarget16OpValue";
 }
 
+// 18-bit immediate, sign extended to 32 bits and added to PC+4
+def jmptarget18 : PCRelOperand<OtherVT> {
+  let EncoderMethod = "getJmpTarget18OpValue";
+}
+
 // 18-bit immediate, shifted left by 2, sign extended to 32 bits and added to
 // AlignDown(PC, 4) + 4
 def calltarget18 : PCRelOperand<OtherVT> {
@@ -238,8 +243,8 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
     : I_BRI12<op0, m, n, (outs), (ins GPR:$as, Imm:$offset),
               !strconcat(name, "\t$as, $offset"), []>;
 
-  class GenericCall<bits<4> op0, bits<2> n, string name>
-    : I_CALL<op0, n, (outs), (ins calltarget18:$offset),
+  class GenericCall<bits<4> op0, bits<2> n, Operand Imm, string name>
+    : I_CALL<op0, n, (outs), (ins Imm:$offset),
               !strconcat(name, "\t$offset"), []>;
 
   class GenericCallX<bits<2> m, bits<2> n, string name>
@@ -290,7 +295,7 @@ class BranchRUI8<bits<2> m, string name> : BranchRC8<m, 0b11, b4constu, name>;
 // Call instruction classes
 let isCall = true in {
   class Call<bits<2> n, Register retAddr, string name>
-     : GenericCall<0b0101, n, name> {
+     : GenericCall<0b0101, n, calltarget18, name> {
     let Defs = [retAddr];
   }
 
@@ -390,7 +395,7 @@ let isTrap = true in {
 def ISYNC : I_Fixed24<0x002000, "isync", []>;
 
 let isBranch = true, isTerminator = true, isBarrier = true in {
-  def J : GenericCall<0b0110, 0b00, "j">;
+  def J : GenericCall<0b0110, 0b00, jmptarget18, "j">;
   // def J.L
   def JX : GenericCallX<0b10, 0b10, "jx">;
 }

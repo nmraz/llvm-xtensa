@@ -138,6 +138,20 @@ unsigned XtensaMCCodeEmitter::getL32RTarget16OpValue(
   return 0;
 }
 
+unsigned
+XtensaMCCodeEmitter::getJmpTarget18OpValue(const MCInst &MI, unsigned int OpIdx,
+                                           SmallVectorImpl<MCFixup> &Fixups,
+                                           const MCSubtargetInfo &STI) const {
+  const MCOperand &MO = MI.getOperand(OpIdx);
+  if (MO.isImm()) {
+    return getMachineOpValue(MI, MO, Fixups, STI);
+  }
+
+  Fixups.push_back(
+      createExprFixup(MO.getExpr(), Xtensa::fixup_xtensa_jmptarget18));
+  return 0;
+}
+
 unsigned XtensaMCCodeEmitter::getCallTarget18OpValue(
     const MCInst &MI, unsigned int OpIdx, SmallVectorImpl<MCFixup> &Fixups,
     const MCSubtargetInfo &STI) const {
