@@ -25,6 +25,7 @@ add_public_tablegen_target(XtensaCommonTableGen)
 
 add_llvm_target(XtensaCodeGen
   XtensaAsmPrinter.cpp
+  XtensaFrameLowering.cpp
   XtensaMCInstLower.cpp
   XtensaSubtarget.cpp
   XtensaTargetMachine.cpp

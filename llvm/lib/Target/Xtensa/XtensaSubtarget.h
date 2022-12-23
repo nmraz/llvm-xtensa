@@ -1,6 +1,7 @@
 #ifndef LLVM_LIB_TARGET_XTENSA_XTENSASUBTARGET_H
 #define LLVM_LIB_TARGET_XTENSA_XTENSASUBTARGET_H
 
+#include "XtensaFrameLowering.h"
 #include "llvm/CodeGen/GlobalISel/CallLowering.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelector.h"
 #include "llvm/CodeGen/GlobalISel/LegalizerInfo.h"
@@ -17,6 +18,9 @@ namespace llvm {
 class XtensaTargetMachine;
 
 class XtensaSubtarget : public XtensaGenSubtargetInfo {
+private:
+  XtensaFrameLowering FrameLowering;
+
 public:
   XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
                   const XtensaTargetMachine &TM);
@@ -26,7 +30,7 @@ public:
   const TargetInstrInfo *getInstrInfo() const override { return nullptr; }
 
   const TargetFrameLowering *getFrameLowering() const override {
-    return nullptr;
+    return &FrameLowering;
   }
 
   const CallLowering *getCallLowering() const override { return nullptr; }
