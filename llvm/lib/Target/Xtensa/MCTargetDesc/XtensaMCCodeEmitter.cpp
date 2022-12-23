@@ -130,7 +130,7 @@ unsigned XtensaMCCodeEmitter::getL32RTarget16OpValue(
     const MCSubtargetInfo &STI) const {
   const MCOperand &MO = MI.getOperand(OpIdx);
   if (MO.isImm()) {
-    return getMachineOpValue(MI, MO, Fixups, STI);
+    return static_cast<int32_t>(getMachineOpValue(MI, MO, Fixups, STI)) / 4;
   }
 
   Fixups.push_back(
@@ -157,7 +157,7 @@ unsigned XtensaMCCodeEmitter::getCallTarget18OpValue(
     const MCSubtargetInfo &STI) const {
   const MCOperand &MO = MI.getOperand(OpIdx);
   if (MO.isImm()) {
-    return getMachineOpValue(MI, MO, Fixups, STI);
+    return static_cast<int32_t>(getMachineOpValue(MI, MO, Fixups, STI)) / 4;
   }
 
   Fixups.push_back(
