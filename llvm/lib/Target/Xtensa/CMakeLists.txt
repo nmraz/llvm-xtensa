@@ -27,6 +27,7 @@ add_llvm_target(XtensaCodeGen
   XtensaAsmPrinter.cpp
   XtensaFrameLowering.cpp
   XtensaMCInstLower.cpp
+  XtensaRegisterInfo.cpp
   XtensaSubtarget.cpp
   XtensaTargetMachine.cpp
 
