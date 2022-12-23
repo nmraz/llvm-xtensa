@@ -2,6 +2,7 @@
 #define LLVM_LIB_TARGET_XTENSA_XTENSAMCTARGETDESC_H
 
 #include "llvm/MC/MCObjectWriter.h"
+#include <cstdint>
 #include <memory>
 
 namespace llvm {
@@ -13,6 +14,14 @@ class MCRegisterInfo;
 class MCSubtargetInfo;
 class MCTargetOptions;
 class Target;
+
+namespace Xtensa_MC {
+
+uint64_t evaluateBranchTarget(uint64_t Addr, int64_t Imm);
+uint64_t evaluateL32RTarget(uint64_t Addr, int64_t Imm);
+uint64_t evaluateCallTarget(uint64_t Addr, int64_t Imm);
+
+} // namespace Xtensa_MC
 
 MCCodeEmitter *createXtensaMCCodeEmitter(const MCInstrInfo &MCII,
                                          MCContext &Ctx);

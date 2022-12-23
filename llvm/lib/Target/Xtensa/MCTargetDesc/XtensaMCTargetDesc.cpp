@@ -10,6 +10,7 @@
 #include "llvm/MC/SubtargetFeature.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Support/Compiler.h"
+#include <cstdint>
 
 using namespace llvm;
 
@@ -22,6 +23,18 @@ using namespace llvm;
 
 #define GET_REGINFO_MC_DESC
 #include "XtensaGenRegisterInfo.inc"
+
+uint64_t Xtensa_MC::evaluateBranchTarget(uint64_t Addr, int64_t Imm) {
+  return Addr + Imm + 4;
+}
+
+uint64_t Xtensa_MC::evaluateL32RTarget(uint64_t Addr, int64_t Imm) {
+  return ((Addr + 3) & (uint64_t)-3) + Imm;
+}
+
+uint64_t Xtensa_MC::evaluateCallTarget(uint64_t Addr, int64_t Imm) {
+  return (Addr & (uint64_t)-3) + Imm + 4;
+}
 
 static MCInstrInfo *createXtensaMCInstrInfo() {
   MCInstrInfo *X = new MCInstrInfo();
