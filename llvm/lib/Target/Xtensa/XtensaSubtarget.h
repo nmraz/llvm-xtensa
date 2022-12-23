@@ -2,11 +2,13 @@
 #define LLVM_LIB_TARGET_XTENSA_XTENSASUBTARGET_H
 
 #include "XtensaFrameLowering.h"
+#include "XtensaISelLowering.h"
 #include "XtensaInstrInfo.h"
 #include "llvm/CodeGen/GlobalISel/CallLowering.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelector.h"
 #include "llvm/CodeGen/GlobalISel/LegalizerInfo.h"
 #include "llvm/CodeGen/TargetFrameLowering.h"
+#include "llvm/CodeGen/TargetLowering.h"
 #include "llvm/CodeGen/TargetSubtargetInfo.h"
 #include "llvm/MC/MCInst.h"
 #include "llvm/MC/MCInstrInfo.h"
@@ -22,6 +24,7 @@ class XtensaSubtarget : public XtensaGenSubtargetInfo {
 private:
   XtensaFrameLowering FrameLowering;
   XtensaInstrInfo InstrInfo;
+  XtensaTargetLowering TLInfo;
 
 public:
   XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
@@ -34,6 +37,8 @@ public:
   const TargetFrameLowering *getFrameLowering() const override {
     return &FrameLowering;
   }
+
+  const TargetLowering *getTargetLowering() const override { return &TLInfo; }
 
   const CallLowering *getCallLowering() const override { return nullptr; }
 

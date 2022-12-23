@@ -1,5 +1,6 @@
 #include "XtensaSubtarget.h"
 #include "XtensaFrameLowering.h"
+#include "XtensaTargetMachine.h"
 
 using namespace llvm;
 
@@ -12,4 +13,4 @@ using namespace llvm;
 XtensaSubtarget::XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
                                  const XtensaTargetMachine &TM)
     : XtensaGenSubtargetInfo(TT, CPU, CPU, FS), FrameLowering(*this),
-      InstrInfo(*this) {}
+      InstrInfo(*this), TLInfo(TM) {}
