@@ -29,11 +29,11 @@ uint64_t Xtensa_MC::evaluateBranchTarget(uint64_t Addr, int64_t Imm) {
 }
 
 uint64_t Xtensa_MC::evaluateL32RTarget(uint64_t Addr, int64_t Imm) {
-  return ((Addr + 3) & (uint64_t)-3) + Imm;
+  return ((Addr + 3) & (uint64_t)-4) + Imm;
 }
 
 uint64_t Xtensa_MC::evaluateCallTarget(uint64_t Addr, int64_t Imm) {
-  return (Addr & (uint64_t)-3) + Imm + 4;
+  return (Addr & (uint64_t)-4) + Imm + 4;
 }
 
 static MCInstrInfo *createXtensaMCInstrInfo() {
