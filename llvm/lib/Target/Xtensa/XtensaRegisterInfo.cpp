@@ -22,14 +22,14 @@ XtensaRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
 }
 
 BitVector XtensaRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
-  BitVector Result;
+  BitVector Reserved(getNumRegs());
 
   // Return address
-  Result.set(Xtensa::A0);
+  Reserved.set(Xtensa::A0);
   // Stack pointer
-  Result.set(Xtensa::A1);
+  Reserved.set(Xtensa::A1);
 
-  return Result;
+  return Reserved;
 }
 
 void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator MI,
