@@ -12,6 +12,7 @@
 #include "llvm/CodeGen/TargetSubtargetInfo.h"
 #include "llvm/MC/MCInst.h"
 #include "llvm/MC/MCInstrInfo.h"
+#include <memory>
 
 #define GET_SUBTARGETINFO_HEADER
 #include "XtensaGenSubtargetInfo.inc"
@@ -26,6 +27,8 @@ private:
   XtensaInstrInfo InstrInfo;
   XtensaTargetLowering TLInfo;
 
+  std::unique_ptr<CallLowering> CallLoweringInfo;
+
 public:
   XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
                   const XtensaTargetMachine &TM);
@@ -34,25 +37,22 @@ public:
 
   const XtensaInstrInfo *getInstrInfo() const override { return &InstrInfo; }
 
+  const TargetRegisterInfo *getRegisterInfo() const override {
+    return &getInstrInfo()->getRegisterInfo();
+  }
+
   const TargetFrameLowering *getFrameLowering() const override {
     return &FrameLowering;
   }
 
   const TargetLowering *getTargetLowering() const override { return &TLInfo; }
 
-  const CallLowering *getCallLowering() const override { return nullptr; }
+  // GlobalISel
 
-  const TargetRegisterInfo *getRegisterInfo() const override {
-    return &getInstrInfo()->getRegisterInfo();
-  }
-
-  const RegisterBankInfo *getRegBankInfo() const override { return nullptr; }
-
-  const LegalizerInfo *getLegalizerInfo() const override { return nullptr; }
-
-  InstructionSelector *getInstructionSelector() const override {
-    return nullptr;
-  }
+  const CallLowering *getCallLowering() const override;
+  const RegisterBankInfo *getRegBankInfo() const override;
+  const LegalizerInfo *getLegalizerInfo() const override;
+  InstructionSelector *getInstructionSelector() const override;
 };
 
 } // namespace llvm
