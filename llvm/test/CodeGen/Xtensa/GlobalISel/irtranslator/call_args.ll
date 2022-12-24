@@ -31,6 +31,7 @@ define void @call_simple_reg_args() {
   ; CHECK-NEXT:   [[C6:%[0-9]+]]:_(s1) = G_CONSTANT i1 true
   ; CHECK-NEXT:   [[C7:%[0-9]+]]:_(s8) = G_CONSTANT i8 1
   ; CHECK-NEXT:   [[C8:%[0-9]+]]:_(s16) = G_CONSTANT i16 1
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   $a2 = COPY [[C]](s32)
   ; CHECK-NEXT:   $a3 = COPY [[C1]](s32)
   ; CHECK-NEXT:   $a4 = COPY [[C2]](s32)
@@ -38,15 +39,22 @@ define void @call_simple_reg_args() {
   ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
   ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
   ; CHECK-NEXT:   CALL0 @reg_args_i32, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[ANYEXT:%[0-9]+]]:_(s32) = G_ANYEXT [[C6]](s1)
   ; CHECK-NEXT:   $a2 = COPY [[ANYEXT]](s32)
   ; CHECK-NEXT:   CALL0 @reg_arg_i1, implicit-def $a0, implicit $a2
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[ANYEXT1:%[0-9]+]]:_(s32) = G_ANYEXT [[C7]](s8)
   ; CHECK-NEXT:   $a2 = COPY [[ANYEXT1]](s32)
   ; CHECK-NEXT:   CALL0 @reg_arg_i8, implicit-def $a0, implicit $a2
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[ANYEXT2:%[0-9]+]]:_(s32) = G_ANYEXT [[C8]](s16)
   ; CHECK-NEXT:   $a2 = COPY [[ANYEXT2]](s32)
   ; CHECK-NEXT:   CALL0 @reg_arg_i16, implicit-def $a0, implicit $a2
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   RETN implicit $a0
 entry:
   call void @reg_args_i32(i32 1, i32 2, i32 3, i32 4, i32 5, i32 6)
@@ -64,21 +72,27 @@ define void @call_reg_i64() {
   ; CHECK-NEXT:   [[C2:%[0-9]+]]:_(s32) = G_CONSTANT i32 2
   ; CHECK-NEXT:   [[C3:%[0-9]+]]:_(s64) = G_CONSTANT i64 3
   ; CHECK-NEXT:   [[C4:%[0-9]+]]:_(s64) = G_CONSTANT i64 2
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[UV:%[0-9]+]]:_(s32), [[UV1:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C]](s64)
   ; CHECK-NEXT:   $a2 = COPY [[UV]](s32)
   ; CHECK-NEXT:   $a3 = COPY [[UV1]](s32)
   ; CHECK-NEXT:   CALL0 @reg_arg_i64, implicit-def $a0, implicit $a2, implicit $a3
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[UV2:%[0-9]+]]:_(s32), [[UV3:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C3]](s64)
   ; CHECK-NEXT:   $a2 = COPY [[C1]](s32)
   ; CHECK-NEXT:   $a3 = COPY [[C2]](s32)
   ; CHECK-NEXT:   $a4 = COPY [[UV2]](s32)
   ; CHECK-NEXT:   $a5 = COPY [[UV3]](s32)
   ; CHECK-NEXT:   CALL0 @reg_arg_i64_packed, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[UV4:%[0-9]+]]:_(s32), [[UV5:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C4]](s64)
   ; CHECK-NEXT:   $a2 = COPY [[C1]](s32)
   ; CHECK-NEXT:   $a4 = COPY [[UV4]](s32)
   ; CHECK-NEXT:   $a5 = COPY [[UV5]](s32)
   ; CHECK-NEXT:   CALL0 @reg_arg_i64_aligned, implicit-def $a0, implicit $a2, implicit $a4, implicit $a5
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   RETN implicit $a0
 entry:
   call void @reg_arg_i64(i64 1)
@@ -95,6 +109,7 @@ define void @call_mixed_reg_args() {
   ; CHECK-NEXT:   [[C2:%[0-9]+]]:_(s64) = G_CONSTANT i64 3
   ; CHECK-NEXT:   [[C3:%[0-9]+]]:_(s8) = G_CONSTANT i8 4
   ; CHECK-NEXT:   [[C4:%[0-9]+]]:_(s16) = G_CONSTANT i16 5
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[ANYEXT:%[0-9]+]]:_(s32) = G_ANYEXT [[C1]](s1)
   ; CHECK-NEXT:   [[UV:%[0-9]+]]:_(s32), [[UV1:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C2]](s64)
   ; CHECK-NEXT:   [[ANYEXT1:%[0-9]+]]:_(s32) = G_ANYEXT [[C3]](s8)
@@ -106,6 +121,7 @@ define void @call_mixed_reg_args() {
   ; CHECK-NEXT:   $a6 = COPY [[ANYEXT1]](s32)
   ; CHECK-NEXT:   $a7 = COPY [[ANYEXT2]](s32)
   ; CHECK-NEXT:   CALL0 @mixed_reg_args, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   RETN implicit $a0
 entry:
   call void @mixed_reg_args(i32 1, i1 1, i64 3, i8 4, i16 5)
@@ -113,10 +129,156 @@ entry:
 }
 
 define void @call_stack() {
+  ; CHECK-LABEL: name: call_stack
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
+  ; CHECK-NEXT:   [[C1:%[0-9]+]]:_(s32) = G_CONSTANT i32 2
+  ; CHECK-NEXT:   [[C2:%[0-9]+]]:_(s32) = G_CONSTANT i32 3
+  ; CHECK-NEXT:   [[C3:%[0-9]+]]:_(s32) = G_CONSTANT i32 4
+  ; CHECK-NEXT:   [[C4:%[0-9]+]]:_(s32) = G_CONSTANT i32 5
+  ; CHECK-NEXT:   [[C5:%[0-9]+]]:_(s32) = G_CONSTANT i32 6
+  ; CHECK-NEXT:   [[C6:%[0-9]+]]:_(s32) = G_CONSTANT i32 7
+  ; CHECK-NEXT:   [[C7:%[0-9]+]]:_(s1) = G_CONSTANT i1 true
+  ; CHECK-NEXT:   [[C8:%[0-9]+]]:_(s8) = G_CONSTANT i8 7
+  ; CHECK-NEXT:   [[C9:%[0-9]+]]:_(s16) = G_CONSTANT i16 7
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 4, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(p0) = COPY $a1
+  ; CHECK-NEXT:   [[C10:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+  ; CHECK-NEXT:   [[PTR_ADD:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY]], [[C10]](s32)
+  ; CHECK-NEXT:   G_STORE [[C6]](s32), [[PTR_ADD]](p0) :: (store (s32) into stack)
+  ; CHECK-NEXT:   $a2 = COPY [[C]](s32)
+  ; CHECK-NEXT:   $a3 = COPY [[C1]](s32)
+  ; CHECK-NEXT:   $a4 = COPY [[C2]](s32)
+  ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
+  ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
+  ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
+  ; CHECK-NEXT:   CALL0 @stack_arg_i32, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   ADJCALLSTACKUP 4, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 4, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   [[ANYEXT:%[0-9]+]]:_(s32) = G_ANYEXT [[C7]](s1)
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(p0) = COPY $a1
+  ; CHECK-NEXT:   [[C11:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+  ; CHECK-NEXT:   [[PTR_ADD1:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY1]], [[C11]](s32)
+  ; CHECK-NEXT:   G_STORE [[ANYEXT]](s32), [[PTR_ADD1]](p0) :: (store (s32) into stack)
+  ; CHECK-NEXT:   $a2 = COPY [[C]](s32)
+  ; CHECK-NEXT:   $a3 = COPY [[C1]](s32)
+  ; CHECK-NEXT:   $a4 = COPY [[C2]](s32)
+  ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
+  ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
+  ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
+  ; CHECK-NEXT:   CALL0 @stack_arg_i1, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   ADJCALLSTACKUP 4, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 4, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   [[ANYEXT1:%[0-9]+]]:_(s32) = G_ANYEXT [[C8]](s8)
+  ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(p0) = COPY $a1
+  ; CHECK-NEXT:   [[C12:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+  ; CHECK-NEXT:   [[PTR_ADD2:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY2]], [[C12]](s32)
+  ; CHECK-NEXT:   G_STORE [[ANYEXT1]](s32), [[PTR_ADD2]](p0) :: (store (s32) into stack)
+  ; CHECK-NEXT:   $a2 = COPY [[C]](s32)
+  ; CHECK-NEXT:   $a3 = COPY [[C1]](s32)
+  ; CHECK-NEXT:   $a4 = COPY [[C2]](s32)
+  ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
+  ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
+  ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
+  ; CHECK-NEXT:   CALL0 @stack_arg_i8, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   ADJCALLSTACKUP 4, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 4, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   [[ANYEXT2:%[0-9]+]]:_(s32) = G_ANYEXT [[C9]](s16)
+  ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:_(p0) = COPY $a1
+  ; CHECK-NEXT:   [[C13:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+  ; CHECK-NEXT:   [[PTR_ADD3:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY3]], [[C13]](s32)
+  ; CHECK-NEXT:   G_STORE [[ANYEXT2]](s32), [[PTR_ADD3]](p0) :: (store (s32) into stack)
+  ; CHECK-NEXT:   $a2 = COPY [[C]](s32)
+  ; CHECK-NEXT:   $a3 = COPY [[C1]](s32)
+  ; CHECK-NEXT:   $a4 = COPY [[C2]](s32)
+  ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
+  ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
+  ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
+  ; CHECK-NEXT:   CALL0 @stack_arg_i16, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   ADJCALLSTACKUP 4, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   RETN implicit $a0
 entry:
   call void @stack_arg_i32(i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i32 7)
   call void @stack_arg_i1(i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i1 7)
   call void @stack_arg_i8(i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i8 7)
   call void @stack_arg_i16(i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i16 7)
+  ret void
+}
+
+define void @call_stack_i64() {
+  ; CHECK-LABEL: name: call_stack_i64
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
+  ; CHECK-NEXT:   [[C1:%[0-9]+]]:_(s32) = G_CONSTANT i32 2
+  ; CHECK-NEXT:   [[C2:%[0-9]+]]:_(s32) = G_CONSTANT i32 3
+  ; CHECK-NEXT:   [[C3:%[0-9]+]]:_(s32) = G_CONSTANT i32 4
+  ; CHECK-NEXT:   [[C4:%[0-9]+]]:_(s32) = G_CONSTANT i32 5
+  ; CHECK-NEXT:   [[C5:%[0-9]+]]:_(s32) = G_CONSTANT i32 6
+  ; CHECK-NEXT:   [[C6:%[0-9]+]]:_(s64) = G_CONSTANT i64 7
+  ; CHECK-NEXT:   [[C7:%[0-9]+]]:_(s64) = G_CONSTANT i64 6
+  ; CHECK-NEXT:   [[C8:%[0-9]+]]:_(s32) = G_CONSTANT i32 7
+  ; CHECK-NEXT:   [[C9:%[0-9]+]]:_(s64) = G_CONSTANT i64 8
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 8, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   [[UV:%[0-9]+]]:_(s32), [[UV1:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C6]](s64)
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(p0) = COPY $a1
+  ; CHECK-NEXT:   [[C10:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+  ; CHECK-NEXT:   [[PTR_ADD:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY]], [[C10]](s32)
+  ; CHECK-NEXT:   G_STORE [[UV]](s32), [[PTR_ADD]](p0) :: (store (s32) into stack)
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(p0) = COPY $a1
+  ; CHECK-NEXT:   [[C11:%[0-9]+]]:_(s32) = G_CONSTANT i32 4
+  ; CHECK-NEXT:   [[PTR_ADD1:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY1]], [[C11]](s32)
+  ; CHECK-NEXT:   G_STORE [[UV1]](s32), [[PTR_ADD1]](p0) :: (store (s32) into stack + 4)
+  ; CHECK-NEXT:   $a2 = COPY [[C]](s32)
+  ; CHECK-NEXT:   $a3 = COPY [[C1]](s32)
+  ; CHECK-NEXT:   $a4 = COPY [[C2]](s32)
+  ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
+  ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
+  ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
+  ; CHECK-NEXT:   CALL0 @stack_arg_i64, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   ADJCALLSTACKUP 8, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 8, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   [[UV2:%[0-9]+]]:_(s32), [[UV3:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C7]](s64)
+  ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(p0) = COPY $a1
+  ; CHECK-NEXT:   [[C12:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+  ; CHECK-NEXT:   [[PTR_ADD2:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY2]], [[C12]](s32)
+  ; CHECK-NEXT:   G_STORE [[UV2]](s32), [[PTR_ADD2]](p0) :: (store (s32) into stack)
+  ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:_(p0) = COPY $a1
+  ; CHECK-NEXT:   [[C13:%[0-9]+]]:_(s32) = G_CONSTANT i32 4
+  ; CHECK-NEXT:   [[PTR_ADD3:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY3]], [[C13]](s32)
+  ; CHECK-NEXT:   G_STORE [[UV3]](s32), [[PTR_ADD3]](p0) :: (store (s32) into stack + 4)
+  ; CHECK-NEXT:   $a2 = COPY [[C]](s32)
+  ; CHECK-NEXT:   $a3 = COPY [[C1]](s32)
+  ; CHECK-NEXT:   $a4 = COPY [[C2]](s32)
+  ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
+  ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
+  ; CHECK-NEXT:   CALL0 @stack_arg_i64_reg_unaligned, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6
+  ; CHECK-NEXT:   ADJCALLSTACKUP 8, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 16, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   [[COPY4:%[0-9]+]]:_(p0) = COPY $a1
+  ; CHECK-NEXT:   [[C14:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+  ; CHECK-NEXT:   [[PTR_ADD4:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY4]], [[C14]](s32)
+  ; CHECK-NEXT:   G_STORE [[C8]](s32), [[PTR_ADD4]](p0) :: (store (s32) into stack)
+  ; CHECK-NEXT:   [[UV4:%[0-9]+]]:_(s32), [[UV5:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C9]](s64)
+  ; CHECK-NEXT:   [[COPY5:%[0-9]+]]:_(p0) = COPY $a1
+  ; CHECK-NEXT:   [[C15:%[0-9]+]]:_(s32) = G_CONSTANT i32 8
+  ; CHECK-NEXT:   [[PTR_ADD5:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY5]], [[C15]](s32)
+  ; CHECK-NEXT:   G_STORE [[UV4]](s32), [[PTR_ADD5]](p0) :: (store (s32) into stack + 8)
+  ; CHECK-NEXT:   [[COPY6:%[0-9]+]]:_(p0) = COPY $a1
+  ; CHECK-NEXT:   [[C16:%[0-9]+]]:_(s32) = G_CONSTANT i32 12
+  ; CHECK-NEXT:   [[PTR_ADD6:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY6]], [[C16]](s32)
+  ; CHECK-NEXT:   G_STORE [[UV5]](s32), [[PTR_ADD6]](p0) :: (store (s32) into stack + 12)
+  ; CHECK-NEXT:   $a2 = COPY [[C]](s32)
+  ; CHECK-NEXT:   $a3 = COPY [[C1]](s32)
+  ; CHECK-NEXT:   $a4 = COPY [[C2]](s32)
+  ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
+  ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
+  ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
+  ; CHECK-NEXT:   CALL0 @stack_arg_i64_aligned, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   ADJCALLSTACKUP 16, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   RETN implicit $a0
+entry:
+  call void @stack_arg_i64(i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i64 7)
+  call void @stack_arg_i64_reg_unaligned(i32 1, i32 2, i32 3, i32 4, i32 5, i64 6)
+  call void @stack_arg_i64_aligned(i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i32 7, i64 8)
   ret void
 }
