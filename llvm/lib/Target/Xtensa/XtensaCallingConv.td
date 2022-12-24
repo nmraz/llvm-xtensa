@@ -1,7 +1,8 @@
 def RetCC_Xtensa_Call0 : CallingConv<[
   CCIfType<[i1, i8, i16], CCPromoteToType<i32>>,
-  CCIfType<[i32], CCAssignToReg<[A2]>>,
-  CCIfType<[i64], CCAssignToRegWithShadow<[A2], [A3]>>
+  CCIfType<[i32], CCIfSplit<CCAssignToRegWithShadow<[A2, A4],
+                                                    [A2, A3]>>>,
+  CCIfType<[i32], CCAssignToReg<[A2, A3, A4, A5]>>,
 ]>;
 
 def CC_Xtensa_Call0 : CallingConv<[
