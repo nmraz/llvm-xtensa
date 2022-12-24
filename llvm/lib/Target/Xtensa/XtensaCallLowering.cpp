@@ -47,6 +47,17 @@ public:
   void markPhysRegUsed(unsigned PhysReg) override;
 };
 
+class XtensaCallReturnHandler : public XtensaIncomingValueHandler {
+  MachineInstrBuilder &MIB;
+
+public:
+  XtensaCallReturnHandler(MachineIRBuilder &MIRBuilder,
+                          MachineRegisterInfo &MRI, MachineInstrBuilder &MIB)
+      : XtensaIncomingValueHandler(MIRBuilder, MRI), MIB(MIB) {}
+
+  void markPhysRegUsed(unsigned PhysReg) override;
+};
+
 class XtensaOutgoingValueHandler : public CallLowering::OutgoingValueHandler {
   MachineInstrBuilder &MIB;
 
@@ -106,6 +117,10 @@ void XtensaFormalArgHandler::markPhysRegUsed(unsigned int PhysReg) {
   MIRBuilder.getMBB().addLiveIn(PhysReg);
 }
 
+void XtensaCallReturnHandler::markPhysRegUsed(unsigned int PhysReg) {
+  MIB.addDef(PhysReg, RegState::Implicit);
+}
+
 Register XtensaOutgoingValueHandler::getStackAddress(uint64_t MemSize,
                                                      int64_t Offset,
                                                      MachinePointerInfo &MPO,
@@ -153,16 +168,16 @@ bool XtensaCallLowering::lowerReturn(MachineIRBuilder &MIRBuilder,
     const auto &F = MF.getFunction();
     auto &DL = MF.getDataLayout();
 
-    SmallVector<ArgInfo, 4> OutArgs;
+    SmallVector<ArgInfo, 4> OutRets;
 
     ArgInfo OrigArgInfo{VRegs, Val->getType(), 0};
     setArgFlags(OrigArgInfo, AttributeList::ReturnIndex, DL, F);
-    splitToValueTypes(OrigArgInfo, OutArgs, DL, F.getCallingConv());
+    splitToValueTypes(OrigArgInfo, OutRets, DL, F.getCallingConv());
 
     OutgoingValueAssigner Assigner(RetCC_Xtensa_Call0);
     XtensaOutgoingValueHandler Handler(MIRBuilder, MF.getRegInfo(), MIB);
 
-    if (!determineAndHandleAssignments(Handler, Assigner, OutArgs, MIRBuilder,
+    if (!determineAndHandleAssignments(Handler, Assigner, OutRets, MIRBuilder,
                                        F.getCallingConv(), F.isVarArg())) {
       return false;
     }
@@ -202,5 +217,44 @@ bool XtensaCallLowering::lowerFormalArguments(
 
 bool XtensaCallLowering::lowerCall(MachineIRBuilder &MIRBuilder,
                                    CallLoweringInfo &Info) const {
-  return false;
+  auto &MF = MIRBuilder.getMF();
+  auto &MRI = MF.getRegInfo();
+  auto &DL = MF.getDataLayout();
+
+  const auto &F = MF.getFunction();
+  auto CallConv = F.getCallingConv();
+  bool IsVarArg = F.isVarArg();
+
+  bool IsDirect = !Info.Callee.isReg();
+
+  unsigned Opcode = IsDirect ? Xtensa::CALL0 : Xtensa::CALLX0;
+  MachineInstrBuilder MIB = MIRBuilder.buildInstrNoInsert(Opcode);
+  MIB.add(Info.Callee);
+
+  SmallVector<ArgInfo, 8> OutArgs;
+  for (auto &Arg : Info.OrigArgs) {
+    splitToValueTypes(Arg, OutArgs, DL, CallConv);
+  }
+
+  OutgoingValueAssigner ArgAssigner(CC_Xtensa_Call0);
+  XtensaOutgoingValueHandler ArgHandler(MIRBuilder, MRI, MIB);
+
+  if (!determineAndHandleAssignments(ArgHandler, ArgAssigner, OutArgs,
+                                     MIRBuilder, CallConv, IsVarArg)) {
+    return false;
+  }
+
+  SmallVector<ArgInfo, 4> InRets;
+  splitToValueTypes(Info.OrigRet, InRets, DL, CallConv);
+
+  IncomingValueAssigner RetAssigner(RetCC_Xtensa_Call0);
+  XtensaCallReturnHandler RetHandler(MIRBuilder, MRI, MIB);
+
+  if (!determineAndHandleAssignments(RetHandler, RetAssigner, InRets,
+                                     MIRBuilder, CallConv, IsVarArg)) {
+    return false;
+  }
+
+  MIRBuilder.insertInstr(MIB);
+  return true;
 }
