@@ -8,3 +8,58 @@ define void @ret_void() {
 entry:
   ret void
 }
+
+define i32 @ret_i32() {
+  ; CHECK-LABEL: name: ret_i32
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 5
+  ; CHECK-NEXT:   $a2 = COPY [[C]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0, implicit $a2
+entry:
+  ret i32 5
+}
+
+define i1 @ret_i1() {
+  ; CHECK-LABEL: name: ret_i1
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:_(s1) = G_CONSTANT i1 true
+  ; CHECK-NEXT:   [[ANYEXT:%[0-9]+]]:_(s32) = G_ANYEXT [[C]](s1)
+  ; CHECK-NEXT:   $a2 = COPY [[ANYEXT]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0, implicit $a2
+entry:
+  ret i1 1
+}
+
+define i8 @ret_i8() {
+  ; CHECK-LABEL: name: ret_i8
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:_(s8) = G_CONSTANT i8 5
+  ; CHECK-NEXT:   [[ANYEXT:%[0-9]+]]:_(s32) = G_ANYEXT [[C]](s8)
+  ; CHECK-NEXT:   $a2 = COPY [[ANYEXT]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0, implicit $a2
+entry:
+  ret i8 5
+}
+
+define i16 @ret_i16() {
+  ; CHECK-LABEL: name: ret_i16
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:_(s16) = G_CONSTANT i16 5
+  ; CHECK-NEXT:   [[ANYEXT:%[0-9]+]]:_(s32) = G_ANYEXT [[C]](s16)
+  ; CHECK-NEXT:   $a2 = COPY [[ANYEXT]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0, implicit $a2
+entry:
+  ret i16 5
+}
+
+define i64 @ret_i64() {
+  ; CHECK-LABEL: name: ret_i64
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:_(s64) = G_CONSTANT i64 5
+  ; CHECK-NEXT:   [[UV:%[0-9]+]]:_(s32), [[UV1:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C]](s64)
+  ; CHECK-NEXT:   $a2 = COPY [[UV]](s32)
+  ; CHECK-NEXT:   $a3 = COPY [[UV1]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0, implicit $a2, implicit $a3
+entry:
+  ret i64 5
+}
