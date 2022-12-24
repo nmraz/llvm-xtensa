@@ -53,6 +53,68 @@ entry:
   ret void
 }
 
+define void @reg_arg_i64(i64 %arg1) {
+  ; CHECK-LABEL: name: reg_arg_i64
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   liveins: $a2, $a3
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+  ; CHECK-NEXT:   [[MV:%[0-9]+]]:_(s64) = G_MERGE_VALUES [[COPY]](s32), [[COPY1]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0
+entry:
+  ret void
+}
+
+define void @reg_arg_i64_packed(i32 %arg1, i32 %arg2, i64 %arg3) {
+  ; CHECK-LABEL: name: reg_arg_i64_packed
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   liveins: $a2, $a3, $a4, $a5
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+  ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(s32) = COPY $a4
+  ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:_(s32) = COPY $a5
+  ; CHECK-NEXT:   [[MV:%[0-9]+]]:_(s64) = G_MERGE_VALUES [[COPY2]](s32), [[COPY3]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0
+entry:
+  ret void
+}
+
+define void @reg_arg_i64_aligned(i32 %arg1, i64 %arg2) {
+  ; CHECK-LABEL: name: reg_arg_i64_aligned
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   liveins: $a2, $a4, $a5
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(s32) = COPY $a4
+  ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(s32) = COPY $a5
+  ; CHECK-NEXT:   [[MV:%[0-9]+]]:_(s64) = G_MERGE_VALUES [[COPY1]](s32), [[COPY2]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0
+entry:
+  ret void
+}
+
+define void @mixed_reg_args(i32 %arg1, i1 %arg2, i64 %arg3, i8 %arg4, i16 %arg5) {
+  ; CHECK-LABEL: name: mixed_reg_args
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   liveins: $a2, $a3, $a4, $a5, $a6, $a7
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+  ; CHECK-NEXT:   [[TRUNC:%[0-9]+]]:_(s1) = G_TRUNC [[COPY1]](s32)
+  ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(s32) = COPY $a4
+  ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:_(s32) = COPY $a5
+  ; CHECK-NEXT:   [[MV:%[0-9]+]]:_(s64) = G_MERGE_VALUES [[COPY2]](s32), [[COPY3]](s32)
+  ; CHECK-NEXT:   [[COPY4:%[0-9]+]]:_(s32) = COPY $a6
+  ; CHECK-NEXT:   [[TRUNC1:%[0-9]+]]:_(s8) = G_TRUNC [[COPY4]](s32)
+  ; CHECK-NEXT:   [[COPY5:%[0-9]+]]:_(s32) = COPY $a7
+  ; CHECK-NEXT:   [[TRUNC2:%[0-9]+]]:_(s16) = G_TRUNC [[COPY5]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0
+entry:
+  ret void
+}
+
 define void @stack_arg_i32(i32 %arg1, i32 %arg2, i32 %arg3, i32 %arg4, i32 %arg5, i32 %arg6, i32 %arg7) {
   ; CHECK-LABEL: name: stack_arg_i32
   ; CHECK: bb.1.entry:
@@ -128,3 +190,114 @@ entry:
   ret void
 }
 
+define void @stack_arg_i64(i32 %arg1, i32 %arg2, i32 %arg3, i32 %arg4, i32 %arg5, i32 %arg6, i64 %arg7) {
+  ; CHECK-LABEL: name: stack_arg_i64
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   liveins: $a2, $a3, $a4, $a5, $a6, $a7
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+  ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(s32) = COPY $a4
+  ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:_(s32) = COPY $a5
+  ; CHECK-NEXT:   [[COPY4:%[0-9]+]]:_(s32) = COPY $a6
+  ; CHECK-NEXT:   [[COPY5:%[0-9]+]]:_(s32) = COPY $a7
+  ; CHECK-NEXT:   [[FRAME_INDEX:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.1
+  ; CHECK-NEXT:   [[LOAD:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX]](p0) :: (load (s32) from %fixed-stack.1, align 16)
+  ; CHECK-NEXT:   [[FRAME_INDEX1:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.0
+  ; CHECK-NEXT:   [[LOAD1:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX1]](p0) :: (load (s32) from %fixed-stack.0)
+  ; CHECK-NEXT:   [[MV:%[0-9]+]]:_(s64) = G_MERGE_VALUES [[LOAD]](s32), [[LOAD1]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0
+entry:
+  ret void
+}
+
+define void @stack_arg_i64_reg_unaligned(i32 %arg1, i32 %arg2, i32 %arg3, i32 %arg4, i32 %arg5, i64 %arg6) {
+  ; CHECK-LABEL: name: stack_arg_i64_reg_unaligned
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   liveins: $a2, $a3, $a4, $a5, $a6
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+  ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(s32) = COPY $a4
+  ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:_(s32) = COPY $a5
+  ; CHECK-NEXT:   [[COPY4:%[0-9]+]]:_(s32) = COPY $a6
+  ; CHECK-NEXT:   [[FRAME_INDEX:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.1
+  ; CHECK-NEXT:   [[LOAD:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX]](p0) :: (load (s32) from %fixed-stack.1, align 16)
+  ; CHECK-NEXT:   [[FRAME_INDEX1:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.0
+  ; CHECK-NEXT:   [[LOAD1:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX1]](p0) :: (load (s32) from %fixed-stack.0)
+  ; CHECK-NEXT:   [[MV:%[0-9]+]]:_(s64) = G_MERGE_VALUES [[LOAD]](s32), [[LOAD1]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0
+entry:
+  ret void
+}
+
+define void @stack_arg_i64_aligned(i32 %arg1, i32 %arg2, i32 %arg3, i32 %arg4, i32 %arg5, i32 %arg6, i32 %arg7, i64 %arg8) {
+  ; CHECK-LABEL: name: stack_arg_i64_aligned
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   liveins: $a2, $a3, $a4, $a5, $a6, $a7
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+  ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(s32) = COPY $a4
+  ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:_(s32) = COPY $a5
+  ; CHECK-NEXT:   [[COPY4:%[0-9]+]]:_(s32) = COPY $a6
+  ; CHECK-NEXT:   [[COPY5:%[0-9]+]]:_(s32) = COPY $a7
+  ; CHECK-NEXT:   [[FRAME_INDEX:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.2
+  ; CHECK-NEXT:   [[LOAD:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX]](p0) :: (load (s32) from %fixed-stack.2, align 16)
+  ; CHECK-NEXT:   [[FRAME_INDEX1:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.1
+  ; CHECK-NEXT:   [[LOAD1:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX1]](p0) :: (load (s32) from %fixed-stack.1, align 8)
+  ; CHECK-NEXT:   [[FRAME_INDEX2:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.0
+  ; CHECK-NEXT:   [[LOAD2:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX2]](p0) :: (load (s32) from %fixed-stack.0)
+  ; CHECK-NEXT:   [[MV:%[0-9]+]]:_(s64) = G_MERGE_VALUES [[LOAD1]](s32), [[LOAD2]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0
+entry:
+  ret void
+}
+
+define void @mixed_reg_stack_args(i32 %arg1, i1 %arg2, i8 %arg3, i64 %arg4, i16 %arg5) {
+  ; CHECK-LABEL: name: mixed_reg_stack_args
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   liveins: $a2, $a3, $a4, $a6, $a7
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+  ; CHECK-NEXT:   [[TRUNC:%[0-9]+]]:_(s1) = G_TRUNC [[COPY1]](s32)
+  ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(s32) = COPY $a4
+  ; CHECK-NEXT:   [[TRUNC1:%[0-9]+]]:_(s8) = G_TRUNC [[COPY2]](s32)
+  ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:_(s32) = COPY $a6
+  ; CHECK-NEXT:   [[COPY4:%[0-9]+]]:_(s32) = COPY $a7
+  ; CHECK-NEXT:   [[MV:%[0-9]+]]:_(s64) = G_MERGE_VALUES [[COPY3]](s32), [[COPY4]](s32)
+  ; CHECK-NEXT:   [[FRAME_INDEX:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.0
+  ; CHECK-NEXT:   [[LOAD:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX]](p0) :: (load (s32) from %fixed-stack.0, align 16)
+  ; CHECK-NEXT:   [[TRUNC2:%[0-9]+]]:_(s16) = G_TRUNC [[LOAD]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0
+entry:
+  ret void
+}
+
+define void @mixed_stack_args(i32 %arg1, i32 %arg2, i32 %arg3, i32 %arg4, i32 %arg5, i32 %arg6, i16 %arg7, i8 %arg8, i64 %arg9) {
+  ; CHECK-LABEL: name: mixed_stack_args
+  ; CHECK: bb.1.entry:
+  ; CHECK-NEXT:   liveins: $a2, $a3, $a4, $a5, $a6, $a7
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+  ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(s32) = COPY $a4
+  ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:_(s32) = COPY $a5
+  ; CHECK-NEXT:   [[COPY4:%[0-9]+]]:_(s32) = COPY $a6
+  ; CHECK-NEXT:   [[COPY5:%[0-9]+]]:_(s32) = COPY $a7
+  ; CHECK-NEXT:   [[FRAME_INDEX:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.3
+  ; CHECK-NEXT:   [[LOAD:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX]](p0) :: (load (s32) from %fixed-stack.3, align 16)
+  ; CHECK-NEXT:   [[TRUNC:%[0-9]+]]:_(s16) = G_TRUNC [[LOAD]](s32)
+  ; CHECK-NEXT:   [[FRAME_INDEX1:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.2
+  ; CHECK-NEXT:   [[LOAD1:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX1]](p0) :: (load (s32) from %fixed-stack.2)
+  ; CHECK-NEXT:   [[TRUNC1:%[0-9]+]]:_(s8) = G_TRUNC [[LOAD1]](s32)
+  ; CHECK-NEXT:   [[FRAME_INDEX2:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.1
+  ; CHECK-NEXT:   [[LOAD2:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX2]](p0) :: (load (s32) from %fixed-stack.1, align 8)
+  ; CHECK-NEXT:   [[FRAME_INDEX3:%[0-9]+]]:_(p0) = G_FRAME_INDEX %fixed-stack.0
+  ; CHECK-NEXT:   [[LOAD3:%[0-9]+]]:_(s32) = G_LOAD [[FRAME_INDEX3]](p0) :: (load (s32) from %fixed-stack.0)
+  ; CHECK-NEXT:   [[MV:%[0-9]+]]:_(s64) = G_MERGE_VALUES [[LOAD2]](s32), [[LOAD3]](s32)
+  ; CHECK-NEXT:   RETN implicit $a0
+entry:
+  ret void
+}
