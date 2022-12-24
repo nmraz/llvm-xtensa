@@ -143,7 +143,7 @@ void XtensaOutgoingValueHandler::assignValueToAddress(Register ValVReg,
                                                       CCValAssign &VA) {
   Register ExtReg = extendRegister(ValVReg, VA);
   MachineMemOperand *MMO = MIRBuilder.getMF().getMachineMemOperand(
-      MPO, MachineMemOperand::MOStore, MemTy, Align(1));
+      MPO, MachineMemOperand::MOStore, MemTy, Align(4));
   MIRBuilder.buildStore(ExtReg, Addr, *MMO);
 }
 
@@ -227,9 +227,15 @@ bool XtensaCallLowering::lowerCall(MachineIRBuilder &MIRBuilder,
 
   bool IsDirect = !Info.Callee.isReg();
 
-  unsigned Opcode = IsDirect ? Xtensa::CALL0 : Xtensa::CALLX0;
-  MachineInstrBuilder MIB = MIRBuilder.buildInstrNoInsert(Opcode);
-  MIB.add(Info.Callee);
+  // Pseudo-instruction to record the total stack space necessary for arguments.
+  // The actual adjustment values here will be filled in at the end, once they
+  // are known.
+  MachineInstrBuilder CallSeqStart =
+      MIRBuilder.buildInstr(Xtensa::ADJCALLSTACKDOWN);
+
+  unsigned CallOpcode = IsDirect ? Xtensa::CALL0 : Xtensa::CALLX0;
+  MachineInstrBuilder Call = MIRBuilder.buildInstrNoInsert(CallOpcode);
+  Call.add(Info.Callee);
 
   SmallVector<ArgInfo, 8> OutArgs;
   for (auto &Arg : Info.OrigArgs) {
@@ -237,24 +243,33 @@ bool XtensaCallLowering::lowerCall(MachineIRBuilder &MIRBuilder,
   }
 
   OutgoingValueAssigner ArgAssigner(CC_Xtensa_Call0);
-  XtensaOutgoingValueHandler ArgHandler(MIRBuilder, MRI, MIB);
+  XtensaOutgoingValueHandler ArgHandler(MIRBuilder, MRI, Call);
 
   if (!determineAndHandleAssignments(ArgHandler, ArgAssigner, OutArgs,
                                      MIRBuilder, CallConv, IsVarArg)) {
     return false;
   }
 
+  // Arguments have been passed, emit the call itself.
+  MIRBuilder.insertInstr(Call);
+
   SmallVector<ArgInfo, 4> InRets;
   splitToValueTypes(Info.OrigRet, InRets, DL, CallConv);
 
   IncomingValueAssigner RetAssigner(RetCC_Xtensa_Call0);
-  XtensaCallReturnHandler RetHandler(MIRBuilder, MRI, MIB);
+  XtensaCallReturnHandler RetHandler(MIRBuilder, MRI, Call);
 
   if (!determineAndHandleAssignments(RetHandler, RetAssigner, InRets,
                                      MIRBuilder, CallConv, IsVarArg)) {
     return false;
   }
 
-  MIRBuilder.insertInstr(MIB);
+  // Now that we know the total adjustment required for argument passing, wrap
+  // up the call sequence with the correct value.
+  CallSeqStart.addImm(ArgAssigner.StackOffset).addImm(0);
+  MIRBuilder.buildInstr(Xtensa::ADJCALLSTACKUP)
+      .addImm(ArgAssigner.StackOffset)
+      .addImm(0);
+
   return true;
 }
