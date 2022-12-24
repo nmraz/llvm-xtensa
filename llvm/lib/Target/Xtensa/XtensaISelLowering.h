@@ -9,7 +9,8 @@ class XtensaSubtarget;
 
 class XtensaTargetLowering : public TargetLowering {
 public:
-  explicit XtensaTargetLowering(const TargetMachine &TM);
+  explicit XtensaTargetLowering(const TargetMachine &TM,
+                                const XtensaSubtarget &STI);
 };
 } // namespace llvm
 

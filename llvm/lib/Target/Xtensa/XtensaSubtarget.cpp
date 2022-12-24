@@ -18,7 +18,7 @@ using namespace llvm;
 XtensaSubtarget::XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
                                  const XtensaTargetMachine &TM)
     : XtensaGenSubtargetInfo(TT, CPU, CPU, FS), FrameLowering(*this),
-      InstrInfo(*this), TLInfo(TM) {
+      InstrInfo(*this), TLInfo(TM, *this) {
   CallLoweringInfo.reset(new XtensaCallLowering(TLInfo));
 }
 
