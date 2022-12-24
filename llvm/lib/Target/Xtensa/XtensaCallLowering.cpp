@@ -7,10 +7,12 @@
 #include "llvm/CodeGen/GlobalISel/CallLowering.h"
 #include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
+#include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
 #include "llvm/CodeGen/Register.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Value.h"
+#include "llvm/Support/Alignment.h"
 
 using namespace llvm;
 
@@ -37,12 +39,31 @@ public:
   virtual void markPhysRegUsed(unsigned PhysReg) = 0;
 };
 
-class FormalArgHandler : public XtensaIncomingValueHandler {
+class XtensaFormalArgHandler : public XtensaIncomingValueHandler {
 public:
-  FormalArgHandler(MachineIRBuilder &MIRBuilder, MachineRegisterInfo &MRI)
+  XtensaFormalArgHandler(MachineIRBuilder &MIRBuilder, MachineRegisterInfo &MRI)
       : XtensaIncomingValueHandler(MIRBuilder, MRI) {}
 
   void markPhysRegUsed(unsigned PhysReg) override;
+};
+
+class XtensaOutgoingValueHandler : public CallLowering::OutgoingValueHandler {
+  MachineInstrBuilder &MIB;
+
+public:
+  XtensaOutgoingValueHandler(MachineIRBuilder &MIRBuilder,
+                             MachineRegisterInfo &MRI, MachineInstrBuilder &MIB)
+      : CallLowering::OutgoingValueHandler(MIRBuilder, MRI), MIB(MIB) {}
+
+  Register getStackAddress(uint64_t MemSize, int64_t Offset,
+                           MachinePointerInfo &MPO,
+                           ISD::ArgFlagsTy Flags) override;
+
+  void assignValueToAddress(Register ValVReg, Register Addr, LLT MemTy,
+                            MachinePointerInfo &MPO, CCValAssign &VA) override;
+
+  void assignValueToReg(Register ValVReg, Register PhysReg,
+                        CCValAssign VA) override;
 };
 
 } // namespace
@@ -70,7 +91,6 @@ void XtensaIncomingValueHandler::assignValueToAddress(Register ValVReg,
   MachineMemOperand *MMO = MF.getMachineMemOperand(
       MPO, MachineMemOperand::MOLoad, MemTy, inferAlignFromPtrInfo(MF, MPO));
 
-  // TODO: we need to truncate if the argument was extended to 32 bits
   MIRBuilder.buildLoad(ValVReg, Addr, *MMO);
 }
 
@@ -81,9 +101,43 @@ void XtensaIncomingValueHandler::assignValueToReg(Register ValVReg,
   CallLowering::IncomingValueHandler::assignValueToReg(ValVReg, PhysReg, VA);
 }
 
-void FormalArgHandler::markPhysRegUsed(unsigned int PhysReg) {
+void XtensaFormalArgHandler::markPhysRegUsed(unsigned int PhysReg) {
   MIRBuilder.getMRI()->addLiveIn(PhysReg);
   MIRBuilder.getMBB().addLiveIn(PhysReg);
+}
+
+Register XtensaOutgoingValueHandler::getStackAddress(uint64_t MemSize,
+                                                     int64_t Offset,
+                                                     MachinePointerInfo &MPO,
+                                                     ISD::ArgFlagsTy Flags) {
+  MachineFunction &MF = MIRBuilder.getMF();
+  MPO = MachinePointerInfo::getStack(MF, Offset);
+
+  LLT P0 = LLT::pointer(0, 32);
+  LLT S32 = LLT::scalar(32);
+  auto SPReg = MIRBuilder.buildCopy(P0, Register(Xtensa::A1));
+
+  auto OffsetReg = MIRBuilder.buildConstant(S32, Offset);
+  auto AddrReg = MIRBuilder.buildPtrAdd(P0, SPReg, OffsetReg);
+  return AddrReg.getReg(0);
+}
+
+void XtensaOutgoingValueHandler::assignValueToAddress(Register ValVReg,
+                                                      Register Addr, LLT MemTy,
+                                                      MachinePointerInfo &MPO,
+                                                      CCValAssign &VA) {
+  Register ExtReg = extendRegister(ValVReg, VA);
+  MachineMemOperand *MMO = MIRBuilder.getMF().getMachineMemOperand(
+      MPO, MachineMemOperand::MOStore, MemTy, Align(1));
+  MIRBuilder.buildStore(ExtReg, Addr, *MMO);
+}
+
+void XtensaOutgoingValueHandler::assignValueToReg(Register ValVReg,
+                                                  Register PhysReg,
+                                                  CCValAssign VA) {
+  Register ExtReg = extendRegister(ValVReg, VA);
+  MIRBuilder.buildCopy(PhysReg, ExtReg);
+  MIB.addUse(PhysReg, RegState::Implicit);
 }
 
 XtensaCallLowering::XtensaCallLowering(const XtensaTargetLowering &TLI)
@@ -92,12 +146,29 @@ XtensaCallLowering::XtensaCallLowering(const XtensaTargetLowering &TLI)
 bool XtensaCallLowering::lowerReturn(MachineIRBuilder &MIRBuilder,
                                      const Value *Val, ArrayRef<Register> VRegs,
                                      FunctionLoweringInfo &FLI) const {
+  MachineInstrBuilder MIB = MIRBuilder.buildInstrNoInsert(Xtensa::RETN);
+
   if (!VRegs.empty()) {
-    // TODO: handle return values
-    return false;
+    auto &MF = MIRBuilder.getMF();
+    const auto &F = MF.getFunction();
+    auto &DL = MF.getDataLayout();
+
+    SmallVector<ArgInfo, 4> OutArgs;
+
+    ArgInfo OrigArgInfo{VRegs, Val->getType(), 0};
+    setArgFlags(OrigArgInfo, AttributeList::ReturnIndex, DL, F);
+    splitToValueTypes(OrigArgInfo, OutArgs, DL, F.getCallingConv());
+
+    OutgoingValueAssigner Assigner(RetCC_Xtensa_Call0);
+    XtensaOutgoingValueHandler Handler(MIRBuilder, MF.getRegInfo(), MIB);
+
+    if (!determineAndHandleAssignments(Handler, Assigner, OutArgs, MIRBuilder,
+                                       F.getCallingConv(), F.isVarArg())) {
+      return false;
+    }
   }
 
-  MIRBuilder.buildInstr(Xtensa::RETN);
+  MIRBuilder.insertInstr(MIB);
   return true;
 }
 
@@ -122,8 +193,8 @@ bool XtensaCallLowering::lowerFormalArguments(
     Idx++;
   }
 
-  OutgoingValueAssigner Assigner(CC_Xtensa_Call0);
-  FormalArgHandler Handler(MIRBuilder, *MIRBuilder.getMRI());
+  IncomingValueAssigner Assigner(CC_Xtensa_Call0);
+  XtensaFormalArgHandler Handler(MIRBuilder, MF.getRegInfo());
 
   return determineAndHandleAssignments(Handler, Assigner, InArgs, MIRBuilder,
                                        CallConv, F.isVarArg());
