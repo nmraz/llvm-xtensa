@@ -9,6 +9,12 @@ class XtensaInst<dag outs, dag ins, string asmstr, list<dag> pattern>
   let Pattern     = pattern;
 }
 
+class XtensaPseudo<dag outs, dag ins, list<dag> pattern>
+   : XtensaInst<outs, ins, "", pattern> {
+  let isCodeGenOnly = 1;
+  let isPseudo = 1;
+}
+
 class Inst16<bits<4> op0, dag outs, dag ins, string asmstr, list<dag> pattern>
    : XtensaInst<outs, ins, asmstr, pattern> {
   field bits<16> Inst;
