@@ -2,6 +2,7 @@ include "llvm/Target/Target.td"
 
 include "XtensaRegisterInfo.td"
 include "XtensaInstrInfo.td"
+include "XtensaCallingConv.td"
 
 def XtensaInstrInfo : InstrInfo;
 
