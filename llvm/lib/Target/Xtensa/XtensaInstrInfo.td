@@ -311,6 +311,12 @@ let isCall = true in {
 }
 
 
+let Uses = [A1], Defs = [A1] in {
+  // Pseudo-instructions used to model stack frame adjustments when lowering call arguments
+  def ADJCALLSTACKDOWN : XtensaPseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), []>;
+  def ADJCALLSTACKUP : XtensaPseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), []>;
+}
+
 def ABS : ArithRRrt<0b0000, 0b0110, 0b0001, "abs">;
 
 def ADD   : ArithRRR<0b0000, 0b1000, "add">;
