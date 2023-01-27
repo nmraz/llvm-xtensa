@@ -7,6 +7,7 @@
 #include "llvm/CodeGen/GlobalISel/CallLowering.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelector.h"
 #include "llvm/CodeGen/GlobalISel/LegalizerInfo.h"
+#include "llvm/CodeGen/RegisterBankInfo.h"
 #include "llvm/CodeGen/TargetFrameLowering.h"
 #include "llvm/CodeGen/TargetLowering.h"
 #include "llvm/CodeGen/TargetSubtargetInfo.h"
@@ -28,6 +29,7 @@ private:
   XtensaTargetLowering TLInfo;
 
   std::unique_ptr<CallLowering> CallLoweringInfo;
+  std::unique_ptr<RegisterBankInfo> RegBankInfo;
 
 public:
   XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,

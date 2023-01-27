@@ -1,6 +1,7 @@
 #include "XtensaSubtarget.h"
 #include "XtensaCallLowering.h"
 #include "XtensaFrameLowering.h"
+#include "XtensaRegisterBankInfo.h"
 #include "XtensaTargetMachine.h"
 #include "llvm/CodeGen/GlobalISel/CallLowering.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelector.h"
@@ -20,6 +21,7 @@ XtensaSubtarget::XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
     : XtensaGenSubtargetInfo(TT, CPU, CPU, FS), FrameLowering(*this),
       InstrInfo(*this), TLInfo(TM, *this) {
   CallLoweringInfo.reset(new XtensaCallLowering(TLInfo));
+  RegBankInfo.reset(new XtensaRegisterBankInfo(*getRegisterInfo()));
 }
 
 const CallLowering *XtensaSubtarget::getCallLowering() const {
@@ -27,7 +29,7 @@ const CallLowering *XtensaSubtarget::getCallLowering() const {
 }
 
 const RegisterBankInfo *XtensaSubtarget::getRegBankInfo() const {
-  return nullptr;
+  return RegBankInfo.get();
 }
 
 const LegalizerInfo *XtensaSubtarget::getLegalizerInfo() const {

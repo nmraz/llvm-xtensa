@@ -4,10 +4,10 @@ set(LLVM_TARGET_DEFINITIONS Xtensa.td)
 
 tablegen(LLVM XtensaGenInstrInfo.inc -gen-instr-info)
 tablegen(LLVM XtensaGenRegisterInfo.inc -gen-register-info)
+tablegen(LLVM XtensaGenRegisterBank.inc -gen-register-bank)
 tablegen(LLVM XtensaGenMCCodeEmitter.inc -gen-emitter)
 tablegen(LLVM XtensaGenAsmWriter.inc -gen-asm-writer)
 tablegen(LLVM XtensaGenSubtargetInfo.inc -gen-subtarget)
-tablegen(LLVM XtensaGenMCCodeEmitter.inc -gen-emitter)
 tablegen(LLVM XtensaGenAsmMatcher.inc -gen-asm-matcher)
 tablegen(LLVM XtensaGenCallingConv.inc -gen-callingconv)
 
@@ -18,7 +18,6 @@ tablegen(LLVM XtensaGenCallingConv.inc -gen-callingconv)
 # tablegen(LLVM XtensaGenPostLegalizeGICombiner.inc -gen-global-isel-combiner
 #               -combiners="XtensaPostLegalizerCombinerHelper")
 # tablegen(LLVM XtensaGenMCPseudoLowering.inc -gen-pseudo-lowering)
-# tablegen(LLVM XtensaGenRegisterBank.inc -gen-register-bank)
 # tablegen(LLVM XtensaGenExegesis.inc -gen-exegesis)
 
 add_public_tablegen_target(XtensaCommonTableGen)
@@ -30,6 +29,7 @@ add_llvm_target(XtensaCodeGen
   XtensaInstrInfo.cpp
   XtensaISelLowering.cpp
   XtensaMCInstLower.cpp
+  XtensaRegisterBankInfo.cpp
   XtensaRegisterInfo.cpp
   XtensaSubtarget.cpp
   XtensaTargetMachine.cpp
