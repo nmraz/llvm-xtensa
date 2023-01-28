@@ -64,7 +64,8 @@ XtensaRegisterBankInfo::getInstrMapping(const MachineInstr &MI) const {
   assert(NumOperands <= 3 && "Too many operands in instruction!");
 
   // Up to 3 operands in GPRs
-  RegisterBankInfo::ValueMapping *OperandsMapping = &Xtensa::ValueMappings[1];
+  RegisterBankInfo::ValueMapping *OperandsMapping =
+      &Xtensa::ValueMappings[Xtensa::GPRIdx];
   return getInstructionMapping(DefaultMappingID, 1, OperandsMapping,
                                NumOperands);
 }
