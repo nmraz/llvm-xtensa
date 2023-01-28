@@ -19,6 +19,10 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .legalFor({S32})
       .clampScalar(0, S32, S32);
 
+  getActionDefinitionsBuilder(G_IMPLICIT_DEF)
+      .legalFor({S32})
+      .clampScalar(0, S32, S32);
+
   getActionDefinitionsBuilder({G_ADD, G_SUB, G_MUL, G_AND, G_OR, G_XOR})
       .legalFor({S32})
       .widenScalarToNextPow2(0)
@@ -26,7 +30,9 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
 
   getActionDefinitionsBuilder(
       {G_SADDE, G_SSUBE, G_UADDE, G_USUBE, G_SADDO, G_SSUBO, G_UADDO, G_USUBO})
-      .lowerFor({{S32, S1}});
+      .lowerFor({{S32, S1}})
+      .widenScalarToNextPow2(0)
+      .clampScalar(0, S32, S32);
 
   getActionDefinitionsBuilder(G_ICMP)
       .legalFor({{S32, S32}, {S32, P0}})
