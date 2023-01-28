@@ -30,6 +30,7 @@ private:
 
   std::unique_ptr<CallLowering> CallLoweringInfo;
   std::unique_ptr<RegisterBankInfo> RegBankInfo;
+  std::unique_ptr<LegalizerInfo> Legalizer;
 
 public:
   XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,

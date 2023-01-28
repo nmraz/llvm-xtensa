@@ -28,6 +28,7 @@ add_llvm_target(XtensaCodeGen
   XtensaFrameLowering.cpp
   XtensaInstrInfo.cpp
   XtensaISelLowering.cpp
+  XtensaLegalizerInfo.cpp
   XtensaMCInstLower.cpp
   XtensaRegisterBankInfo.cpp
   XtensaRegisterInfo.cpp
