@@ -30,6 +30,18 @@
     ret i32 %add
   }
 
+  define i33 @add_i33(i33 %a, i33 %b) {
+  entry:
+    %add = add i33 %b, %a
+    ret i33 %add
+  }
+
+  define i64 @add_i64(i64 %a, i64 %b) {
+  entry:
+    %add = add i64 %b, %a
+    ret i64 %add
+  }
+
 ...
 ---
 name:            add_i1
@@ -327,5 +339,195 @@ body:             |
     %2:_(s32) = G_ADD %1, %0
     $a2 = COPY %2(s32)
     RETN implicit $a0, implicit $a2
+
+...
+---
+name:            add_i33
+alignment:       4
+exposesReturnsTwice: false
+legalized:       false
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: _, preferred-register: '' }
+  - { id: 4, class: _, preferred-register: '' }
+  - { id: 5, class: _, preferred-register: '' }
+  - { id: 6, class: _, preferred-register: '' }
+  - { id: 7, class: _, preferred-register: '' }
+  - { id: 8, class: _, preferred-register: '' }
+  - { id: 9, class: _, preferred-register: '' }
+  - { id: 10, class: _, preferred-register: '' }
+  - { id: 11, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+  - { reg: '$a4', virtual-reg: '' }
+  - { reg: '$a5', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    liveins: $a2, $a3, $a4, $a5
+
+    ; CHECK-LABEL: name: add_i33
+    ; CHECK: liveins: $a2, $a3, $a4, $a5
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+    ; CHECK-NEXT: [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+    ; CHECK-NEXT: [[COPY2:%[0-9]+]]:_(s32) = COPY $a4
+    ; CHECK-NEXT: [[COPY3:%[0-9]+]]:_(s32) = COPY $a5
+    ; CHECK-NEXT: [[ADD:%[0-9]+]]:_(s32) = G_ADD [[COPY2]], [[COPY]]
+    ; CHECK-NEXT: [[ICMP:%[0-9]+]]:_(s32) = G_ICMP intpred(ult), [[ADD]](s32), [[COPY]]
+    ; CHECK-NEXT: [[ADD1:%[0-9]+]]:_(s32) = G_ADD [[COPY3]], [[COPY1]]
+    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
+    ; CHECK-NEXT: [[AND:%[0-9]+]]:_(s32) = G_AND [[ICMP]], [[C]]
+    ; CHECK-NEXT: [[ADD2:%[0-9]+]]:_(s32) = G_ADD [[ADD1]], [[AND]]
+    ; CHECK-NEXT: $a2 = COPY [[ADD]](s32)
+    ; CHECK-NEXT: $a3 = COPY [[ADD2]](s32)
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
+    %2:_(s32) = COPY $a2
+    %3:_(s32) = COPY $a3
+    %4:_(s64) = G_MERGE_VALUES %2(s32), %3(s32)
+    %0:_(s33) = G_TRUNC %4(s64)
+    %5:_(s32) = COPY $a4
+    %6:_(s32) = COPY $a5
+    %7:_(s64) = G_MERGE_VALUES %5(s32), %6(s32)
+    %1:_(s33) = G_TRUNC %7(s64)
+    %8:_(s33) = G_ADD %1, %0
+    %11:_(s64) = G_ANYEXT %8(s33)
+    %9:_(s32), %10:_(s32) = G_UNMERGE_VALUES %11(s64)
+    $a2 = COPY %9(s32)
+    $a3 = COPY %10(s32)
+    RETN implicit $a0, implicit $a2, implicit $a3
+
+...
+---
+name:            add_i64
+alignment:       4
+exposesReturnsTwice: false
+legalized:       false
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: _, preferred-register: '' }
+  - { id: 4, class: _, preferred-register: '' }
+  - { id: 5, class: _, preferred-register: '' }
+  - { id: 6, class: _, preferred-register: '' }
+  - { id: 7, class: _, preferred-register: '' }
+  - { id: 8, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+  - { reg: '$a4', virtual-reg: '' }
+  - { reg: '$a5', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    liveins: $a2, $a3, $a4, $a5
+
+    ; CHECK-LABEL: name: add_i64
+    ; CHECK: liveins: $a2, $a3, $a4, $a5
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+    ; CHECK-NEXT: [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+    ; CHECK-NEXT: [[COPY2:%[0-9]+]]:_(s32) = COPY $a4
+    ; CHECK-NEXT: [[COPY3:%[0-9]+]]:_(s32) = COPY $a5
+    ; CHECK-NEXT: [[ADD:%[0-9]+]]:_(s32) = G_ADD [[COPY2]], [[COPY]]
+    ; CHECK-NEXT: [[ICMP:%[0-9]+]]:_(s32) = G_ICMP intpred(ult), [[ADD]](s32), [[COPY]]
+    ; CHECK-NEXT: [[ADD1:%[0-9]+]]:_(s32) = G_ADD [[COPY3]], [[COPY1]]
+    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
+    ; CHECK-NEXT: [[AND:%[0-9]+]]:_(s32) = G_AND [[ICMP]], [[C]]
+    ; CHECK-NEXT: [[ADD2:%[0-9]+]]:_(s32) = G_ADD [[ADD1]], [[AND]]
+    ; CHECK-NEXT: $a2 = COPY [[ADD]](s32)
+    ; CHECK-NEXT: $a3 = COPY [[ADD2]](s32)
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
+    %2:_(s32) = COPY $a2
+    %3:_(s32) = COPY $a3
+    %0:_(s64) = G_MERGE_VALUES %2(s32), %3(s32)
+    %4:_(s32) = COPY $a4
+    %5:_(s32) = COPY $a5
+    %1:_(s64) = G_MERGE_VALUES %4(s32), %5(s32)
+    %6:_(s64) = G_ADD %1, %0
+    %7:_(s32), %8:_(s32) = G_UNMERGE_VALUES %6(s64)
+    $a2 = COPY %7(s32)
+    $a3 = COPY %8(s32)
+    RETN implicit $a0, implicit $a2, implicit $a3
 
 ...

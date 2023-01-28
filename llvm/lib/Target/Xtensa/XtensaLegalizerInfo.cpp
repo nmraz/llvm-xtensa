@@ -8,17 +8,40 @@ using namespace llvm;
 XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   using namespace TargetOpcode;
 
-  const LLT s1 = LLT::scalar(1);
-  const LLT s32 = LLT::scalar(32);
+  const LLT S1 = LLT::scalar(1);
+  const LLT S32 = LLT::scalar(32);
+  const LLT P0 = LLT::pointer(0, 32);
+
+  getActionDefinitionsBuilder(G_PHI).legalFor({S32, P0}).clampScalar(0, S32,
+                                                                     S32);
+
+  getActionDefinitionsBuilder(G_CONSTANT)
+      .legalFor({S32})
+      .clampScalar(0, S32, S32);
 
   getActionDefinitionsBuilder({G_ADD, G_SUB, G_MUL, G_AND, G_OR, G_XOR})
-      .legalFor({s32})
-      .clampScalar(0, s32, s32);
+      .legalFor({S32})
+      .widenScalarToNextPow2(0)
+      .clampScalar(0, S32, S32);
 
   getActionDefinitionsBuilder(
       {G_SADDE, G_SSUBE, G_UADDE, G_USUBE, G_SADDO, G_SSUBO, G_UADDO, G_USUBO})
-      .lowerFor({{s32, s1}})
-      .clampScalar(0, s32, s32);
+      .lowerFor({{S32, S1}});
+
+  getActionDefinitionsBuilder(G_ICMP)
+      .legalFor({{S32, S32}, {S32, P0}})
+      .clampScalar(0, S32, S32)
+      .clampScalar(1, S32, S32);
+
+  // Ext/trunc instructions should all be folded together during legalization,
+  // meaning they are never legal in the final output.
+  getActionDefinitionsBuilder({G_ZEXT, G_SEXT, G_ANYEXT})
+      .legalIf([](const LegalityQuery &Query) { return false; })
+      .maxScalar(0, S32);
+
+  getActionDefinitionsBuilder(G_TRUNC)
+      .legalIf([](const LegalityQuery &Query) { return false; })
+      .maxScalar(1, S32);
 
   getLegacyLegalizerInfo().computeTables();
 
