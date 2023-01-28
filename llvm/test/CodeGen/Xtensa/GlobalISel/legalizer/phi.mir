@@ -66,6 +66,18 @@
     ret i64 %cond
   }
 
+  define ptr @phi_ptr(i1 %cnd, ptr %a, ptr %b) {
+  entry:
+    br i1 %cnd, label %cond.end, label %cond.false
+
+  cond.false:                                       ; preds = %entry
+    br label %cond.end
+
+  cond.end:                                         ; preds = %entry, %cond.false
+    %cond = phi ptr [ %b, %cond.false ], [ %a, %entry ]
+    ret ptr %cond
+  }
+
 ...
 ---
 name:            phi_i1
@@ -576,5 +588,100 @@ body:             |
     $a2 = COPY %9(s32)
     $a3 = COPY %10(s32)
     RETN implicit $a0, implicit $a2, implicit $a3
+
+...
+---
+name:            phi_ptr
+alignment:       4
+exposesReturnsTwice: false
+legalized:       false
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: _, preferred-register: '' }
+  - { id: 4, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+  - { reg: '$a4', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  ; CHECK-LABEL: name: phi_ptr
+  ; CHECK: bb.0.entry:
+  ; CHECK-NEXT:   successors: %bb.2(0x40000000), %bb.1(0x40000000)
+  ; CHECK-NEXT:   liveins: $a2, $a3, $a4
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(p0) = COPY $a3
+  ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(p0) = COPY $a4
+  ; CHECK-NEXT:   G_BRCOND [[COPY]](s32), %bb.2
+  ; CHECK-NEXT:   G_BR %bb.1
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT: bb.1.cond.false:
+  ; CHECK-NEXT:   successors: %bb.2(0x80000000)
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT: bb.2.cond.end:
+  ; CHECK-NEXT:   [[PHI:%[0-9]+]]:_(p0) = G_PHI [[COPY2]](p0), %bb.1, [[COPY1]](p0), %bb.0
+  ; CHECK-NEXT:   $a2 = COPY [[PHI]](p0)
+  ; CHECK-NEXT:   RETN implicit $a0, implicit $a2
+  bb.1.entry:
+    successors: %bb.3(0x40000000), %bb.2(0x40000000)
+    liveins: $a2, $a3, $a4
+
+    %3:_(s32) = COPY $a2
+    %0:_(s1) = G_TRUNC %3(s32)
+    %1:_(p0) = COPY $a3
+    %2:_(p0) = COPY $a4
+    G_BRCOND %0(s1), %bb.3
+    G_BR %bb.2
+
+  bb.2.cond.false:
+    successors: %bb.3(0x80000000)
+
+
+  bb.3.cond.end:
+    %4:_(p0) = G_PHI %2(p0), %bb.2, %1(p0), %bb.1
+    $a2 = COPY %4(p0)
+    RETN implicit $a0, implicit $a2
 
 ...
