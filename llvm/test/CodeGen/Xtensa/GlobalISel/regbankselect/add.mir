@@ -81,3 +81,5 @@ body: |
     %2:_(s32) = nsw G_ADD %1, %0
     $a2 = COPY %2(s32)
     RETN implicit $a0, implicit $a2
+
+...
