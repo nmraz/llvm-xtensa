@@ -31,11 +31,13 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .widenScalarToNextPow2(0)
       .clampScalar(0, S32, S32);
 
+  // Note: we narrow the shift amount before dealing with the shifted value, as
+  // that can result in substantially less code generated.
   getActionDefinitionsBuilder({G_SHL, G_LSHR, G_ASHR})
       .legalFor({{S32, S32}})
+      .clampScalar(1, S32, S32)
       .widenScalarToNextPow2(0)
-      .clampScalar(0, S32, S32)
-      .clampScalar(1, S32, S32);
+      .clampScalar(0, S32, S32);
 
   getActionDefinitionsBuilder(
       {G_SADDE, G_SSUBE, G_UADDE, G_USUBE, G_SADDO, G_SSUBO, G_UADDO, G_USUBO})
