@@ -15,11 +15,7 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   getActionDefinitionsBuilder(G_PHI).legalFor({S32, P0}).clampScalar(0, S32,
                                                                      S32);
 
-  getActionDefinitionsBuilder(G_CONSTANT)
-      .legalFor({S32})
-      .clampScalar(0, S32, S32);
-
-  getActionDefinitionsBuilder(G_IMPLICIT_DEF)
+  getActionDefinitionsBuilder({G_CONSTANT, G_IMPLICIT_DEF, G_BRCOND})
       .legalFor({S32})
       .clampScalar(0, S32, S32);
 
@@ -38,9 +34,6 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .legalFor({{S32, S32}, {S32, P0}})
       .clampScalar(0, S32, S32)
       .clampScalar(1, S32, S32);
-
-  getActionDefinitionsBuilder(G_BRCOND).legalFor({S32}).clampScalar(0, S32,
-                                                                    S32);
 
   // Ext/trunc instructions should all be folded together during legalization,
   // meaning they are never legal in the final output.
