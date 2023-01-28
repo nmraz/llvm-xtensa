@@ -23,7 +23,7 @@ XtensaSubtarget::XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
       InstrInfo(*this), TLInfo(TM, *this) {
   CallLoweringInfo.reset(new XtensaCallLowering(TLInfo));
   RegBankInfo.reset(new XtensaRegisterBankInfo(*getRegisterInfo()));
-  Legalizer.reset(new XtensaLegalizerInfo());
+  Legalizer.reset(new XtensaLegalizerInfo(*this));
 }
 
 const CallLowering *XtensaSubtarget::getCallLowering() const {

@@ -5,9 +5,11 @@
 
 namespace llvm {
 
+class XtensaSubtarget;
+
 class XtensaLegalizerInfo : public LegalizerInfo {
 public:
-  XtensaLegalizerInfo();
+  XtensaLegalizerInfo(const XtensaSubtarget &ST);
 };
 
 } // namespace llvm
