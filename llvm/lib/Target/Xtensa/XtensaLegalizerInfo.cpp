@@ -25,6 +25,12 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .widenScalarToNextPow2(0)
       .clampScalar(0, S32, S32);
 
+  getActionDefinitionsBuilder({G_SHL, G_LSHR, G_ASHR})
+      .legalFor({{S32, S32}})
+      .widenScalarToNextPow2(0)
+      .clampScalar(0, S32, S32)
+      .clampScalar(1, S32, S32);
+
   getActionDefinitionsBuilder(
       {G_SADDE, G_SSUBE, G_UADDE, G_USUBE, G_SADDO, G_SSUBO, G_UADDO, G_USUBO})
       .lowerFor({{S32, S1}})
@@ -36,8 +42,13 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .clampScalar(0, S32, S32)
       .clampScalar(1, S32, S32);
 
+  // TODO: there is a `sext` instruction in the miscellaneous instruction option
+  // that does exactly this.
+  getActionDefinitionsBuilder(G_SEXT_INREG).lower();
+
   // Ext/trunc instructions should all be folded together during legalization,
-  // meaning they are never legal in the final output.
+  // meaning they are never legal in the final output; everything should be
+  // 32-bit.
   getActionDefinitionsBuilder({G_ZEXT, G_SEXT, G_ANYEXT})
       .legalIf([](const LegalityQuery &Query) { return false; })
       .maxScalar(0, S32);
