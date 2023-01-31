@@ -9,6 +9,8 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   using namespace TargetOpcode;
 
   const LLT S1 = LLT::scalar(1);
+  const LLT S8 = LLT::scalar(8);
+  const LLT S16 = LLT::scalar(16);
   const LLT S32 = LLT::scalar(32);
   const LLT P0 = LLT::pointer(0, 32);
 
@@ -64,9 +66,27 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   // that does exactly this.
   getActionDefinitionsBuilder(G_SEXT_INREG).lower();
 
-  // Ext/trunc instructions should all be folded together during legalization,
-  // meaning they are never legal in the final output; everything should be
-  // 32-bit.
+  getActionDefinitionsBuilder({G_LOAD, G_ZEXTLOAD})
+      .legalForTypesWithMemDesc({
+          {S32, P0, S8, 8},
+          {S32, P0, S16, 16},
+          {S32, P0, S32, 32},
+      })
+      .clampScalar(0, S32, S32)
+      .lower();
+
+  getActionDefinitionsBuilder(G_SEXTLOAD)
+      .legalForTypesWithMemDesc({{S32, P0, S16, 16}})
+      .clampScalar(0, S32, S32)
+      .lower();
+
+  getActionDefinitionsBuilder(G_PTR_ADD)
+      .legalFor({{P0, S32}})
+      .clampScalar(1, S32, S32);
+
+  // Ext/trunc instructions should all be folded together during
+  // legalization, meaning they are never legal in the final output;
+  // everything should be 32-bit.
   getActionDefinitionsBuilder({G_ZEXT, G_SEXT, G_ANYEXT})
       .legalIf([](const LegalityQuery &Query) { return false; })
       .maxScalar(0, S32);
