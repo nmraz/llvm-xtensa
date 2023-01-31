@@ -31,15 +31,11 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .widenScalarToNextPow2(0)
       .clampScalar(0, S32, S32);
 
-  getActionDefinitionsBuilder({G_SDIV, G_UDIV, G_SREM, G_UREM})
-      .legalFor({S32})
+  getActionDefinitionsBuilder(
+      {G_SADDE, G_SSUBE, G_UADDE, G_USUBE, G_SADDO, G_SSUBO, G_UADDO, G_USUBO})
+      .lowerFor({{S32, S1}})
       .widenScalarToNextPow2(0)
-      .minScalar(0, S32)
-      .libcall();
-
-  // TODO: create a custom libcall that does this in one operation for wide
-  // values.
-  getActionDefinitionsBuilder({G_SDIVREM, G_UDIVREM}).lower();
+      .clampScalar(0, S32, S32);
 
   // Note: we narrow the shift amount before dealing with the shifted value, as
   // that can result in substantially less code generated.
@@ -49,11 +45,15 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .widenScalarToNextPow2(0)
       .clampScalar(0, S32, S32);
 
-  getActionDefinitionsBuilder(
-      {G_SADDE, G_SSUBE, G_UADDE, G_USUBE, G_SADDO, G_SSUBO, G_UADDO, G_USUBO})
-      .lowerFor({{S32, S1}})
+  getActionDefinitionsBuilder({G_SDIV, G_UDIV, G_SREM, G_UREM})
+      .legalFor({S32})
       .widenScalarToNextPow2(0)
-      .clampScalar(0, S32, S32);
+      .minScalar(0, S32)
+      .libcall();
+
+  // TODO: create a custom libcall that does this in one operation for wide
+  // values.
+  getActionDefinitionsBuilder({G_SDIVREM, G_UDIVREM}).lower();
 
   getActionDefinitionsBuilder(G_ICMP)
       .legalFor({{S32, S32}, {S32, P0}})
