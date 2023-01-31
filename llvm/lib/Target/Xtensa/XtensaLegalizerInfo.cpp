@@ -80,6 +80,15 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .clampScalar(0, S32, S32)
       .lower();
 
+  getActionDefinitionsBuilder(G_STORE)
+      .legalForTypesWithMemDesc({
+          {S32, P0, S8, 8},
+          {S32, P0, S16, 16},
+          {S32, P0, S32, 32},
+      })
+      .clampScalar(0, S32, S32)
+      .lower();
+
   getActionDefinitionsBuilder(G_PTR_ADD)
       .legalFor({{P0, S32}})
       .clampScalar(1, S32, S32);
