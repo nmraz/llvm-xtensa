@@ -26,10 +26,20 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .clampScalar(1, S32, S32);
 
   getActionDefinitionsBuilder(
-      {G_ADD, G_SUB, G_MUL, G_UMULH, G_SMULH, G_AND, G_OR, G_XOR})
+      {G_AND, G_OR, G_XOR, G_ADD, G_SUB, G_MUL, G_UMULH, G_SMULH})
       .legalFor({S32})
       .widenScalarToNextPow2(0)
       .clampScalar(0, S32, S32);
+
+  getActionDefinitionsBuilder({G_SDIV, G_UDIV, G_SREM, G_UREM})
+      .legalFor({S32})
+      .widenScalarToNextPow2(0)
+      .minScalar(0, S32)
+      .libcall();
+
+  // TODO: create a custom libcall that does this in one operation for wide
+  // values.
+  getActionDefinitionsBuilder({G_SDIVREM, G_UDIVREM}).lower();
 
   // Note: we narrow the shift amount before dealing with the shifted value, as
   // that can result in substantially less code generated.
