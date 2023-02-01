@@ -165,78 +165,78 @@ def calltarget18 : PCRelOperand<OtherVT> {
 
 // Arithmetic instruction classes
 let hasSideEffects = false, mayLoad = false, mayStore = false in {
-  class ArithRRR<bits<4> op1, bits<4> op2, string name>
+  class ArithRRR<bits<4> op1, bits<4> op2, string name, list<dag> pattern>
     : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
-            !strconcat(name, "\t$ar, $as, $at"), []>;
+            !strconcat(name, "\t$ar, $as, $at"), pattern>;
 
-  class ArithRRrt<bits<4> op1, bits<4> op2, bits<4> s, string name>
+  class ArithRRrt<bits<4> op1, bits<4> op2, bits<4> s, string name, list<dag> pattern>
     : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$at),
-            !strconcat(name, "\t$ar, $at"), []> {
+            !strconcat(name, "\t$ar, $at"), pattern> {
     let as = s;
   }
 
-  class ArithRRrs<bits<4> op1, bits<4> op2, bits<4> t, string name>
+  class ArithRRrs<bits<4> op1, bits<4> op2, bits<4> t, string name, list<dag> pattern>
     : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as),
-            !strconcat(name, "\t$ar, $as"), []> {
+            !strconcat(name, "\t$ar, $as"), pattern> {
     let at = t;
   }
 
-  class ArithRs<bits<4> op1, bits<4> op2, bits<4> t, bits<4> r, string name>
+  class ArithRs<bits<4> op1, bits<4> op2, bits<4> t, bits<4> r, string name, list<dag> pattern>
     : I_RRR<0b0000, op1, op2, (outs), (ins GPR:$as),
-            !strconcat(name, "\t$as"), []> {
+            !strconcat(name, "\t$as"), pattern> {
     let at = t;
     let ar = r;
   }
 
-  class ArithRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
+  class ArithRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
     : I_RRI8<op0, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
-              !strconcat(name, "\t$at, $as, $imm8"), []> {
+              !strconcat(name, "\t$at, $as, $imm8"), pattern> {
     let ar = r;
   }
 
-  class ArithRI12<bits<4> op0, bits<4> r, Operand Imm, string name>
+  class ArithRI12<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
     : I_RRI8<op0, (outs GPR:$at), (ins Imm:$imm12),
-             !strconcat(name, "\t$at, $imm12"), []> {
+             !strconcat(name, "\t$at, $imm12"), pattern> {
     bits<12> imm12;
     let ar = r;
     let as = imm12{11...8};
     let imm8 = imm12{7...0};
   }
 
-  class ArithRRRN<bits<4> op0, string name>
+  class ArithRRRN<bits<4> op0, string name, list<dag> pattern>
    : I_RRRN<op0, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
-            !strconcat(name, "\t$ar, $as, $at"), []>;
+            !strconcat(name, "\t$ar, $as, $at"), pattern>;
 
-  class ArithRI7N<bits<4> op0, bit i, Operand Imm, string name>
+  class ArithRI7N<bits<4> op0, bit i, Operand Imm, string name, list<dag> pattern>
     : I_RI7<op0, i, (outs GPR:$as), (ins Imm:$imm7),
-            !strconcat(name, "\t$as, $imm7"), []>;
+            !strconcat(name, "\t$as, $imm7"), pattern>;
 }
 
 // Load instruction classes
 let hasSideEffects = false, mayLoad = true, mayStore = false in {
-  class LoadRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
-    : ArithRRI8<op0, r, Imm, name>;
+  class LoadRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
+    : ArithRRI8<op0, r, Imm, name, pattern>;
 
-  class LoadRRRN<bits<4> op0, Operand Imm, string name>
+  class LoadRRRN<bits<4> op0, Operand Imm, string name, list<dag> pattern>
     : I_RRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
-              !strconcat(name, "\t$at, $as, $offset"), []> {
+              !strconcat(name, "\t$at, $as, $offset"), pattern> {
     bits<4> offset;
     let ar = offset;
   }
 
-  class LoadRI16<bits<4> op0, Operand Imm, string name>
+  class LoadRI16<bits<4> op0, Operand Imm, string name, list<dag> pattern>
     : I_RI16<op0, (outs GPR:$at), (ins Imm:$imm16),
-             !strconcat(name, "\t$at, $imm16"), []>;
+             !strconcat(name, "\t$at, $imm16"), pattern>;
 }
 
 // Store instruction classes
 let hasSideEffects = false, mayLoad = false, mayStore = true in {
-  class StoreRRI8<bits<4> op0, bits<4> r, Operand Imm, string name>
-    : ArithRRI8<op0, r, Imm, name>;
+  class StoreRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
+    : ArithRRI8<op0, r, Imm, name, pattern>;
 
-  class StoreRRRN<bits<4> op0, Operand Imm, string name>
+  class StoreRRRN<bits<4> op0, Operand Imm, string name, list<dag> pattern>
     : I_RRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
-              !strconcat(name, "\t$at, $as, $offset"), []> {
+              !strconcat(name, "\t$at, $as, $offset"), pattern> {
     bits<4> offset;
     let ar = offset;
   }
@@ -325,18 +325,18 @@ let Uses = [A1], Defs = [A1] in {
   def ADJCALLSTACKUP : XtensaPseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), []>;
 }
 
-def ABS : ArithRRrt<0b0000, 0b0110, 0b0001, "abs">;
+def ABS : ArithRRrt<0b0000, 0b0110, 0b0001, "abs", []>;
 
-def ADD   : ArithRRR<0b0000, 0b1000, "add">;
-def ADDI  : ArithRRI8<0b0010, 0b1100, simm8, "addi">;
-def ADDMI : ArithRRI8<0b0010, 0b1101, simm8_sl8, "addmi">;
-def ADDX2 : ArithRRR<0b0000, 0b1001, "addx2">;
-def ADDX4 : ArithRRR<0b0000, 0b1010, "addx4">;
-def ADDX8 : ArithRRR<0b0000, 0b1011, "addx8">;
+def ADD   : ArithRRR<0b0000, 0b1000, "add", []>;
+def ADDI  : ArithRRI8<0b0010, 0b1100, simm8, "addi", []>;
+def ADDMI : ArithRRI8<0b0010, 0b1101, simm8_sl8, "addmi", []>;
+def ADDX2 : ArithRRR<0b0000, 0b1001, "addx2", []>;
+def ADDX4 : ArithRRR<0b0000, 0b1010, "addx4", []>;
+def ADDX8 : ArithRRR<0b0000, 0b1011, "addx8", []>;
 
-def ADDN : ArithRRRN<0b1010, "add.n">;
+def ADDN : ArithRRRN<0b1010, "add.n", []>;
 
-def AND : ArithRRR<0b0000, 0b0001, "and">;
+def AND : ArithRRR<0b0000, 0b0001, "and", []>;
 
 def BALL : BranchRR8<0b0100, "ball">;
 def BANY : BranchRR8<0b1000, "bany">;
@@ -419,44 +419,44 @@ let isBranch = true, isTerminator = true, isBarrier = true in {
   def JX : GenericCallX<0b10, 0b10, "jx">;
 }
 
-def L8UI : LoadRRI8<0b0010, 0b0000, uimm8, "l8ui">;
-def L16SI : LoadRRI8<0b0010, 0b1001, uimm8_sl1, "l16si">;
-def L16UI : LoadRRI8<0b0010, 0b0001, uimm8_sl1, "l16ui">;
-def L32I : LoadRRI8<0b0010, 0b0010, uimm8_sl2, "l32i">;
-def L32IN : LoadRRRN<0b1000, uimm4_sl2, "l32i.n">;
-def L32R : LoadRI16<0b0001, l32rtarget16, "l32r">;
+def L8UI : LoadRRI8<0b0010, 0b0000, uimm8, "l8ui", []>;
+def L16SI : LoadRRI8<0b0010, 0b1001, uimm8_sl1, "l16si", []>;
+def L16UI : LoadRRI8<0b0010, 0b0001, uimm8_sl1, "l16ui", []>;
+def L32I : LoadRRI8<0b0010, 0b0010, uimm8_sl2, "l32i", []>;
+def L32IN : LoadRRRN<0b1000, uimm4_sl2, "l32i.n", []>;
+def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []>;
 
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
 
 let isSelect = 1 in {
-  def MOVEQZ : ArithRRR<0b0011, 0b1000, "moveqz">;
-  def MOVNEZ : ArithRRR<0b0011, 0b1001, "movnez">;
-  def MOVLTZ : ArithRRR<0b0011, 0b1010, "movltz">;
-  def MOVGEZ : ArithRRR<0b0011, 0b1011, "movgez">;
+  def MOVEQZ : ArithRRR<0b0011, 0b1000, "moveqz", []>;
+  def MOVNEZ : ArithRRR<0b0011, 0b1001, "movnez", []>;
+  def MOVLTZ : ArithRRR<0b0011, 0b1010, "movltz", []>;
+  def MOVGEZ : ArithRRR<0b0011, 0b1011, "movgez", []>;
 }
 
-def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi">;
-def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n">;
+def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi", []>;
+def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", []>;
 
-def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s">;
-def MUL16U : ArithRRR<0b0001, 0b1100, "mul16u">;
+def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s", []>;
+def MUL16U : ArithRRR<0b0001, 0b1100, "mul16u", []>;
 
-def MULL : ArithRRR<0b0010, 0b1000, "mull">;
-def MULSH : ArithRRR<0b0010, 0b1011, "mulsh">;
-def MULUH : ArithRRR<0b0010, 0b1010, "muluh">;
+def MULL : ArithRRR<0b0010, 0b1000, "mull", []>;
+def MULSH : ArithRRR<0b0010, 0b1011, "mulsh", []>;
+def MULUH : ArithRRR<0b0010, 0b1010, "muluh", []>;
 
-def NEG : ArithRRrt<0b0000, 0b0110, 0b0000, "neg">;
+def NEG : ArithRRrt<0b0000, 0b0110, 0b0000, "neg", []>;
 
 def NOP : I_Fixed24<0x0020f0, "nop", []>;
 def NOPN : I_Fixed16<0xf03d, "nop.n", []>;
 
-def OR : ArithRRR<0b0000, 0b0010, "or">;
+def OR : ArithRRR<0b0000, 0b0010, "or", []>;
 def MOV : InstAlias<"mov $ar, $as", (OR GPR:$ar, GPR:$as, GPR:$as)>;
 
-def QUOS : ArithRRR<0b0010, 0b1101, "quos">;
-def QUOU : ArithRRR<0b0010, 0b1100, "quou">;
-def REMS : ArithRRR<0b0010, 0b1111, "rems">;
-def REMU : ArithRRR<0b0010, 0b1110, "remu">;
+def QUOS : ArithRRR<0b0010, 0b1101, "quos", []>;
+def QUOU : ArithRRR<0b0010, 0b1100, "quou", []>;
+def REMS : ArithRRR<0b0010, 0b1111, "rems", []>;
+def REMU : ArithRRR<0b0010, 0b1110, "remu", []>;
 
 // def RER
 
@@ -480,21 +480,21 @@ def RSYNC : I_Fixed24<0x002010, "rsync", []>;
 
 // def RUR
 
-def S8I : StoreRRI8<0b0010, 0b0100, uimm8, "s8i">;
-def S16I : StoreRRI8<0b0010, 0b0101, uimm8_sl1, "s16i">;
-def S32I : StoreRRI8<0b0010, 0b0101, uimm8_sl2, "s32i">;
-def S32IN : StoreRRRN<0b1001, uimm4_sl2, "s32i.n">;
+def S8I : StoreRRI8<0b0010, 0b0100, uimm8, "s8i", []>;
+def S16I : StoreRRI8<0b0010, 0b0101, uimm8_sl1, "s16i", []>;
+def S32I : StoreRRI8<0b0010, 0b0101, uimm8_sl2, "s32i", []>;
+def S32IN : StoreRRRN<0b1001, uimm4_sl2, "s32i.n", []>;
 
 // def S32NB
 
-def SALT : ArithRRR<0b0010, 0b0111, "salt">;
-def SALTU : ArithRRR<0b0010, 0b0110, "saltu">;
+def SALT : ArithRRR<0b0010, 0b0111, "salt", []>;
+def SALTU : ArithRRR<0b0010, 0b0110, "saltu", []>;
 
 let Uses = [SAR] in {
-  def SLL : ArithRRrs<0b0001, 0b1010, 0b0000, "sll">;
-  def SRA : ArithRRrt<0b0001, 0b1011, 0b0000, "sra">;
-  def SRC : ArithRRR<0b0001, 0b1000, "src">;
-  def SRL : ArithRRrt<0b0001, 0b1001, 0b0000, "srl">;
+  def SLL : ArithRRrs<0b0001, 0b1010, 0b0000, "sll", []>;
+  def SRA : ArithRRrt<0b0001, 0b1011, 0b0000, "sra", []>;
+  def SRC : ArithRRR<0b0001, 0b1000, "src", []>;
+  def SRL : ArithRRrt<0b0001, 0b1001, 0b0000, "srl", []>;
 }
 
 let hasSideEffects = false, mayLoad = false, mayStore = false in {
@@ -523,10 +523,10 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
 }
 
 let Defs = [SAR] in {
-  def SSA8B : ArithRs<0b0000, 0b0100, 0b0000, 0b0011, "ssa8b">;
-  def SSA8L : ArithRs<0b0000, 0b0100, 0b0000, 0b0010, "ssa8l">;
-  def SSL : ArithRs<0b0000, 0b0100, 0b0000, 0b0001, "ssl">;
-  def SSR : ArithRs<0b0000, 0b0100, 0b0000, 0b0000, "ssr">;
+  def SSA8B : ArithRs<0b0000, 0b0100, 0b0000, 0b0011, "ssa8b", []>;
+  def SSA8L : ArithRs<0b0000, 0b0100, 0b0000, 0b0010, "ssa8l", []>;
+  def SSL : ArithRs<0b0000, 0b0100, 0b0000, 0b0001, "ssl", []>;
+  def SSR : ArithRs<0b0000, 0b0100, 0b0000, 0b0000, "ssr", []>;
 
   def SSAI : I_RRR<0b0000, 0b0000, 0b0100, (outs), (ins uimm5:$imm),
                   "ssai $imm", []> {
@@ -543,15 +543,15 @@ let Defs = [SAR] in {
   }
 }
 
-def SUB : ArithRRR<0b0000, 0b1100, "sub">;
-def SUBX2 : ArithRRR<0b0000, 0b1101, "subx2">;
-def SUBX4 : ArithRRR<0b0000, 0b1110, "subx4">;
-def SUBX8 : ArithRRR<0b0000, 0b1111, "subx8">;
+def SUB : ArithRRR<0b0000, 0b1100, "sub", []>;
+def SUBX2 : ArithRRR<0b0000, 0b1101, "subx2", []>;
+def SUBX4 : ArithRRR<0b0000, 0b1110, "subx4", []>;
+def SUBX8 : ArithRRR<0b0000, 0b1111, "subx8", []>;
 
 // def WER
 // def WSR
 // def WUR
 
-def XOR : ArithRRR<0b0000, 0b0011, "xor">;
+def XOR : ArithRRR<0b0000, 0b0011, "xor", []>;
 
 // def XSR
