@@ -77,8 +77,14 @@ XtensaInstructionSelector::XtensaInstructionSelector(
 }
 
 bool XtensaInstructionSelector::select(MachineInstr &I) {
+  if (!I.isPreISelOpcode()) {
+    // Already target-specific
+    return true;
+  }
+
   if (selectImpl(I, *CoverageInfo))
     return true;
+
   return false;
 }
 
