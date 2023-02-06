@@ -10,11 +10,11 @@ tablegen(LLVM XtensaGenAsmWriter.inc -gen-asm-writer)
 tablegen(LLVM XtensaGenSubtargetInfo.inc -gen-subtarget)
 tablegen(LLVM XtensaGenAsmMatcher.inc -gen-asm-matcher)
 tablegen(LLVM XtensaGenCallingConv.inc -gen-callingconv)
+tablegen(LLVM XtensaGenGlobalISel.inc -gen-global-isel)
 
 # tablegen(LLVM XtensaGenDAGISel.inc -gen-dag-isel)
 # tablegen(LLVM XtensaGenDisassemblerTables.inc -gen-disassembler)
 # tablegen(LLVM XtensaGenFastISel.inc -gen-fast-isel)
-# tablegen(LLVM XtensaGenGlobalISel.inc -gen-global-isel)
 # tablegen(LLVM XtensaGenPostLegalizeGICombiner.inc -gen-global-isel-combiner
 #               -combiners="XtensaPostLegalizerCombinerHelper")
 # tablegen(LLVM XtensaGenMCPseudoLowering.inc -gen-pseudo-lowering)

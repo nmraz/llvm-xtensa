@@ -334,9 +334,9 @@ def ADDX2 : ArithRRR<0b0000, 0b1001, "addx2", []>;
 def ADDX4 : ArithRRR<0b0000, 0b1010, "addx4", []>;
 def ADDX8 : ArithRRR<0b0000, 0b1011, "addx8", []>;
 
-def ADDN : ArithRRRN<0b1010, "add.n", []>;
+def ADDN : ArithRRRN<0b1010, "add.n", [(set i32:$ar, (add i32:$as, i32:$at))]>;
 
-def AND : ArithRRR<0b0000, 0b0001, "and", []>;
+def AND : ArithRRR<0b0000, 0b0001, "and", [(set i32:$ar, (and i32:$as, i32:$at))]>;
 
 def BALL : BranchRR8<0b0100, "ball">;
 def BANY : BranchRR8<0b1000, "bany">;
@@ -441,22 +441,22 @@ def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", []>;
 def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s", []>;
 def MUL16U : ArithRRR<0b0001, 0b1100, "mul16u", []>;
 
-def MULL : ArithRRR<0b0010, 0b1000, "mull", []>;
-def MULSH : ArithRRR<0b0010, 0b1011, "mulsh", []>;
-def MULUH : ArithRRR<0b0010, 0b1010, "muluh", []>;
+def MULL : ArithRRR<0b0010, 0b1000, "mull", [(set i32:$ar, (mul i32:$as, i32:$at))]>;
+def MULSH : ArithRRR<0b0010, 0b1011, "mulsh", [(set i32:$ar, (mulhs i32:$as, i32:$at))]>;
+def MULUH : ArithRRR<0b0010, 0b1010, "muluh", [(set i32:$ar, (mulhu i32:$as, i32:$at))]>;
 
 def NEG : ArithRRrt<0b0000, 0b0110, 0b0000, "neg", []>;
 
 def NOP : I_Fixed24<0x0020f0, "nop", []>;
 def NOPN : I_Fixed16<0xf03d, "nop.n", []>;
 
-def OR : ArithRRR<0b0000, 0b0010, "or", []>;
+def OR : ArithRRR<0b0000, 0b0010, "or", [(set i32:$ar, (or i32:$as, i32:$at))]>;
 def MOV : InstAlias<"mov $ar, $as", (OR GPR:$ar, GPR:$as, GPR:$as)>;
 
-def QUOS : ArithRRR<0b0010, 0b1101, "quos", []>;
-def QUOU : ArithRRR<0b0010, 0b1100, "quou", []>;
-def REMS : ArithRRR<0b0010, 0b1111, "rems", []>;
-def REMU : ArithRRR<0b0010, 0b1110, "remu", []>;
+def QUOS : ArithRRR<0b0010, 0b1101, "quos", [(set i32:$ar, (sdiv i32:$as, i32:$at))]>;
+def QUOU : ArithRRR<0b0010, 0b1100, "quou", [(set i32:$ar, (udiv i32:$as, i32:$at))]>;
+def REMS : ArithRRR<0b0010, 0b1111, "rems", [(set i32:$ar, (srem i32:$as, i32:$at))]>;
+def REMU : ArithRRR<0b0010, 0b1110, "remu", [(set i32:$ar, (urem i32:$as, i32:$at))]>;
 
 // def RER
 
@@ -543,7 +543,7 @@ let Defs = [SAR] in {
   }
 }
 
-def SUB : ArithRRR<0b0000, 0b1100, "sub", []>;
+def SUB : ArithRRR<0b0000, 0b1100, "sub", [(set i32:$ar, (sub i32:$as, i32:$at))]>;
 def SUBX2 : ArithRRR<0b0000, 0b1101, "subx2", []>;
 def SUBX4 : ArithRRR<0b0000, 0b1110, "subx4", []>;
 def SUBX8 : ArithRRR<0b0000, 0b1111, "subx8", []>;
@@ -552,6 +552,6 @@ def SUBX8 : ArithRRR<0b0000, 0b1111, "subx8", []>;
 // def WSR
 // def WUR
 
-def XOR : ArithRRR<0b0000, 0b0011, "xor", []>;
+def XOR : ArithRRR<0b0000, 0b0011, "xor", [(set i32:$ar, (xor i32:$as, i32:$at))]>;
 
 // def XSR
