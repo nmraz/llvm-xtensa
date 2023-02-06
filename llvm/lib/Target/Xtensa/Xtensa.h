@@ -4,11 +4,21 @@
 namespace llvm {
 
 class AsmPrinter;
+class FunctionPass;
+class InstructionSelector;
 class MCInst;
 class MachineInstr;
+class XtensaRegisterBankInfo;
+class XtensaSubtarget;
+class XtensaTargetMachine;
 
 void LowerXtensaMachineInstrToMCInst(const MachineInstr *MI, MCInst &OutMI,
                                      AsmPrinter &AP);
+
+InstructionSelector *
+createXtensaInstructionSelector(const XtensaTargetMachine &TM,
+                                const XtensaSubtarget &Subtarget,
+                                const XtensaRegisterBankInfo &RBI);
 
 } // namespace llvm
 

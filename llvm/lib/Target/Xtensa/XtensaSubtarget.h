@@ -4,6 +4,7 @@
 #include "XtensaFrameLowering.h"
 #include "XtensaISelLowering.h"
 #include "XtensaInstrInfo.h"
+#include "XtensaRegisterInfo.h"
 #include "llvm/CodeGen/GlobalISel/CallLowering.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelector.h"
 #include "llvm/CodeGen/GlobalISel/LegalizerInfo.h"
@@ -31,6 +32,7 @@ private:
   std::unique_ptr<CallLowering> CallLoweringInfo;
   std::unique_ptr<RegisterBankInfo> RegBankInfo;
   std::unique_ptr<LegalizerInfo> Legalizer;
+  std::unique_ptr<InstructionSelector> InstSelector;
 
 public:
   XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
@@ -40,7 +42,7 @@ public:
 
   const XtensaInstrInfo *getInstrInfo() const override { return &InstrInfo; }
 
-  const TargetRegisterInfo *getRegisterInfo() const override {
+  const XtensaRegisterInfo *getRegisterInfo() const override {
     return &getInstrInfo()->getRegisterInfo();
   }
 
