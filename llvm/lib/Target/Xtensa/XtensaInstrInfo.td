@@ -40,16 +40,19 @@ class ImmOperand<ValueType ty, string className> : OperandWithClass<ty, classNam
   let OperandType = "OPERAND_IMMEDIATE";
 }
 
-class UImmOperand<ValueType ty, int width> : ImmOperand<ty, "UImm" # width>;
-class SImmOperand<ValueType ty, int width> : ImmOperand<ty, "SImm" # width>;
+class UImmPatLeaf<ValueType ty, int width, int shift> : ImmLeaf<ty, "return isShiftedUInt<" # width # ", " # shift # ">(Imm);">;
+class SImmPatLeaf<ValueType ty, int width, int shift> : ImmLeaf<ty, "return isShiftedInt<" # width # ", " # shift # ">(Imm);">;
+
+class UImmOperand<ValueType ty, int width> : ImmOperand<ty, "UImm" # width>, UImmPatLeaf<ty, width, 0>;
+class SImmOperand<ValueType ty, int width> : ImmOperand<ty, "SImm" # width>, SImmPatLeaf<ty, width, 0>;
 
 class ShiftedUImmOperand<ValueType ty, int width, int shift>
-   : ImmOperand<ty, "UImm" # width # "Sl" # shift> {
+   : ImmOperand<ty, "UImm" # width # "Sl" # shift>, UImmPatLeaf<ty, width, shift> {
   let EncoderMethod = "getShiftedImmOpValue<" # shift # ">";
 }
 
 class ShiftedSImmOperand<ValueType ty, int width, int shift>
-   : ImmOperand<ty, "SImm" # width # "Sl" # shift> {
+   : ImmOperand<ty, "SImm" # width # "Sl" # shift>, SImmPatLeaf<ty, width, shift> {
   let EncoderMethod = "getShiftedImmOpValue<" # shift # ">";
 }
 
@@ -125,7 +128,7 @@ def uimm5_sub32 : ImmOperand<i32, "UImm5"> {
 // 7-bit immediate, extended to 32 bits by the bitwise AND of its top 2 bits
 // (bits 5 and 6); used only in narrow `movi` instruction
 def MoviNImm7OperandClass : ConstantImmOperandClass<"MoviNImm7", "expected a constant in the range [-32, 95]">;
-def movin_imm7 : ImmOperand<i32, "MoviNImm7">;
+def movin_imm7 : ImmOperand<i32, "MoviNImm7">, ImmLeaf<i32, [{ return Imm >= -32 && Imm <= 95; }]>;
 
 
 // PC-relative operands (branches and loads)
@@ -435,8 +438,8 @@ let isSelect = 1 in {
   def MOVGEZ : ArithRRR<0b0011, 0b1011, "movgez", []>;
 }
 
-def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi", []>;
-def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", []>;
+def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", [(set i32:$as, movin_imm7:$imm7)]>;
+def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi", [(set i32:$at, simm12:$imm12)]>;
 
 def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s", []>;
 def MUL16U : ArithRRR<0b0001, 0b1100, "mul16u", []>;
@@ -487,8 +490,8 @@ def S32IN : StoreRRRN<0b1001, uimm4_sl2, "s32i.n", []>;
 
 // def S32NB
 
-def SALT : ArithRRR<0b0010, 0b0111, "salt", []>;
-def SALTU : ArithRRR<0b0010, 0b0110, "saltu", []>;
+def SALT : ArithRRR<0b0010, 0b0111, "salt", [(set i32:$ar, (setlt i32:$as, i32:$at))]>;
+def SALTU : ArithRRR<0b0010, 0b0110, "saltu", [(set i32:$ar, (setult i32:$as, i32:$at))]>;
 
 let Uses = [SAR] in {
   def SLL : ArithRRrs<0b0001, 0b1010, 0b0000, "sll", []>;
