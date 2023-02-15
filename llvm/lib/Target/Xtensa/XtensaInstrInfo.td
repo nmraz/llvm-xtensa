@@ -172,7 +172,7 @@ def gi_extui_maskimm_XFORM : GICustomOperandRenderer<"renderExtuiMaskImm">,
                              GISDNodeXFormEquiv<extui_maskimm_XFORM>;
 
 def extui_maskimm : ImmLeaf<i32, [{
-  return Imm <= 0xff && isMask_64(Imm);
+  return Imm <= 0xffff && isMask_64(Imm);
 }], extui_maskimm_XFORM>;
 
 
@@ -417,8 +417,8 @@ def EXTUI
   let Inst{23...20} = maskimm;
 }
 
-def : Pat<(and GPR:$at, extui_maskimm:$maskimm),
-          (EXTUI GPR:$at, 0, extui_maskimm:$maskimm)>;
+def : Pat<(and i32:$at, extui_maskimm:$maskimm),
+          (EXTUI i32:$at, 0, extui_maskimm:$maskimm)>;
 
 def EXTW : I_Fixed24<0x0020d0, "extw", []>;
 
