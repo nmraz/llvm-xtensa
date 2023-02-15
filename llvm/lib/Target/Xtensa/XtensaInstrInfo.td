@@ -121,7 +121,7 @@ def uimm4_plus1 : ImmOperand<i32, "UImm4Plus1"> {
 }
 
 // 5-bit immediate subtracted from 32; used only in `slli` instruction
-def uimm5_sub32 : ImmOperand<i32, "UImm5"> {
+def uimm5_sub32 : ImmOperand<i32, "UImm5">, ImmLeaf<i32, [{ return Imm >= 1 && Imm <= 31; }]> {
   let EncoderMethod = "getUImm5Sub32OpValue";
 }
 
@@ -515,7 +515,7 @@ let Uses = [SAR] in {
 
 let hasSideEffects = false, mayLoad = false, mayStore = false in {
   def SLLI : I_RRR<0b0000, 0b0001, 0b0000, (outs GPR:$ar), (ins GPR:$as, uimm5_sub32:$imm),
-                   "slli $ar, $as, $imm", []> {
+                   "slli $ar, $as, $imm", [(set i32:$ar, (shl i32:$as, uimm5_sub32:$imm))]> {
     bits<5> imm;
 
     let at = imm{3...0};
@@ -523,7 +523,7 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
   }
 
   def SRAI : I_RRR<0b0000, 0b0001, 0b0010, (outs GPR:$ar), (ins GPR:$at, uimm5:$imm),
-                   "srai $ar, $at, $imm", []> {
+                   "srai $ar, $at, $imm", [(set i32:$ar, (sra i32:$at, uimm5:$imm))]> {
     bits<5> imm;
 
     let as = imm{3...0};
@@ -531,7 +531,7 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
   }
 
   def SRLI : I_RRR<0b0000, 0b0001, 0b0100, (outs GPR:$ar), (ins GPR:$at, uimm4:$imm),
-                   "srli $ar, $at, $imm", []> {
+                   "srli $ar, $at, $imm", [(set i32:$ar, (srl i32:$at, uimm4:$imm))]> {
     bits<4> imm;
 
     let as = imm;
