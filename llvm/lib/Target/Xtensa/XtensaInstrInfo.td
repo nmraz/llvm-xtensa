@@ -116,7 +116,7 @@ def b4constu : ImmOperand<i32, "B4ConstU"> {
 
 // 4-bit immediate incremented by 1 (used only in `extui`)
 def UImm4Plus1OperandClass : ConstantImmOperandClass<"UImm4Plus1", "expected a constant in the range [1, 16]">;
-def uimm4_plus1 : ImmOperand<i4, "UImm4Plus1"> {
+def uimm4_plus1 : ImmOperand<i32, "UImm4Plus1"> {
   let EncoderMethod = "getUImm4Plus1OpValue";
 }
 
@@ -164,6 +164,12 @@ def calltarget18 : PCRelOperand<OtherVT> {
   let EncoderMethod = "getCallTarget18OpValue";
   let PrintMethod = "printCallOperand";
 }
+
+
+// Pattern matching helpers
+def extui_maskimm : ComplexPattern<i32, 1, "selectExtuiMaskImm", []>;
+def gi_extui_maskimm : GIComplexOperandMatcher<s32, "selectExtuiMaskImm">,
+                       GIComplexPatternEquiv<extui_maskimm>;
 
 
 // Arithmetic instruction classes
@@ -406,6 +412,9 @@ def EXTUI
   let Inst{19...17} = 0b010;
   let Inst{23...20} = maskimm;
 }
+
+def : Pat<(and GPR:$at, extui_maskimm:$maskimm),
+          (EXTUI GPR:$at, 0, extui_maskimm:$maskimm)>;
 
 def EXTW : I_Fixed24<0x0020d0, "extw", []>;
 

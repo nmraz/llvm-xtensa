@@ -434,9 +434,8 @@ body:             |
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[COPY2]], [[COPY]]
     ; CHECK-NEXT: [[SALTU:%[0-9]+]]:gpr = SALTU [[COPY2]], [[COPY]]
     ; CHECK-NEXT: [[SUB1:%[0-9]+]]:gpr = SUB [[COPY3]], [[COPY1]]
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 1
-    ; CHECK-NEXT: [[AND:%[0-9]+]]:gpr = AND [[SALTU]], [[MOVIN]]
-    ; CHECK-NEXT: [[SUB2:%[0-9]+]]:gpr = SUB [[SUB1]], [[AND]]
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SALTU]], 0, 1
+    ; CHECK-NEXT: [[SUB2:%[0-9]+]]:gpr = SUB [[SUB1]], [[EXTUI]]
     ; CHECK-NEXT: $a2 = COPY [[SUB]]
     ; CHECK-NEXT: $a3 = COPY [[SUB2]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
@@ -542,9 +541,8 @@ body:             |
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[COPY2]], [[COPY]]
     ; CHECK-NEXT: [[SALTU:%[0-9]+]]:gpr = SALTU [[COPY2]], [[COPY]]
     ; CHECK-NEXT: [[SUB1:%[0-9]+]]:gpr = SUB [[COPY3]], [[COPY1]]
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 1
-    ; CHECK-NEXT: [[AND:%[0-9]+]]:gpr = AND [[SALTU]], [[MOVIN]]
-    ; CHECK-NEXT: [[SUB2:%[0-9]+]]:gpr = SUB [[SUB1]], [[AND]]
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SALTU]], 0, 1
+    ; CHECK-NEXT: [[SUB2:%[0-9]+]]:gpr = SUB [[SUB1]], [[EXTUI]]
     ; CHECK-NEXT: $a2 = COPY [[SUB]]
     ; CHECK-NEXT: $a3 = COPY [[SUB2]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
