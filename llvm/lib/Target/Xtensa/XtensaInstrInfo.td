@@ -61,7 +61,7 @@ class ShiftedSImmOperand<ValueType ty, int width, int shift>
 
 // 4-bit immediate
 def UImm4OperandClass : ShiftedUImmOperandClass<"UImm4", "4-bit", 4, 0>;
-def uimm4 : UImmOperand<i4, 4>;
+def uimm4 : UImmOperand<i32, 4>;
 
 // 4-bit immediate, shifted left by 2 and zero-extended to 32 bits
 def UImm4Sl2OperandClass : ShiftedUImmOperandClass<"UImm4Sl2", "shifted 4-bit", 4, 2>;
@@ -174,6 +174,10 @@ def gi_extui_maskimm_XFORM : GICustomOperandRenderer<"renderExtuiMaskImm">,
 def extui_maskimm : ImmLeaf<i32, [{
   return Imm <= 0xffff && isMask_64(Imm);
 }], extui_maskimm_XFORM>;
+
+def extui_lshrimm : ComplexPattern<i32, 2, "", []>;
+def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectExtuiLshrImm">,
+                       GIComplexPatternEquiv<extui_lshrimm>;
 
 
 // Arithmetic instruction classes
@@ -417,8 +421,13 @@ def EXTUI
   let Inst{23...20} = maskimm;
 }
 
+// Basic bit extraction patterns
 def : Pat<(and i32:$at, extui_maskimm:$maskimm),
           (EXTUI i32:$at, 0, extui_maskimm:$maskimm)>;
+
+// Right shift immediates that don't fit in 4 bits need an extui instead
+def : Pat<(srl i32:$at, (extui_lshrimm i32:$lshrimm, i32:$maskimm)),
+          (EXTUI i32:$at, i32:$lshrimm, i32:$maskimm)>;
 
 def EXTW : I_Fixed24<0x0020d0, "extw", []>;
 

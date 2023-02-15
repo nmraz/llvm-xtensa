@@ -19,6 +19,7 @@
 #include "llvm/ADT/Optional.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelector.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelectorImpl.h"
+#include "llvm/CodeGen/GlobalISel/MIPatternMatch.h"
 #include "llvm/CodeGen/GlobalISel/Utils.h"
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
@@ -32,6 +33,7 @@
 #define DEBUG_TYPE "xtensa-isel"
 
 using namespace llvm;
+using namespace MIPatternMatch;
 
 namespace {
 
@@ -52,6 +54,8 @@ private:
   /// tblgen generated 'select' implementation that is used as the initial
   /// selector for the patterns that do not require complex C++.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
+
+  ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
 
   void renderExtuiMaskImm(MachineInstrBuilder &MIB, const MachineInstr &MI,
                           int OpIdx = -1) const;
@@ -98,6 +102,32 @@ bool XtensaInstructionSelector::select(MachineInstr &I) {
     return true;
 
   return false;
+}
+
+InstructionSelector::ComplexRendererFns
+XtensaInstructionSelector::selectExtuiLshrImm(MachineOperand &Root) const {
+  if (!Root.isReg()) {
+    return None;
+  }
+
+  MachineRegisterInfo &MRI =
+      Root.getParent()->getParent()->getParent()->getRegInfo();
+
+  int64_t ShiftImm = 0;
+  if (!mi_match(Root.getReg(), MRI, m_ICst(ShiftImm))) {
+    return None;
+  }
+
+  if (ShiftImm < 16 || ShiftImm > 31) {
+    return None;
+  }
+
+  return {{
+      // Shift amount
+      [=](MachineInstrBuilder &MIB) { MIB.addImm(ShiftImm); },
+      // Mask size
+      [=](MachineInstrBuilder &MIB) { MIB.addImm(32 - ShiftImm); },
+  }};
 }
 
 void XtensaInstructionSelector::renderExtuiMaskImm(MachineInstrBuilder &MIB,
