@@ -23,8 +23,10 @@
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineOperand.h"
+#include "llvm/CodeGen/TargetOpcodes.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/MathExtras.h"
+#include <cassert>
 #include <cstdint>
 
 #define DEBUG_TYPE "xtensa-isel"
@@ -51,7 +53,8 @@ private:
   /// selector for the patterns that do not require complex C++.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
 
-  ComplexRendererFns selectExtuiMaskImm(MachineOperand &Root) const;
+  void renderExtuiMaskImm(MachineInstrBuilder &MIB, const MachineInstr &MI,
+                          int OpIdx = -1) const;
 
   const XtensaInstrInfo &TII;
   const XtensaRegisterInfo &TRI;
@@ -97,23 +100,13 @@ bool XtensaInstructionSelector::select(MachineInstr &I) {
   return false;
 }
 
-InstructionSelector::ComplexRendererFns
-XtensaInstructionSelector::selectExtuiMaskImm(MachineOperand &Root) const {
-  auto MaybeConstant = getIConstantVRegValWithLookThrough(
-      Root.getReg(), Root.getParent()->getParent()->getParent()->getRegInfo());
-
-  if (!MaybeConstant) {
-    return None;
-  }
-
-  uint64_t Imm = MaybeConstant->Value.getZExtValue();
-
-  if (Imm > 0xff || !isMask_64(Imm)) {
-    return None;
-  }
-
-  uint32_t Enc = countTrailingOnes(Imm);
-  return {{[=](MachineInstrBuilder &MIB) { MIB.addImm(Enc); }}};
+void XtensaInstructionSelector::renderExtuiMaskImm(MachineInstrBuilder &MIB,
+                                                   const MachineInstr &MI,
+                                                   int OpIdx) const {
+  assert(MI.getOpcode() == Xtensa::G_CONSTANT && OpIdx == -1 &&
+         "Expected G_CONSTANT");
+  uint64_t Mask = MI.getOperand(0).getCImm()->getZExtValue();
+  MIB.addImm(countTrailingOnes(Mask));
 }
 
 namespace llvm {

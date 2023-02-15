@@ -167,9 +167,13 @@ def calltarget18 : PCRelOperand<OtherVT> {
 
 
 // Pattern matching helpers
-def extui_maskimm : ComplexPattern<i32, 1, "selectExtuiMaskImm", []>;
-def gi_extui_maskimm : GIComplexOperandMatcher<s32, "selectExtuiMaskImm">,
-                       GIComplexPatternEquiv<extui_maskimm>;
+def extui_maskimm_XFORM : SDNodeXForm<imm, [{}]>;
+def gi_extui_maskimm_XFORM : GICustomOperandRenderer<"renderExtuiMaskImm">,
+                             GISDNodeXFormEquiv<extui_maskimm_XFORM>;
+
+def extui_maskimm : ImmLeaf<i32, [{
+  return Imm <= 0xff && isMask_64(Imm);
+}], extui_maskimm_XFORM>;
 
 
 // Arithmetic instruction classes
