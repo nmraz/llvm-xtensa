@@ -22,6 +22,7 @@
 #include "llvm/CodeGen/GlobalISel/MIPatternMatch.h"
 #include "llvm/CodeGen/GlobalISel/Utils.h"
 #include "llvm/CodeGen/MachineFunction.h"
+#include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/TargetOpcodes.h"
@@ -133,9 +134,7 @@ XtensaInstructionSelector::selectExtuiLshrImm(MachineOperand &Root) const {
 void XtensaInstructionSelector::renderExtuiMaskImm(MachineInstrBuilder &MIB,
                                                    const MachineInstr &MI,
                                                    int OpIdx) const {
-  assert(MI.getOpcode() == Xtensa::G_CONSTANT && OpIdx == -1 &&
-         "Expected G_CONSTANT");
-  uint64_t Mask = MI.getOperand(0).getCImm()->getZExtValue();
+  uint64_t Mask = MI.getOperand(1).getCImm()->getZExtValue();
   MIB.addImm(countTrailingOnes(Mask));
 }
 
