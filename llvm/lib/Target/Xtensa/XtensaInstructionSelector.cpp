@@ -60,6 +60,7 @@ public:
 private:
   /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
+  ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
 
   bool selectEarly(MachineInstr &I);
   bool selectAndAsExtui(MachineInstr &I) const;
@@ -69,8 +70,6 @@ private:
 
   bool selectLate(MachineInstr &I);
   bool selectVariableShift(MachineInstr &I, MachineBasicBlock &MBB);
-
-  ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
 
   const XtensaInstrInfo &TII;
   const XtensaRegisterInfo &TRI;
@@ -120,6 +119,32 @@ bool XtensaInstructionSelector::select(MachineInstr &I) {
     return true;
 
   return selectLate(I);
+}
+
+InstructionSelector::ComplexRendererFns
+XtensaInstructionSelector::selectExtuiLshrImm(MachineOperand &Root) const {
+  if (!Root.isReg()) {
+    return None;
+  }
+
+  MachineRegisterInfo &MRI =
+      Root.getParent()->getParent()->getParent()->getRegInfo();
+
+  int64_t ShiftImm = 0;
+  if (!mi_match(Root.getReg(), MRI, m_ICst(ShiftImm))) {
+    return None;
+  }
+
+  if (ShiftImm < 16 || ShiftImm > 31) {
+    return None;
+  }
+
+  return {{
+      // Shift amount
+      [=](MachineInstrBuilder &MIB) { MIB.addImm(ShiftImm); },
+      // Mask size
+      [=](MachineInstrBuilder &MIB) { MIB.addImm(32 - ShiftImm); },
+  }};
 }
 
 bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
@@ -253,32 +278,6 @@ bool XtensaInstructionSelector::selectVariableShift(MachineInstr &I,
 
   I.removeFromParent();
   return true;
-}
-
-InstructionSelector::ComplexRendererFns
-XtensaInstructionSelector::selectExtuiLshrImm(MachineOperand &Root) const {
-  if (!Root.isReg()) {
-    return None;
-  }
-
-  MachineRegisterInfo &MRI =
-      Root.getParent()->getParent()->getParent()->getRegInfo();
-
-  int64_t ShiftImm = 0;
-  if (!mi_match(Root.getReg(), MRI, m_ICst(ShiftImm))) {
-    return None;
-  }
-
-  if (ShiftImm < 16 || ShiftImm > 31) {
-    return None;
-  }
-
-  return {{
-      // Shift amount
-      [=](MachineInstrBuilder &MIB) { MIB.addImm(ShiftImm); },
-      // Mask size
-      [=](MachineInstrBuilder &MIB) { MIB.addImm(32 - ShiftImm); },
-  }};
 }
 
 namespace llvm {
