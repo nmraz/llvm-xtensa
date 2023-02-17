@@ -264,13 +264,13 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
     : I_BRI12<op0, m, n, (outs), (ins GPR:$as, Imm:$offset),
               !strconcat(name, "\t$as, $offset"), []>;
 
-  class GenericCall<bits<4> op0, bits<2> n, Operand Imm, string name>
+  class GenericCall<bits<4> op0, bits<2> n, Operand Imm, string name, list<dag> pattern>
     : I_CALL<op0, n, (outs), (ins Imm:$offset),
-              !strconcat(name, "\t$offset"), []>;
+              !strconcat(name, "\t$offset"), pattern>;
 
-  class GenericCallX<bits<2> m, bits<2> n, string name>
+  class GenericCallX<bits<2> m, bits<2> n, string name, list<dag> pattern>
       : I_CALLX<0b0000, 0b0000, 0b0000, m, n, (outs), (ins GPR:$as),
-                !strconcat(name, "\t$as"), []> {
+                !strconcat(name, "\t$as"), pattern> {
     let ar = 0b0000;
   }
 }
@@ -316,12 +316,12 @@ class BranchRUI8<bits<2> m, string name> : BranchRC8<m, 0b11, b4constu, name>;
 // Call instruction classes
 let isCall = true in {
   class Call<bits<2> n, Register retAddr, string name>
-     : GenericCall<0b0101, n, calltarget18, name> {
+     : GenericCall<0b0101, n, calltarget18, name, []> {
     let Defs = [retAddr];
   }
 
   class CallX<bits<2> n, Register retAddr, string name>
-     : GenericCallX<0b11, n, name> {
+     : GenericCallX<0b11, n, name, []> {
     let Defs = [retAddr];
   }
 }
@@ -438,9 +438,9 @@ let isTrap = true in {
 def ISYNC : I_Fixed24<0x002000, "isync", []>;
 
 let isBranch = true, isTerminator = true, isBarrier = true in {
-  def J : GenericCall<0b0110, 0b00, jmptarget18, "j">;
+  def J : GenericCall<0b0110, 0b00, jmptarget18, "j", []>;
   // def J.L
-  def JX : GenericCallX<0b10, 0b10, "jx">;
+  def JX : GenericCallX<0b10, 0b10, "jx", []>;
 }
 
 def L8UI : LoadRRI8<0b0010, 0b0000, uimm8, "l8ui", []>;
