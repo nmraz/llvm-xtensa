@@ -155,7 +155,7 @@
   define i32 @not_extui_2bit_lshr31(i32 %val) {
   entry:
     %shr = lshr i32 %val, 31
-    %ext = and i32 %shr, 2
+    %ext = and i32 %shr, 3
     ret i32 %ext
   }
 
@@ -1796,14 +1796,13 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 2
     ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 31, 1
-    ; CHECK-NEXT: [[AND:%[0-9]+]]:gpr = AND [[EXTUI]], [[MOVIN]]
-    ; CHECK-NEXT: $a2 = COPY [[AND]]
+    ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[EXTUI]], 0, 2
+    ; CHECK-NEXT: $a2 = COPY [[EXTUI1]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 31
-    %3:gprb(s32) = G_CONSTANT i32 2
+    %3:gprb(s32) = G_CONSTANT i32 3
     %2:gprb(s32) = G_LSHR %0, %1(s32)
     %4:gprb(s32) = G_AND %2, %3
     $a2 = COPY %4(s32)
