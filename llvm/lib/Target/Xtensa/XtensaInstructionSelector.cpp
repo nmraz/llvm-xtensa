@@ -31,6 +31,7 @@
 #include "llvm/IR/Constants.h"
 #include "llvm/Support/Alignment.h"
 #include "llvm/Support/Debug.h"
+#include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/MathExtras.h"
 #include <cassert>
 #include <cstdint>
@@ -58,10 +59,11 @@ public:
 private:
   /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
+
   bool selectLate(MachineInstr &I);
+  bool selectVariableShift(MachineInstr &I, MachineBasicBlock &MBB);
 
   ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
-
   void renderExtuiMaskImm(MachineInstrBuilder &MIB, const MachineInstr &MI,
                           int OpIdx = -1) const;
 
@@ -132,9 +134,51 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
     I.eraseFromParent();
     return true;
   }
+  case Xtensa::G_SHL:
+  case Xtensa::G_LSHR:
+  case Xtensa::G_ASHR:
+    // Select to a SAR update/variable shift
+    return selectVariableShift(I, MBB);
   }
 
   return false;
+}
+
+bool XtensaInstructionSelector::selectVariableShift(MachineInstr &I,
+                                                    MachineBasicBlock &MBB) {
+  bool IsLeftShift = I.getOpcode() == Xtensa::G_SHL;
+  unsigned SetupOpcode = IsLeftShift ? Xtensa::SSL : Xtensa::SSR;
+
+  unsigned ShiftOpcode = 0;
+  switch (I.getOpcode()) {
+  case Xtensa::G_SHL:
+    ShiftOpcode = Xtensa::SLL;
+    break;
+  case Xtensa::G_LSHR:
+    ShiftOpcode = Xtensa::SRL;
+    break;
+  case Xtensa::G_ASHR:
+    ShiftOpcode = Xtensa::SRA;
+    break;
+  default:
+    llvm_unreachable("Unexpected shift opcode");
+  }
+
+  MachineInstr *SetupMI = BuildMI(MBB, I, I.getDebugLoc(), TII.get(SetupOpcode))
+                              .add(I.getOperand(2));
+  if (!constrainSelectedInstRegOperands(*SetupMI, TII, TRI, RBI)) {
+    return false;
+  }
+
+  MachineInstr *ShiftMI = BuildMI(MBB, I, I.getDebugLoc(), TII.get(ShiftOpcode))
+                              .add(I.getOperand(0))
+                              .add(I.getOperand(1));
+  if (!constrainSelectedInstRegOperands(*ShiftMI, TII, TRI, RBI)) {
+    return false;
+  }
+
+  I.removeFromParent();
+  return true;
 }
 
 InstructionSelector::ComplexRendererFns
