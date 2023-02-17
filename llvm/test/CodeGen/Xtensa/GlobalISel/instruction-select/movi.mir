@@ -18,7 +18,7 @@
 
   define i32 @movin_neg_one() {
   entry:
-    ret i32 1
+    ret i32 -1
   }
 
   define i32 @movin_positive() {
@@ -33,7 +33,7 @@
 
   define i32 @movi_positive_low_limit() {
   entry:
-    ret i32 99
+    ret i32 96
   }
 
   define i32 @movi_positive() {
@@ -69,6 +69,41 @@
   define i32 @movi_negative_low_limit() {
   entry:
     ret i32 -2048
+  }
+
+  define i32 @not_movi_positive_low_limit() {
+  entry:
+    ret i32 2048
+  }
+
+  define i32 @not_movi_negative_high_limit() {
+  entry:
+    ret i32 -2049
+  }
+
+  define i32 @not_movi_max() {
+  entry:
+    ret i32 2147483647
+  }
+
+  define i32 @not_movi_min() {
+  entry:
+    ret i32 -2147483648
+  }
+
+  define i64 @i64_split_not_movi_not_movi() {
+  entry:
+    ret i64 20014853001780
+  }
+
+  define i64 @i64_split_movi_not_movi() {
+  entry:
+    ret i64 1095522062900
+  }
+
+  define i64 @i64_split_movin_movi() {
+  entry:
+    ret i64 1254130450431
   }
 
 ...
@@ -824,5 +859,435 @@ body:             |
     %0:gprb(s32) = G_CONSTANT i32 -2048
     $a2 = COPY %0(s32)
     RETN implicit $a0, implicit $a2
+
+...
+---
+name:            not_movi_positive_low_limit
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+liveins:         []
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    ; CHECK-LABEL: name: not_movi_positive_low_limit
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK-NEXT: $a2 = COPY [[L32R]]
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:gprb(s32) = G_CONSTANT i32 2048
+    $a2 = COPY %0(s32)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            not_movi_negative_high_limit
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+liveins:         []
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    ; CHECK-LABEL: name: not_movi_negative_high_limit
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK-NEXT: $a2 = COPY [[L32R]]
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:gprb(s32) = G_CONSTANT i32 -2049
+    $a2 = COPY %0(s32)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            not_movi_max
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+liveins:         []
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    ; CHECK-LABEL: name: not_movi_max
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK-NEXT: $a2 = COPY [[L32R]]
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:gprb(s32) = G_CONSTANT i32 2147483647
+    $a2 = COPY %0(s32)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            not_movi_min
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+liveins:         []
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    ; CHECK-LABEL: name: not_movi_min
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK-NEXT: $a2 = COPY [[L32R]]
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:gprb(s32) = G_CONSTANT i32 -2147483648
+    $a2 = COPY %0(s32)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            i64_split_not_movi_not_movi
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: gprb, preferred-register: '' }
+  - { id: 4, class: gprb, preferred-register: '' }
+liveins:         []
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    ; CHECK-LABEL: name: i64_split_not_movi_not_movi
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.1
+    ; CHECK-NEXT: [[L32R1:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK-NEXT: $a2 = COPY [[L32R]]
+    ; CHECK-NEXT: $a3 = COPY [[L32R1]]
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
+    %3:gprb(s32) = G_CONSTANT i32 305402420
+    %4:gprb(s32) = G_CONSTANT i32 4660
+    $a2 = COPY %3(s32)
+    $a3 = COPY %4(s32)
+    RETN implicit $a0, implicit $a2, implicit $a3
+
+...
+---
+name:            i64_split_movi_not_movi
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: gprb, preferred-register: '' }
+  - { id: 4, class: gprb, preferred-register: '' }
+liveins:         []
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    ; CHECK-LABEL: name: i64_split_movi_not_movi
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 255
+    ; CHECK-NEXT: $a2 = COPY [[L32R]]
+    ; CHECK-NEXT: $a3 = COPY [[MOVI]]
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
+    %3:gprb(s32) = G_CONSTANT i32 305402420
+    %4:gprb(s32) = G_CONSTANT i32 255
+    $a2 = COPY %3(s32)
+    $a3 = COPY %4(s32)
+    RETN implicit $a0, implicit $a2, implicit $a3
+
+...
+---
+name:            i64_split_movin_movi
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: gprb, preferred-register: '' }
+  - { id: 4, class: gprb, preferred-register: '' }
+liveins:         []
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    ; CHECK-LABEL: name: i64_split_movin_movi
+    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN -1
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 291
+    ; CHECK-NEXT: $a2 = COPY [[MOVIN]]
+    ; CHECK-NEXT: $a3 = COPY [[MOVI]]
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
+    %3:gprb(s32) = G_CONSTANT i32 -1
+    %4:gprb(s32) = G_CONSTANT i32 291
+    $a2 = COPY %3(s32)
+    $a3 = COPY %4(s32)
+    RETN implicit $a0, implicit $a2, implicit $a3
 
 ...
