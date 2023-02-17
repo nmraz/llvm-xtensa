@@ -21,6 +21,7 @@
 #include "llvm/CodeGen/GlobalISel/InstructionSelectorImpl.h"
 #include "llvm/CodeGen/GlobalISel/MIPatternMatch.h"
 #include "llvm/CodeGen/GlobalISel/Utils.h"
+#include "llvm/CodeGen/MachineBasicBlock.h"
 #include "llvm/CodeGen/MachineConstantPool.h"
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstr.h"
@@ -55,9 +56,9 @@ public:
   static const char *getName() { return DEBUG_TYPE; }
 
 private:
-  /// tblgen generated 'select' implementation that is used as the initial
-  /// selector for the patterns that do not require complex C++.
+  /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
+  bool selectLate(MachineInstr &I);
 
   ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
 
@@ -106,6 +107,34 @@ bool XtensaInstructionSelector::select(MachineInstr &I) {
 
   if (selectImpl(I, *CoverageInfo))
     return true;
+
+  return selectLate(I);
+}
+
+bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
+  MachineBasicBlock &MBB = *I.getParent();
+  MachineFunction &MF = *MBB.getParent();
+
+  switch (I.getOpcode()) {
+  case Xtensa::G_CONSTANT: {
+    // Any remaining constants at this point couldn't be folded or selected to a
+    // `movi`-like instruction, so turn them into an `l32r` instead.
+    const ConstantInt *Val = I.getOperand(1).getCImm();
+    assert(Val->getBitWidth() == 32 &&
+           "Illegal constant width, should have been legalized");
+
+    MachineConstantPool *MCP = MF.getConstantPool();
+    unsigned CPIdx = MCP->getConstantPoolIndex(Val, Align(4));
+    MachineInstr *L32 = BuildMI(MBB, I, I.getDebugLoc(), TII.get(Xtensa::L32R))
+                            .add(I.getOperand(0))
+                            .addConstantPoolIndex(CPIdx);
+    if (!constrainSelectedInstRegOperands(*L32, TII, TRI, RBI)) {
+      return false;
+    }
+    I.eraseFromParent();
+    return true;
+  }
+  }
 
   return false;
 }
