@@ -64,8 +64,6 @@ private:
 
   void renderExtuiMaskImm(MachineInstrBuilder &MIB, const MachineInstr &MI,
                           int OpIdx = -1) const;
-  void renderL32RConst(MachineInstrBuilder &MIB, const MachineInstr &MI,
-                       int OpIdx = -1) const;
 
   const XtensaInstrInfo &TII;
   const XtensaRegisterInfo &TRI;
@@ -172,21 +170,6 @@ void XtensaInstructionSelector::renderExtuiMaskImm(MachineInstrBuilder &MIB,
          "Expected a G_CONSTANT");
   uint64_t Mask = MI.getOperand(1).getCImm()->getZExtValue();
   MIB.addImm(countTrailingOnes(Mask));
-}
-
-void XtensaInstructionSelector::renderL32RConst(MachineInstrBuilder &MIB,
-                                                const MachineInstr &MI,
-                                                int OpIdx) const {
-  assert(MI.getOpcode() == TargetOpcode::G_CONSTANT && OpIdx == -1 &&
-         "Expected a G_CONSTANT");
-
-  const ConstantInt *Val = MI.getOperand(1).getCImm();
-  assert(Val->getBitWidth() == 32 &&
-         "Illegal constant width, should have been legalized");
-
-  MachineConstantPool *MCP = MIB->getMF()->getConstantPool();
-  unsigned CPIdx = MCP->getConstantPoolIndex(Val, Align(4));
-  MIB.addConstantPoolIndex(CPIdx);
 }
 
 namespace llvm {
