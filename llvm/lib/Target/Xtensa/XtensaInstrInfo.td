@@ -170,7 +170,6 @@ def calltarget18 : PCRelOperand<OtherVT> {
 def extui_maskimm_xform : SDNodeXForm<imm, [{ unimplemented }]>;
 def gi_extui_maskimm_xform : GICustomOperandRenderer<"renderExtuiMaskImm">,
                              GISDNodeXFormEquiv<extui_maskimm_xform>;
-
 def extui_maskimm : ImmLeaf<i32, [{
   return Imm <= 0xffff && isMask_64(Imm);
 }], extui_maskimm_xform>;
@@ -178,6 +177,11 @@ def extui_maskimm : ImmLeaf<i32, [{
 def extui_lshrimm : ComplexPattern<i32, 2, "", []>;
 def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectExtuiLshrImm">,
                        GIComplexPatternEquiv<extui_lshrimm>;
+
+def l32r_const_xform : SDNodeXForm<imm, [{ unimplemented }]>;
+def gi_l32r_const_xform : GICustomOperandRenderer<"renderL32RConst">,
+                          GISDNodeXFormEquiv<l32r_const_xform>;
+def l32r_const : ImmLeaf<i32, [{ return !isInt<12>(Imm); }], l32r_const_xform>;
 
 
 // Arithmetic instruction classes
@@ -449,7 +453,7 @@ def L16SI : LoadRRI8<0b0010, 0b1001, uimm8_sl1, "l16si", []>;
 def L16UI : LoadRRI8<0b0010, 0b0001, uimm8_sl1, "l16ui", []>;
 def L32I : LoadRRI8<0b0010, 0b0010, uimm8_sl2, "l32i", []>;
 def L32IN : LoadRRRN<0b1000, uimm4_sl2, "l32i.n", []>;
-def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []>;
+def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", [(set i32:$at, l32r_const:$imm16)]>;
 
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
 
