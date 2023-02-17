@@ -167,13 +167,6 @@ def calltarget18 : PCRelOperand<OtherVT> {
 
 
 // Pattern matching helpers
-def extui_maskimm_xform : SDNodeXForm<imm, [{ unimplemented }]>;
-def gi_extui_maskimm_xform : GICustomOperandRenderer<"renderExtuiMaskImm">,
-                             GISDNodeXFormEquiv<extui_maskimm_xform>;
-def extui_maskimm : ImmLeaf<i32, [{
-  return Imm <= 0xffff && isMask_64(Imm);
-}], extui_maskimm_xform>;
-
 def extui_lshrimm : ComplexPattern<i32, 2, "", []>;
 def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectExtuiLshrImm">,
                        GIComplexPatternEquiv<extui_lshrimm>;
@@ -419,10 +412,6 @@ def EXTUI
   let Inst{19...17} = 0b010;
   let Inst{23...20} = maskimm;
 }
-
-// Basic bit extraction patterns
-def : Pat<(and i32:$at, extui_maskimm:$maskimm),
-          (EXTUI i32:$at, 0, extui_maskimm:$maskimm)>;
 
 // Right shift immediates that don't fit in 4 bits need an extui instead
 def : Pat<(srl i32:$at, (extui_lshrimm i32:$lshrimm, i32:$maskimm)),

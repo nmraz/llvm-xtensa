@@ -60,12 +60,13 @@ private:
   /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
 
+  bool selectEarly(MachineInstr &I);
+  bool selectAndAsExtui(MachineInstr &I);
+
   bool selectLate(MachineInstr &I);
   bool selectVariableShift(MachineInstr &I, MachineBasicBlock &MBB);
 
   ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
-  void renderExtuiMaskImm(MachineInstrBuilder &MIB, const MachineInstr &MI,
-                          int OpIdx = -1) const;
 
   const XtensaInstrInfo &TII;
   const XtensaRegisterInfo &TRI;
@@ -79,6 +80,8 @@ private:
 #include "XtensaGenGlobalISel.inc"
 #undef GET_GLOBALISEL_TEMPORARIES_DECL
 };
+
+bool isExtuiMask(uint64_t Value) { return Value <= 0xffff && isMask_64(Value); }
 
 } // end anonymous namespace
 
@@ -105,10 +108,51 @@ bool XtensaInstructionSelector::select(MachineInstr &I) {
     return true;
   }
 
+  if (selectEarly(I)) {
+    return true;
+  }
+
   if (selectImpl(I, *CoverageInfo))
     return true;
 
   return selectLate(I);
+}
+
+bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
+  switch (I.getOpcode()) {
+  case Xtensa::G_AND:
+    return selectAndAsExtui(I);
+  }
+  return false;
+}
+
+bool XtensaInstructionSelector::selectAndAsExtui(MachineInstr &I) {
+  MachineBasicBlock &MBB = *I.getParent();
+  MachineFunction &MF = *MBB.getParent();
+  const MachineRegisterInfo &MRI = MF.getRegInfo();
+
+  int64_t AndImm = 0;
+  Register InputReg;
+  if (!mi_match(I, MRI, m_GAnd(m_Reg(InputReg), m_ICst(AndImm)))) {
+    return false;
+  }
+
+  if (!isExtuiMask(AndImm)) {
+    return false;
+  }
+  uint32_t ExtuiMaskWidth = countTrailingOnes(static_cast<uint64_t>(AndImm));
+
+  MachineInstr *Extui = BuildMI(MBB, I, I.getDebugLoc(), TII.get(Xtensa::EXTUI))
+                            .add(I.getOperand(0))
+                            .addReg(InputReg)
+                            .addImm(0)
+                            .addImm(ExtuiMaskWidth);
+  if (!constrainSelectedInstRegOperands(*Extui, TII, TRI, RBI)) {
+    return false;
+  }
+
+  I.removeFromParent();
+  return true;
 }
 
 bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
@@ -205,15 +249,6 @@ XtensaInstructionSelector::selectExtuiLshrImm(MachineOperand &Root) const {
       // Mask size
       [=](MachineInstrBuilder &MIB) { MIB.addImm(32 - ShiftImm); },
   }};
-}
-
-void XtensaInstructionSelector::renderExtuiMaskImm(MachineInstrBuilder &MIB,
-                                                   const MachineInstr &MI,
-                                                   int OpIdx) const {
-  assert(MI.getOpcode() == TargetOpcode::G_CONSTANT && OpIdx == -1 &&
-         "Expected a G_CONSTANT");
-  uint64_t Mask = MI.getOperand(1).getCImm()->getZExtValue();
-  MIB.addImm(countTrailingOnes(Mask));
 }
 
 namespace llvm {
