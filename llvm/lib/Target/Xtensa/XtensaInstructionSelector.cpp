@@ -27,6 +27,7 @@
 #include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineOperand.h"
+#include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetOpcodes.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/Support/Alignment.h"
@@ -61,7 +62,10 @@ private:
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
 
   bool selectEarly(MachineInstr &I);
-  bool selectAndAsExtui(MachineInstr &I);
+  bool selectAndAsExtui(MachineInstr &I) const;
+  void tryFoldShrIntoExtui(const MachineInstr &InputMI,
+                           const MachineRegisterInfo &MRI, uint32_t MaskWidth,
+                           Register &NewInputReg, uint32_t &ShiftWidth) const;
 
   bool selectLate(MachineInstr &I);
   bool selectVariableShift(MachineInstr &I, MachineBasicBlock &MBB);
@@ -126,7 +130,7 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
   return false;
 }
 
-bool XtensaInstructionSelector::selectAndAsExtui(MachineInstr &I) {
+bool XtensaInstructionSelector::selectAndAsExtui(MachineInstr &I) const {
   MachineBasicBlock &MBB = *I.getParent();
   MachineFunction &MF = *MBB.getParent();
   const MachineRegisterInfo &MRI = MF.getRegInfo();
@@ -140,19 +144,45 @@ bool XtensaInstructionSelector::selectAndAsExtui(MachineInstr &I) {
   if (!isExtuiMask(AndImm)) {
     return false;
   }
-  uint32_t ExtuiMaskWidth = countTrailingOnes(static_cast<uint64_t>(AndImm));
+  uint32_t MaskWidth = countTrailingOnes(static_cast<uint64_t>(AndImm));
+  uint32_t ShiftWidth = 0;
+
+  if (MachineInstr *InputMI = MRI.getVRegDef(InputReg)) {
+    tryFoldShrIntoExtui(*InputMI, MRI, MaskWidth, InputReg, ShiftWidth);
+  }
 
   MachineInstr *Extui = BuildMI(MBB, I, I.getDebugLoc(), TII.get(Xtensa::EXTUI))
                             .add(I.getOperand(0))
                             .addReg(InputReg)
-                            .addImm(0)
-                            .addImm(ExtuiMaskWidth);
+                            .addImm(ShiftWidth)
+                            .addImm(MaskWidth);
   if (!constrainSelectedInstRegOperands(*Extui, TII, TRI, RBI)) {
     return false;
   }
 
   I.removeFromParent();
   return true;
+}
+
+void XtensaInstructionSelector::tryFoldShrIntoExtui(
+    const MachineInstr &InputMI, const MachineRegisterInfo &MRI,
+    uint32_t MaskWidth, Register &NewInputReg, uint32_t &ShiftWidth) const {
+  unsigned InputOpcode = InputMI.getOpcode();
+  if (InputOpcode != Xtensa::G_LSHR && InputOpcode != Xtensa::G_ASHR) {
+    return;
+  }
+
+  int64_t ShiftImm = 0;
+  if (!mi_match(InputMI.getOperand(2).getReg(), MRI, m_ICst(ShiftImm))) {
+    return;
+  }
+
+  if (ShiftImm < 0 || ShiftImm > 31 || ShiftImm + MaskWidth > 32) {
+    return;
+  }
+
+  NewInputReg = InputMI.getOperand(1).getReg();
+  ShiftWidth = static_cast<uint32_t>(ShiftImm);
 }
 
 bool XtensaInstructionSelector::selectLate(MachineInstr &I) {

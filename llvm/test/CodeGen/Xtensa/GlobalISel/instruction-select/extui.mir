@@ -709,8 +709,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRLI:%[0-9]+]]:gpr = SRLI [[COPY]], 1
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRLI]], 0, 2
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 1, 2
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -782,8 +781,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRLI:%[0-9]+]]:gpr = SRLI [[COPY]], 2
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRLI]], 0, 2
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 2, 2
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -854,8 +852,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRLI:%[0-9]+]]:gpr = SRLI [[COPY]], 3
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRLI]], 0, 2
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 3, 2
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -926,8 +923,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRLI:%[0-9]+]]:gpr = SRLI [[COPY]], 4
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRLI]], 0, 2
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 4, 2
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -999,8 +995,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRLI:%[0-9]+]]:gpr = SRLI [[COPY]], 8
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRLI]], 0, 2
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 8, 2
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -1072,9 +1067,8 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 16, 16
-    ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[EXTUI]], 0, 2
-    ; CHECK-NEXT: $a2 = COPY [[EXTUI1]]
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 16, 2
+    ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 16
@@ -1146,8 +1140,7 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 31, 1
-    ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[EXTUI]], 0, 1
-    ; CHECK-NEXT: $a2 = COPY [[EXTUI1]]
+    ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 31
@@ -1218,8 +1211,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[COPY]], 1
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRAI]], 0, 2
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 1, 2
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -1291,8 +1283,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[COPY]], 2
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRAI]], 0, 2
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 2, 2
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -1363,8 +1354,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[COPY]], 3
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRAI]], 0, 2
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 3, 2
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -1435,8 +1425,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[COPY]], 4
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRAI]], 0, 2
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 4, 2
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -1508,8 +1497,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[COPY]], 8
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRAI]], 0, 2
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 8, 2
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -1581,8 +1569,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[COPY]], 16
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRAI]], 0, 2
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 16, 2
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -1654,8 +1641,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[COPY]], 31
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRAI]], 0, 1
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 31, 1
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
