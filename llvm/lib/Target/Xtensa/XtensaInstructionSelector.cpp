@@ -134,6 +134,8 @@ XtensaInstructionSelector::selectExtuiLshrImm(MachineOperand &Root) const {
 void XtensaInstructionSelector::renderExtuiMaskImm(MachineInstrBuilder &MIB,
                                                    const MachineInstr &MI,
                                                    int OpIdx) const {
+  assert(MI.getOpcode() == TargetOpcode::G_CONSTANT && OpIdx == -1 &&
+         "Expected a G_CONSTANT");
   uint64_t Mask = MI.getOperand(1).getCImm()->getZExtValue();
   MIB.addImm(countTrailingOnes(Mask));
 }
