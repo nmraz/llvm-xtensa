@@ -200,29 +200,24 @@ let Uses = [SAR] in {
   def SRL : ArithRRrt<0b0001, 0b1001, 0b0000, "srl", []>;
 }
 
-let hasSideEffects = false, mayLoad = false, mayStore = false in {
-  def SLLI : I_RRR<0b0000, 0b0001, 0b0000, (outs GPR:$ar), (ins GPR:$as, uimm5_sub32:$imm),
-                   "slli $ar, $as, $imm", [(set i32:$ar, (shl i32:$as, uimm5_sub32:$imm))]> {
-    bits<5> imm;
+def SLLI : ArithBaseRRR<0b0001, 0b0000, (outs GPR:$ar), (ins GPR:$as, uimm5_sub32:$imm),
+                  "slli $ar, $as, $imm", [(set i32:$ar, (shl i32:$as, uimm5_sub32:$imm))]> {
+  bits<5> imm;
+  let at = imm{3...0};
+  let Inst{20} = imm{4};
+}
 
-    let at = imm{3...0};
-    let Inst{20} = imm{4};
-  }
+def SRAI : ArithBaseRRR<0b0001, 0b0010, (outs GPR:$ar), (ins GPR:$at, uimm5:$imm),
+                  "srai $ar, $at, $imm", [(set i32:$ar, (sra i32:$at, uimm5:$imm))]> {
+  bits<5> imm;
+  let as = imm{3...0};
+  let Inst{20} = imm{4};
+}
 
-  def SRAI : I_RRR<0b0000, 0b0001, 0b0010, (outs GPR:$ar), (ins GPR:$at, uimm5:$imm),
-                   "srai $ar, $at, $imm", [(set i32:$ar, (sra i32:$at, uimm5:$imm))]> {
-    bits<5> imm;
-
-    let as = imm{3...0};
-    let Inst{20} = imm{4};
-  }
-
-  def SRLI : I_RRR<0b0000, 0b0001, 0b0100, (outs GPR:$ar), (ins GPR:$at, uimm4:$imm),
-                   "srli $ar, $at, $imm", [(set i32:$ar, (srl i32:$at, uimm4:$imm))]> {
-    bits<4> imm;
-
-    let as = imm;
-  }
+def SRLI : ArithBaseRRR<0b0001, 0b0100, (outs GPR:$ar), (ins GPR:$at, uimm4:$imm),
+                  "srli $ar, $at, $imm", [(set i32:$ar, (srl i32:$at, uimm4:$imm))]> {
+  bits<4> imm;
+  let as = imm;
 }
 
 let Defs = [SAR] in {
@@ -231,12 +226,8 @@ let Defs = [SAR] in {
   def SSL : ArithRs<0b0000, 0b0100, 0b0000, 0b0001, "ssl", []>;
   def SSR : ArithRs<0b0000, 0b0100, 0b0000, 0b0000, "ssr", []>;
 
-  def SSAI : I_RRR<0b0000, 0b0000, 0b0100, (outs), (ins uimm5:$imm),
+  def SSAI : ArithBaseRRR<0b0000, 0b0100, (outs), (ins uimm5:$imm),
                   "ssai $imm", []> {
-    let hasSideEffects = false;
-    let mayLoad = false;
-    let mayStore = false;
-
     bits<5> imm;
 
     let at = 0b0000;
