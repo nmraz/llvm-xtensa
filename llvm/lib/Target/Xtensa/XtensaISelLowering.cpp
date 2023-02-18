@@ -12,6 +12,7 @@ XtensaTargetLowering::XtensaTargetLowering(const TargetMachine &TM,
                                            const XtensaSubtarget &STI)
     : TargetLowering(TM) {
   setMinFunctionAlignment(Align(4));
+  setBooleanContents(ZeroOrOneBooleanContent);
 
   addRegisterClass(MVT::i32, &Xtensa::GPRRegClass);
   computeRegisterProperties(STI.getRegisterInfo());
