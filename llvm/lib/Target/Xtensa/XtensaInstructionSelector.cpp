@@ -13,6 +13,7 @@
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
 #include "XtensaInstrInfo.h"
 #include "XtensaRegisterBankInfo.h"
+#include "XtensaRegisterInfo.h"
 #include "XtensaSubtarget.h"
 #include "XtensaTargetMachine.h"
 #include "llvm/ADT/None.h"
@@ -29,6 +30,7 @@
 #include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetOpcodes.h"
+#include "llvm/CodeGen/TargetRegisterInfo.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/Support/Alignment.h"
 #include "llvm/Support/Debug.h"
@@ -58,6 +60,9 @@ public:
   static const char *getName() { return DEBUG_TYPE; }
 
 private:
+  const TargetRegisterClass &
+  getRegisterClassForReg(Register Reg, const MachineRegisterInfo &MRI) const;
+
   /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
   ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
@@ -105,7 +110,24 @@ XtensaInstructionSelector::XtensaInstructionSelector(
 {
 }
 
+const TargetRegisterClass &XtensaInstructionSelector::getRegisterClassForReg(
+    Register Reg, const MachineRegisterInfo &MRI) const {
+  assert(RBI.getRegBank(Reg, MRI, TRI)->getID() == Xtensa::GPRRegBankID);
+  return Xtensa::GPRRegClass;
+}
+
 bool XtensaInstructionSelector::select(MachineInstr &I) {
+  if (I.getOpcode() == Xtensa::COPY) {
+    MachineRegisterInfo &MRI = I.getParent()->getParent()->getRegInfo();
+
+    Register DstReg = I.getOperand(0).getReg();
+    if (DstReg.isPhysical()) {
+      return true;
+    }
+    return RBI.constrainGenericRegister(
+        DstReg, getRegisterClassForReg(DstReg, MRI), MRI);
+  }
+
   if (!I.isPreISelOpcode()) {
     // Already target-specific
     return true;
