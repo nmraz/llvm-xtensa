@@ -509,8 +509,8 @@ def S32IN : StoreRRRN<0b1001, uimm4_sl2, "s32i.n", []>;
 
 // def S32NB
 
-def SALT : ArithRRR<0b0010, 0b0111, "salt", [(set i32:$ar, (setlt i32:$as, i32:$at))]>;
-def SALTU : ArithRRR<0b0010, 0b0110, "saltu", [(set i32:$ar, (setult i32:$as, i32:$at))]>;
+def SALT : ArithRRR<0b0010, 0b0111, "salt", []>;
+def SALTU : ArithRRR<0b0010, 0b0110, "saltu", []>;
 
 let Uses = [SAR] in {
   def SLL : ArithRRrs<0b0001, 0b1010, 0b0000, "sll", []>;
@@ -577,3 +577,26 @@ def SUBX8 : ArithRRR<0b0000, 0b1111, "subx8", []>;
 def XOR : ArithRRR<0b0000, 0b0011, "xor", [(set i32:$ar, (xor i32:$as, i32:$at))]>;
 
 // def XSR
+
+def : Pat<(seteq i32:$a, i32:$b),
+          (MOVEQZ (MOVIN 0), (MOVIN 1), (SUB i32:$a, i32:$b))>;
+def : Pat<(setne i32:$a, i32:$b),
+          (MOVEQZ (MOVIN 1), (MOVIN 0), (SUB i32:$a, i32:$b))>;
+
+def : Pat<(setlt i32:$a, i32:$b),
+          (SALT i32:$a, i32:$b)>;
+def : Pat<(setgt i32:$a, i32:$b),
+          (SALT i32:$b, i32:$a)>;
+def : Pat<(setge i32:$a, i32:$b),
+          (XOR (SALT i32:$a, i32:$b), (MOVIN 1))>;
+def : Pat<(setle i32:$a, i32:$b),
+          (XOR (SALT i32:$b, i32:$a), (MOVIN 1))>;
+
+def : Pat<(setult i32:$a, i32:$b),
+          (SALTU i32:$a, i32:$b)>;
+def : Pat<(setugt i32:$a, i32:$b),
+          (SALTU i32:$b, i32:$a)>;
+def : Pat<(setuge i32:$a, i32:$b),
+          (XOR (SALTU i32:$a, i32:$b), (MOVIN 1))>;
+def : Pat<(setule i32:$a, i32:$b),
+          (XOR (SALTU i32:$b, i32:$a), (MOVIN 1))>;
