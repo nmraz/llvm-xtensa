@@ -108,6 +108,7 @@ def : GINodeEquiv<G_INTRINSIC, intrinsic_wo_chain>;
 def : GINodeEquiv<G_INTRINSIC_W_SIDE_EFFECTS, intrinsic_void>;
 def : GINodeEquiv<G_INTRINSIC_W_SIDE_EFFECTS, intrinsic_w_chain>;
 def : GINodeEquiv<G_BR, br>;
+def : GINodeEquiv<G_BRCOND, brcond>;
 def : GINodeEquiv<G_BSWAP, bswap>;
 def : GINodeEquiv<G_BITREVERSE, bitreverse>;
 def : GINodeEquiv<G_FSHL, fshl>;
