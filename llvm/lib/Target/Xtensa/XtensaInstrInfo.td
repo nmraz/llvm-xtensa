@@ -178,6 +178,12 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
     : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
             !strconcat(name, "\t$ar, $as, $at"), pattern>;
 
+  class MovRRR<bits<4> op2, string name, list<dag> pattern>
+    : I_RRR<0b0000, 0b0011, op2, (outs GPR:$ar), (ins GPR:$_ar, GPR:$as, GPR:$at),
+            !strconcat(name, "\t$ar, $as, $at"), pattern> {
+    let Constraints = "$ar = $_ar";
+  }
+
   class ArithRRrt<bits<4> op1, bits<4> op2, bits<4> s, string name, list<dag> pattern>
     : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$at),
             !strconcat(name, "\t$ar, $at"), pattern> {
@@ -442,10 +448,10 @@ def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []>;
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
 
 let isSelect = 1 in {
-  def MOVEQZ : ArithRRR<0b0011, 0b1000, "moveqz", []>;
-  def MOVNEZ : ArithRRR<0b0011, 0b1001, "movnez", []>;
-  def MOVLTZ : ArithRRR<0b0011, 0b1010, "movltz", []>;
-  def MOVGEZ : ArithRRR<0b0011, 0b1011, "movgez", []>;
+  def MOVEQZ : MovRRR<0b1000, "moveqz", []>;
+  def MOVNEZ : MovRRR<0b1001, "movnez", []>;
+  def MOVLTZ : MovRRR<0b1010, "movltz", []>;
+  def MOVGEZ : MovRRR<0b1011, "movgez", []>;
 }
 
 def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", [(set i32:$as, movin_imm7:$imm7)]>;
