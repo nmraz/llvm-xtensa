@@ -296,10 +296,10 @@ def : Pat<(select (i32 (seteq i32:$val, 0)), i32:$true, i32:$false),
           (MOVEQZ i32:$false, i32:$true, i32:$val)>;
 def : Pat<(select (i32 (setne i32:$val, 0)), i32:$true, i32:$false),
           (MOVEQZ i32:$true, i32:$false, i32:$val)>;
-def : Pat<(select (i32 (setgt i32:$val, -1)), i32:$true, i32:$false),
-          (MOVGEZ i32:$false, i32:$true, i32:$val)>;
 def : Pat<(select (i32 (setlt i32:$val, 0)), i32:$true, i32:$false),
           (MOVGEZ i32:$true, i32:$false, i32:$val)>;
+def : Pat<(select (i32 (setlt i32:$val, 1)), i32:$true, i32:$false),
+          (MOVGEZ i32:$false, i32:$true, (NEG i32:$val))>;
 
 def : Pat<(select (i32 (seteq i32:$val1, i32:$val2)), i32:$true, i32:$false),
           (MOVEQZ i32:$false, i32:$true, (SUB i32:$val1, i32:$val2))>;
