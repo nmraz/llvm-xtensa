@@ -170,10 +170,19 @@ XtensaInstructionSelector::selectExtuiLshrImm(MachineOperand &Root) const {
 }
 
 bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
+  MachineRegisterInfo &MRI = I.getParent()->getParent()->getRegInfo();
+
   switch (I.getOpcode()) {
   case Xtensa::G_AND:
     return selectAndAsExtui(I);
+  case Xtensa::G_PHI: {
+    I.setDesc(TII.get(Xtensa::PHI));
+    Register DstReg = I.getOperand(0).getReg();
+    return RBI.constrainGenericRegister(
+        DstReg, getRegisterClassForReg(DstReg, MRI), MRI);
   }
+  }
+
   return false;
 }
 
