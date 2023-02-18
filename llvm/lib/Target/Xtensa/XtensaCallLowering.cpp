@@ -234,6 +234,7 @@ bool XtensaCallLowering::lowerCall(MachineIRBuilder &MIRBuilder,
       MIRBuilder.buildInstr(Xtensa::ADJCALLSTACKDOWN);
 
   unsigned CallOpcode = IsDirect ? Xtensa::CALL0 : Xtensa::CALLX0;
+  // TODO: clobber information
   MachineInstrBuilder Call = MIRBuilder.buildInstrNoInsert(CallOpcode);
   Call.add(Info.Callee);
 
