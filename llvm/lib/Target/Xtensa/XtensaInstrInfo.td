@@ -247,4 +247,63 @@ def XOR : ArithRRR<0b0000, 0b0011, "xor", [(set i32:$ar, (xor i32:$as, i32:$at))
 
 // def XSR
 
-include "XtensaCondMov.td"
+// Integer comparison
+
+// NOTE: Instcombine canonicalizes `icmp` with constants to have the constant
+// on the left and avoid weak inequalities (`le`/`ge`), substantially reducing
+// the number of patterns that need to be matched here. Other targets appear
+// to do this as well.
+def : Pat<(seteq i32:$a, 0),
+          (MOVEQZ (MOVIN 0), (MOVIN 1), i32:$a)>;
+def : Pat<(setne i32:$a, 0),
+          (MOVEQZ (MOVIN 1), (MOVIN 0), i32:$a)>;
+// NOTE: It is actually more profitable to let inequalities around zero be
+// selected to a MOVI + SALT[U] instead of trying to use two MOVI's and a
+// MOV*Z.
+
+def : Pat<(seteq i32:$a, i32:$b),
+          (MOVEQZ (MOVIN 0), (MOVIN 1), (SUB i32:$a, i32:$b))>;
+def : Pat<(setne i32:$a, i32:$b),
+          (MOVEQZ (MOVIN 1), (MOVIN 0), (SUB i32:$a, i32:$b))>;
+
+def : Pat<(setlt i32:$a, i32:$b),
+          (SALT i32:$a, i32:$b)>;
+def : Pat<(setgt i32:$a, i32:$b),
+          (SALT i32:$b, i32:$a)>;
+def : Pat<(setult i32:$a, i32:$b),
+          (SALTU i32:$a, i32:$b)>;
+def : Pat<(setugt i32:$a, i32:$b),
+          (SALTU i32:$b, i32:$a)>;
+
+// These patterns generally only show up in unoptimized code
+def : Pat<(setge i32:$a, i32:$b),
+          (XOR (SALT i32:$a, i32:$b), (MOVIN 1))>;
+def : Pat<(setle i32:$a, i32:$b),
+          (XOR (SALT i32:$b, i32:$a), (MOVIN 1))>;
+def : Pat<(setuge i32:$a, i32:$b),
+          (XOR (SALTU i32:$a, i32:$b), (MOVIN 1))>;
+def : Pat<(setule i32:$a, i32:$b),
+          (XOR (SALTU i32:$b, i32:$a), (MOVIN 1))>;
+
+
+// Conditional moves
+
+// Once more, we leave generalized comparisons to be selected through the
+// patterns above and the generic fallback below. This is assisted by the fact
+// that instcombine favors strong comparisons, ensuring there are no redundant
+// XOR's.
+def : Pat<(select (i32 (seteq i32:$val, 0)), i32:$true, i32:$false),
+          (MOVEQZ i32:$false, i32:$true, i32:$val)>;
+def : Pat<(select (i32 (setne i32:$val, 0)), i32:$true, i32:$false),
+          (MOVEQZ i32:$true, i32:$false, i32:$val)>;
+def : Pat<(select (i32 (setgt i32:$val, -1)), i32:$true, i32:$false),
+          (MOVGEZ i32:$false, i32:$true, i32:$val)>;
+def : Pat<(select (i32 (setlt i32:$val, 0)), i32:$true, i32:$false),
+          (MOVGEZ i32:$true, i32:$false, i32:$val)>;
+
+def : Pat<(select (i32 (seteq i32:$val1, i32:$val2)), i32:$true, i32:$false),
+          (MOVEQZ i32:$false, i32:$true, (SUB i32:$val1, i32:$val2))>;
+
+// Generic fallback
+def : Pat<(select i32:$cond, i32:$true, i32:$false),
+          (MOVEQZ i32:$true, i32:$false, i32:$cond)>;
