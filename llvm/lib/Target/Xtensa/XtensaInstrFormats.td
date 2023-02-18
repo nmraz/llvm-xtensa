@@ -369,34 +369,9 @@ class I_RI6<bits<4> op0, bit i, bit z, dag outs, dag ins, string asmstr, list<da
 
 // Arithmetic instruction classes
 let hasSideEffects = false, mayLoad = false, mayStore = false in {
-  class ArithRRR<bits<4> op1, bits<4> op2, string name, list<dag> pattern>
-    : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
-            !strconcat(name, "\t$ar, $as, $at"), pattern>;
-
-  class MovRRR<bits<4> op2, string name, list<dag> pattern>
-    : I_RRR<0b0000, 0b0011, op2, (outs GPR:$ar), (ins GPR:$_ar, GPR:$as, GPR:$at),
-            !strconcat(name, "\t$ar, $as, $at"), pattern> {
-    let Constraints = "$ar = $_ar";
-  }
-
-  class ArithRRrt<bits<4> op1, bits<4> op2, bits<4> s, string name, list<dag> pattern>
-    : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$at),
-            !strconcat(name, "\t$ar, $at"), pattern> {
-    let as = s;
-  }
-
-  class ArithRRrs<bits<4> op1, bits<4> op2, bits<4> t, string name, list<dag> pattern>
-    : I_RRR<0b0000, op1, op2, (outs GPR:$ar), (ins GPR:$as),
-            !strconcat(name, "\t$ar, $as"), pattern> {
-    let at = t;
-  }
-
-  class ArithRs<bits<4> op1, bits<4> op2, bits<4> t, bits<4> r, string name, list<dag> pattern>
-    : I_RRR<0b0000, op1, op2, (outs), (ins GPR:$as),
-            !strconcat(name, "\t$as"), pattern> {
-    let at = t;
-    let ar = r;
-  }
+  class ArithBaseRRR<bits<4> op1, bits<4> op2, dag outs, dag ins, string asmstr,
+                     list<dag> pattern>
+    : I_RRR<0b0000, op1, op2, outs, ins, asmstr, pattern>;
 
   class ArithRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
     : I_RRI8<op0, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
@@ -420,6 +395,35 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
   class ArithRI7N<bits<4> op0, bit i, Operand Imm, string name, list<dag> pattern>
     : I_RI7<op0, i, (outs GPR:$as), (ins Imm:$imm7),
             !strconcat(name, "\t$as, $imm7"), pattern>;
+}
+
+class ArithRRR<bits<4> op1, bits<4> op2, string name, list<dag> pattern>
+  : ArithBaseRRR<op1, op2, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
+          !strconcat(name, "\t$ar, $as, $at"), pattern>;
+
+class MovRRR<bits<4> op2, string name, list<dag> pattern>
+  : ArithBaseRRR<0b0011, op2, (outs GPR:$ar), (ins GPR:$_ar, GPR:$as, GPR:$at),
+          !strconcat(name, "\t$ar, $as, $at"), pattern> {
+  let Constraints = "$ar = $_ar";
+}
+
+class ArithRRrt<bits<4> op1, bits<4> op2, bits<4> s, string name, list<dag> pattern>
+  : ArithBaseRRR<op1, op2, (outs GPR:$ar), (ins GPR:$at),
+          !strconcat(name, "\t$ar, $at"), pattern> {
+  let as = s;
+}
+
+class ArithRRrs<bits<4> op1, bits<4> op2, bits<4> t, string name, list<dag> pattern>
+  : ArithBaseRRR<op1, op2, (outs GPR:$ar), (ins GPR:$as),
+          !strconcat(name, "\t$ar, $as"), pattern> {
+  let at = t;
+}
+
+class ArithRs<bits<4> op1, bits<4> op2, bits<4> t, bits<4> r, string name, list<dag> pattern>
+  : ArithBaseRRR<op1, op2, (outs), (ins GPR:$as),
+          !strconcat(name, "\t$as"), pattern> {
+  let at = t;
+  let ar = r;
 }
 
 // Load instruction classes
