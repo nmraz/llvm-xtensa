@@ -257,7 +257,9 @@ def : Pat<(seteq i32:$a, 0),
           (MOVEQZ (MOVIN 0), (MOVIN 1), i32:$a)>;
 def : Pat<(setne i32:$a, 0),
           (MOVEQZ (MOVIN 1), (MOVIN 0), i32:$a)>;
-// NOTE: It is actually more profitable to let inequalities around zero be
+def : Pat<(setlt i32:$a, 0),
+          (EXTUI i32:$a, 31, 1)>;
+// NOTE: It is actually more profitable to let other inequalities around zero be
 // selected to a MOVI + SALT[U] instead of trying to use two MOVI's and a
 // MOV*Z.
 
@@ -300,6 +302,8 @@ def : Pat<(select (i32 (setlt i32:$val, 0)), i32:$true, i32:$false),
           (MOVGEZ i32:$true, i32:$false, i32:$val)>;
 def : Pat<(select (i32 (setlt i32:$val, 1)), i32:$true, i32:$false),
           (MOVGEZ i32:$false, i32:$true, (NEG i32:$val))>;
+def : Pat<(select (i32 (setgt i32:$val, 0)), i32:$true, i32:$false),
+          (MOVGEZ i32:$true, i32:$false, (NEG i32:$val))>;
 
 def : Pat<(select (i32 (seteq i32:$val1, i32:$val2)), i32:$true, i32:$false),
           (MOVEQZ i32:$false, i32:$true, (SUB i32:$val1, i32:$val2))>;
