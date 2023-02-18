@@ -109,6 +109,7 @@ registers:
   - { id: 9, class: _, preferred-register: '' }
   - { id: 10, class: _, preferred-register: '' }
   - { id: 11, class: _, preferred-register: '' }
+  - { id: 12, class: _, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
   - { reg: '$a3', virtual-reg: '' }
@@ -149,7 +150,9 @@ body:             |
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gprb(s32) = COPY $a2
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gprb(s32) = COPY $a3
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gprb(s32) = COPY $a4
-  ; CHECK-NEXT:   G_BRCOND [[COPY]](s32), %bb.2
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:gprb(s32) = G_CONSTANT i32 1
+  ; CHECK-NEXT:   [[AND:%[0-9]+]]:gprb(s32) = G_AND [[COPY]], [[C]]
+  ; CHECK-NEXT:   G_BRCOND [[AND]](s32), %bb.2
   ; CHECK-NEXT:   G_BR %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:
@@ -167,7 +170,9 @@ body:             |
     %3:_(s32) = COPY $a2
     %4:_(s32) = COPY $a3
     %5:_(s32) = COPY $a4
-    G_BRCOND %3(s32), %bb.2
+    %12:_(s32) = G_CONSTANT i32 1
+    %11:_(s32) = G_AND %3, %12
+    G_BRCOND %11(s32), %bb.2
     G_BR %bb.1
 
   bb.1.cond.false:
@@ -210,6 +215,7 @@ registers:
   - { id: 9, class: _, preferred-register: '' }
   - { id: 10, class: _, preferred-register: '' }
   - { id: 11, class: _, preferred-register: '' }
+  - { id: 12, class: _, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
   - { reg: '$a3', virtual-reg: '' }
@@ -250,7 +256,9 @@ body:             |
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gprb(s32) = COPY $a2
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gprb(s32) = COPY $a3
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gprb(s32) = COPY $a4
-  ; CHECK-NEXT:   G_BRCOND [[COPY]](s32), %bb.2
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:gprb(s32) = G_CONSTANT i32 1
+  ; CHECK-NEXT:   [[AND:%[0-9]+]]:gprb(s32) = G_AND [[COPY]], [[C]]
+  ; CHECK-NEXT:   G_BRCOND [[AND]](s32), %bb.2
   ; CHECK-NEXT:   G_BR %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:
@@ -268,7 +276,9 @@ body:             |
     %3:_(s32) = COPY $a2
     %4:_(s32) = COPY $a3
     %5:_(s32) = COPY $a4
-    G_BRCOND %3(s32), %bb.2
+    %12:_(s32) = G_CONSTANT i32 1
+    %11:_(s32) = G_AND %3, %12
+    G_BRCOND %11(s32), %bb.2
     G_BR %bb.1
 
   bb.1.cond.false:
@@ -311,6 +321,7 @@ registers:
   - { id: 9, class: _, preferred-register: '' }
   - { id: 10, class: _, preferred-register: '' }
   - { id: 11, class: _, preferred-register: '' }
+  - { id: 12, class: _, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
   - { reg: '$a3', virtual-reg: '' }
@@ -351,7 +362,9 @@ body:             |
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gprb(s32) = COPY $a2
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gprb(s32) = COPY $a3
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gprb(s32) = COPY $a4
-  ; CHECK-NEXT:   G_BRCOND [[COPY]](s32), %bb.2
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:gprb(s32) = G_CONSTANT i32 1
+  ; CHECK-NEXT:   [[AND:%[0-9]+]]:gprb(s32) = G_AND [[COPY]], [[C]]
+  ; CHECK-NEXT:   G_BRCOND [[AND]](s32), %bb.2
   ; CHECK-NEXT:   G_BR %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:
@@ -369,7 +382,9 @@ body:             |
     %3:_(s32) = COPY $a2
     %4:_(s32) = COPY $a3
     %5:_(s32) = COPY $a4
-    G_BRCOND %3(s32), %bb.2
+    %12:_(s32) = G_CONSTANT i32 1
+    %11:_(s32) = G_AND %3, %12
+    G_BRCOND %11(s32), %bb.2
     G_BR %bb.1
 
   bb.1.cond.false:
@@ -406,6 +421,7 @@ registers:
   - { id: 3, class: _, preferred-register: '' }
   - { id: 4, class: _, preferred-register: '' }
   - { id: 5, class: _, preferred-register: '' }
+  - { id: 6, class: _, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
   - { reg: '$a3', virtual-reg: '' }
@@ -446,7 +462,9 @@ body:             |
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gprb(s32) = COPY $a2
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gprb(s32) = COPY $a3
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gprb(s32) = COPY $a4
-  ; CHECK-NEXT:   G_BRCOND [[COPY]](s32), %bb.2
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:gprb(s32) = G_CONSTANT i32 1
+  ; CHECK-NEXT:   [[AND:%[0-9]+]]:gprb(s32) = G_AND [[COPY]], [[C]]
+  ; CHECK-NEXT:   G_BRCOND [[AND]](s32), %bb.2
   ; CHECK-NEXT:   G_BR %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:
@@ -464,7 +482,9 @@ body:             |
     %3:_(s32) = COPY $a2
     %1:_(s32) = COPY $a3
     %2:_(s32) = COPY $a4
-    G_BRCOND %3(s32), %bb.2
+    %6:_(s32) = G_CONSTANT i32 1
+    %5:_(s32) = G_AND %3, %6
+    G_BRCOND %5(s32), %bb.2
     G_BR %bb.1
 
   bb.1.cond.false:
@@ -513,6 +533,7 @@ registers:
   - { id: 15, class: _, preferred-register: '' }
   - { id: 16, class: _, preferred-register: '' }
   - { id: 17, class: _, preferred-register: '' }
+  - { id: 18, class: _, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
   - { reg: '$a4', virtual-reg: '' }
@@ -557,7 +578,9 @@ body:             |
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gprb(s32) = COPY $a5
   ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:gprb(s32) = COPY $a6
   ; CHECK-NEXT:   [[COPY4:%[0-9]+]]:gprb(s32) = COPY $a7
-  ; CHECK-NEXT:   G_BRCOND [[COPY]](s32), %bb.2
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:gprb(s32) = G_CONSTANT i32 1
+  ; CHECK-NEXT:   [[AND:%[0-9]+]]:gprb(s32) = G_AND [[COPY]], [[C]]
+  ; CHECK-NEXT:   G_BRCOND [[AND]](s32), %bb.2
   ; CHECK-NEXT:   G_BR %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:
@@ -579,7 +602,9 @@ body:             |
     %5:_(s32) = COPY $a5
     %6:_(s32) = COPY $a6
     %7:_(s32) = COPY $a7
-    G_BRCOND %3(s32), %bb.2
+    %18:_(s32) = G_CONSTANT i32 1
+    %17:_(s32) = G_AND %3, %18
+    G_BRCOND %17(s32), %bb.2
     G_BR %bb.1
 
   bb.1.cond.false:
@@ -618,6 +643,7 @@ registers:
   - { id: 3, class: _, preferred-register: '' }
   - { id: 4, class: _, preferred-register: '' }
   - { id: 5, class: _, preferred-register: '' }
+  - { id: 6, class: _, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
   - { reg: '$a3', virtual-reg: '' }
@@ -658,7 +684,9 @@ body:             |
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gprb(s32) = COPY $a2
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gprb(p0) = COPY $a3
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gprb(p0) = COPY $a4
-  ; CHECK-NEXT:   G_BRCOND [[COPY]](s32), %bb.2
+  ; CHECK-NEXT:   [[C:%[0-9]+]]:gprb(s32) = G_CONSTANT i32 1
+  ; CHECK-NEXT:   [[AND:%[0-9]+]]:gprb(s32) = G_AND [[COPY]], [[C]]
+  ; CHECK-NEXT:   G_BRCOND [[AND]](s32), %bb.2
   ; CHECK-NEXT:   G_BR %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:
@@ -676,7 +704,9 @@ body:             |
     %3:_(s32) = COPY $a2
     %1:_(p0) = COPY $a3
     %2:_(p0) = COPY $a4
-    G_BRCOND %3(s32), %bb.2
+    %6:_(s32) = G_CONSTANT i32 1
+    %5:_(s32) = G_AND %3, %6
+    G_BRCOND %5(s32), %bb.2
     G_BR %bb.1
 
   bb.1.cond.false:
