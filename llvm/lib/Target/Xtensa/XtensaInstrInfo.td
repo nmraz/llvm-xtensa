@@ -253,9 +253,9 @@ let hasSideEffects = false, mayLoad = false, mayStore = true in {
 
 // Branch and call helpers
 let hasSideEffects = false, mayLoad = false, mayStore = false in {
-  class GenericBRI12<bits<4> op0, bits<2> m, bits<2> n, Operand Imm, string name>
+  class GenericBRI12<bits<4> op0, bits<2> m, bits<2> n, Operand Imm, string name, list<dag> pattern>
     : I_BRI12<op0, m, n, (outs), (ins GPR:$as, Imm:$offset),
-              !strconcat(name, "\t$as, $offset"), []>;
+              !strconcat(name, "\t$as, $offset"), pattern>;
 
   class GenericCall<bits<4> op0, bits<2> n, Operand Imm, string name, list<dag> pattern>
     : I_CALL<op0, n, (outs), (ins Imm:$offset),
@@ -299,8 +299,8 @@ let hasSideEffects = false, mayLoad = false, mayStore = false,
     let Inst{7...4} = bbi{3...0};
   }
 
-  class BranchRZ12<bits<2> m, string name>
-    : GenericBRI12<0b0110, m, 0b01, brtarget12, name>;
+  class BranchRZ12<bits<2> m, string name, list<dag> pattern>
+    : GenericBRI12<0b0110, m, 0b01, brtarget12, name, pattern>;
 }
 
 class BranchRI8<bits<2> m, string name> : BranchRC8<m, 0b10, b4const, name>;
@@ -355,21 +355,21 @@ def BBS : BranchRR8<0b1101, "bbs">;
 def BBSI : BranchRB8<0b111, "bbsi">;
 def BEQ : BranchRR8<0b0001, "beq">;
 def BEQI : BranchRI8<0b00, "beqi">;
-def BEQZ : BranchRZ12<0b00, "beqz">;
+def BEQZ : BranchRZ12<0b00, "beqz", []>;
 def BGE : BranchRR8<0b1010, "bge">;
 def BGEI : BranchRI8<0b11, "bgei">;
 def BGEU : BranchRR8<0b1011, "bgeu">;
 def BGEUI : BranchRUI8<0b11, "bgeui">;
-def BGEZ : BranchRZ12<0b11, "bgez">;
+def BGEZ : BranchRZ12<0b11, "bgez", []>;
 def BLT : BranchRR8<0b0010, "blt">;
 def BLTI : BranchRI8<0b10, "blti">;
 def BLTU : BranchRR8<0b0011, "bltu">;
 def BLTUI : BranchRUI8<0b10, "bltui">;
-def BLTZ : BranchRZ12<0b10, "bltz">;
+def BLTZ : BranchRZ12<0b10, "bltz", []>;
 def BNALL : BranchRR8<0b1100, "bnall">;
 def BNE : BranchRR8<0b1001, "bne">;
 def BNEI : BranchRI8<0b01, "bnei">;
-def BNEZ : BranchRZ12<0b01, "bnez">;
+def BNEZ : BranchRZ12<0b01, "bnez", [(brcond i32:$as, bb:$offset)]>;
 def BNONE : BranchRR8<0b0000, "bnone">;
 
 def CALL0  : Call<0b00, A0, "call0">;
@@ -384,7 +384,7 @@ def CALLX12 : CallX<0b11, A12, "callx12">;
 
 def DSYNC : I_Fixed24<0x002030, "dsync", []>;
 
-def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12_sl3, "entry"> {
+def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12_sl3, "entry", []> {
   // This essentially renames all registers.
   let hasSideEffects = true;
 }
@@ -427,7 +427,7 @@ let isTrap = true in {
 def ISYNC : I_Fixed24<0x002000, "isync", []>;
 
 let isBranch = true, isTerminator = true, isBarrier = true in {
-  def J : GenericCall<0b0110, 0b00, jmptarget18, "j", []>;
+  def J : GenericCall<0b0110, 0b00, jmptarget18, "j", [(br bb:$offset)]>;
   // def J.L
   def JX : GenericCallX<0b10, 0b10, "jx", []>;
 }
