@@ -454,6 +454,9 @@ let isSelect = 1 in {
   def MOVGEZ : MovRRR<0b1011, "movgez", []>;
 }
 
+def : Pat<(select i32:$cond, i32:$true, i32:$false),
+          (MOVNEZ i32:$false, i32:$true, i32:$cond)>;
+
 def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", [(set i32:$as, movin_imm7:$imm7)]>;
 def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi", [(set i32:$at, simm12:$imm12)]>;
 
