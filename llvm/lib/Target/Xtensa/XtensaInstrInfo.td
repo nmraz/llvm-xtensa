@@ -250,6 +250,11 @@ def XOR : ArithRRR<0b0000, 0b0011, "xor", [(set i32:$ar, (xor i32:$as, i32:$at))
 
 // def XSR
 
+def : Pat<(seteq i32:$a, 0),
+          (MOVEQZ (MOVIN 0), (MOVIN 1), i32:$a)>;
+def : Pat<(setne i32:$a, 0),
+          (MOVEQZ (MOVIN 1), (MOVIN 0), i32:$a)>
+
 def : Pat<(seteq i32:$a, i32:$b),
           (MOVEQZ (MOVIN 0), (MOVIN 1), (SUB i32:$a, i32:$b))>;
 def : Pat<(setne i32:$a, i32:$b),
