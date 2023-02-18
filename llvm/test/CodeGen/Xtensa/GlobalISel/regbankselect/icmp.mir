@@ -54,6 +54,30 @@
     ret i1 %icmp
   }
 
+  define i1 @icmp_sltz_i32(i32 %a, i32 %b) {
+  entry:
+    %icmp = icmp slt i32 %a, 0
+    ret i1 %icmp
+  }
+
+  define i1 @icmp_slez_i32(i32 %a, i32 %b) {
+  entry:
+    %icmp = icmp slt i32 %a, 1
+    ret i1 %icmp
+  }
+
+  define i1 @icmp_sgtz_i32(i32 %a, i32 %b) {
+  entry:
+    %icmp = icmp sgt i32 %a, 0
+    ret i1 %icmp
+  }
+
+  define i1 @icmp_sgez_i32(i32 %a, i32 %b) {
+  entry:
+    %icmp = icmp sgt i32 %a, -1
+    ret i1 %icmp
+  }
+
   define i1 @icmp_ult_i32(i32 %a, i32 %b) {
   entry:
     %icmp = icmp ult i32 %a, %b
@@ -650,6 +674,306 @@ body:             |
     %1:_(s32) = COPY $a3
     %4:_(s32) = G_ICMP intpred(sge), %0(s32), %1
     $a2 = COPY %4(s32)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            icmp_sltz_i32
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: _, preferred-register: '' }
+  - { id: 4, class: _, preferred-register: '' }
+  - { id: 5, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.0.entry:
+    liveins: $a2, $a3
+
+    ; CHECK-LABEL: name: icmp_sltz_i32
+    ; CHECK: liveins: $a2, $a3
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gprb(s32) = COPY $a2
+    ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gprb(s32) = COPY $a3
+    ; CHECK-NEXT: [[C:%[0-9]+]]:gprb(s32) = G_CONSTANT i32 0
+    ; CHECK-NEXT: [[ICMP:%[0-9]+]]:gprb(s32) = G_ICMP intpred(slt), [[COPY]](s32), [[C]]
+    ; CHECK-NEXT: $a2 = COPY [[ICMP]](s32)
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:_(s32) = COPY $a2
+    %1:_(s32) = COPY $a3
+    %2:_(s32) = G_CONSTANT i32 0
+    %5:_(s32) = G_ICMP intpred(slt), %0(s32), %2
+    $a2 = COPY %5(s32)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            icmp_slez_i32
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: _, preferred-register: '' }
+  - { id: 4, class: _, preferred-register: '' }
+  - { id: 5, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.0.entry:
+    liveins: $a2, $a3
+
+    ; CHECK-LABEL: name: icmp_slez_i32
+    ; CHECK: liveins: $a2, $a3
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gprb(s32) = COPY $a2
+    ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gprb(s32) = COPY $a3
+    ; CHECK-NEXT: [[C:%[0-9]+]]:gprb(s32) = G_CONSTANT i32 1
+    ; CHECK-NEXT: [[ICMP:%[0-9]+]]:gprb(s32) = G_ICMP intpred(slt), [[COPY]](s32), [[C]]
+    ; CHECK-NEXT: $a2 = COPY [[ICMP]](s32)
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:_(s32) = COPY $a2
+    %1:_(s32) = COPY $a3
+    %2:_(s32) = G_CONSTANT i32 1
+    %5:_(s32) = G_ICMP intpred(slt), %0(s32), %2
+    $a2 = COPY %5(s32)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            icmp_sgtz_i32
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: _, preferred-register: '' }
+  - { id: 4, class: _, preferred-register: '' }
+  - { id: 5, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.0.entry:
+    liveins: $a2, $a3
+
+    ; CHECK-LABEL: name: icmp_sgtz_i32
+    ; CHECK: liveins: $a2, $a3
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gprb(s32) = COPY $a2
+    ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gprb(s32) = COPY $a3
+    ; CHECK-NEXT: [[C:%[0-9]+]]:gprb(s32) = G_CONSTANT i32 0
+    ; CHECK-NEXT: [[ICMP:%[0-9]+]]:gprb(s32) = G_ICMP intpred(sgt), [[COPY]](s32), [[C]]
+    ; CHECK-NEXT: $a2 = COPY [[ICMP]](s32)
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:_(s32) = COPY $a2
+    %1:_(s32) = COPY $a3
+    %2:_(s32) = G_CONSTANT i32 0
+    %5:_(s32) = G_ICMP intpred(sgt), %0(s32), %2
+    $a2 = COPY %5(s32)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            icmp_sgez_i32
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: _, preferred-register: '' }
+  - { id: 4, class: _, preferred-register: '' }
+  - { id: 5, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.0.entry:
+    liveins: $a2, $a3
+
+    ; CHECK-LABEL: name: icmp_sgez_i32
+    ; CHECK: liveins: $a2, $a3
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gprb(s32) = COPY $a2
+    ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gprb(s32) = COPY $a3
+    ; CHECK-NEXT: [[C:%[0-9]+]]:gprb(s32) = G_CONSTANT i32 -1
+    ; CHECK-NEXT: [[ICMP:%[0-9]+]]:gprb(s32) = G_ICMP intpred(sgt), [[COPY]](s32), [[C]]
+    ; CHECK-NEXT: $a2 = COPY [[ICMP]](s32)
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:_(s32) = COPY $a2
+    %1:_(s32) = COPY $a3
+    %2:_(s32) = G_CONSTANT i32 -1
+    %5:_(s32) = G_ICMP intpred(sgt), %0(s32), %2
+    $a2 = COPY %5(s32)
     RETN implicit $a0, implicit $a2
 
 ...

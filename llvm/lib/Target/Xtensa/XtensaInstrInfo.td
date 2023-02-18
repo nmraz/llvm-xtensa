@@ -250,10 +250,17 @@ def XOR : ArithRRR<0b0000, 0b0011, "xor", [(set i32:$ar, (xor i32:$as, i32:$at))
 
 // def XSR
 
+// NOTE: Instcombine canonicalizes `icmp` with constants to have the constant
+// on the left and avoid weak inequalities (`le`/`ge`), substantially reducing
+// the number of patterns that need to be matched here. Other targets appear
+// to do this as well.
 def : Pat<(seteq i32:$a, 0),
           (MOVEQZ (MOVIN 0), (MOVIN 1), i32:$a)>;
 def : Pat<(setne i32:$a, 0),
-          (MOVEQZ (MOVIN 1), (MOVIN 0), i32:$a)>
+          (MOVEQZ (MOVIN 1), (MOVIN 0), i32:$a)>;
+// NOTE: It is actually more profitable to let inequalities around zero be
+// selected to a MOVI + SALT[U] instead of trying to use two MOVI's and a
+// MOV*Z.
 
 def : Pat<(seteq i32:$a, i32:$b),
           (MOVEQZ (MOVIN 0), (MOVIN 1), (SUB i32:$a, i32:$b))>;
