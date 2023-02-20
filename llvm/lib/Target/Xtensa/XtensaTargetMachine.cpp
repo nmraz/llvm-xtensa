@@ -1,5 +1,6 @@
 #include "XtensaTargetMachine.h"
 #include "TargetInfo/XtensaTargetInfo.h"
+#include "Xtensa.h"
 #include "llvm/ADT/Optional.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/Triple.h"
@@ -27,6 +28,7 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaTarget() {
 
   PassRegistry *PR = PassRegistry::getPassRegistry();
   initializeGlobalISel(*PR);
+  initializeXtensaPostLegalizerCombinerPass(*PR);
 }
 
 XtensaTargetMachine::XtensaTargetMachine(const Target &T, const Triple &TT,
@@ -55,6 +57,7 @@ public:
 
   bool addIRTranslator() override;
   bool addLegalizeMachineIR() override;
+  void addPreRegBankSelect() override;
   bool addRegBankSelect() override;
   bool addGlobalInstructionSelect() override;
 };
@@ -73,6 +76,12 @@ bool XtensaPassConfig::addIRTranslator() {
 bool XtensaPassConfig::addLegalizeMachineIR() {
   addPass(new Legalizer());
   return false;
+}
+
+void XtensaPassConfig::addPreRegBankSelect() {
+  if (getOptLevel() != CodeGenOpt::None) {
+    addPass(createXtensaPostLegalizerCombiner());
+  }
 }
 
 bool XtensaPassConfig::addRegBankSelect() {

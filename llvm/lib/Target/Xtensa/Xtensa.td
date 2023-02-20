@@ -4,6 +4,7 @@ include "XtensaRegisterInfo.td"
 include "XtensaRegisterBanks.td"
 include "XtensaInstrInfo.td"
 include "XtensaCallingConv.td"
+include "XtensaCombine.td"
 
 def XtensaInstrInfo : InstrInfo;
 

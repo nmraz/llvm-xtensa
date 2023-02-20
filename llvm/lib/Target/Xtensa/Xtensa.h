@@ -1,6 +1,8 @@
 #ifndef LLVM_LIB_TARGET_XTENSA_XTENSA_H
 #define LLVM_LIB_TARGET_XTENSA_XTENSA_H
 
+#include "llvm/PassRegistry.h"
+
 namespace llvm {
 
 class AsmPrinter;
@@ -19,6 +21,10 @@ InstructionSelector *
 createXtensaInstructionSelector(const XtensaTargetMachine &TM,
                                 const XtensaSubtarget &Subtarget,
                                 const XtensaRegisterBankInfo &RBI);
+
+FunctionPass *createXtensaPostLegalizerCombiner();
+
+void initializeXtensaPostLegalizerCombinerPass(PassRegistry &PM);
 
 } // namespace llvm
 
