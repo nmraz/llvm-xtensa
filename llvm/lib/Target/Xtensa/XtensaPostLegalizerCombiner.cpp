@@ -15,17 +15,6 @@
 using namespace llvm;
 using namespace MIPatternMatch;
 
-class XtensaPostLegalizerCombinerHelper {
-protected:
-  MachineIRBuilder &B;
-  MachineFunction &MF;
-  MachineRegisterInfo &MRI;
-
-public:
-  XtensaPostLegalizerCombinerHelper(MachineIRBuilder &B)
-      : B(B), MF(B.getMF()), MRI(*B.getMRI()) {}
-};
-
 #define XTENSAPOSTLEGALIZERCOMBINERHELPER_GENCOMBINERHELPER_DEPS
 #include "XtensaGenPostLegalizeGICombiner.inc"
 #undef XTENSAPOSTLEGALIZERCOMBINERHELPER_GENCOMBINERHELPER_DEPS
