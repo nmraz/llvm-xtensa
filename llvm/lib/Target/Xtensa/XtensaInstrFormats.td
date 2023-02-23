@@ -175,6 +175,10 @@ class XtensaInst<dag outs, dag ins, string asmstr, list<dag> pattern>
   let Pattern     = pattern;
 }
 
+class XtensaGenericInstruction : GenericInstruction {
+  let Namespace = "Xtensa";
+}
+
 class XtensaPseudo<dag outs, dag ins, list<dag> pattern>
    : XtensaInst<outs, ins, "", pattern> {
   let isCodeGenOnly = 1;
