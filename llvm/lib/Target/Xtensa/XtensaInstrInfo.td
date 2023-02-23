@@ -14,7 +14,7 @@ def xtensa_set_sar : SDNode<"XtensaISD::SET_SAR", SDTIntUnaryOp>;
 def : GINodeEquiv<G_XTENSA_SET_SAR, xtensa_set_sar>;
 
 def extui_lshrimm : ComplexPattern<i32, 2, "", []>;
-def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectExtuiLshrImm">,
+def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectEXTUILshrImm">,
                        GIComplexPatternEquiv<extui_lshrimm>;
 
 

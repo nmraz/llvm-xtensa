@@ -65,11 +65,11 @@ private:
 
   /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
-  ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
+  ComplexRendererFns selectEXTUILshrImm(MachineOperand &Root) const;
 
   bool selectEarly(MachineInstr &I);
-  bool selectAndAsExtui(MachineInstr &I) const;
-  void tryFoldShrIntoExtui(const MachineInstr &InputMI,
+  bool selectANDAsEXTUI(MachineInstr &I) const;
+  void tryFoldShrIntoEXTUI(const MachineInstr &InputMI,
                            const MachineRegisterInfo &MRI, uint32_t MaskWidth,
                            Register &NewInputReg, uint32_t &ShiftWidth) const;
 
@@ -144,7 +144,7 @@ bool XtensaInstructionSelector::select(MachineInstr &I) {
 }
 
 InstructionSelector::ComplexRendererFns
-XtensaInstructionSelector::selectExtuiLshrImm(MachineOperand &Root) const {
+XtensaInstructionSelector::selectEXTUILshrImm(MachineOperand &Root) const {
   if (!Root.isReg()) {
     return None;
   }
@@ -152,11 +152,12 @@ XtensaInstructionSelector::selectExtuiLshrImm(MachineOperand &Root) const {
   MachineRegisterInfo &MRI =
       Root.getParent()->getParent()->getParent()->getRegInfo();
 
-  int64_t ShiftImm = 0;
-  if (!mi_match(Root.getReg(), MRI, m_ICst(ShiftImm))) {
+  Optional<int64_t> MaybeShiftImm = getIConstantVRegSExtVal(Root.getReg(), MRI);
+  if (!MaybeShiftImm) {
     return None;
   }
 
+  int64_t ShiftImm = *MaybeShiftImm;
   if (ShiftImm < 16 || ShiftImm > 31) {
     return None;
   }
@@ -174,7 +175,7 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
 
   switch (I.getOpcode()) {
   case Xtensa::G_AND:
-    return selectAndAsExtui(I);
+    return selectANDAsEXTUI(I);
   case Xtensa::G_PHI: {
     I.setDesc(TII.get(Xtensa::PHI));
     Register DstReg = I.getOperand(0).getReg();
@@ -186,7 +187,7 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
   return false;
 }
 
-bool XtensaInstructionSelector::selectAndAsExtui(MachineInstr &I) const {
+bool XtensaInstructionSelector::selectANDAsEXTUI(MachineInstr &I) const {
   MachineBasicBlock &MBB = *I.getParent();
   MachineFunction &MF = *MBB.getParent();
   const MachineRegisterInfo &MRI = MF.getRegInfo();
@@ -204,7 +205,7 @@ bool XtensaInstructionSelector::selectAndAsExtui(MachineInstr &I) const {
   uint32_t ShiftWidth = 0;
 
   if (MachineInstr *InputMI = MRI.getVRegDef(InputReg)) {
-    tryFoldShrIntoExtui(*InputMI, MRI, MaskWidth, InputReg, ShiftWidth);
+    tryFoldShrIntoEXTUI(*InputMI, MRI, MaskWidth, InputReg, ShiftWidth);
   }
 
   MachineInstr *Extui = BuildMI(MBB, I, I.getDebugLoc(), TII.get(Xtensa::EXTUI))
@@ -220,7 +221,7 @@ bool XtensaInstructionSelector::selectAndAsExtui(MachineInstr &I) const {
   return true;
 }
 
-void XtensaInstructionSelector::tryFoldShrIntoExtui(
+void XtensaInstructionSelector::tryFoldShrIntoEXTUI(
     const MachineInstr &InputMI, const MachineRegisterInfo &MRI,
     uint32_t MaskWidth, Register &NewInputReg, uint32_t &ShiftWidth) const {
   unsigned InputOpcode = InputMI.getOpcode();
@@ -228,11 +229,13 @@ void XtensaInstructionSelector::tryFoldShrIntoExtui(
     return;
   }
 
-  int64_t ShiftImm = 0;
-  if (!mi_match(InputMI.getOperand(2).getReg(), MRI, m_ICst(ShiftImm))) {
+  Optional<int64_t> MaybeShiftImm =
+      getIConstantVRegSExtVal(InputMI.getOperand(2).getReg(), MRI);
+  if (!MaybeShiftImm) {
     return;
   }
 
+  int64_t ShiftImm = *MaybeShiftImm;
   if (ShiftImm < 0 || ShiftImm > 31 || ShiftImm + MaskWidth > 32) {
     return;
   }
