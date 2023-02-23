@@ -29,6 +29,7 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaTarget() {
   PassRegistry *PR = PassRegistry::getPassRegistry();
   initializeGlobalISel(*PR);
   initializeXtensaPostLegalizerCombinerPass(*PR);
+  initializeXtensaShiftLoweringPass(*PR);
 }
 
 XtensaTargetMachine::XtensaTargetMachine(const Target &T, const Triple &TT,
@@ -82,6 +83,8 @@ void XtensaPassConfig::addPreRegBankSelect() {
   if (getOptLevel() != CodeGenOpt::None) {
     addPass(createXtensaPostLegalizerCombiner());
   }
+
+  addPass(createXtensaShiftLowering());
 }
 
 bool XtensaPassConfig::addRegBankSelect() {

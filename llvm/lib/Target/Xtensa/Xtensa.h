@@ -23,8 +23,10 @@ createXtensaInstructionSelector(const XtensaTargetMachine &TM,
                                 const XtensaRegisterBankInfo &RBI);
 
 FunctionPass *createXtensaPostLegalizerCombiner();
+FunctionPass *createXtensaShiftLowering();
 
-void initializeXtensaPostLegalizerCombinerPass(PassRegistry &PM);
+void initializeXtensaPostLegalizerCombinerPass(PassRegistry &PR);
+void initializeXtensaShiftLoweringPass(PassRegistry &PR);
 
 } // namespace llvm
 
