@@ -10,7 +10,9 @@ def G_XTENSA_SET_SAR : XtensaGenericInstruction {
   let hasSideEffects = false;
 }
 
-def xtensa_set_sar : SDNode<"XtensaISD::SET_SAR", SDTIntUnaryOp>;
+def SDTSetSAR : SDTypeProfile<0, 1, [SDTCisInt<0>]>;
+
+def xtensa_set_sar : SDNode<"XtensaISD::SET_SAR", SDTSetSAR>;
 def : GINodeEquiv<G_XTENSA_SET_SAR, xtensa_set_sar>;
 
 def extui_lshrimm : ComplexPattern<i32, 2, "", []>;
@@ -249,6 +251,13 @@ let Defs = [SAR] in {
     let ar = 0b0100;
   }
 }
+
+// Note: the generic fallback to SSR is implemented manually in C++ due to a
+// tablegen bug causing it to always add an extra implicit def.
+def : Pat<(xtensa_set_sar uimm5:$a), (SSAI uimm5:$a)>;
+def : Pat<(xtensa_set_sar (sub 32, i32:$a)), (SSL i32:$a)>;
+def : Pat<(xtensa_set_sar (shl i32:$a, (i32 3))), (SSA8L i32:$a)>;
+def : Pat<(xtensa_set_sar (sub 32, (shl i32:$a, (i32 3)))), (SSA8B i32:$a)>;
 
 def SUB : ArithRRR<0b0000, 0b1100, "sub", [(set i32:$ar, (sub i32:$as, i32:$at))]>;
 def SUBX2 : ArithRRR<0b0000, 0b1101, "subx2", []>;

@@ -267,6 +267,13 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
     I.eraseFromParent();
     return true;
   }
+  case Xtensa::G_XTENSA_SET_SAR:
+    // We mutate the opcode manually due to a tablegen bug with implicit defs:
+    // the opcode mutation logic currently doesn't take any implicit defs in the
+    // source instruction into account, and so always manually adds an extra
+    // `SAR` def.
+    I.setDesc(TII.get(Xtensa::SSR));
+    return constrainSelectedInstRegOperands(I, TII, TRI, RBI);
   case Xtensa::G_SHL:
   case Xtensa::G_LSHR:
   case Xtensa::G_ASHR:
