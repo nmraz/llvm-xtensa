@@ -215,9 +215,11 @@ hasEHFunclets:   false
 failsVerification: false
 tracksDebugUserValues: false
 registers:
-  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 0, class: gpr, preferred-register: '' }
   - { id: 1, class: gprb, preferred-register: '' }
-  - { id: 2, class: gprb, preferred-register: '' }
+  - { id: 2, class: gpr, preferred-register: '' }
+  - { id: 3, class: gprb, preferred-register: '' }
+  - { id: 4, class: gprb, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
 frameInfo:
@@ -260,9 +262,12 @@ body:             |
     ; CHECK-NEXT: [[SLL:%[0-9]+]]:gpr = SLL [[COPY]], implicit $sar
     ; CHECK-NEXT: $a2 = COPY [[SLL]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
-    %0:gprb(s32) = COPY $a2
+    %0:gpr(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 32
-    %2:gprb(s32) = G_SHL %0, %1(s32)
+    %4:gprb(s32) = G_CONSTANT i32 32
+    %3:gprb(s32) = G_SUB %4, %1
+    G_XTENSA_SET_SAR %3(s32), implicit-def $sar
+    %2:gpr(s32) = SLL %0(s32), implicit $sar
     $a2 = COPY %2(s32)
     RETN implicit $a0, implicit $a2
 
@@ -421,9 +426,9 @@ hasEHFunclets:   false
 failsVerification: false
 tracksDebugUserValues: false
 registers:
-  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 0, class: gpr, preferred-register: '' }
   - { id: 1, class: gprb, preferred-register: '' }
-  - { id: 2, class: gprb, preferred-register: '' }
+  - { id: 2, class: gpr, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
 frameInfo:
@@ -466,9 +471,10 @@ body:             |
     ; CHECK-NEXT: [[SRL:%[0-9]+]]:gpr = SRL [[COPY]], implicit $sar
     ; CHECK-NEXT: $a2 = COPY [[SRL]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
-    %0:gprb(s32) = COPY $a2
+    %0:gpr(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 32
-    %2:gprb(s32) = G_LSHR %0, %1(s32)
+    G_XTENSA_SET_SAR %1(s32), implicit-def $sar
+    %2:gpr(s32) = SRL %0(s32), implicit $sar
     $a2 = COPY %2(s32)
     RETN implicit $a0, implicit $a2
 
@@ -627,9 +633,9 @@ hasEHFunclets:   false
 failsVerification: false
 tracksDebugUserValues: false
 registers:
-  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 0, class: gpr, preferred-register: '' }
   - { id: 1, class: gprb, preferred-register: '' }
-  - { id: 2, class: gprb, preferred-register: '' }
+  - { id: 2, class: gpr, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
 frameInfo:
@@ -672,9 +678,10 @@ body:             |
     ; CHECK-NEXT: [[SRA:%[0-9]+]]:gpr = SRA [[COPY]], implicit $sar
     ; CHECK-NEXT: $a2 = COPY [[SRA]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
-    %0:gprb(s32) = COPY $a2
+    %0:gpr(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 32
-    %2:gprb(s32) = G_ASHR %0, %1(s32)
+    G_XTENSA_SET_SAR %1(s32), implicit-def $sar
+    %2:gpr(s32) = SRA %0(s32), implicit $sar
     $a2 = COPY %2(s32)
     RETN implicit $a0, implicit $a2
 

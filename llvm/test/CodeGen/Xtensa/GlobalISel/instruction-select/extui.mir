@@ -2084,9 +2084,9 @@ hasEHFunclets:   false
 failsVerification: false
 tracksDebugUserValues: false
 registers:
-  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 0, class: gpr, preferred-register: '' }
   - { id: 1, class: gprb, preferred-register: '' }
-  - { id: 2, class: gprb, preferred-register: '' }
+  - { id: 2, class: gpr, preferred-register: '' }
   - { id: 3, class: gprb, preferred-register: '' }
   - { id: 4, class: gprb, preferred-register: '' }
 liveins:
@@ -2132,10 +2132,11 @@ body:             |
     ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRL]], 0, 1
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
-    %0:gprb(s32) = COPY $a2
+    %0:gpr(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 -1
     %3:gprb(s32) = G_CONSTANT i32 1
-    %2:gprb(s32) = G_LSHR %0, %1(s32)
+    G_XTENSA_SET_SAR %1(s32), implicit-def $sar
+    %2:gpr(s32) = SRL %0(s32), implicit $sar
     %4:gprb(s32) = G_AND %2, %3
     $a2 = COPY %4(s32)
     RETN implicit $a0, implicit $a2
@@ -2159,9 +2160,9 @@ hasEHFunclets:   false
 failsVerification: false
 tracksDebugUserValues: false
 registers:
-  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 0, class: gpr, preferred-register: '' }
   - { id: 1, class: gprb, preferred-register: '' }
-  - { id: 2, class: gprb, preferred-register: '' }
+  - { id: 2, class: gpr, preferred-register: '' }
   - { id: 3, class: gprb, preferred-register: '' }
   - { id: 4, class: gprb, preferred-register: '' }
 liveins:
@@ -2207,10 +2208,11 @@ body:             |
     ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SRA]], 0, 1
     ; CHECK-NEXT: $a2 = COPY [[EXTUI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
-    %0:gprb(s32) = COPY $a2
+    %0:gpr(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 -1
     %3:gprb(s32) = G_CONSTANT i32 1
-    %2:gprb(s32) = G_ASHR %0, %1(s32)
+    G_XTENSA_SET_SAR %1(s32), implicit-def $sar
+    %2:gpr(s32) = SRA %0(s32), implicit $sar
     %4:gprb(s32) = G_AND %2, %3
     $a2 = COPY %4(s32)
     RETN implicit $a0, implicit $a2
