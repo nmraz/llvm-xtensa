@@ -46,11 +46,22 @@ XtensaRegisterBankInfo::getInstrMapping(const MachineInstr &MI) const {
 
   SmallVector<const ValueMapping *, 4> ValMappings(NumOperands);
   for (unsigned Idx = 0; Idx < NumOperands; Idx++) {
-    if (MI.getOperand(Idx).isReg()) {
-      LLT Ty = MRI.getType(MI.getOperand(Idx).getReg());
-      auto Size = Ty.getSizeInBits();
-      ValMappings[Idx] = &getValueMapping(0, Size, Xtensa::GPRRegBank);
+    auto MO = MI.getOperand(Idx);
+    if (!MO.isReg()) {
+      continue;
     }
+
+    Register Reg = MO.getReg();
+    if (!Reg.isPhysical()) {
+      LLT Ty = MRI.getType(Reg);
+      assert((Ty.isScalar() || Ty.isPointer()) && Ty.getSizeInBits() == 32);
+    }
+
+    bool IsSAR = Reg.id() == Xtensa::SAR;
+    unsigned Length = IsSAR ? 8 : 32;
+
+    ValMappings[Idx] = &getValueMapping(
+        0, Length, IsSAR ? Xtensa::SARRegBank : Xtensa::GPRRegBank);
   }
 
   return getInstructionMapping(DefaultMappingID, 1,
