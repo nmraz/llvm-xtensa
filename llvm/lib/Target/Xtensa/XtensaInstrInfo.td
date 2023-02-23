@@ -2,10 +2,23 @@ include "XtensaInstrFormats.td"
 
 
 // Pattern matching helpers
+
+def G_XTENSA_SET_SAR : XtensaGenericInstruction {
+  let OutOperandList = (outs);
+  let InOperandList = (ins type0:$amt);
+  let Defs = [SAR];
+  let hasSideEffects = false;
+}
+
+def xtensa_set_sar : SDNode<"XtensaISD::SET_SAR", SDTIntUnaryOp>;
+def : GINodeEquiv<G_XTENSA_SET_SAR, xtensa_set_sar>;
+
 def extui_lshrimm : ComplexPattern<i32, 2, "", []>;
 def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectExtuiLshrImm">,
                        GIComplexPatternEquiv<extui_lshrimm>;
 
+
+// Pseudo-instructions for codegen/lowering
 
 let Uses = [A1], Defs = [A1] in {
   // Pseudo-instruction used to model allocation of stack slots for argument
@@ -20,6 +33,9 @@ let Uses = [A1], Defs = [A1] in {
   // the caller.
   def ADJCALLSTACKUP : XtensaPseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), []>;
 }
+
+
+// Real instructions
 
 def ABS : ArithRRrt<0b0000, 0b0110, 0b0001, "abs", []>;
 
