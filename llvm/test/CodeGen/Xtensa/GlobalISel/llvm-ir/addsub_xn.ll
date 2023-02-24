@@ -65,3 +65,24 @@ entry:
   %add = add i32 %shl, %b
   ret i32 %add
 }
+
+define i32 @subx2(i32 %a, i32 %b) {
+entry:
+  %shl = shl i32 %a, 1
+  %sub = sub i32 %shl, %b
+  ret i32 %sub
+}
+
+define i32 @subx4(i32 %a, i32 %b) {
+entry:
+  %shl = shl i32 %a, 2
+  %sub = sub i32 %shl, %b
+  ret i32 %sub
+}
+
+define i32 @subx8(i32 %a, i32 %b) {
+entry:
+  %shl = shl i32 %a, 3
+  %sub = sub i32 %shl, %b
+  ret i32 %sub
+}

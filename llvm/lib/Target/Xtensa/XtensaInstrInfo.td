@@ -272,9 +272,15 @@ def : Pat<(xtensa_set_sar (shl i32:$a, (i32 3))), (SSA8L i32:$a)>;
 def : Pat<(xtensa_set_sar (sub 32, (shl i32:$a, (i32 3)))), (SSA8B i32:$a)>;
 
 def SUB : ArithRRR<0b0000, 0b1100, "sub", [(set i32:$ar, (sub i32:$as, i32:$at))]>;
-def SUBX2 : ArithRRR<0b0000, 0b1101, "subx2", []>;
-def SUBX4 : ArithRRR<0b0000, 0b1110, "subx4", []>;
-def SUBX8 : ArithRRR<0b0000, 0b1111, "subx8", []>;
+def SUBX2 : ArithRRR<0b0000, 0b1101, "subx2", [
+  (set i32:$ar, (sub (shl i32:$as, (i32 1)), i32:$at))
+]>;
+def SUBX4 : ArithRRR<0b0000, 0b1110, "subx4", [
+  (set i32:$ar, (sub (shl i32:$as, (i32 2)), i32:$at))
+]>;
+def SUBX8 : ArithRRR<0b0000, 0b1111, "subx8", [
+  (set i32:$ar, (sub (shl i32:$as, (i32 3)), i32:$at))
+]>;
 
 // def WER
 // def WSR
