@@ -392,9 +392,8 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
     let imm8 = imm12{7...0};
   }
 
-  class ArithRRRN<bits<4> op0, string name, list<dag> pattern>
-   : I_RRRN<op0, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
-            !strconcat(name, "\t$ar, $as, $at"), pattern>;
+  class ArithBaseRRRN<bits<4> op0, dag outs, dag ins, string asmstr, list<dag> pattern>
+    : I_RRRN<op0, outs, ins, asmstr, pattern>;
 
   class ArithRI7N<bits<4> op0, bit i, Operand Imm, string name, list<dag> pattern>
     : I_RI7<op0, i, (outs GPR:$as), (ins Imm:$imm7),
@@ -430,13 +429,17 @@ class ArithRs<bits<4> op1, bits<4> op2, bits<4> t, bits<4> r, string name, list<
   let ar = r;
 }
 
+class ArithRRRN<bits<4> op0, string name, list<dag> pattern>
+  : ArithBaseRRRN<op0, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
+          !strconcat(name, "\t$ar, $as, $at"), pattern>;
+
 // Load instruction classes
 let hasSideEffects = false, mayLoad = true, mayStore = false in {
   class LoadRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
     : ArithRRI8<op0, r, Imm, name, pattern>;
 
   class LoadRRRN<bits<4> op0, Operand Imm, string name, list<dag> pattern>
-    : I_RRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
+    : ArithBaseRRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
               !strconcat(name, "\t$at, $as, $offset"), pattern> {
     bits<4> offset;
     let ar = offset;
@@ -448,12 +451,12 @@ let hasSideEffects = false, mayLoad = true, mayStore = false in {
 }
 
 // Store instruction classes
-let hasSideEffects = false, mayLoad = false, mayStore = true in {
+let mayLoad = false, mayStore = true in {
   class StoreRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
     : ArithRRI8<op0, r, Imm, name, pattern>;
 
   class StoreRRRN<bits<4> op0, Operand Imm, string name, list<dag> pattern>
-    : I_RRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
+    : ArithBaseRRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
               !strconcat(name, "\t$at, $as, $offset"), pattern> {
     bits<4> offset;
     let ar = offset;
