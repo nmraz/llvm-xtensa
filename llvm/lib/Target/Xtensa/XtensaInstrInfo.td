@@ -15,6 +15,13 @@ def SDTSetSAR : SDTypeProfile<0, 1, [SDTCisInt<0>]>;
 def xtensa_set_sar : SDNode<"XtensaISD::SET_SAR", SDTSetSAR>;
 def : GINodeEquiv<G_XTENSA_SET_SAR, xtensa_set_sar>;
 
+def neg_imm_xform : SDNodeXForm<imm, [{ unimplemented }]>;
+def gi_neg_imm : GICustomOperandRenderer<"renderNegImm">,
+                 GISDNodeXFormEquiv<neg_imm_xform>;
+
+def neg_simm8 : ImmLeaf<i32, [{ return isInt<8>(-Imm); }], neg_imm_xform>;
+def neg_simm8_sl8 : ImmLeaf<i32, [{ return isShiftedInt<8, 8>(-Imm); }], neg_imm_xform>;
+
 def extui_lshrimm : ComplexPattern<i32, 2, "", []>;
 def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectEXTUILshrImm">,
                        GIComplexPatternEquiv<extui_lshrimm>;
@@ -42,8 +49,14 @@ let Uses = [A1], Defs = [A1] in {
 def ABS : ArithRRrt<0b0000, 0b0110, 0b0001, "abs", []>;
 
 def ADD   : ArithRRR<0b0000, 0b1000, "add", []>;
+
 def ADDI  : ArithRRI8<0b0010, 0b1100, simm8, "addi", []>;
 def ADDMI : ArithRRI8<0b0010, 0b1101, simm8_sl8, "addmi", []>;
+
+def : Pat<(add i32:$a, simm8:$imm), (ADDI i32:$a, simm8:$imm)>;
+def : Pat<(sub i32:$a, neg_simm8:$imm), (ADDI i32:$a, neg_simm8:$imm)>;
+def : Pat<(add i32:$a, simm8_sl8:$imm), (ADDMI i32:$a, simm8_sl8:$imm)>;
+def : Pat<(sub i32:$a, neg_simm8_sl8:$imm), (ADDMI i32:$a, neg_simm8_sl8:$imm)>;
 
 def ADDX2 : ArithRRR<0b0000, 0b1001, "addx2", [
   (set i32:$ar, (add i32:$at, (shl i32:$as, (i32 1))))

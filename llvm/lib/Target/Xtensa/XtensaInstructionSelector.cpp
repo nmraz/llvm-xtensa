@@ -65,7 +65,10 @@ private:
 
   /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
+
   ComplexRendererFns selectEXTUILshrImm(MachineOperand &Root) const;
+  void renderNegImm(MachineInstrBuilder &MIB, const MachineInstr &I,
+                    int OpIdx = -1) const;
 
   bool selectEarly(MachineInstr &I);
   bool selectANDAsEXTUI(MachineInstr &I) const;
@@ -167,6 +170,14 @@ XtensaInstructionSelector::selectEXTUILshrImm(MachineOperand &Root) const {
       // Mask size
       [=](MachineInstrBuilder &MIB) { MIB.addImm(32 - ShiftImm); },
   }};
+}
+
+void XtensaInstructionSelector::renderNegImm(MachineInstrBuilder &MIB,
+                                             const MachineInstr &I,
+                                             int OpIdx) const {
+  assert(OpIdx == -1);
+  int64_t Val = I.getOperand(1).getCImm()->getSExtValue();
+  MIB.addImm(-Val);
 }
 
 bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {

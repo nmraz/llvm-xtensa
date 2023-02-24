@@ -4,7 +4,7 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; CHECK-LABEL: shl_i33:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    movi.n a5, 32
-; CHECK-NEXT:    sub a7, a4, a5
+; CHECK-NEXT:    addi a7, a4, -32
 ; CHECK-NEXT:    saltu a8, a4, a5
 ; CHECK-NEXT:    ssl a4
 ; CHECK-NEXT:    sll a5, a2
@@ -29,7 +29,7 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; CHECK-LABEL: shl_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    movi.n a5, 32
-; CHECK-NEXT:    sub a7, a4, a5
+; CHECK-NEXT:    addi a7, a4, -32
 ; CHECK-NEXT:    saltu a8, a4, a5
 ; CHECK-NEXT:    ssl a4
 ; CHECK-NEXT:    sll a5, a2
@@ -55,7 +55,7 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    extui a6, a3, 0, 1
 ; CHECK-NEXT:    movi.n a3, 32
-; CHECK-NEXT:    sub a7, a4, a3
+; CHECK-NEXT:    addi a7, a4, -32
 ; CHECK-NEXT:    saltu a8, a4, a3
 ; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    srl a3, a6
@@ -79,7 +79,7 @@ define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; CHECK-LABEL: lshr_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    movi.n a5, 32
-; CHECK-NEXT:    sub a7, a4, a5
+; CHECK-NEXT:    addi a7, a4, -32
 ; CHECK-NEXT:    saltu a8, a4, a5
 ; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    srl a5, a3
@@ -112,7 +112,7 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; CHECK-NEXT:    or a5, a3, a5
 ; CHECK-NEXT:    srai a6, a2, 31
 ; CHECK-NEXT:    movi.n a2, 32
-; CHECK-NEXT:    sub a7, a4, a2
+; CHECK-NEXT:    addi a7, a4, -32
 ; CHECK-NEXT:    saltu a8, a4, a2
 ; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    sra a3, a6
@@ -134,7 +134,7 @@ define i64 @ashr_i64(i64 %val, i64 %shamt) {
 ; CHECK-LABEL: ashr_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    movi.n a5, 32
-; CHECK-NEXT:    sub a7, a4, a5
+; CHECK-NEXT:    addi a7, a4, -32
 ; CHECK-NEXT:    saltu a8, a4, a5
 ; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    sra a5, a3
