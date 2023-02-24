@@ -24,7 +24,15 @@ using namespace MIPatternMatch;
 
 namespace {
 
-bool isLegalConstantShift(uint64_t Value) { return Value < 32; }
+bool isLegalConstantShift(unsigned Opcode, uint64_t Value) {
+  switch (Opcode) {
+  case Xtensa::G_SHL:
+    // SLLI doesn't support 0 immediates
+    return Value > 0 && Value < 32;
+  default:
+    return Value < 32;
+  }
+}
 
 Optional<Register> matchRevShiftAmount(Register ShiftAmount,
                                        const MachineRegisterInfo &MRI) {
@@ -101,7 +109,7 @@ bool XtensaShiftLowering::lower(MachineInstr &MI) {
   Register ShiftAmount = MI.getOperand(2).getReg();
 
   Optional<int64_t> ShiftConst = getIConstantVRegSExtVal(ShiftAmount, MRI);
-  if (ShiftConst && isLegalConstantShift(*ShiftConst)) {
+  if (ShiftConst && isLegalConstantShift(Opcode, *ShiftConst)) {
     // Can be selected directly later
     return false;
   }

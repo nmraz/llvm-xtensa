@@ -6,6 +6,12 @@
   target datalayout = "e-m:e-p:32:32-i64:64-n32-S128"
   target triple = "xtensa"
 
+  define i32 @shl_zero(i32 %val) {
+  entry:
+    %shl = shl i32 %val, 0
+    ret i32 %shl
+  }
+
   define i32 @shl_const(i32 %val) {
   entry:
     %shl = shl i32 %val, 5
@@ -22,6 +28,12 @@
   entry:
     %shl = shl i32 %val, 32
     ret i32 %shl
+  }
+
+  define i32 @lshr_zero(i32 %val) {
+  entry:
+    %lshr = lshr i32 %val, 0
+    ret i32 %lshr
   }
 
   define i32 @lshr_const(i32 %val) {
@@ -42,6 +54,12 @@
     ret i32 %lshr
   }
 
+  define i32 @ashr_zero(i32 %val) {
+  entry:
+    %ashr = ashr i32 %val, 0
+    ret i32 %ashr
+  }
+
   define i32 @ashr_const(i32 %val) {
   entry:
     %ashr = ashr i32 %val, 5
@@ -59,6 +77,78 @@
     %ashr = ashr i32 %val, 32
     ret i32 %ashr
   }
+
+...
+---
+name:            shl_zero
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    liveins: $a2
+
+    ; CHECK-LABEL: name: shl_zero
+    ; CHECK: liveins: $a2
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr(s32) = COPY $a2
+    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+    ; CHECK-NEXT: [[C1:%[0-9]+]]:_(s32) = G_CONSTANT i32 32
+    ; CHECK-NEXT: [[SUB:%[0-9]+]]:_(s32) = G_SUB [[C1]], [[C]]
+    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB]](s32), implicit-def $sar
+    ; CHECK-NEXT: [[SLL:%[0-9]+]]:gpr(s32) = SLL [[COPY]](s32), implicit $sar
+    ; CHECK-NEXT: $a2 = COPY [[SLL]](s32)
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:_(s32) = COPY $a2
+    %1:_(s32) = G_CONSTANT i32 0
+    %2:_(s32) = G_SHL %0, %1(s32)
+    $a2 = COPY %2(s32)
+    RETN implicit $a0, implicit $a2
 
 ...
 ---
@@ -272,6 +362,75 @@ body:             |
 
 ...
 ---
+name:            lshr_zero
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    liveins: $a2
+
+    ; CHECK-LABEL: name: lshr_zero
+    ; CHECK: liveins: $a2
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+    ; CHECK-NEXT: [[LSHR:%[0-9]+]]:_(s32) = G_LSHR [[COPY]], [[C]](s32)
+    ; CHECK-NEXT: $a2 = COPY [[LSHR]](s32)
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:_(s32) = COPY $a2
+    %1:_(s32) = G_CONSTANT i32 0
+    %2:_(s32) = G_LSHR %0, %1(s32)
+    $a2 = COPY %2(s32)
+    RETN implicit $a0, implicit $a2
+
+...
+---
 name:            lshr_const
 alignment:       4
 exposesReturnsTwice: false
@@ -475,6 +634,75 @@ body:             |
     %0:_(s32) = COPY $a2
     %1:_(s32) = G_CONSTANT i32 32
     %2:_(s32) = G_LSHR %0, %1(s32)
+    $a2 = COPY %2(s32)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            ashr_zero
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    liveins: $a2
+
+    ; CHECK-LABEL: name: ashr_zero
+    ; CHECK: liveins: $a2
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+    ; CHECK-NEXT: [[ASHR:%[0-9]+]]:_(s32) = G_ASHR [[COPY]], [[C]](s32)
+    ; CHECK-NEXT: $a2 = COPY [[ASHR]](s32)
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:_(s32) = COPY $a2
+    %1:_(s32) = G_CONSTANT i32 0
+    %2:_(s32) = G_ASHR %0, %1(s32)
     $a2 = COPY %2(s32)
     RETN implicit $a0, implicit $a2
 
