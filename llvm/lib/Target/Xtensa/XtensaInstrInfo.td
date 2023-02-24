@@ -156,6 +156,11 @@ let isSelect = 1 in {
 def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", [(set i32:$as, movin_imm7:$imm7)]>;
 def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi", [(set i32:$at, simm12:$imm12)]>;
 
+def MOVN : ArithBaseRRRN<0b1101, (outs GPR:$at), (ins GPR:$as),
+                         "mov.n $at, $as", []> {
+  let ar = 0b0000;
+}
+
 def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s", []>;
 def MUL16U : ArithRRR<0b0001, 0b1100, "mul16u", []>;
 
