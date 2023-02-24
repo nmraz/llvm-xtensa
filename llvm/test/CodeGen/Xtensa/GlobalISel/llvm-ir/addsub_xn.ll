@@ -67,6 +67,10 @@ entry:
 }
 
 define i32 @subx2(i32 %a, i32 %b) {
+; CHECK-LABEL: subx2:
+; CHECK:       # %bb.0: # %entry
+; CHECK-NEXT:    subx2 a2, a2, a3
+; CHECK-NEXT:    ret.n
 entry:
   %shl = shl i32 %a, 1
   %sub = sub i32 %shl, %b
@@ -74,6 +78,10 @@ entry:
 }
 
 define i32 @subx4(i32 %a, i32 %b) {
+; CHECK-LABEL: subx4:
+; CHECK:       # %bb.0: # %entry
+; CHECK-NEXT:    subx4 a2, a2, a3
+; CHECK-NEXT:    ret.n
 entry:
   %shl = shl i32 %a, 2
   %sub = sub i32 %shl, %b
@@ -81,6 +89,10 @@ entry:
 }
 
 define i32 @subx8(i32 %a, i32 %b) {
+; CHECK-LABEL: subx8:
+; CHECK:       # %bb.0: # %entry
+; CHECK-NEXT:    subx8 a2, a2, a3
+; CHECK-NEXT:    ret.n
 entry:
   %shl = shl i32 %a, 3
   %sub = sub i32 %shl, %b
