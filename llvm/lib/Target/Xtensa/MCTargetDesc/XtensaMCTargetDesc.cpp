@@ -1,7 +1,10 @@
 #include "XtensaMCTargetDesc.h"
 #include "TargetInfo/XtensaTargetInfo.h"
+#include "XtensaInstPrinter.h"
 #include "XtensaMCAsmInfo.h"
+#include "llvm/ADT/Triple.h"
 #include "llvm/MC/MCAsmInfo.h"
+#include "llvm/MC/MCInstPrinter.h"
 #include "llvm/MC/MCInstrDesc.h"
 #include "llvm/MC/MCInstrInfo.h"
 #include "llvm/MC/MCRegisterInfo.h"
@@ -59,6 +62,14 @@ static MCAsmInfo *createXtensaMCAsmInfo(const MCRegisterInfo &MRI,
   return new XtensaMCAsmInfo();
 }
 
+static MCInstPrinter *createXtensaInstPrinter(const Triple &T,
+                                              unsigned SyntaxVariant,
+                                              const MCAsmInfo &MAI,
+                                              const MCInstrInfo &MII,
+                                              const MCRegisterInfo &MRI) {
+  return new XtensaInstPrinter(MAI, MII, MRI);
+}
+
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaTargetMC() {
   Target &T = getTheXtensaTarget();
 
@@ -69,6 +80,7 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaTargetMC() {
   TargetRegistry::RegisterMCSubtargetInfo(T, createXtensaMCSubtargetInfo);
   TargetRegistry::RegisterMCCodeEmitter(T, createXtensaMCCodeEmitter);
   TargetRegistry::RegisterMCAsmBackend(T, createXtensaAsmBackend);
+  TargetRegistry::RegisterMCInstPrinter(T, createXtensaInstPrinter);
 
   // TODO: Register these:
   // * MCInstrAnalysis
