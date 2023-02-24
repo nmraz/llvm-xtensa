@@ -168,7 +168,7 @@ def MULL : ArithRRR<0b0010, 0b1000, "mull", [(set i32:$ar, (mul i32:$as, i32:$at
 def MULSH : ArithRRR<0b0010, 0b1011, "mulsh", [(set i32:$ar, (mulhs i32:$as, i32:$at))]>;
 def MULUH : ArithRRR<0b0010, 0b1010, "muluh", [(set i32:$ar, (mulhu i32:$as, i32:$at))]>;
 
-def NEG : ArithRRrt<0b0000, 0b0110, 0b0000, "neg", []>;
+def NEG : ArithRRrt<0b0000, 0b0110, 0b0000, "neg", [(set i32:$ar, (ineg i32:$at))]>;
 
 def NOP : I_Fixed24<0x0020f0, "nop", []>;
 def NOPN : I_Fixed16<0xf03d, "nop.n", []>;
