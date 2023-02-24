@@ -44,9 +44,16 @@ def ABS : ArithRRrt<0b0000, 0b0110, 0b0001, "abs", []>;
 def ADD   : ArithRRR<0b0000, 0b1000, "add", []>;
 def ADDI  : ArithRRI8<0b0010, 0b1100, simm8, "addi", []>;
 def ADDMI : ArithRRI8<0b0010, 0b1101, simm8_sl8, "addmi", []>;
-def ADDX2 : ArithRRR<0b0000, 0b1001, "addx2", []>;
-def ADDX4 : ArithRRR<0b0000, 0b1010, "addx4", []>;
-def ADDX8 : ArithRRR<0b0000, 0b1011, "addx8", []>;
+
+def ADDX2 : ArithRRR<0b0000, 0b1001, "addx2", [
+  (set i32:$ar, (add i32:$at, (shl i32:$as, (i32 1))))
+]>;
+def ADDX4 : ArithRRR<0b0000, 0b1010, "addx4", [
+  (set i32:$ar, (add i32:$at, (shl i32:$as, (i32 2))))
+]>;
+def ADDX8 : ArithRRR<0b0000, 0b1011, "addx8", [
+  (set i32:$ar, (add i32:$at, (shl i32:$as, (i32 3))))
+]>;
 
 def ADDN : ArithRRRN<0b1010, "add.n", [(set i32:$ar, (add i32:$as, i32:$at))]>;
 
