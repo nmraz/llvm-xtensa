@@ -649,12 +649,10 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(s32) = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
-    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
     ; CHECK-NEXT: [[MUL:%[0-9]+]]:_(s32) = G_MUL [[COPY]], [[COPY1]]
     ; CHECK-NEXT: [[UMULH:%[0-9]+]]:_(s32) = G_UMULH [[COPY]], [[COPY1]]
-    ; CHECK-NEXT: [[ADD:%[0-9]+]]:_(s32) = G_ADD [[C]], [[UMULH]]
     ; CHECK-NEXT: $a2 = COPY [[MUL]](s32)
-    ; CHECK-NEXT: $a3 = COPY [[ADD]](s32)
+    ; CHECK-NEXT: $a3 = COPY [[UMULH]](s32)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
     %0:_(s32) = COPY $a2
     %1:_(s32) = COPY $a3
