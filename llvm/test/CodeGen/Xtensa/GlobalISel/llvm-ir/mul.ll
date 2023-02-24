@@ -77,7 +77,6 @@ define i64 @mul_i32_i64_unsigned(i32 %a, i32 %b) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    movi.n a5, 0
 ; CHECK-NEXT:    mull a4, a2, a3
-; CHECK-NEXT:    mull a5, a5, a3
 ; CHECK-NEXT:    muluh a2, a2, a3
 ; CHECK-NEXT:    add.n a3, a5, a2
 ; CHECK-NEXT:    mov.n a2, a4
