@@ -17,8 +17,7 @@ XtensaRegisterInfo::XtensaRegisterInfo() : XtensaGenRegisterInfo(Xtensa::A0) {}
 
 const MCPhysReg *
 XtensaRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
-  // TODO: define in XtensaCallingConv.td, relevant only for call0
-  return nullptr;
+  return CSR_Xtensa_Call0_SaveList;
 }
 
 BitVector XtensaRegisterInfo::getReservedRegs(const MachineFunction &MF) const {

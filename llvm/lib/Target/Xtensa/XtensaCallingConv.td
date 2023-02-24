@@ -18,3 +18,5 @@ def CC_Xtensa_Call0 : CallingConv<[
   CCIfType<[i32], CCAssignToReg<[A2, A3, A4, A5, A6, A7]>>,
   CCIfType<[i32], CCAssignToStack<4, 4>>
 ]>;
+
+def CSR_Xtensa_Call0 : CalleeSavedRegs<(sequence "A%u", 12, 15)>;
