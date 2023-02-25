@@ -30,6 +30,7 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaTarget() {
   initializeGlobalISel(*PR);
   initializeXtensaPostLegalizerCombinerPass(*PR);
   initializeXtensaShiftLoweringPass(*PR);
+  initializeXtensaShiftCombinerPass(*PR);
 }
 
 XtensaTargetMachine::XtensaTargetMachine(const Target &T, const Triple &TT,
