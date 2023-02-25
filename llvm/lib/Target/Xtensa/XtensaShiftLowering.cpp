@@ -45,16 +45,13 @@ Optional<Register> matchRevShiftAmount(Register ShiftAmount,
   return None;
 }
 
-Register buildRevShiftAmount(MachineInstr &MI, MachineRegisterInfo &MRI,
-                             Register ShiftAmount) {
+Register buildRevShiftAmount(MachineInstr &MI, Register ShiftAmount) {
   LLT S32 = LLT::scalar(32);
 
   MachineIRBuilder B(MI);
-  Register RevShiftAmount = MRI.createGenericVirtualRegister(S32);
-  Register Const32 = MRI.createGenericVirtualRegister(S32);
-  B.buildConstant(Const32, 32);
-  B.buildSub(RevShiftAmount, Const32, ShiftAmount);
-  return RevShiftAmount;
+  return B.buildSub(S32, B.buildConstant(S32, 32), ShiftAmount)
+      ->getOperand(0)
+      .getReg();
 }
 
 unsigned getXtensaShiftOpcode(unsigned GenericOpcode) {
@@ -121,7 +118,7 @@ bool XtensaShiftLowering::lower(MachineInstr &MI) {
     if (auto ExistingRevShiftAmount = matchRevShiftAmount(ShiftAmount, MRI)) {
       ShiftAmount = *ExistingRevShiftAmount;
     } else {
-      ShiftAmount = buildRevShiftAmount(MI, MRI, ShiftAmount);
+      ShiftAmount = buildRevShiftAmount(MI, ShiftAmount);
     }
   }
 
