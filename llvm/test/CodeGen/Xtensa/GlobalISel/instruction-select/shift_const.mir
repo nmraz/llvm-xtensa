@@ -146,9 +146,9 @@ body:             |
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gpr(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 0
-    %4:gprb(s32) = G_CONSTANT i32 32
-    %3:gprb(s32) = G_SUB %4, %1
-    G_XTENSA_SET_SAR %3(s32), implicit-def $sar
+    %3:gprb(s32) = G_CONSTANT i32 32
+    %4:gprb(s32) = G_SUB %3, %1
+    G_XTENSA_SET_SAR32 %4(s32), implicit-def $sar
     %2:gpr(s32) = SLL %0(s32), implicit $sar
     $a2 = COPY %2(s32)
     RETN implicit $a0, implicit $a2
@@ -357,9 +357,9 @@ body:             |
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gpr(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 32
-    %4:gprb(s32) = G_CONSTANT i32 32
-    %3:gprb(s32) = G_SUB %4, %1
-    G_XTENSA_SET_SAR %3(s32), implicit-def $sar
+    %3:gprb(s32) = G_CONSTANT i32 32
+    %4:gprb(s32) = G_SUB %3, %1
+    G_XTENSA_SET_SAR32 %4(s32), implicit-def $sar
     %2:gpr(s32) = SLL %0(s32), implicit $sar
     $a2 = COPY %2(s32)
     RETN implicit $a0, implicit $a2
@@ -634,7 +634,7 @@ body:             |
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gpr(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 32
-    G_XTENSA_SET_SAR %1(s32), implicit-def $sar
+    G_XTENSA_SET_SAR31 %1(s32), implicit-def $sar
     %2:gpr(s32) = SRL %0(s32), implicit $sar
     $a2 = COPY %2(s32)
     RETN implicit $a0, implicit $a2
@@ -909,7 +909,7 @@ body:             |
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gpr(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 32
-    G_XTENSA_SET_SAR %1(s32), implicit-def $sar
+    G_XTENSA_SET_SAR31 %1(s32), implicit-def $sar
     %2:gpr(s32) = SRA %0(s32), implicit $sar
     $a2 = COPY %2(s32)
     RETN implicit $a0, implicit $a2

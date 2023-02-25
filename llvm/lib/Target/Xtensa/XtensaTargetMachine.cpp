@@ -80,11 +80,14 @@ bool XtensaPassConfig::addLegalizeMachineIR() {
 }
 
 void XtensaPassConfig::addPreRegBankSelect() {
-  if (getOptLevel() != CodeGenOpt::None) {
+  bool EnableOpt = getOptLevel() != CodeGenOpt::None;
+  if (EnableOpt) {
     addPass(createXtensaPostLegalizerCombiner());
   }
-
   addPass(createXtensaShiftLowering());
+  if (EnableOpt) {
+    addPass(createXtensaShiftCombiner());
+  }
 }
 
 bool XtensaPassConfig::addRegBankSelect() {

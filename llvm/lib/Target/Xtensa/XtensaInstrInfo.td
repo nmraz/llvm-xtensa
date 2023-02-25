@@ -3,17 +3,26 @@ include "XtensaInstrFormats.td"
 
 // Pattern matching helpers
 
-def G_XTENSA_SET_SAR : XtensaGenericInstruction {
+class SARUpdateGenericInstruction : XtensaGenericInstruction {
   let OutOperandList = (outs);
   let InOperandList = (ins type0:$amt);
   let Defs = [SAR];
   let hasSideEffects = false;
 }
 
+// Copy register to SAR, leaving an unspecified value if it is ugt 31
+def G_XTENSA_SET_SAR31 : SARUpdateGenericInstruction;
+// Copy register to SAR, leaving an unspecified value if it is ugt 32
+def G_XTENSA_SET_SAR32 : SARUpdateGenericInstruction;
+// Copy register to SAR, masking to 5 bits before the copy
+def G_XTENSA_SET_SAR_MASKED : SARUpdateGenericInstruction;
+
 def SDTSetSAR : SDTypeProfile<0, 1, [SDTCisInt<0>]>;
 
-def xtensa_set_sar : SDNode<"XtensaISD::SET_SAR", SDTSetSAR>;
-def : GINodeEquiv<G_XTENSA_SET_SAR, xtensa_set_sar>;
+def xtensa_set_sar31 : SDNode<"XtensaISD::SET_SAR", SDTSetSAR>;
+def : GINodeEquiv<G_XTENSA_SET_SAR31, xtensa_set_sar31>;
+def xtensa_set_sar32 : SDNode<"XtensaISD::SET_SAR32", SDTSetSAR>;
+def : GINodeEquiv<G_XTENSA_SET_SAR32, xtensa_set_sar32>;
 
 def neg_imm_xform : SDNodeXForm<imm, [{ unimplemented }]>;
 def gi_neg_imm : GICustomOperandRenderer<"renderNegImm">,
@@ -277,14 +286,20 @@ let Defs = [SAR] in {
   }
 }
 
+def SUB : ArithRRR<0b0000, 0b1100, "sub", [(set i32:$ar, (sub i32:$as, i32:$at))]>;
+
 // Note: the generic fallback to SSR is implemented manually in C++ due to a
 // tablegen bug causing it to always add an extra implicit def.
-def : Pat<(xtensa_set_sar uimm5:$a), (SSAI uimm5:$a)>;
-def : Pat<(xtensa_set_sar (sub 32, i32:$a)), (SSL i32:$a)>;
-def : Pat<(xtensa_set_sar (shl i32:$a, (i32 3))), (SSA8L i32:$a)>;
-def : Pat<(xtensa_set_sar (sub 32, (shl i32:$a, (i32 3)))), (SSA8B i32:$a)>;
+def : Pat<(xtensa_set_sar31 uimm5:$a), (SSAI uimm5:$a)>;
+def : Pat<(xtensa_set_sar32 (sub 32, i32:$a)), (SSL i32:$a)>;
+def : Pat<(xtensa_set_sar31 (shl i32:$a, (i32 3))), (SSA8L i32:$a)>;
+def : Pat<(xtensa_set_sar32 (sub 32, (shl i32:$a, (i32 3)))), (SSA8B i32:$a)>;
 
-def SUB : ArithRRR<0b0000, 0b1100, "sub", [(set i32:$ar, (sub i32:$as, i32:$at))]>;
+// If a neighboring subtract couldn't be folded into the update, we need to
+// manually produce it here.
+// TODO: we could also probably select this to `wsr.sar`.
+def : Pat<(xtensa_set_sar32 i32:$a), (SSL (SUB (MOVIN 32), i32:$a))>;
+
 def SUBX2 : ArithRRR<0b0000, 0b1101, "subx2", [
   (set i32:$ar, (sub (shl i32:$as, (i32 1)), i32:$at))
 ]>;

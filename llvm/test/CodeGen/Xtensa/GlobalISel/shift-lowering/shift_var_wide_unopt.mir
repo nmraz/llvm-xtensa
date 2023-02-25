@@ -151,19 +151,19 @@ body:             |
     ; CHECK-NEXT: [[ICMP1:%[0-9]+]]:_(s32) = G_ICMP intpred(eq), [[COPY2]](s32), [[C1]]
     ; CHECK-NEXT: [[C2:%[0-9]+]]:_(s32) = G_CONSTANT i32 32
     ; CHECK-NEXT: [[SUB2:%[0-9]+]]:_(s32) = G_SUB [[C2]], [[COPY2]]
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR32 [[SUB2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SLL:%[0-9]+]]:gpr(s32) = SLL [[COPY]](s32), implicit $sar
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB1]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[SUB1]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRL:%[0-9]+]]:gpr(s32) = SRL [[COPY]](s32), implicit $sar
     ; CHECK-NEXT: [[C3:%[0-9]+]]:_(s32) = G_CONSTANT i32 32
     ; CHECK-NEXT: [[SUB3:%[0-9]+]]:_(s32) = G_SUB [[C3]], [[COPY2]]
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB3]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR32 [[SUB3]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SLL1:%[0-9]+]]:gpr(s32) = SLL [[COPY1]](s32), implicit $sar
     ; CHECK-NEXT: [[OR:%[0-9]+]]:_(s32) = G_OR [[SRL]], [[SLL1]]
     ; CHECK-NEXT: [[C4:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
     ; CHECK-NEXT: [[C5:%[0-9]+]]:_(s32) = G_CONSTANT i32 32
     ; CHECK-NEXT: [[SUB4:%[0-9]+]]:_(s32) = G_SUB [[C5]], [[SUB]]
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB4]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR32 [[SUB4]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SLL2:%[0-9]+]]:gpr(s32) = SLL [[COPY]](s32), implicit $sar
     ; CHECK-NEXT: [[C6:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
     ; CHECK-NEXT: [[AND:%[0-9]+]]:_(s32) = G_AND [[ICMP]], [[C6]]
@@ -309,19 +309,19 @@ body:             |
     ; CHECK-NEXT: [[ICMP1:%[0-9]+]]:_(s32) = G_ICMP intpred(eq), [[COPY2]](s32), [[C1]]
     ; CHECK-NEXT: [[C2:%[0-9]+]]:_(s32) = G_CONSTANT i32 32
     ; CHECK-NEXT: [[SUB2:%[0-9]+]]:_(s32) = G_SUB [[C2]], [[COPY2]]
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR32 [[SUB2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SLL:%[0-9]+]]:gpr(s32) = SLL [[COPY]](s32), implicit $sar
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB1]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[SUB1]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRL:%[0-9]+]]:gpr(s32) = SRL [[COPY]](s32), implicit $sar
     ; CHECK-NEXT: [[C3:%[0-9]+]]:_(s32) = G_CONSTANT i32 32
     ; CHECK-NEXT: [[SUB3:%[0-9]+]]:_(s32) = G_SUB [[C3]], [[COPY2]]
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB3]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR32 [[SUB3]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SLL1:%[0-9]+]]:gpr(s32) = SLL [[COPY1]](s32), implicit $sar
     ; CHECK-NEXT: [[OR:%[0-9]+]]:_(s32) = G_OR [[SRL]], [[SLL1]]
     ; CHECK-NEXT: [[C4:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
     ; CHECK-NEXT: [[C5:%[0-9]+]]:_(s32) = G_CONSTANT i32 32
     ; CHECK-NEXT: [[SUB4:%[0-9]+]]:_(s32) = G_SUB [[C5]], [[SUB]]
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB4]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR32 [[SUB4]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SLL2:%[0-9]+]]:gpr(s32) = SLL [[COPY]](s32), implicit $sar
     ; CHECK-NEXT: [[C6:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
     ; CHECK-NEXT: [[AND:%[0-9]+]]:_(s32) = G_AND [[ICMP]], [[C6]]
@@ -483,15 +483,15 @@ body:             |
     ; CHECK-NEXT: [[C3:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
     ; CHECK-NEXT: [[ICMP:%[0-9]+]]:_(s32) = G_ICMP intpred(ult), [[COPY2]](s32), [[C2]]
     ; CHECK-NEXT: [[ICMP1:%[0-9]+]]:_(s32) = G_ICMP intpred(eq), [[COPY2]](s32), [[C3]]
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRL:%[0-9]+]]:gpr(s32) = SRL [[AND1]](s32), implicit $sar
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRL1:%[0-9]+]]:gpr(s32) = SRL [[AND]](s32), implicit $sar
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR32 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SLL:%[0-9]+]]:gpr(s32) = SLL [[AND1]](s32), implicit $sar
     ; CHECK-NEXT: [[OR:%[0-9]+]]:_(s32) = G_OR [[SRL1]], [[SLL]]
     ; CHECK-NEXT: [[C4:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[SUB]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRL2:%[0-9]+]]:gpr(s32) = SRL [[AND1]](s32), implicit $sar
     ; CHECK-NEXT: [[C5:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
     ; CHECK-NEXT: [[AND2:%[0-9]+]]:_(s32) = G_AND [[ICMP]], [[C5]]
@@ -639,15 +639,15 @@ body:             |
     ; CHECK-NEXT: [[C1:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
     ; CHECK-NEXT: [[ICMP:%[0-9]+]]:_(s32) = G_ICMP intpred(ult), [[COPY2]](s32), [[C]]
     ; CHECK-NEXT: [[ICMP1:%[0-9]+]]:_(s32) = G_ICMP intpred(eq), [[COPY2]](s32), [[C1]]
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRL:%[0-9]+]]:gpr(s32) = SRL [[COPY1]](s32), implicit $sar
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRL1:%[0-9]+]]:gpr(s32) = SRL [[COPY]](s32), implicit $sar
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR32 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SLL:%[0-9]+]]:gpr(s32) = SLL [[COPY1]](s32), implicit $sar
     ; CHECK-NEXT: [[OR:%[0-9]+]]:_(s32) = G_OR [[SRL1]], [[SLL]]
     ; CHECK-NEXT: [[C2:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[SUB]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRL2:%[0-9]+]]:gpr(s32) = SRL [[COPY1]](s32), implicit $sar
     ; CHECK-NEXT: [[C3:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
     ; CHECK-NEXT: [[AND:%[0-9]+]]:_(s32) = G_AND [[ICMP]], [[C3]]
@@ -833,16 +833,16 @@ body:             |
     ; CHECK-NEXT: [[C6:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
     ; CHECK-NEXT: [[ICMP:%[0-9]+]]:_(s32) = G_ICMP intpred(ult), [[COPY2]](s32), [[C5]]
     ; CHECK-NEXT: [[ICMP1:%[0-9]+]]:_(s32) = G_ICMP intpred(eq), [[COPY2]](s32), [[C6]]
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRA:%[0-9]+]]:gpr(s32) = SRA [[ASHR]](s32), implicit $sar
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRL:%[0-9]+]]:gpr(s32) = SRL [[OR1]](s32), implicit $sar
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR32 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SLL:%[0-9]+]]:gpr(s32) = SLL [[ASHR]](s32), implicit $sar
     ; CHECK-NEXT: [[OR2:%[0-9]+]]:_(s32) = G_OR [[SRL]], [[SLL]]
     ; CHECK-NEXT: [[C7:%[0-9]+]]:_(s32) = G_CONSTANT i32 31
     ; CHECK-NEXT: [[ASHR1:%[0-9]+]]:_(s32) = G_ASHR [[ASHR]], [[C7]](s32)
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[SUB]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRA1:%[0-9]+]]:gpr(s32) = SRA [[ASHR]](s32), implicit $sar
     ; CHECK-NEXT: [[C8:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
     ; CHECK-NEXT: [[AND:%[0-9]+]]:_(s32) = G_AND [[ICMP]], [[C8]]
@@ -1001,16 +1001,16 @@ body:             |
     ; CHECK-NEXT: [[C1:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
     ; CHECK-NEXT: [[ICMP:%[0-9]+]]:_(s32) = G_ICMP intpred(ult), [[COPY2]](s32), [[C]]
     ; CHECK-NEXT: [[ICMP1:%[0-9]+]]:_(s32) = G_ICMP intpred(eq), [[COPY2]](s32), [[C1]]
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRA:%[0-9]+]]:gpr(s32) = SRA [[COPY1]](s32), implicit $sar
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRL:%[0-9]+]]:gpr(s32) = SRL [[COPY]](s32), implicit $sar
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY2]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR32 [[COPY2]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SLL:%[0-9]+]]:gpr(s32) = SLL [[COPY1]](s32), implicit $sar
     ; CHECK-NEXT: [[OR:%[0-9]+]]:_(s32) = G_OR [[SRL]], [[SLL]]
     ; CHECK-NEXT: [[C2:%[0-9]+]]:_(s32) = G_CONSTANT i32 31
     ; CHECK-NEXT: [[ASHR:%[0-9]+]]:_(s32) = G_ASHR [[COPY1]], [[C2]](s32)
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[SUB]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR31 [[SUB]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SRA1:%[0-9]+]]:gpr(s32) = SRA [[COPY1]](s32), implicit $sar
     ; CHECK-NEXT: [[C3:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
     ; CHECK-NEXT: [[AND:%[0-9]+]]:_(s32) = G_AND [[ICMP]], [[C3]]

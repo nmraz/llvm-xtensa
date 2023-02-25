@@ -78,7 +78,7 @@ body:             |
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
     ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 32
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:_(s32) = G_SUB [[C]], [[COPY1]]
-    ; CHECK-NEXT: G_XTENSA_SET_SAR [[COPY1]](s32), implicit-def $sar
+    ; CHECK-NEXT: G_XTENSA_SET_SAR32 [[COPY1]](s32), implicit-def $sar
     ; CHECK-NEXT: [[SLL:%[0-9]+]]:gpr(s32) = SLL [[COPY]](s32), implicit $sar
     ; CHECK-NEXT: $a2 = COPY [[SLL]](s32)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2

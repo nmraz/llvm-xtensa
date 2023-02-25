@@ -111,8 +111,8 @@ bool XtensaShiftLowering::lower(MachineInstr &MI) {
     return false;
   }
 
-  bool NeedsRevShift = Opcode == Xtensa::G_SHL;
-  if (NeedsRevShift) {
+  bool IsRevShift = Opcode == Xtensa::G_SHL;
+  if (IsRevShift) {
     // Fold `32 - (32 - shift)` to just `shift` here instead of requiring
     // another pass to do it later on.
     if (auto ExistingRevShiftAmount = matchRevShiftAmount(ShiftAmount, MRI)) {
@@ -122,7 +122,9 @@ bool XtensaShiftLowering::lower(MachineInstr &MI) {
     }
   }
 
-  BuildMI(MBB, MI, MI.getDebugLoc(), TII.get(Xtensa::G_XTENSA_SET_SAR))
+  BuildMI(MBB, MI, MI.getDebugLoc(),
+          TII.get(IsRevShift ? Xtensa::G_XTENSA_SET_SAR32
+                             : Xtensa::G_XTENSA_SET_SAR31))
       .addReg(ShiftAmount);
 
   MachineInstr *ShiftMI =

@@ -277,7 +277,8 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
     I.eraseFromParent();
     return true;
   }
-  case Xtensa::G_XTENSA_SET_SAR:
+  case Xtensa::G_XTENSA_SET_SAR_MASKED:
+  case Xtensa::G_XTENSA_SET_SAR31:
     // We mutate the opcode manually due to a tablegen bug with implicit defs:
     // the opcode mutation logic currently doesn't take any implicit defs in the
     // source instruction into account, and so always manually adds an extra
