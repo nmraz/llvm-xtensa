@@ -19,7 +19,7 @@ using namespace MIPatternMatch;
 
 namespace {
 
-bool matchLowerSetSar31(MachineInstr &MI, const MachineRegisterInfo &MRI,
+bool matchLowerSetSar31(const MachineRegisterInfo &MRI, MachineInstr &MI,
                         unsigned &NewOpcode) {
   assert(MI.getOpcode() == Xtensa::G_XTENSA_SET_SAR31);
 
@@ -35,9 +35,8 @@ bool matchLowerSetSar31(MachineInstr &MI, const MachineRegisterInfo &MRI,
   return true;
 }
 
-bool matchSetSarMaskedRedundantMask(MachineInstr &MI,
-                                    const MachineRegisterInfo &MRI,
-                                    Register &MaskedOperand) {
+bool matchSetSarMaskedRedundantMask(const MachineRegisterInfo &MRI,
+                                    MachineInstr &MI, Register &MaskedOperand) {
   assert(MI.getOpcode() == Xtensa::G_XTENSA_SET_SAR_MASKED);
   Register Operand = MI.getOperand(0).getReg();
   return mi_match(Operand, MRI,
