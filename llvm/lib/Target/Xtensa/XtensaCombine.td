@@ -7,21 +7,6 @@ def left_identity_zero : GICombineRule<
   (apply [{ return Helper.replaceSingleDefInstWithOperand(*${root}, 2); }])
 >;
 
-def lower_set_sar31_matchdata : GIDefMatchData<"unsigned">;
-def lower_set_sar31 : GICombineRule<
-  (defs root:$root, lower_set_sar31_matchdata:$matchinfo),
-  (match (wip_match_opcode G_XTENSA_SET_SAR31):$root,
-    [{ return matchLowerSetSar31(MRI, *${root}, ${matchinfo}); }]),
-  (apply [{ Helper.replaceOpcodeWith(*${root}, ${matchinfo}); }])
->;
-
-def set_sar_masked_redundant_mask : GICombineRule<
-  (defs root:$root, register_matchinfo:$matchinfo),
-  (match (wip_match_opcode G_XTENSA_SET_SAR_MASKED):$root,
-    [{ return matchSetSarMaskedRedundantMask(MRI, *${root}, ${matchinfo}); }]),
-  (apply [{ Helper.replaceRegOpWith(MRI, ${root}->getOperand(0), ${matchinfo}); }])
->;
-
 def XtensaPostLegalizerCombinerHelper : GICombinerHelper<
   "XtensaGenPostLegalizerCombinerHelper",
   [all_combines, left_identity_zero]> {
@@ -30,6 +15,6 @@ def XtensaPostLegalizerCombinerHelper : GICombinerHelper<
 
 def XtensaShiftCombinerHelper : GICombinerHelper<
   "XtensaGenShiftCombinerHelper",
-  [lower_set_sar31, set_sar_masked_redundant_mask]> {
+  []> {
   let DisableRuleOption = "xtensashiftcombiner-disable-rule";
 }

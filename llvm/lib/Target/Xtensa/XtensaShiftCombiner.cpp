@@ -17,33 +17,7 @@
 using namespace llvm;
 using namespace MIPatternMatch;
 
-namespace {
-
-bool matchLowerSetSar31(const MachineRegisterInfo &MRI, MachineInstr &MI,
-                        unsigned &NewOpcode) {
-  assert(MI.getOpcode() == Xtensa::G_XTENSA_SET_SAR31);
-
-  Register Operand = MI.getOperand(0).getReg();
-  if (mi_match(Operand, MRI, m_GSub(m_SpecificICst(32), m_Reg()))) {
-    // Relax to a `SET_SAR32` if it may help the instruction selector match to
-    // a left-shift-setting opcode.
-    NewOpcode = Xtensa::G_XTENSA_SET_SAR32;
-    return true;
-  }
-
-  NewOpcode = Xtensa::G_XTENSA_SET_SAR_MASKED;
-  return true;
-}
-
-bool matchSetSarMaskedRedundantMask(const MachineRegisterInfo &MRI,
-                                    MachineInstr &MI, Register &MaskedOperand) {
-  assert(MI.getOpcode() == Xtensa::G_XTENSA_SET_SAR_MASKED);
-  Register Operand = MI.getOperand(0).getReg();
-  return mi_match(Operand, MRI,
-                  m_GAnd(m_SpecificICst(0x1f), m_Reg(MaskedOperand)));
-}
-
-} // namespace
+namespace {} // namespace
 
 #define XTENSASHIFTCOMBINERHELPER_GENCOMBINERHELPER_DEPS
 #include "XtensaGenShiftGICombiner.inc"
