@@ -26,8 +26,8 @@ define i32 @rev_shl(i32 %a, i32 %b) {
 define i32 @rev_shl_masked(i32 %a, i32 %b) {
 ; OPT-LABEL: rev_shl_masked:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    extui a3, a3, 0, 5
 ; OPT-NEXT:    movi.n a4, 32
+; OPT-NEXT:    extui a3, a3, 0, 5
 ; OPT-NEXT:    sub a3, a4, a3
 ; OPT-NEXT:    ssl a3
 ; OPT-NEXT:    sll a2, a2
@@ -35,8 +35,9 @@ define i32 @rev_shl_masked(i32 %a, i32 %b) {
 ;
 ; UNOPT-LABEL: rev_shl_masked:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    extui a4, a3, 0, 5
+; UNOPT-NEXT:    mov.n a4, a3
 ; UNOPT-NEXT:    movi.n a3, 32
+; UNOPT-NEXT:    extui a4, a4, 0, 5
 ; UNOPT-NEXT:    sub a3, a3, a4
 ; UNOPT-NEXT:    ssl a3
 ; UNOPT-NEXT:    sll a2, a2

@@ -34,26 +34,6 @@ bool isLegalConstantShift(unsigned Opcode, uint64_t Value) {
   }
 }
 
-Optional<Register> matchRevShiftAmount(Register ShiftAmount,
-                                       const MachineRegisterInfo &MRI) {
-  Register RevShiftAmount;
-  if (mi_match(ShiftAmount, MRI,
-               m_GSub(m_SpecificICst(32), m_Reg(RevShiftAmount)))) {
-    return RevShiftAmount;
-  }
-
-  return None;
-}
-
-Register buildRevShiftAmount(MachineInstr &MI, Register ShiftAmount) {
-  LLT S32 = LLT::scalar(32);
-
-  MachineIRBuilder B(MI);
-  return B.buildSub(S32, B.buildConstant(S32, 32), ShiftAmount)
-      ->getOperand(0)
-      .getReg();
-}
-
 unsigned getXtensaShiftOpcode(unsigned GenericOpcode) {
   switch (GenericOpcode) {
   case Xtensa::G_SHL:
@@ -111,20 +91,14 @@ bool XtensaShiftLowering::lower(MachineInstr &MI) {
     return false;
   }
 
-  bool IsRevShift = Opcode == Xtensa::G_SHL;
-  if (IsRevShift) {
-    // Fold `32 - (32 - shift)` to just `shift` here instead of requiring
-    // another pass to do it later on.
-    if (auto ExistingRevShiftAmount = matchRevShiftAmount(ShiftAmount, MRI)) {
-      ShiftAmount = *ExistingRevShiftAmount;
-    } else {
-      ShiftAmount = buildRevShiftAmount(MI, ShiftAmount);
-    }
-  }
+  bool IsLeftShift = Opcode == Xtensa::G_SHL;
 
+  // We can use the inrange instructions here, since LLVM defines shifts to
+  // produce poison when the shift amount is greater than or equal to the bit
+  // width.
   BuildMI(MBB, MI, MI.getDebugLoc(),
-          TII.get(IsRevShift ? Xtensa::G_XTENSA_SET_SAR32
-                             : Xtensa::G_XTENSA_SET_SAR31))
+          TII.get(IsLeftShift ? Xtensa::G_XTENSA_SSL_INRANGE
+                              : Xtensa::G_XTENSA_SSR_INRANGE))
       .addReg(ShiftAmount);
 
   MachineInstr *ShiftMI =

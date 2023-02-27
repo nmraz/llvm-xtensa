@@ -2135,7 +2135,7 @@ body:             |
     %0:gpr(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 -1
     %3:gprb(s32) = G_CONSTANT i32 1
-    G_XTENSA_SET_SAR31 %1(s32), implicit-def $sar
+    G_XTENSA_SSR_INRANGE %1(s32), implicit-def $sar
     %2:gpr(s32) = SRL %0(s32), implicit $sar
     %4:gprb(s32) = G_AND %2, %3
     $a2 = COPY %4(s32)
@@ -2211,7 +2211,7 @@ body:             |
     %0:gpr(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 -1
     %3:gprb(s32) = G_CONSTANT i32 1
-    G_XTENSA_SET_SAR31 %1(s32), implicit-def $sar
+    G_XTENSA_SSR_INRANGE %1(s32), implicit-def $sar
     %2:gpr(s32) = SRA %0(s32), implicit $sar
     %4:gprb(s32) = G_AND %2, %3
     $a2 = COPY %4(s32)

@@ -6,37 +6,45 @@
   target datalayout = "e-m:e-p:32:32-i64:64-n32-S128"
   target triple = "xtensa"
 
-  define void @set_sar31(i32 %val) {
+  define void @ssr_masked(i32 %val) {
     ret void
   }
 
-  define void @set_sar31_const() {
+  define void @ssr_inrange(i32 %val) {
     ret void
   }
 
-  define void @set_sar31_const_large() {
+  define void @ssr_masked_const() {
     ret void
   }
 
-  define void @set_sar31_const_neg() {
+  define void @ssr_masked_const_large() {
     ret void
   }
 
-  define void @set_sar32_rev(i32 %val) {
+  define void @ssr_masked_const_neg() {
     ret void
   }
 
-  define void @set_sar31_x8(i32 %val) {
+  define void @ssl_masked(i32 %val) {
     ret void
   }
 
-  define void @set_sar32_rev_x8(i32 %val) {
+  define void @ssl_inrange(i32 %val) {
+    ret void
+  }
+
+  define void @ssr_masked_x8(i32 %val) {
+    ret void
+  }
+
+  define void @ssl_masked_x8(i32 %val) {
     ret void
   }
 
 ...
 ---
-name:            set_sar31
+name:            ssr_masked
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -87,19 +95,19 @@ body:             |
   bb.1 (%ir-block.0):
     liveins: $a2
 
-    ; CHECK-LABEL: name: set_sar31
+    ; CHECK-LABEL: name: ssr_masked
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: SSR [[COPY]], implicit-def $sar
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(s32) = COPY $a2
-    G_XTENSA_SET_SAR31 %0(s32), implicit-def $sar
+    G_XTENSA_SSR_MASKED %0(s32), implicit-def $sar
     RETN implicit $a0
 
 ...
 ---
-name:            set_sar31_const
+name:            ssr_inrange
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -117,181 +125,6 @@ failsVerification: false
 tracksDebugUserValues: false
 registers:
   - { id: 0, class: gprb, preferred-register: '' }
-liveins:         []
-frameInfo:
-  isFrameAddressTaken: false
-  isReturnAddressTaken: false
-  hasStackMap:     false
-  hasPatchPoint:   false
-  stackSize:       0
-  offsetAdjustment: 0
-  maxAlignment:    1
-  adjustsStack:    false
-  hasCalls:        false
-  stackProtector:  ''
-  functionContext: ''
-  maxCallFrameSize: 4294967295
-  cvBytesOfCalleeSavedRegisters: 0
-  hasOpaqueSPAdjustment: false
-  hasVAStart:      false
-  hasMustTailInVarArgFunc: false
-  hasTailCall:     false
-  localFrameSize:  0
-  savePoint:       ''
-  restorePoint:    ''
-fixedStack:      []
-stack:           []
-callSites:       []
-debugValueSubstitutions: []
-constants:       []
-machineFunctionInfo: {}
-body:             |
-  bb.1 (%ir-block.0):
-    ; CHECK-LABEL: name: set_sar31_const
-    ; CHECK: SSAI 5, implicit-def $sar
-    ; CHECK-NEXT: RETN implicit $a0
-    %0:gprb(s32) = G_CONSTANT i32 5
-    G_XTENSA_SET_SAR31 %0(s32), implicit-def $sar
-    RETN implicit $a0
-
-...
----
-name:            set_sar31_const_large
-alignment:       4
-exposesReturnsTwice: false
-legalized:       true
-regBankSelected: true
-selected:        false
-failedISel:      false
-tracksRegLiveness: true
-hasWinCFI:       false
-callsEHReturn:   false
-callsUnwindInit: false
-hasEHCatchret:   false
-hasEHScopes:     false
-hasEHFunclets:   false
-failsVerification: false
-tracksDebugUserValues: false
-registers:
-  - { id: 0, class: gprb, preferred-register: '' }
-liveins:         []
-frameInfo:
-  isFrameAddressTaken: false
-  isReturnAddressTaken: false
-  hasStackMap:     false
-  hasPatchPoint:   false
-  stackSize:       0
-  offsetAdjustment: 0
-  maxAlignment:    1
-  adjustsStack:    false
-  hasCalls:        false
-  stackProtector:  ''
-  functionContext: ''
-  maxCallFrameSize: 4294967295
-  cvBytesOfCalleeSavedRegisters: 0
-  hasOpaqueSPAdjustment: false
-  hasVAStart:      false
-  hasMustTailInVarArgFunc: false
-  hasTailCall:     false
-  localFrameSize:  0
-  savePoint:       ''
-  restorePoint:    ''
-fixedStack:      []
-stack:           []
-callSites:       []
-debugValueSubstitutions: []
-constants:       []
-machineFunctionInfo: {}
-body:             |
-  bb.1 (%ir-block.0):
-    ; CHECK-LABEL: name: set_sar31_const_large
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN 33
-    ; CHECK-NEXT: SSR [[MOVIN]], implicit-def $sar
-    ; CHECK-NEXT: RETN implicit $a0
-    %0:gprb(s32) = G_CONSTANT i32 33
-    G_XTENSA_SET_SAR31 %0(s32), implicit-def $sar
-    RETN implicit $a0
-
-...
----
-name:            set_sar31_const_neg
-alignment:       4
-exposesReturnsTwice: false
-legalized:       true
-regBankSelected: true
-selected:        false
-failedISel:      false
-tracksRegLiveness: true
-hasWinCFI:       false
-callsEHReturn:   false
-callsUnwindInit: false
-hasEHCatchret:   false
-hasEHScopes:     false
-hasEHFunclets:   false
-failsVerification: false
-tracksDebugUserValues: false
-registers:
-  - { id: 0, class: gprb, preferred-register: '' }
-liveins:         []
-frameInfo:
-  isFrameAddressTaken: false
-  isReturnAddressTaken: false
-  hasStackMap:     false
-  hasPatchPoint:   false
-  stackSize:       0
-  offsetAdjustment: 0
-  maxAlignment:    1
-  adjustsStack:    false
-  hasCalls:        false
-  stackProtector:  ''
-  functionContext: ''
-  maxCallFrameSize: 4294967295
-  cvBytesOfCalleeSavedRegisters: 0
-  hasOpaqueSPAdjustment: false
-  hasVAStart:      false
-  hasMustTailInVarArgFunc: false
-  hasTailCall:     false
-  localFrameSize:  0
-  savePoint:       ''
-  restorePoint:    ''
-fixedStack:      []
-stack:           []
-callSites:       []
-debugValueSubstitutions: []
-constants:       []
-machineFunctionInfo: {}
-body:             |
-  bb.1 (%ir-block.0):
-    ; CHECK-LABEL: name: set_sar31_const_neg
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN -3
-    ; CHECK-NEXT: SSR [[MOVIN]], implicit-def $sar
-    ; CHECK-NEXT: RETN implicit $a0
-    %0:gprb(s32) = G_CONSTANT i32 -3
-    G_XTENSA_SET_SAR31 %0(s32), implicit-def $sar
-    RETN implicit $a0
-
-...
----
-name:            set_sar32_rev
-alignment:       4
-exposesReturnsTwice: false
-legalized:       true
-regBankSelected: true
-selected:        false
-failedISel:      false
-tracksRegLiveness: true
-hasWinCFI:       false
-callsEHReturn:   false
-callsUnwindInit: false
-hasEHCatchret:   false
-hasEHScopes:     false
-hasEHFunclets:   false
-failsVerification: false
-tracksDebugUserValues: false
-registers:
-  - { id: 0, class: gprb, preferred-register: '' }
-  - { id: 1, class: gprb, preferred-register: '' }
-  - { id: 2, class: gprb, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
 frameInfo:
@@ -325,21 +158,318 @@ body:             |
   bb.1 (%ir-block.0):
     liveins: $a2
 
-    ; CHECK-LABEL: name: set_sar32_rev
+    ; CHECK-LABEL: name: ssr_inrange
+    ; CHECK: liveins: $a2
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
+    ; CHECK-NEXT: SSR [[COPY]], implicit-def $sar
+    ; CHECK-NEXT: RETN implicit $a0
+    %0:gprb(s32) = COPY $a2
+    G_XTENSA_SSR_INRANGE %0(s32), implicit-def $sar
+    RETN implicit $a0
+
+...
+---
+name:            ssr_masked_const
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+liveins:         []
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1 (%ir-block.0):
+    ; CHECK-LABEL: name: ssr_masked_const
+    ; CHECK: SSAI 5, implicit-def $sar
+    ; CHECK-NEXT: RETN implicit $a0
+    %0:gprb(s32) = G_CONSTANT i32 5
+    G_XTENSA_SSR_MASKED %0(s32), implicit-def $sar
+    RETN implicit $a0
+
+...
+---
+name:            ssr_masked_const_large
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+liveins:         []
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1 (%ir-block.0):
+    ; CHECK-LABEL: name: ssr_masked_const_large
+    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN 33
+    ; CHECK-NEXT: SSR [[MOVIN]], implicit-def $sar
+    ; CHECK-NEXT: RETN implicit $a0
+    %0:gprb(s32) = G_CONSTANT i32 33
+    G_XTENSA_SSR_MASKED %0(s32), implicit-def $sar
+    RETN implicit $a0
+
+...
+---
+name:            ssr_masked_const_neg
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+liveins:         []
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1 (%ir-block.0):
+    ; CHECK-LABEL: name: ssr_masked_const_neg
+    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN -3
+    ; CHECK-NEXT: SSR [[MOVIN]], implicit-def $sar
+    ; CHECK-NEXT: RETN implicit $a0
+    %0:gprb(s32) = G_CONSTANT i32 -3
+    G_XTENSA_SSR_MASKED %0(s32), implicit-def $sar
+    RETN implicit $a0
+
+...
+---
+name:            ssl_masked
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1 (%ir-block.0):
+    liveins: $a2
+
+    ; CHECK-LABEL: name: ssl_masked
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: SSL [[COPY]], implicit-def $sar
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(s32) = COPY $a2
-    %1:gprb(s32) = G_CONSTANT i32 32
-    %2:gprb(s32) = G_SUB %1, %0
-    G_XTENSA_SET_SAR32 %2(s32), implicit-def $sar
+    G_XTENSA_SSL_MASKED %0(s32), implicit-def $sar
     RETN implicit $a0
 
 ...
 ---
-name:            set_sar31_x8
+name:            ssl_inrange
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1 (%ir-block.0):
+    liveins: $a2
+
+    ; CHECK-LABEL: name: ssl_inrange
+    ; CHECK: liveins: $a2
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
+    ; CHECK-NEXT: SSL [[COPY]], implicit-def $sar
+    ; CHECK-NEXT: RETN implicit $a0
+    %0:gprb(s32) = COPY $a2
+    G_XTENSA_SSL_INRANGE %0(s32), implicit-def $sar
+    RETN implicit $a0
+
+...
+---
+name:            ssr_masked_x8
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -392,7 +522,7 @@ body:             |
   bb.1 (%ir-block.0):
     liveins: $a2
 
-    ; CHECK-LABEL: name: set_sar31_x8
+    ; CHECK-LABEL: name: ssr_masked_x8
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
@@ -401,12 +531,12 @@ body:             |
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 3
     %2:gprb(s32) = G_SHL %0, %1(s32)
-    G_XTENSA_SET_SAR31 %2(s32), implicit-def $sar
+    G_XTENSA_SSR_MASKED %2(s32), implicit-def $sar
     RETN implicit $a0
 
 ...
 ---
-name:            set_sar32_rev_x8
+name:            ssl_masked_x8
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -426,8 +556,6 @@ registers:
   - { id: 0, class: gprb, preferred-register: '' }
   - { id: 1, class: gprb, preferred-register: '' }
   - { id: 2, class: gprb, preferred-register: '' }
-  - { id: 3, class: gprb, preferred-register: '' }
-  - { id: 4, class: gprb, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
 frameInfo:
@@ -461,18 +589,16 @@ body:             |
   bb.1 (%ir-block.0):
     liveins: $a2
 
-    ; CHECK-LABEL: name: set_sar32_rev_x8
+    ; CHECK-LABEL: name: ssl_masked_x8
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: SSA8B [[COPY]], implicit-def $sar
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(s32) = COPY $a2
-    %1:gprb(s32) = G_CONSTANT i32 32
-    %2:gprb(s32) = G_CONSTANT i32 3
-    %3:gprb(s32) = G_SHL %0, %2(s32)
-    %4:gprb(s32) = G_SUB %1, %3
-    G_XTENSA_SET_SAR32 %4(s32), implicit-def $sar
+    %1:gprb(s32) = G_CONSTANT i32 3
+    %2:gprb(s32) = G_SHL %0, %1(s32)
+    G_XTENSA_SSL_MASKED %2(s32), implicit-def $sar
     RETN implicit $a0
 
 ...
