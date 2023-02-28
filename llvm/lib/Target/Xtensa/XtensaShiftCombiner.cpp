@@ -1,11 +1,18 @@
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
 #include "XtensaSubtarget.h"
+#include "llvm/ADT/APInt.h"
+#include "llvm/ADT/None.h"
+#include "llvm/ADT/Optional.h"
 #include "llvm/CodeGen/GlobalISel/CSEInfo.h"
 #include "llvm/CodeGen/GlobalISel/Combiner.h"
 #include "llvm/CodeGen/GlobalISel/CombinerHelper.h"
 #include "llvm/CodeGen/GlobalISel/CombinerInfo.h"
+#include "llvm/CodeGen/GlobalISel/GISelKnownBits.h"
 #include "llvm/CodeGen/GlobalISel/MIPatternMatch.h"
+#include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
+#include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineOperand.h"
+#include "llvm/CodeGen/MachineRegisterInfo.h"
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
 #include "llvm/InitializePasses.h"
@@ -17,7 +24,72 @@
 using namespace llvm;
 using namespace MIPatternMatch;
 
-namespace {} // namespace
+namespace {
+
+struct SetSarLoweringInfo {
+  unsigned Opcode;
+  Optional<Register> Operand;
+};
+
+Optional<Register> getInvInrangeAmount(const MachineRegisterInfo &MRI,
+                                       GISelKnownBits &KB, Register Amount) {
+  Register InvAmount;
+  if (!mi_match(Amount, MRI, m_GSub(m_SpecificICst(32), m_Reg(InvAmount)))) {
+    return None;
+  }
+
+  // In general, `SSR x` and `SSL (32 - x)` (and vice versa) differ only when
+  // the low 5 bits of `x` are 0: SSR favors 0, while SSL favors 32.
+
+  // We have an SS{RL}_INRANGE of `(32 - InvAmount)`, so we can assume that
+  // `InvAmount` is in the (unsigned) range [1, 32]. If we can prove that
+  // bit 5 of `InvAmount` is 0, it must be in the unsigned range [1, 31],
+  // in which case we can convert to a SS{LR}_INRANGE.
+
+  // The generic nonzero check on the remaining 5 bits will be performed later.
+
+  if (!KB.getKnownBits(InvAmount).Zero[5]) {
+    return None;
+  }
+
+  return InvAmount;
+}
+
+bool matchLowerSetSarInrange(const MachineRegisterInfo &MRI, GISelKnownBits &KB,
+                             MachineInstr &MI, SetSarLoweringInfo &Info) {
+  unsigned Opcode = MI.getOpcode();
+  assert(Opcode == Xtensa::G_XTENSA_SSR_INRANGE ||
+         Opcode == Xtensa::G_XTENSA_SSL_INRANGE);
+
+  bool IsLeft = Opcode == Xtensa::G_XTENSA_SSL_INRANGE;
+  Register Amount = MI.getOperand(0).getReg();
+
+  if (auto InvAmount = getInvInrangeAmount(MRI, KB, Amount)) {
+    // We have a proven-safe inverted shift setup, fold into a single
+    // instruction.
+    Info = {IsLeft ? Xtensa::G_XTENSA_SSR_INRANGE
+                   : Xtensa::G_XTENSA_SSL_INRANGE,
+            InvAmount};
+    return true;
+  }
+
+  // We failed to match the special pattern, so use a standard masked shift
+  // amount instead.
+  Info = {IsLeft ? Xtensa::G_XTENSA_SSL_MASKED : Xtensa::G_XTENSA_SSR_MASKED,
+          None};
+  return true;
+}
+
+void applyLowerSetSarInrange(const CombinerHelper &Helper,
+                             MachineRegisterInfo &MRI, MachineInstr &MI,
+                             const SetSarLoweringInfo &Info) {
+  Helper.replaceOpcodeWith(MI, Info.Opcode);
+  if (Info.Operand) {
+    Helper.replaceRegOpWith(MRI, MI.getOperand(0), *Info.Operand);
+  }
+}
+
+} // namespace
 
 #define XTENSASHIFTCOMBINERHELPER_GENCOMBINERHELPER_DEPS
 #include "XtensaGenShiftGICombiner.inc"
@@ -29,11 +101,15 @@ namespace {
 #undef XTENSASHIFTCOMBINERHELPER_GENCOMBINERHELPER_H
 
 class XtensaShiftCombinerInfo final : public CombinerInfo {
+  GISelKnownBits *KB;
+
 public:
   XtensaGenShiftCombinerHelperRuleConfig GeneratedRuleCfg;
 
-  XtensaShiftCombinerInfo(bool EnableOpt, bool OptSize, bool MinSize)
-      : CombinerInfo(false, false, nullptr, EnableOpt, OptSize, MinSize) {
+  XtensaShiftCombinerInfo(bool EnableOpt, bool OptSize, bool MinSize,
+                          GISelKnownBits *KB)
+      : CombinerInfo(false, false, nullptr, EnableOpt, OptSize, MinSize),
+        KB(KB) {
     if (!GeneratedRuleCfg.parseCommandLineOption())
       report_fatal_error("Invalid rule identifier");
   }
@@ -45,7 +121,7 @@ public:
 bool XtensaShiftCombinerInfo::combine(GISelChangeObserver &Observer,
                                       MachineInstr &MI,
                                       MachineIRBuilder &B) const {
-  CombinerHelper Helper(Observer, B, nullptr, nullptr, LInfo);
+  CombinerHelper Helper(Observer, B, KB, nullptr, LInfo);
   XtensaGenShiftCombinerHelper Generated(GeneratedRuleCfg);
 
   return Generated.tryCombineAll(Observer, MI, B, Helper);
@@ -75,6 +151,8 @@ void XtensaShiftCombiner::getAnalysisUsage(AnalysisUsage &AU) const {
   AU.addRequired<TargetPassConfig>();
   AU.setPreservesCFG();
   getSelectionDAGFallbackAnalysisUsage(AU);
+  AU.addRequired<GISelKnownBitsAnalysis>();
+  AU.addPreserved<GISelKnownBitsAnalysis>();
   AU.addRequired<GISelCSEAnalysisWrapperPass>();
   AU.addPreserved<GISelCSEAnalysisWrapperPass>();
   MachineFunctionPass::getAnalysisUsage(AU);
@@ -94,7 +172,8 @@ bool XtensaShiftCombiner::runOnMachineFunction(MachineFunction &MF) {
   bool EnableOpt =
       MF.getTarget().getOptLevel() != CodeGenOpt::None && !skipFunction(F);
 
-  XtensaShiftCombinerInfo PCInfo(EnableOpt, F.hasOptSize(), F.hasMinSize());
+  GISelKnownBits *KB = &getAnalysis<GISelKnownBitsAnalysis>().get(MF);
+  XtensaShiftCombinerInfo PCInfo(EnableOpt, F.hasOptSize(), F.hasMinSize(), KB);
 
   GISelCSEAnalysisWrapper &Wrapper =
       getAnalysis<GISelCSEAnalysisWrapperPass>().getCSEWrapper();
@@ -108,6 +187,7 @@ char XtensaShiftCombiner::ID = 0;
 INITIALIZE_PASS_BEGIN(XtensaShiftCombiner, DEBUG_TYPE,
                       "Combine Xtensa shift patterns", false, false)
 INITIALIZE_PASS_DEPENDENCY(TargetPassConfig)
+INITIALIZE_PASS_DEPENDENCY(GISelKnownBitsAnalysis)
 INITIALIZE_PASS_END(XtensaShiftCombiner, DEBUG_TYPE,
                     "Combine Xtensa shift patterns", false, false)
 
