@@ -80,15 +80,6 @@ bool matchLowerSetSarInrange(const MachineRegisterInfo &MRI, GISelKnownBits &KB,
   return true;
 }
 
-void applyLowerSetSarInrange(const CombinerHelper &Helper,
-                             MachineRegisterInfo &MRI, MachineInstr &MI,
-                             const SetSarLoweringInfo &Info) {
-  Helper.replaceOpcodeWith(MI, Info.Opcode);
-  if (Info.Operand) {
-    Helper.replaceRegOpWith(MRI, MI.getOperand(0), *Info.Operand);
-  }
-}
-
 bool matchSetSarMaskedRedundantAnd(const MachineRegisterInfo &MRI,
                                    GISelKnownBits &KB, MachineInstr &MI,
                                    Register &MatchedOperand) {
@@ -117,6 +108,40 @@ bool matchSetSarMaskedRedundantAnd(const MachineRegisterInfo &MRI,
   }
 
   return false;
+}
+
+bool matchInvSetSarMasked(const MachineRegisterInfo &MRI, GISelKnownBits &KB,
+                          MachineInstr &MI, SetSarLoweringInfo &Info) {
+  unsigned Opcode = MI.getOpcode();
+  assert(Opcode == Xtensa::G_XTENSA_SSR_MASKED ||
+         Opcode == Xtensa::G_XTENSA_SSL_MASKED);
+
+  bool IsLeft = Opcode == Xtensa::G_XTENSA_SSL_MASKED;
+  Register Amount = MI.getOperand(0).getReg();
+
+  Register InvAmount;
+  if (!mi_match(Amount, MRI, m_GSub(m_SpecificICst(32), m_Reg(InvAmount)))) {
+    return false;
+  }
+
+  // As explained above, `SSR x` and `SSL (32 - x)` (and vice versa) differ only
+  // when the low 5 bits of `x` are 0. If any of the low 5 bits can be proven
+  // nonzero, the subtraction can safely be folded.
+  if ((KB.getKnownBits(InvAmount).One & APInt::getLowBitsSet(32, 5)).isZero()) {
+    return false;
+  }
+
+  Info = {IsLeft ? Xtensa::G_XTENSA_SSR_MASKED : Xtensa::G_XTENSA_SSL_MASKED,
+          InvAmount};
+  return true;
+}
+
+void applySetSarLowering(const CombinerHelper &Helper, MachineRegisterInfo &MRI,
+                         MachineInstr &MI, const SetSarLoweringInfo &Info) {
+  Helper.replaceOpcodeWith(MI, Info.Opcode);
+  if (Info.Operand) {
+    Helper.replaceRegOpWith(MRI, MI.getOperand(0), *Info.Operand);
+  }
 }
 
 } // namespace
