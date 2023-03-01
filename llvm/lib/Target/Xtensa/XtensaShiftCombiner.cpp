@@ -89,6 +89,36 @@ void applyLowerSetSarInrange(const CombinerHelper &Helper,
   }
 }
 
+bool matchSetSarMaskedRedundantAnd(const MachineRegisterInfo &MRI,
+                                   GISelKnownBits &KB, MachineInstr &MI,
+                                   Register &MatchedOperand) {
+  Register Operand = MI.getOperand(0).getReg();
+
+  Register MaskLHS;
+  Register MaskRHS;
+  if (!mi_match(Operand, MRI, m_GAnd(m_Reg(MaskLHS), m_Reg(MaskRHS)))) {
+    return false;
+  }
+
+  // Anything that has bits 0-4 set is redundant
+  APInt MinRedundantMask = APInt::getLowBitsSet(32, 5);
+  auto IsRedundantMask = [&](Register Val) {
+    return MinRedundantMask.isSubsetOf(KB.getKnownBits(Val).One);
+  };
+
+  if (IsRedundantMask(MaskLHS)) {
+    MatchedOperand = MaskRHS;
+    return true;
+  }
+
+  if (IsRedundantMask(MaskRHS)) {
+    MatchedOperand = MaskLHS;
+    return true;
+  }
+
+  return false;
+}
+
 } // namespace
 
 #define XTENSASHIFTCOMBINERHELPER_GENCOMBINERHELPER_DEPS

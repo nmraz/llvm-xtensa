@@ -26,7 +26,6 @@ define i32 @rev_shl(i32 %a, i32 %b) {
 define i32 @rev_shl_masked(i32 %a, i32 %b) {
 ; OPT-LABEL: rev_shl_masked:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    extui a3, a3, 0, 5
 ; OPT-NEXT:    ssr a3
 ; OPT-NEXT:    sll a2, a2
 ; OPT-NEXT:    ret.n
@@ -71,7 +70,6 @@ define i32 @rev_lshr(i32 %a, i32 %b) {
 define i32 @rev_lshr_masked(i32 %a, i32 %b) {
 ; OPT-LABEL: rev_lshr_masked:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    extui a3, a3, 0, 5
 ; OPT-NEXT:    ssl a3
 ; OPT-NEXT:    srl a2, a2
 ; OPT-NEXT:    ret.n
@@ -116,7 +114,6 @@ define i32 @rev_ashr(i32 %a, i32 %b) {
 define i32 @rev_ashr_masked(i32 %a, i32 %b) {
 ; OPT-LABEL: rev_ashr_masked:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    extui a3, a3, 0, 5
 ; OPT-NEXT:    ssl a3
 ; OPT-NEXT:    sra a2, a2
 ; OPT-NEXT:    ret.n

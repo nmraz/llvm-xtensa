@@ -15,6 +15,13 @@ def lower_set_sar_inrange : GICombineRule<
   (apply [{ applyLowerSetSarInrange(Helper, MRI, *${root}, ${matchinfo}); }])
 >;
 
+def set_sar_masked_redundant_and : GICombineRule<
+  (defs root:$root, register_matchinfo:$matchinfo),
+  (match (wip_match_opcode G_XTENSA_SSR_MASKED, G_XTENSA_SSL_MASKED):$root,
+    [{ return matchSetSarMaskedRedundantAnd(MRI, *Helper.getKnownBits(), *${root}, ${matchinfo}); }]),
+  (apply [{ Helper.replaceRegOpWith(MRI, ${root}->getOperand(0), ${matchinfo}); }])
+>;
+
 def XtensaPostLegalizerCombinerHelper : GICombinerHelper<
   "XtensaGenPostLegalizerCombinerHelper",
   [all_combines, left_identity_zero]> {
@@ -23,6 +30,6 @@ def XtensaPostLegalizerCombinerHelper : GICombinerHelper<
 
 def XtensaShiftCombinerHelper : GICombinerHelper<
   "XtensaGenShiftCombinerHelper",
-  [lower_set_sar_inrange]> {
+  [lower_set_sar_inrange, set_sar_masked_redundant_and]> {
   let DisableRuleOption = "xtensashiftcombiner-disable-rule";
 }
