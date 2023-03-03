@@ -64,7 +64,13 @@ private:
   const TargetRegisterClass &
   getRegisterClassForReg(Register Reg, const MachineRegisterInfo &MRI) const;
 
+  MachineInstrBuilder emitInstrFor(MachineInstr &I, unsigned Opcode) const;
+
   bool selectCOPY(MachineInstr &I, MachineRegisterInfo &MRI);
+  void emitCOPY(MachineInstr &I, Register Dest, Register Src);
+
+  void preISelLower(MachineInstr &I);
+  void convertPtrAddToAdd(MachineInstr &I);
 
   /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
@@ -117,10 +123,39 @@ static bool isEXTUIMask(uint64_t Value) {
   return Value <= 0xffff && isMask_64(Value);
 }
 
+bool XtensaInstructionSelector::select(MachineInstr &I) {
+  if (I.getOpcode() == Xtensa::COPY) {
+    MachineRegisterInfo &MRI = I.getParent()->getParent()->getRegInfo();
+    return selectCOPY(I, MRI);
+  }
+
+  if (!I.isPreISelOpcode()) {
+    // Already target-specific
+    return true;
+  }
+
+  preISelLower(I);
+
+  if (selectEarly(I)) {
+    return true;
+  }
+
+  if (selectImpl(I, *CoverageInfo))
+    return true;
+
+  return selectLate(I);
+}
+
 const TargetRegisterClass &XtensaInstructionSelector::getRegisterClassForReg(
     Register Reg, const MachineRegisterInfo &MRI) const {
   assert(RBI.getRegBank(Reg, MRI, TRI)->getID() == Xtensa::GPRRegBankID);
   return Xtensa::GPRRegClass;
+}
+
+MachineInstrBuilder
+XtensaInstructionSelector::emitInstrFor(MachineInstr &I,
+                                        unsigned Opcode) const {
+  return BuildMI(*CurMBB, I, I.getDebugLoc(), TII.get(Opcode));
 }
 
 bool XtensaInstructionSelector::selectCOPY(MachineInstr &I,
@@ -141,25 +176,41 @@ bool XtensaInstructionSelector::selectCOPY(MachineInstr &I,
   return true;
 }
 
-bool XtensaInstructionSelector::select(MachineInstr &I) {
-  if (I.getOpcode() == Xtensa::COPY) {
-    MachineRegisterInfo &MRI = I.getParent()->getParent()->getRegInfo();
-    return selectCOPY(I, MRI);
+void XtensaInstructionSelector::emitCOPY(MachineInstr &I, Register Dest,
+                                         Register Src) {
+  MachineInstr *CopyInst =
+      emitInstrFor(I, Xtensa::COPY).addDef(Dest).addReg(Src);
+  if (!selectCOPY(*CopyInst, MF->getRegInfo())) {
+    llvm_unreachable("Failed to emit a copy");
   }
+}
 
-  if (!I.isPreISelOpcode()) {
-    // Already target-specific
-    return true;
+void XtensaInstructionSelector::preISelLower(MachineInstr &I) {
+  switch (I.getOpcode()) {
+  case Xtensa::G_PTR_ADD:
+    convertPtrAddToAdd(I);
+    break;
   }
+}
 
-  if (selectEarly(I)) {
-    return true;
-  }
+void XtensaInstructionSelector::convertPtrAddToAdd(MachineInstr &I) {
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+  LLT S32 = LLT::scalar(32);
 
-  if (selectImpl(I, *CoverageInfo))
-    return true;
+  // If this instruction still exists at this point, we haven't been able to
+  // fold it into a neighboring load or store. Lower it to a regular add so the
+  // existing patterns can match.
 
-  return selectLate(I);
+  // Emit a pointer-to-integer copy for the source operand. We don't need to do
+  // something analagous for the destination operand as uses are always selected
+  // before defs, so we can change its type directly.
+  Register IntReg = MRI.createGenericVirtualRegister(S32);
+  MRI.setRegBank(IntReg, RBI.getRegBank(Xtensa::GPRRegBankID));
+  emitCOPY(I, IntReg, I.getOperand(1).getReg());
+
+  I.setDesc(TII.get(Xtensa::G_ADD));
+  MRI.setType(I.getOperand(0).getReg(), S32);
+  I.getOperand(1).setReg(IntReg);
 }
 
 InstructionSelector::ComplexRendererFns
@@ -236,12 +287,11 @@ bool XtensaInstructionSelector::selectANDAsEXTUI(MachineInstr &I) const {
     tryFoldShrIntoEXTUI(*InputMI, MRI, MaskWidth, InputReg, ShiftWidth);
   }
 
-  MachineInstr *Extui =
-      BuildMI(*CurMBB, I, I.getDebugLoc(), TII.get(Xtensa::EXTUI))
-          .add(I.getOperand(0))
-          .addReg(InputReg)
-          .addImm(ShiftWidth)
-          .addImm(MaskWidth);
+  MachineInstr *Extui = emitInstrFor(I, Xtensa::EXTUI)
+                            .add(I.getOperand(0))
+                            .addReg(InputReg)
+                            .addImm(ShiftWidth)
+                            .addImm(MaskWidth);
   if (!constrainSelectedInstRegOperands(*Extui, TII, TRI, RBI)) {
     return false;
   }
@@ -284,10 +334,9 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
 
     MachineConstantPool *MCP = MF->getConstantPool();
     unsigned CPIdx = MCP->getConstantPoolIndex(Val, Align(4));
-    MachineInstr *L32 =
-        BuildMI(*CurMBB, I, I.getDebugLoc(), TII.get(Xtensa::L32R))
-            .add(I.getOperand(0))
-            .addConstantPoolIndex(CPIdx);
+    MachineInstr *L32 = emitInstrFor(I, Xtensa::L32R)
+                            .add(I.getOperand(0))
+                            .addConstantPoolIndex(CPIdx);
     if (!constrainSelectedInstRegOperands(*L32, TII, TRI, RBI)) {
       return false;
     }
