@@ -281,8 +281,21 @@ def S16I : StoreRRI8<0b0010, 0b0101, uimm8_sl1, "s16i", []>;
 def S32I : StoreRRI8<0b0010, 0b0101, uimm8_sl2, "s32i", []>;
 def S32IN : StoreRRRN<0b1001, uimm4_sl2, "s32i.n", []>;
 
+// 8-bit stores
+def : Pat<(truncstorei8 i32:$val, (ptroff_uimm8 i32:$ptr, i32:$off)),
+          (S8I i32:$val, i32:$ptr, i32:$off)>;
 def : Pat<(truncstorei8 i32:$val, i32:$ptr), (S8I i32:$val, i32:$ptr, 0)>;
+
+// 16-bit stores
+def : Pat<(truncstorei16 i32:$val, (ptroff_uimm8_sl1 i32:$ptr, i32:$off)),
+          (S16I i32:$val, i32:$ptr, i32:$off)>;
 def : Pat<(truncstorei16 i32:$val, i32:$ptr), (S16I i32:$val, i32:$ptr, 0)>;
+
+// 32-bit stores
+def : Pat<(store i32:$val, (ptroff_uimm4_sl2 i32:$ptr, i32:$off)),
+          (S32IN i32:$val, i32:$ptr, i32:$off)>;
+def : Pat<(store i32:$val, (ptroff_uimm8_sl2 i32:$ptr, i32:$off)),
+          (S32I i32:$val, i32:$ptr, i32:$off)>;
 def : Pat<(store i32:$val, i32:$ptr), (S32IN i32:$val, i32:$ptr, 0)>;
 
 // def S32NB

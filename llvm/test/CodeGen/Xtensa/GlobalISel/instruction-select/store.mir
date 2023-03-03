@@ -281,9 +281,8 @@ body:             |
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
     ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY1]], 0, 16
     ; CHECK-NEXT: [[SRLI:%[0-9]+]]:gpr = SRLI [[EXTUI]], 8
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 1
     ; CHECK-NEXT: S8I [[COPY1]], [[COPY]], 0 :: (store (s8) into %ir.p)
-    ; CHECK-NEXT: S8I [[SRLI]], [[ADDI]], 0 :: (store (s8) into %ir.p + 1)
+    ; CHECK-NEXT: S8I [[SRLI]], [[COPY]], 1 :: (store (s8) into %ir.p + 1)
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(p0) = COPY $a2
     %2:gprb(s32) = COPY $a3
@@ -459,14 +458,12 @@ body:             |
     ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 2
     ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[COPY1]], 0, 16
     ; CHECK-NEXT: [[SRLI:%[0-9]+]]:gpr = SRLI [[EXTUI1]], 8
-    ; CHECK-NEXT: [[ADDI1:%[0-9]+]]:gpr = ADDI [[COPY]], 1
     ; CHECK-NEXT: S8I [[COPY1]], [[COPY]], 0 :: (store (s8) into %ir.p)
-    ; CHECK-NEXT: S8I [[SRLI]], [[ADDI1]], 0 :: (store (s8) into %ir.p + 1)
+    ; CHECK-NEXT: S8I [[SRLI]], [[COPY]], 1 :: (store (s8) into %ir.p + 1)
     ; CHECK-NEXT: [[EXTUI2:%[0-9]+]]:gpr = EXTUI [[COPY1]], 16, 16
     ; CHECK-NEXT: [[SRLI1:%[0-9]+]]:gpr = SRLI [[EXTUI2]], 8
-    ; CHECK-NEXT: [[ADDI2:%[0-9]+]]:gpr = ADDI [[ADDI]], 1
-    ; CHECK-NEXT: S8I [[EXTUI]], [[ADDI]], 0 :: (store (s8) into %ir.p + 2)
-    ; CHECK-NEXT: S8I [[SRLI1]], [[ADDI2]], 0 :: (store (s8) into %ir.p + 3)
+    ; CHECK-NEXT: S8I [[EXTUI]], [[COPY]], 2 :: (store (s8) into %ir.p + 2)
+    ; CHECK-NEXT: S8I [[SRLI1]], [[ADDI]], 1 :: (store (s8) into %ir.p + 3)
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(p0) = COPY $a2
     %1:gprb(s32) = COPY $a3
@@ -559,9 +556,8 @@ body:             |
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
     ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY1]], 16, 16
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 2
     ; CHECK-NEXT: S16I [[COPY1]], [[COPY]], 0 :: (store (s16) into %ir.p)
-    ; CHECK-NEXT: S16I [[EXTUI]], [[ADDI]], 0 :: (store (s16) into %ir.p + 2)
+    ; CHECK-NEXT: S16I [[EXTUI]], [[COPY]], 2 :: (store (s16) into %ir.p + 2)
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(p0) = COPY $a2
     %1:gprb(s32) = COPY $a3
@@ -643,8 +639,7 @@ body:             |
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a4
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a5
     ; CHECK-NEXT: S32IN [[COPY1]], [[COPY]], 0 :: (store (s32) into %ir.p, align 8)
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 4
-    ; CHECK-NEXT: S32IN [[COPY2]], [[ADDI]], 0 :: (store (s32) into %ir.p + 4, basealign 8)
+    ; CHECK-NEXT: S32IN [[COPY2]], [[COPY]], 4 :: (store (s32) into %ir.p + 4, basealign 8)
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(p0) = COPY $a2
     %2:gprb(s32) = COPY $a4
@@ -789,27 +784,23 @@ body:             |
     ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 2
     ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[COPY1]], 0, 16
     ; CHECK-NEXT: [[SRLI:%[0-9]+]]:gpr = SRLI [[EXTUI1]], 8
-    ; CHECK-NEXT: [[ADDI1:%[0-9]+]]:gpr = ADDI [[COPY]], 1
     ; CHECK-NEXT: S8I [[COPY1]], [[COPY]], 0 :: (store (s8) into %ir.p)
-    ; CHECK-NEXT: S8I [[SRLI]], [[ADDI1]], 0 :: (store (s8) into %ir.p + 1)
+    ; CHECK-NEXT: S8I [[SRLI]], [[COPY]], 1 :: (store (s8) into %ir.p + 1)
     ; CHECK-NEXT: [[EXTUI2:%[0-9]+]]:gpr = EXTUI [[COPY1]], 16, 16
     ; CHECK-NEXT: [[SRLI1:%[0-9]+]]:gpr = SRLI [[EXTUI2]], 8
-    ; CHECK-NEXT: [[ADDI2:%[0-9]+]]:gpr = ADDI [[ADDI]], 1
-    ; CHECK-NEXT: S8I [[EXTUI]], [[ADDI]], 0 :: (store (s8) into %ir.p + 2)
-    ; CHECK-NEXT: S8I [[SRLI1]], [[ADDI2]], 0 :: (store (s8) into %ir.p + 3)
-    ; CHECK-NEXT: [[ADDI3:%[0-9]+]]:gpr = ADDI [[COPY]], 4
+    ; CHECK-NEXT: S8I [[EXTUI]], [[COPY]], 2 :: (store (s8) into %ir.p + 2)
+    ; CHECK-NEXT: S8I [[SRLI1]], [[ADDI]], 1 :: (store (s8) into %ir.p + 3)
+    ; CHECK-NEXT: [[ADDI1:%[0-9]+]]:gpr = ADDI [[COPY]], 4
     ; CHECK-NEXT: [[EXTUI3:%[0-9]+]]:gpr = EXTUI [[COPY2]], 16, 16
-    ; CHECK-NEXT: [[ADDI4:%[0-9]+]]:gpr = ADDI [[ADDI3]], 2
+    ; CHECK-NEXT: [[ADDI2:%[0-9]+]]:gpr = ADDI [[ADDI1]], 2
     ; CHECK-NEXT: [[EXTUI4:%[0-9]+]]:gpr = EXTUI [[COPY2]], 0, 16
     ; CHECK-NEXT: [[SRLI2:%[0-9]+]]:gpr = SRLI [[EXTUI4]], 8
-    ; CHECK-NEXT: [[ADDI5:%[0-9]+]]:gpr = ADDI [[ADDI3]], 1
-    ; CHECK-NEXT: S8I [[COPY2]], [[ADDI3]], 0 :: (store (s8) into %ir.p + 4)
-    ; CHECK-NEXT: S8I [[SRLI2]], [[ADDI5]], 0 :: (store (s8) into %ir.p + 5)
+    ; CHECK-NEXT: S8I [[COPY2]], [[COPY]], 4 :: (store (s8) into %ir.p + 4)
+    ; CHECK-NEXT: S8I [[SRLI2]], [[ADDI1]], 1 :: (store (s8) into %ir.p + 5)
     ; CHECK-NEXT: [[EXTUI5:%[0-9]+]]:gpr = EXTUI [[COPY2]], 16, 16
     ; CHECK-NEXT: [[SRLI3:%[0-9]+]]:gpr = SRLI [[EXTUI5]], 8
-    ; CHECK-NEXT: [[ADDI6:%[0-9]+]]:gpr = ADDI [[ADDI4]], 1
-    ; CHECK-NEXT: S8I [[EXTUI3]], [[ADDI4]], 0 :: (store (s8) into %ir.p + 6)
-    ; CHECK-NEXT: S8I [[SRLI3]], [[ADDI6]], 0 :: (store (s8) into %ir.p + 7)
+    ; CHECK-NEXT: S8I [[EXTUI3]], [[ADDI1]], 2 :: (store (s8) into %ir.p + 6)
+    ; CHECK-NEXT: S8I [[SRLI3]], [[ADDI2]], 1 :: (store (s8) into %ir.p + 7)
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(p0) = COPY $a2
     %2:gprb(s32) = COPY $a4
@@ -939,14 +930,12 @@ body:             |
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a4
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a5
     ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY1]], 16, 16
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 2
     ; CHECK-NEXT: S16I [[COPY1]], [[COPY]], 0 :: (store (s16) into %ir.p)
-    ; CHECK-NEXT: S16I [[EXTUI]], [[ADDI]], 0 :: (store (s16) into %ir.p + 2)
-    ; CHECK-NEXT: [[ADDI1:%[0-9]+]]:gpr = ADDI [[COPY]], 4
+    ; CHECK-NEXT: S16I [[EXTUI]], [[COPY]], 2 :: (store (s16) into %ir.p + 2)
+    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 4
     ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[COPY2]], 16, 16
-    ; CHECK-NEXT: [[ADDI2:%[0-9]+]]:gpr = ADDI [[ADDI1]], 2
-    ; CHECK-NEXT: S16I [[COPY2]], [[ADDI1]], 0 :: (store (s16) into %ir.p + 4)
-    ; CHECK-NEXT: S16I [[EXTUI1]], [[ADDI2]], 0 :: (store (s16) into %ir.p + 6)
+    ; CHECK-NEXT: S16I [[COPY2]], [[COPY]], 4 :: (store (s16) into %ir.p + 4)
+    ; CHECK-NEXT: S16I [[EXTUI1]], [[ADDI]], 2 :: (store (s16) into %ir.p + 6)
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(p0) = COPY $a2
     %2:gprb(s32) = COPY $a4
@@ -1038,8 +1027,7 @@ body:             |
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a4
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a5
     ; CHECK-NEXT: S32IN [[COPY1]], [[COPY]], 0 :: (store (s32) into %ir.p)
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 4
-    ; CHECK-NEXT: S32IN [[COPY2]], [[ADDI]], 0 :: (store (s32) into %ir.p + 4)
+    ; CHECK-NEXT: S32IN [[COPY2]], [[COPY]], 4 :: (store (s32) into %ir.p + 4)
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(p0) = COPY $a2
     %2:gprb(s32) = COPY $a4

@@ -25,9 +25,8 @@ define void @store_i16_unaligned_1(ptr %p, i16 %val) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    extui a4, a3, 0, 16
 ; CHECK-NEXT:    srli a4, a4, 8
-; CHECK-NEXT:    addi a5, a2, 1
 ; CHECK-NEXT:    s8i a3, a2, 0
-; CHECK-NEXT:    s8i a4, a5, 0
+; CHECK-NEXT:    s8i a4, a2, 1
 ; CHECK-NEXT:    ret.n
 entry:
   store i16 %val, ptr %p, align 1
@@ -48,16 +47,13 @@ define void @store_i32_unaligned_1(ptr %p, i32 %val) {
 ; CHECK-LABEL: store_i32_unaligned_1:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    extui a4, a3, 16, 16
-; CHECK-NEXT:    addi a5, a2, 2
-; CHECK-NEXT:    extui a6, a3, 0, 16
-; CHECK-NEXT:    srli a6, a6, 8
-; CHECK-NEXT:    addi a7, a2, 1
+; CHECK-NEXT:    extui a5, a3, 0, 16
+; CHECK-NEXT:    srli a5, a5, 8
 ; CHECK-NEXT:    s8i a3, a2, 0
-; CHECK-NEXT:    s8i a6, a7, 0
+; CHECK-NEXT:    s8i a5, a2, 1
 ; CHECK-NEXT:    extui a3, a3, 24, 8
-; CHECK-NEXT:    addi a2, a2, 3
-; CHECK-NEXT:    s8i a4, a5, 0
-; CHECK-NEXT:    s8i a3, a2, 0
+; CHECK-NEXT:    s8i a4, a2, 2
+; CHECK-NEXT:    s8i a3, a2, 3
 ; CHECK-NEXT:    ret.n
 entry:
   store i32 %val, ptr %p, align 1
@@ -68,9 +64,8 @@ define void @store_i32_unaligned_2(ptr %p, i32 %val) {
 ; CHECK-LABEL: store_i32_unaligned_2:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    extui a4, a3, 16, 16
-; CHECK-NEXT:    addi a5, a2, 2
 ; CHECK-NEXT:    s16i a3, a2, 0
-; CHECK-NEXT:    s16i a4, a5, 0
+; CHECK-NEXT:    s16i a4, a2, 2
 ; CHECK-NEXT:    ret.n
 entry:
   store i32 %val, ptr %p, align 2
@@ -81,8 +76,7 @@ define void @store_i64(ptr %p, i64 %val) {
 ; CHECK-LABEL: store_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    s32i.n a4, a2, 0
-; CHECK-NEXT:    addi a2, a2, 4
-; CHECK-NEXT:    s32i.n a5, a2, 0
+; CHECK-NEXT:    s32i.n a5, a2, 4
 ; CHECK-NEXT:    ret.n
 entry:
   store i64 %val, ptr %p, align 8
@@ -93,28 +87,21 @@ define void @store_i64_unaligned_1(ptr %p, i64 %val) {
 ; CHECK-LABEL: store_i64_unaligned_1:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    extui a3, a4, 16, 16
-; CHECK-NEXT:    addi a6, a2, 2
-; CHECK-NEXT:    extui a7, a4, 0, 16
-; CHECK-NEXT:    srli a7, a7, 8
-; CHECK-NEXT:    addi a8, a2, 1
+; CHECK-NEXT:    extui a6, a4, 0, 16
+; CHECK-NEXT:    srli a6, a6, 8
 ; CHECK-NEXT:    s8i a4, a2, 0
-; CHECK-NEXT:    s8i a7, a8, 0
+; CHECK-NEXT:    s8i a6, a2, 1
 ; CHECK-NEXT:    extui a4, a4, 24, 8
-; CHECK-NEXT:    addi a7, a2, 3
-; CHECK-NEXT:    s8i a3, a6, 0
-; CHECK-NEXT:    s8i a4, a7, 0
-; CHECK-NEXT:    addi a3, a2, 4
-; CHECK-NEXT:    extui a4, a5, 16, 16
-; CHECK-NEXT:    addi a6, a2, 6
-; CHECK-NEXT:    extui a7, a5, 0, 16
-; CHECK-NEXT:    srli a7, a7, 8
-; CHECK-NEXT:    addi a8, a2, 5
-; CHECK-NEXT:    s8i a5, a3, 0
-; CHECK-NEXT:    s8i a7, a8, 0
-; CHECK-NEXT:    extui a3, a5, 24, 8
-; CHECK-NEXT:    addi a2, a2, 7
-; CHECK-NEXT:    s8i a4, a6, 0
-; CHECK-NEXT:    s8i a3, a2, 0
+; CHECK-NEXT:    s8i a3, a2, 2
+; CHECK-NEXT:    s8i a4, a2, 3
+; CHECK-NEXT:    extui a3, a5, 16, 16
+; CHECK-NEXT:    extui a4, a5, 0, 16
+; CHECK-NEXT:    srli a4, a4, 8
+; CHECK-NEXT:    s8i a5, a2, 4
+; CHECK-NEXT:    s8i a4, a2, 5
+; CHECK-NEXT:    extui a4, a5, 24, 8
+; CHECK-NEXT:    s8i a3, a2, 6
+; CHECK-NEXT:    s8i a4, a2, 7
 ; CHECK-NEXT:    ret.n
 entry:
   store i64 %val, ptr %p, align 1
@@ -125,14 +112,11 @@ define void @store_i64_unaligned_2(ptr %p, i64 %val) {
 ; CHECK-LABEL: store_i64_unaligned_2:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    extui a3, a4, 16, 16
-; CHECK-NEXT:    addi a6, a2, 2
 ; CHECK-NEXT:    s16i a4, a2, 0
-; CHECK-NEXT:    s16i a3, a6, 0
-; CHECK-NEXT:    addi a3, a2, 4
-; CHECK-NEXT:    extui a4, a5, 16, 16
-; CHECK-NEXT:    addi a2, a2, 6
-; CHECK-NEXT:    s16i a5, a3, 0
-; CHECK-NEXT:    s16i a4, a2, 0
+; CHECK-NEXT:    s16i a3, a2, 2
+; CHECK-NEXT:    extui a3, a5, 16, 16
+; CHECK-NEXT:    s16i a5, a2, 4
+; CHECK-NEXT:    s16i a3, a2, 6
 ; CHECK-NEXT:    ret.n
 entry:
   store i64 %val, ptr %p, align 2
@@ -143,8 +127,7 @@ define void @store_i64_unaligned_4(ptr %p, i64 %val) {
 ; CHECK-LABEL: store_i64_unaligned_4:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    s32i.n a4, a2, 0
-; CHECK-NEXT:    addi a2, a2, 4
-; CHECK-NEXT:    s32i.n a5, a2, 0
+; CHECK-NEXT:    s32i.n a5, a2, 4
 ; CHECK-NEXT:    ret.n
 entry:
   store i64 %val, ptr %p, align 4
