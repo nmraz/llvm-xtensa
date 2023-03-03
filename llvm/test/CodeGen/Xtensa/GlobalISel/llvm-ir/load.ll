@@ -37,7 +37,7 @@ entry:
 define i32 @load_i32(ptr %p) {
 ; CHECK-LABEL: load_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    l32i a2, a2, 0
+; CHECK-NEXT:    l32i.n a2, a2, 0
 ; CHECK-NEXT:    ret.n
 entry:
   %load = load i32, ptr %p, align 4
@@ -83,9 +83,9 @@ entry:
 define i64 @load_i64(ptr %p) {
 ; CHECK-LABEL: load_i64:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    l32i a4, a2, 0
+; CHECK-NEXT:    l32i.n a4, a2, 0
 ; CHECK-NEXT:    addi a2, a2, 4
-; CHECK-NEXT:    l32i a3, a2, 0
+; CHECK-NEXT:    l32i.n a3, a2, 0
 ; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 entry:
@@ -154,9 +154,9 @@ entry:
 define i64 @load_i64_unaligned_4(ptr %p) {
 ; CHECK-LABEL: load_i64_unaligned_4:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    l32i a4, a2, 0
+; CHECK-NEXT:    l32i.n a4, a2, 0
 ; CHECK-NEXT:    addi a2, a2, 4
-; CHECK-NEXT:    l32i a3, a2, 0
+; CHECK-NEXT:    l32i.n a3, a2, 0
 ; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 entry:

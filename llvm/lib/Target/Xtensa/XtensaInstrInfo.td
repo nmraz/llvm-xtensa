@@ -179,7 +179,7 @@ def : Pat<(zextloadi8 i32:$ptr), (L8UI i32:$ptr, 0)>;
 def : Pat<(extloadi16 i32:$ptr), (L16UI i32:$ptr, 0)>;
 def : Pat<(zextloadi16 i32:$ptr), (L16UI i32:$ptr, 0)>;
 def : Pat<(sextloadi16 i32:$ptr), (L16SI i32:$ptr, 0)>;
-def : Pat<(load i32:$ptr), (L32I i32:$ptr, 0)>;
+def : Pat<(load i32:$ptr), (L32IN i32:$ptr, 0)>;
 
 def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []>;
 

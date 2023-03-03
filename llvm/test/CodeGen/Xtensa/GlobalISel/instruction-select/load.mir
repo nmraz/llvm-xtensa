@@ -344,8 +344,8 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[L32I:%[0-9]+]]:gpr = L32I [[COPY]], 0 :: (load (s32) from %ir.p)
-    ; CHECK-NEXT: $a2 = COPY [[L32I]]
+    ; CHECK-NEXT: [[L32IN:%[0-9]+]]:gpr = L32IN [[COPY]], 0 :: (load (s32) from %ir.p)
+    ; CHECK-NEXT: $a2 = COPY [[L32IN]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(p0) = COPY $a2
     %1:gprb(s32) = G_LOAD %0(p0) :: (load (s32) from %ir.p)
@@ -612,11 +612,11 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[L32I:%[0-9]+]]:gpr = L32I [[COPY]], 0 :: (load (s32) from %ir.p, align 8)
+    ; CHECK-NEXT: [[L32IN:%[0-9]+]]:gpr = L32IN [[COPY]], 0 :: (load (s32) from %ir.p, align 8)
     ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 4
-    ; CHECK-NEXT: [[L32I1:%[0-9]+]]:gpr = L32I [[ADDI]], 0 :: (load (s32) from %ir.p + 4, basealign 8)
-    ; CHECK-NEXT: $a2 = COPY [[L32I]]
-    ; CHECK-NEXT: $a3 = COPY [[L32I1]]
+    ; CHECK-NEXT: [[L32IN1:%[0-9]+]]:gpr = L32IN [[ADDI]], 0 :: (load (s32) from %ir.p + 4, basealign 8)
+    ; CHECK-NEXT: $a2 = COPY [[L32IN]]
+    ; CHECK-NEXT: $a3 = COPY [[L32IN1]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
     %0:gprb(p0) = COPY $a2
     %4:gprb(s32) = G_LOAD %0(p0) :: (load (s32) from %ir.p, align 8)
@@ -977,11 +977,11 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[L32I:%[0-9]+]]:gpr = L32I [[COPY]], 0 :: (load (s32) from %ir.p)
+    ; CHECK-NEXT: [[L32IN:%[0-9]+]]:gpr = L32IN [[COPY]], 0 :: (load (s32) from %ir.p)
     ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 4
-    ; CHECK-NEXT: [[L32I1:%[0-9]+]]:gpr = L32I [[ADDI]], 0 :: (load (s32) from %ir.p + 4)
-    ; CHECK-NEXT: $a2 = COPY [[L32I]]
-    ; CHECK-NEXT: $a3 = COPY [[L32I1]]
+    ; CHECK-NEXT: [[L32IN1:%[0-9]+]]:gpr = L32IN [[ADDI]], 0 :: (load (s32) from %ir.p + 4)
+    ; CHECK-NEXT: $a2 = COPY [[L32IN]]
+    ; CHECK-NEXT: $a3 = COPY [[L32IN1]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
     %0:gprb(p0) = COPY $a2
     %4:gprb(s32) = G_LOAD %0(p0) :: (load (s32) from %ir.p)
