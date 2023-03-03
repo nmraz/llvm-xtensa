@@ -141,8 +141,9 @@ static bool matchInvSetSarMasked(const MachineRegisterInfo &MRI,
   return true;
 }
 
-void applySetSarLowering(const CombinerHelper &Helper, MachineRegisterInfo &MRI,
-                         MachineInstr &MI, const SetSarLoweringInfo &Info) {
+static void applySetSarLowering(const CombinerHelper &Helper,
+                                MachineRegisterInfo &MRI, MachineInstr &MI,
+                                const SetSarLoweringInfo &Info) {
   Helper.replaceOpcodeWith(MI, Info.Opcode);
   if (Info.Operand) {
     Helper.replaceRegOpWith(MRI, MI.getOperand(0), *Info.Operand);
