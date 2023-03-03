@@ -93,6 +93,13 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .legalFor({{P0, S32}})
       .clampScalar(1, S32, S32);
 
+  getActionDefinitionsBuilder(G_INTTOPTR)
+      .legalFor({{P0, S32}})
+      .clampScalar(1, S32, S32);
+  getActionDefinitionsBuilder(G_PTRTOINT)
+      .legalFor({{S32, P0}})
+      .clampScalar(0, S32, S32);
+
   // Ext/trunc instructions should all be folded together during
   // legalization, meaning they are never legal in the final output;
   // everything should be 32-bit.
