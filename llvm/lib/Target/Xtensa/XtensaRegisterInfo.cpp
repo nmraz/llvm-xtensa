@@ -5,6 +5,7 @@
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/TargetSubtargetInfo.h"
 #include "llvm/MC/MCRegister.h"
+#include <cstdint>
 
 using namespace llvm;
 
@@ -18,6 +19,12 @@ XtensaRegisterInfo::XtensaRegisterInfo() : XtensaGenRegisterInfo(Xtensa::A0) {}
 const MCPhysReg *
 XtensaRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
   return CSR_Xtensa_Call0_SaveList;
+}
+
+const uint32_t *
+XtensaRegisterInfo::getCallPreservedMask(const MachineFunction &MF,
+                                         CallingConv::ID) const {
+  return CSR_Xtensa_Call0_RegMask;
 }
 
 BitVector XtensaRegisterInfo::getReservedRegs(const MachineFunction &MF) const {

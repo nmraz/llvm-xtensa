@@ -11,26 +11,26 @@ define void @do_calls() {
   ; CHECK-LABEL: name: do_calls
   ; CHECK: bb.1.entry:
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
-  ; CHECK-NEXT:   CALL0 @ret_i32, implicit-def $a0, implicit-def $a2
+  ; CHECK-NEXT:   CALL0 @ret_i32, csr_xtensa_call0, implicit-def $a0, implicit-def $a2
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(s32) = COPY $a2
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
-  ; CHECK-NEXT:   CALL0 @ret_i1, implicit-def $a0, implicit-def $a2
+  ; CHECK-NEXT:   CALL0 @ret_i1, csr_xtensa_call0, implicit-def $a0, implicit-def $a2
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(s32) = COPY $a2
   ; CHECK-NEXT:   [[TRUNC:%[0-9]+]]:_(s1) = G_TRUNC [[COPY1]](s32)
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
-  ; CHECK-NEXT:   CALL0 @ret_i8, implicit-def $a0, implicit-def $a2
+  ; CHECK-NEXT:   CALL0 @ret_i8, csr_xtensa_call0, implicit-def $a0, implicit-def $a2
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(s32) = COPY $a2
   ; CHECK-NEXT:   [[TRUNC1:%[0-9]+]]:_(s8) = G_TRUNC [[COPY2]](s32)
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
-  ; CHECK-NEXT:   CALL0 @ret_i16, implicit-def $a0, implicit-def $a2
+  ; CHECK-NEXT:   CALL0 @ret_i16, csr_xtensa_call0, implicit-def $a0, implicit-def $a2
   ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:_(s32) = COPY $a2
   ; CHECK-NEXT:   [[TRUNC2:%[0-9]+]]:_(s16) = G_TRUNC [[COPY3]](s32)
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
-  ; CHECK-NEXT:   CALL0 @ret_i64, implicit-def $a0, implicit-def $a2, implicit-def $a3
+  ; CHECK-NEXT:   CALL0 @ret_i64, csr_xtensa_call0, implicit-def $a0, implicit-def $a2, implicit-def $a3
   ; CHECK-NEXT:   [[COPY4:%[0-9]+]]:_(s32) = COPY $a2
   ; CHECK-NEXT:   [[COPY5:%[0-9]+]]:_(s32) = COPY $a3
   ; CHECK-NEXT:   [[MV:%[0-9]+]]:_(s64) = G_MERGE_VALUES [[COPY4]](s32), [[COPY5]](s32)

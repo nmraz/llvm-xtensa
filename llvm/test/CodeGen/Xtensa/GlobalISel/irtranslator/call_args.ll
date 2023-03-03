@@ -38,22 +38,22 @@ define void @call_simple_reg_args() {
   ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
   ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
   ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
-  ; CHECK-NEXT:   CALL0 @reg_args_i32, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   CALL0 @reg_args_i32, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[ANYEXT:%[0-9]+]]:_(s32) = G_ANYEXT [[C6]](s1)
   ; CHECK-NEXT:   $a2 = COPY [[ANYEXT]](s32)
-  ; CHECK-NEXT:   CALL0 @reg_arg_i1, implicit-def $a0, implicit $a2
+  ; CHECK-NEXT:   CALL0 @reg_arg_i1, csr_xtensa_call0, implicit-def $a0, implicit $a2
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[ANYEXT1:%[0-9]+]]:_(s32) = G_ANYEXT [[C7]](s8)
   ; CHECK-NEXT:   $a2 = COPY [[ANYEXT1]](s32)
-  ; CHECK-NEXT:   CALL0 @reg_arg_i8, implicit-def $a0, implicit $a2
+  ; CHECK-NEXT:   CALL0 @reg_arg_i8, csr_xtensa_call0, implicit-def $a0, implicit $a2
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[ANYEXT2:%[0-9]+]]:_(s32) = G_ANYEXT [[C8]](s16)
   ; CHECK-NEXT:   $a2 = COPY [[ANYEXT2]](s32)
-  ; CHECK-NEXT:   CALL0 @reg_arg_i16, implicit-def $a0, implicit $a2
+  ; CHECK-NEXT:   CALL0 @reg_arg_i16, csr_xtensa_call0, implicit-def $a0, implicit $a2
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   RETN implicit $a0
 entry:
@@ -76,7 +76,7 @@ define void @call_reg_i64() {
   ; CHECK-NEXT:   [[UV:%[0-9]+]]:_(s32), [[UV1:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C]](s64)
   ; CHECK-NEXT:   $a2 = COPY [[UV]](s32)
   ; CHECK-NEXT:   $a3 = COPY [[UV1]](s32)
-  ; CHECK-NEXT:   CALL0 @reg_arg_i64, implicit-def $a0, implicit $a2, implicit $a3
+  ; CHECK-NEXT:   CALL0 @reg_arg_i64, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a3
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[UV2:%[0-9]+]]:_(s32), [[UV3:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C3]](s64)
@@ -84,14 +84,14 @@ define void @call_reg_i64() {
   ; CHECK-NEXT:   $a3 = COPY [[C2]](s32)
   ; CHECK-NEXT:   $a4 = COPY [[UV2]](s32)
   ; CHECK-NEXT:   $a5 = COPY [[UV3]](s32)
-  ; CHECK-NEXT:   CALL0 @reg_arg_i64_packed, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5
+  ; CHECK-NEXT:   CALL0 @reg_arg_i64_packed, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[UV4:%[0-9]+]]:_(s32), [[UV5:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C4]](s64)
   ; CHECK-NEXT:   $a2 = COPY [[C1]](s32)
   ; CHECK-NEXT:   $a4 = COPY [[UV4]](s32)
   ; CHECK-NEXT:   $a5 = COPY [[UV5]](s32)
-  ; CHECK-NEXT:   CALL0 @reg_arg_i64_aligned, implicit-def $a0, implicit $a2, implicit $a4, implicit $a5
+  ; CHECK-NEXT:   CALL0 @reg_arg_i64_aligned, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a4, implicit $a5
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   RETN implicit $a0
 entry:
@@ -120,7 +120,7 @@ define void @call_mixed_reg_args() {
   ; CHECK-NEXT:   $a5 = COPY [[UV1]](s32)
   ; CHECK-NEXT:   $a6 = COPY [[ANYEXT1]](s32)
   ; CHECK-NEXT:   $a7 = COPY [[ANYEXT2]](s32)
-  ; CHECK-NEXT:   CALL0 @mixed_reg_args, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   CALL0 @mixed_reg_args, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
   ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   RETN implicit $a0
 entry:
@@ -152,7 +152,7 @@ define void @call_stack() {
   ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
   ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
   ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
-  ; CHECK-NEXT:   CALL0 @stack_arg_i32, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   CALL0 @stack_arg_i32, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
   ; CHECK-NEXT:   ADJCALLSTACKUP 4, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 4, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[ANYEXT:%[0-9]+]]:_(s32) = G_ANYEXT [[C7]](s1)
@@ -166,7 +166,7 @@ define void @call_stack() {
   ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
   ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
   ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
-  ; CHECK-NEXT:   CALL0 @stack_arg_i1, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   CALL0 @stack_arg_i1, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
   ; CHECK-NEXT:   ADJCALLSTACKUP 4, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 4, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[ANYEXT1:%[0-9]+]]:_(s32) = G_ANYEXT [[C8]](s8)
@@ -180,7 +180,7 @@ define void @call_stack() {
   ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
   ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
   ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
-  ; CHECK-NEXT:   CALL0 @stack_arg_i8, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   CALL0 @stack_arg_i8, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
   ; CHECK-NEXT:   ADJCALLSTACKUP 4, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 4, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[ANYEXT2:%[0-9]+]]:_(s32) = G_ANYEXT [[C9]](s16)
@@ -194,7 +194,7 @@ define void @call_stack() {
   ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
   ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
   ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
-  ; CHECK-NEXT:   CALL0 @stack_arg_i16, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   CALL0 @stack_arg_i16, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
   ; CHECK-NEXT:   ADJCALLSTACKUP 4, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   RETN implicit $a0
 entry:
@@ -234,7 +234,7 @@ define void @call_stack_i64() {
   ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
   ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
   ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
-  ; CHECK-NEXT:   CALL0 @stack_arg_i64, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   CALL0 @stack_arg_i64, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
   ; CHECK-NEXT:   ADJCALLSTACKUP 8, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 8, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[UV2:%[0-9]+]]:_(s32), [[UV3:%[0-9]+]]:_(s32) = G_UNMERGE_VALUES [[C7]](s64)
@@ -251,7 +251,7 @@ define void @call_stack_i64() {
   ; CHECK-NEXT:   $a4 = COPY [[C2]](s32)
   ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
   ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
-  ; CHECK-NEXT:   CALL0 @stack_arg_i64_reg_unaligned, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6
+  ; CHECK-NEXT:   CALL0 @stack_arg_i64_reg_unaligned, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6
   ; CHECK-NEXT:   ADJCALLSTACKUP 8, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   ADJCALLSTACKDOWN 16, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   [[COPY4:%[0-9]+]]:_(p0) = COPY $a1
@@ -273,7 +273,7 @@ define void @call_stack_i64() {
   ; CHECK-NEXT:   $a5 = COPY [[C3]](s32)
   ; CHECK-NEXT:   $a6 = COPY [[C4]](s32)
   ; CHECK-NEXT:   $a7 = COPY [[C5]](s32)
-  ; CHECK-NEXT:   CALL0 @stack_arg_i64_aligned, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
+  ; CHECK-NEXT:   CALL0 @stack_arg_i64_aligned, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit $a3, implicit $a4, implicit $a5, implicit $a6, implicit $a7
   ; CHECK-NEXT:   ADJCALLSTACKUP 16, 0, implicit-def $a1, implicit $a1
   ; CHECK-NEXT:   RETN implicit $a0
 entry:

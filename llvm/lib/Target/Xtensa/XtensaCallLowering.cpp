@@ -238,6 +238,9 @@ bool XtensaCallLowering::lowerCall(MachineIRBuilder &MIRBuilder,
   MachineInstrBuilder Call = MIRBuilder.buildInstrNoInsert(CallOpcode);
   Call.add(Info.Callee);
 
+  const TargetRegisterInfo *TRI = MF.getSubtarget().getRegisterInfo();
+  Call.addRegMask(TRI->getCallPreservedMask(MF, Info.CallConv));
+
   SmallVector<ArgInfo, 8> OutArgs;
   for (auto &Arg : Info.OrigArgs) {
     splitToValueTypes(Arg, OutArgs, DL, CallConv);
