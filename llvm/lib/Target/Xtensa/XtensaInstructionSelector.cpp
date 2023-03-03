@@ -91,8 +91,6 @@ private:
 #undef GET_GLOBALISEL_TEMPORARIES_DECL
 };
 
-bool isExtuiMask(uint64_t Value) { return Value <= 0xffff && isMask_64(Value); }
-
 } // end anonymous namespace
 
 #define GET_GLOBALISEL_IMPL
@@ -110,6 +108,10 @@ XtensaInstructionSelector::XtensaInstructionSelector(
 #include "XtensaGenGlobalISel.inc"
 #undef GET_GLOBALISEL_TEMPORARIES_INIT
 {
+}
+
+static bool isExtuiMask(uint64_t Value) {
+  return Value <= 0xffff && isMask_64(Value);
 }
 
 const TargetRegisterClass &XtensaInstructionSelector::getRegisterClassForReg(

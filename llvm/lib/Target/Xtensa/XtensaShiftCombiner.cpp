@@ -28,15 +28,14 @@
 using namespace llvm;
 using namespace MIPatternMatch;
 
-namespace {
-
 struct SetSarLoweringInfo {
   unsigned Opcode;
   Optional<Register> Operand;
 };
 
-Optional<Register> getInvInrangeAmount(const MachineRegisterInfo &MRI,
-                                       GISelKnownBits &KB, Register Amount) {
+static Optional<Register> getInvInrangeAmount(const MachineRegisterInfo &MRI,
+                                              GISelKnownBits &KB,
+                                              Register Amount) {
   Register InvAmount;
   if (!mi_match(Amount, MRI, m_GSub(m_SpecificICst(32), m_Reg(InvAmount)))) {
     return None;
@@ -59,8 +58,9 @@ Optional<Register> getInvInrangeAmount(const MachineRegisterInfo &MRI,
   return InvAmount;
 }
 
-bool matchLowerSetSarInrange(const MachineRegisterInfo &MRI, GISelKnownBits &KB,
-                             MachineInstr &MI, SetSarLoweringInfo &Info) {
+static bool matchLowerSetSarInrange(const MachineRegisterInfo &MRI,
+                                    GISelKnownBits &KB, MachineInstr &MI,
+                                    SetSarLoweringInfo &Info) {
   unsigned Opcode = MI.getOpcode();
   assert(Opcode == Xtensa::G_XTENSA_SSR_INRANGE ||
          Opcode == Xtensa::G_XTENSA_SSL_INRANGE);
@@ -84,9 +84,9 @@ bool matchLowerSetSarInrange(const MachineRegisterInfo &MRI, GISelKnownBits &KB,
   return true;
 }
 
-bool matchSetSarMaskedRedundantAnd(const MachineRegisterInfo &MRI,
-                                   GISelKnownBits &KB, MachineInstr &MI,
-                                   Register &MatchedOperand) {
+static bool matchSetSarMaskedRedundantAnd(const MachineRegisterInfo &MRI,
+                                          GISelKnownBits &KB, MachineInstr &MI,
+                                          Register &MatchedOperand) {
   Register Operand = MI.getOperand(0).getReg();
 
   Register MaskLHS;
@@ -114,8 +114,9 @@ bool matchSetSarMaskedRedundantAnd(const MachineRegisterInfo &MRI,
   return false;
 }
 
-bool matchInvSetSarMasked(const MachineRegisterInfo &MRI, GISelKnownBits &KB,
-                          MachineInstr &MI, SetSarLoweringInfo &Info) {
+static bool matchInvSetSarMasked(const MachineRegisterInfo &MRI,
+                                 GISelKnownBits &KB, MachineInstr &MI,
+                                 SetSarLoweringInfo &Info) {
   unsigned Opcode = MI.getOpcode();
   assert(Opcode == Xtensa::G_XTENSA_SSR_MASKED ||
          Opcode == Xtensa::G_XTENSA_SSL_MASKED);
@@ -148,9 +149,10 @@ void applySetSarLowering(const CombinerHelper &Helper, MachineRegisterInfo &MRI,
   }
 }
 
-bool matchSetSarMaskedConstAddSub(const CombinerHelper &Helper,
-                                  MachineRegisterInfo &MRI, MachineInstr &MI,
-                                  unsigned ConstOp, BuildFnTy &BuildFn) {
+static bool matchSetSarMaskedConstAddSub(const CombinerHelper &Helper,
+                                         MachineRegisterInfo &MRI,
+                                         MachineInstr &MI, unsigned ConstOp,
+                                         BuildFnTy &BuildFn) {
   assert(ConstOp == 1 || ConstOp == 2);
 
   MachineInstr *Amount = nullptr;
@@ -190,8 +192,6 @@ bool matchSetSarMaskedConstAddSub(const CombinerHelper &Helper,
 
   return true;
 }
-
-} // namespace
 
 #define XTENSASHIFTCOMBINERHELPER_GENCOMBINERHELPER_DEPS
 #include "XtensaGenShiftGICombiner.inc"
