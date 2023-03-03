@@ -37,6 +37,21 @@ def extui_lshrimm : ComplexPattern<i32, 2, "", []>;
 def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectEXTUILshrImm">,
                        GIComplexPatternEquiv<extui_lshrimm>;
 
+def ptroff_uimm4_sl2 : ComplexPattern<iPTR, 2, "", []>;
+def gi_ptroff_uimm4_sl2 : GIComplexOperandMatcher<s32, "selectPtrOff<4, 2>">,
+                          GIComplexPatternEquiv<ptroff_uimm4_sl2>;
+
+def ptroff_uimm8 : ComplexPattern<iPTR, 2, "", []>;
+def gi_ptroff_uimm8 : GIComplexOperandMatcher<s32, "selectPtrOff<8, 0>">,
+                      GIComplexPatternEquiv<ptroff_uimm8>;
+
+def ptroff_uimm8_sl1 : ComplexPattern<iPTR, 2, "", []>;
+def gi_ptroff_uimm8_sl1 : GIComplexOperandMatcher<s32, "selectPtrOff<8, 1>">,
+                          GIComplexPatternEquiv<ptroff_uimm8_sl1>;
+
+def ptroff_uimm8_sl2 : ComplexPattern<iPTR, 2, "", []>;
+def gi_ptroff_uimm8_sl2 : GIComplexOperandMatcher<s32, "selectPtrOff<8, 2>">,
+                          GIComplexPatternEquiv<ptroff_uimm8_sl2>;
 
 // Pseudo-instructions for codegen/lowering
 
@@ -174,11 +189,30 @@ def L16UI : LoadRRI8<0b0010, 0b0001, uimm8_sl1, "l16ui", []>;
 def L32I : LoadRRI8<0b0010, 0b0010, uimm8_sl2, "l32i", []>;
 def L32IN : LoadRRRN<0b1000, uimm4_sl2, "l32i.n", []>;
 
+// 8-bit loads
+def : Pat<(extloadi8 (ptroff_uimm8 i32:$ptr, i32:$off)),
+          (L8UI i32:$ptr, i32:$off)>;
+def : Pat<(zextloadi8 (ptroff_uimm8 i32:$ptr, i32:$off)),
+          (L8UI i32:$ptr, i32:$off)>;
 def : Pat<(extloadi8 i32:$ptr), (L8UI i32:$ptr, 0)>;
 def : Pat<(zextloadi8 i32:$ptr), (L8UI i32:$ptr, 0)>;
+
+// 16-bit loads
+def : Pat<(extloadi16 (ptroff_uimm8_sl1 i32:$ptr, i32:$off)),
+          (L16UI i32:$ptr, i32:$off)>;
+def : Pat<(zextloadi16 (ptroff_uimm8_sl1 i32:$ptr, i32:$off)),
+          (L16UI i32:$ptr, i32:$off)>;
+def : Pat<(sextloadi16 (ptroff_uimm8_sl1 i32:$ptr, i32:$off)),
+          (L16SI i32:$ptr, i32:$off)>;
 def : Pat<(extloadi16 i32:$ptr), (L16UI i32:$ptr, 0)>;
 def : Pat<(zextloadi16 i32:$ptr), (L16UI i32:$ptr, 0)>;
 def : Pat<(sextloadi16 i32:$ptr), (L16SI i32:$ptr, 0)>;
+
+// 32-bit loads
+def : Pat<(load (ptroff_uimm4_sl2 i32:$ptr, i32:$off)),
+          (L32IN i32:$ptr, i32:$off)>;
+def : Pat<(load (ptroff_uimm8_sl2 i32:$ptr, i32:$off)),
+          (L32I i32:$ptr, i32:$off)>;
 def : Pat<(load i32:$ptr), (L32IN i32:$ptr, 0)>;
 
 def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []>;

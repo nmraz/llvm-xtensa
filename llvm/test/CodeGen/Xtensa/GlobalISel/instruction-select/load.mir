@@ -269,8 +269,7 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[L8UI:%[0-9]+]]:gpr = L8UI [[COPY]], 0 :: (load (s8) from %ir.p)
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 1
-    ; CHECK-NEXT: [[L8UI1:%[0-9]+]]:gpr = L8UI [[ADDI]], 0 :: (load (s8) from %ir.p + 1)
+    ; CHECK-NEXT: [[L8UI1:%[0-9]+]]:gpr = L8UI [[COPY]], 1 :: (load (s8) from %ir.p + 1)
     ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[L8UI1]], 8
     ; CHECK-NEXT: [[OR:%[0-9]+]]:gpr = OR [[SLLI]], [[L8UI]]
     ; CHECK-NEXT: $a2 = COPY [[OR]]
@@ -429,14 +428,12 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[L8UI:%[0-9]+]]:gpr = L8UI [[COPY]], 0 :: (load (s8) from %ir.p)
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 1
-    ; CHECK-NEXT: [[L8UI1:%[0-9]+]]:gpr = L8UI [[ADDI]], 0 :: (load (s8) from %ir.p + 1)
+    ; CHECK-NEXT: [[L8UI1:%[0-9]+]]:gpr = L8UI [[COPY]], 1 :: (load (s8) from %ir.p + 1)
     ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[L8UI1]], 8
     ; CHECK-NEXT: [[OR:%[0-9]+]]:gpr = OR [[SLLI]], [[L8UI]]
-    ; CHECK-NEXT: [[ADDI1:%[0-9]+]]:gpr = ADDI [[COPY]], 2
-    ; CHECK-NEXT: [[L8UI2:%[0-9]+]]:gpr = L8UI [[ADDI1]], 0 :: (load (s8) from %ir.p + 2)
-    ; CHECK-NEXT: [[ADDI2:%[0-9]+]]:gpr = ADDI [[ADDI1]], 1
-    ; CHECK-NEXT: [[L8UI3:%[0-9]+]]:gpr = L8UI [[ADDI2]], 0 :: (load (s8) from %ir.p + 3)
+    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 2
+    ; CHECK-NEXT: [[L8UI2:%[0-9]+]]:gpr = L8UI [[COPY]], 2 :: (load (s8) from %ir.p + 2)
+    ; CHECK-NEXT: [[L8UI3:%[0-9]+]]:gpr = L8UI [[ADDI]], 1 :: (load (s8) from %ir.p + 3)
     ; CHECK-NEXT: [[SLLI1:%[0-9]+]]:gpr = SLLI [[L8UI3]], 8
     ; CHECK-NEXT: [[OR1:%[0-9]+]]:gpr = OR [[SLLI1]], [[L8UI2]]
     ; CHECK-NEXT: [[SLLI2:%[0-9]+]]:gpr = SLLI [[OR1]], 16
@@ -531,8 +528,7 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[L16UI:%[0-9]+]]:gpr = L16UI [[COPY]], 0 :: (load (s16) from %ir.p)
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 2
-    ; CHECK-NEXT: [[L16UI1:%[0-9]+]]:gpr = L16UI [[ADDI]], 0 :: (load (s16) from %ir.p + 2)
+    ; CHECK-NEXT: [[L16UI1:%[0-9]+]]:gpr = L16UI [[COPY]], 2 :: (load (s16) from %ir.p + 2)
     ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[L16UI1]], 16
     ; CHECK-NEXT: [[OR:%[0-9]+]]:gpr = OR [[SLLI]], [[L16UI]]
     ; CHECK-NEXT: $a2 = COPY [[OR]]
@@ -613,8 +609,7 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[L32IN:%[0-9]+]]:gpr = L32IN [[COPY]], 0 :: (load (s32) from %ir.p, align 8)
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 4
-    ; CHECK-NEXT: [[L32IN1:%[0-9]+]]:gpr = L32IN [[ADDI]], 0 :: (load (s32) from %ir.p + 4, basealign 8)
+    ; CHECK-NEXT: [[L32IN1:%[0-9]+]]:gpr = L32IN [[COPY]], 4 :: (load (s32) from %ir.p + 4, basealign 8)
     ; CHECK-NEXT: $a2 = COPY [[L32IN]]
     ; CHECK-NEXT: $a3 = COPY [[L32IN1]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
@@ -728,28 +723,24 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[L8UI:%[0-9]+]]:gpr = L8UI [[COPY]], 0 :: (load (s8) from %ir.p)
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 1
-    ; CHECK-NEXT: [[L8UI1:%[0-9]+]]:gpr = L8UI [[ADDI]], 0 :: (load (s8) from %ir.p + 1)
+    ; CHECK-NEXT: [[L8UI1:%[0-9]+]]:gpr = L8UI [[COPY]], 1 :: (load (s8) from %ir.p + 1)
     ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[L8UI1]], 8
     ; CHECK-NEXT: [[OR:%[0-9]+]]:gpr = OR [[SLLI]], [[L8UI]]
-    ; CHECK-NEXT: [[ADDI1:%[0-9]+]]:gpr = ADDI [[COPY]], 2
-    ; CHECK-NEXT: [[L8UI2:%[0-9]+]]:gpr = L8UI [[ADDI1]], 0 :: (load (s8) from %ir.p + 2)
-    ; CHECK-NEXT: [[ADDI2:%[0-9]+]]:gpr = ADDI [[ADDI1]], 1
-    ; CHECK-NEXT: [[L8UI3:%[0-9]+]]:gpr = L8UI [[ADDI2]], 0 :: (load (s8) from %ir.p + 3)
+    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 2
+    ; CHECK-NEXT: [[L8UI2:%[0-9]+]]:gpr = L8UI [[COPY]], 2 :: (load (s8) from %ir.p + 2)
+    ; CHECK-NEXT: [[L8UI3:%[0-9]+]]:gpr = L8UI [[ADDI]], 1 :: (load (s8) from %ir.p + 3)
     ; CHECK-NEXT: [[SLLI1:%[0-9]+]]:gpr = SLLI [[L8UI3]], 8
     ; CHECK-NEXT: [[OR1:%[0-9]+]]:gpr = OR [[SLLI1]], [[L8UI2]]
     ; CHECK-NEXT: [[SLLI2:%[0-9]+]]:gpr = SLLI [[OR1]], 16
     ; CHECK-NEXT: [[OR2:%[0-9]+]]:gpr = OR [[SLLI2]], [[OR]]
-    ; CHECK-NEXT: [[ADDI3:%[0-9]+]]:gpr = ADDI [[COPY]], 4
-    ; CHECK-NEXT: [[L8UI4:%[0-9]+]]:gpr = L8UI [[ADDI3]], 0 :: (load (s8) from %ir.p + 4)
-    ; CHECK-NEXT: [[ADDI4:%[0-9]+]]:gpr = ADDI [[ADDI3]], 1
-    ; CHECK-NEXT: [[L8UI5:%[0-9]+]]:gpr = L8UI [[ADDI4]], 0 :: (load (s8) from %ir.p + 5)
+    ; CHECK-NEXT: [[ADDI1:%[0-9]+]]:gpr = ADDI [[COPY]], 4
+    ; CHECK-NEXT: [[L8UI4:%[0-9]+]]:gpr = L8UI [[COPY]], 4 :: (load (s8) from %ir.p + 4)
+    ; CHECK-NEXT: [[L8UI5:%[0-9]+]]:gpr = L8UI [[ADDI1]], 1 :: (load (s8) from %ir.p + 5)
     ; CHECK-NEXT: [[SLLI3:%[0-9]+]]:gpr = SLLI [[L8UI5]], 8
     ; CHECK-NEXT: [[OR3:%[0-9]+]]:gpr = OR [[SLLI3]], [[L8UI4]]
-    ; CHECK-NEXT: [[ADDI5:%[0-9]+]]:gpr = ADDI [[ADDI3]], 2
-    ; CHECK-NEXT: [[L8UI6:%[0-9]+]]:gpr = L8UI [[ADDI5]], 0 :: (load (s8) from %ir.p + 6)
-    ; CHECK-NEXT: [[ADDI6:%[0-9]+]]:gpr = ADDI [[ADDI5]], 1
-    ; CHECK-NEXT: [[L8UI7:%[0-9]+]]:gpr = L8UI [[ADDI6]], 0 :: (load (s8) from %ir.p + 7)
+    ; CHECK-NEXT: [[ADDI2:%[0-9]+]]:gpr = ADDI [[ADDI1]], 2
+    ; CHECK-NEXT: [[L8UI6:%[0-9]+]]:gpr = L8UI [[ADDI1]], 2 :: (load (s8) from %ir.p + 6)
+    ; CHECK-NEXT: [[L8UI7:%[0-9]+]]:gpr = L8UI [[ADDI2]], 1 :: (load (s8) from %ir.p + 7)
     ; CHECK-NEXT: [[SLLI4:%[0-9]+]]:gpr = SLLI [[L8UI7]], 8
     ; CHECK-NEXT: [[OR4:%[0-9]+]]:gpr = OR [[SLLI4]], [[L8UI6]]
     ; CHECK-NEXT: [[SLLI5:%[0-9]+]]:gpr = SLLI [[OR4]], 16
@@ -879,14 +870,12 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[L16UI:%[0-9]+]]:gpr = L16UI [[COPY]], 0 :: (load (s16) from %ir.p)
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 2
-    ; CHECK-NEXT: [[L16UI1:%[0-9]+]]:gpr = L16UI [[ADDI]], 0 :: (load (s16) from %ir.p + 2)
+    ; CHECK-NEXT: [[L16UI1:%[0-9]+]]:gpr = L16UI [[COPY]], 2 :: (load (s16) from %ir.p + 2)
     ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[L16UI1]], 16
     ; CHECK-NEXT: [[OR:%[0-9]+]]:gpr = OR [[SLLI]], [[L16UI]]
-    ; CHECK-NEXT: [[ADDI1:%[0-9]+]]:gpr = ADDI [[COPY]], 4
-    ; CHECK-NEXT: [[L16UI2:%[0-9]+]]:gpr = L16UI [[ADDI1]], 0 :: (load (s16) from %ir.p + 4)
-    ; CHECK-NEXT: [[ADDI2:%[0-9]+]]:gpr = ADDI [[ADDI1]], 2
-    ; CHECK-NEXT: [[L16UI3:%[0-9]+]]:gpr = L16UI [[ADDI2]], 0 :: (load (s16) from %ir.p + 6)
+    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 4
+    ; CHECK-NEXT: [[L16UI2:%[0-9]+]]:gpr = L16UI [[COPY]], 4 :: (load (s16) from %ir.p + 4)
+    ; CHECK-NEXT: [[L16UI3:%[0-9]+]]:gpr = L16UI [[ADDI]], 2 :: (load (s16) from %ir.p + 6)
     ; CHECK-NEXT: [[SLLI1:%[0-9]+]]:gpr = SLLI [[L16UI3]], 16
     ; CHECK-NEXT: [[OR1:%[0-9]+]]:gpr = OR [[SLLI1]], [[L16UI2]]
     ; CHECK-NEXT: $a2 = COPY [[OR]]
@@ -978,8 +967,7 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[L32IN:%[0-9]+]]:gpr = L32IN [[COPY]], 0 :: (load (s32) from %ir.p)
-    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 4
-    ; CHECK-NEXT: [[L32IN1:%[0-9]+]]:gpr = L32IN [[ADDI]], 0 :: (load (s32) from %ir.p + 4)
+    ; CHECK-NEXT: [[L32IN1:%[0-9]+]]:gpr = L32IN [[COPY]], 4 :: (load (s32) from %ir.p + 4)
     ; CHECK-NEXT: $a2 = COPY [[L32IN]]
     ; CHECK-NEXT: $a3 = COPY [[L32IN1]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3

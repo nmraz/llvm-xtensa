@@ -24,8 +24,7 @@ define i16 @load_i16_unaligned_1(ptr %p) {
 ; CHECK-LABEL: load_i16_unaligned_1:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    l8ui a3, a2, 0
-; CHECK-NEXT:    addi a2, a2, 1
-; CHECK-NEXT:    l8ui a2, a2, 0
+; CHECK-NEXT:    l8ui a2, a2, 1
 ; CHECK-NEXT:    slli a2, a2, 8
 ; CHECK-NEXT:    or a2, a2, a3
 ; CHECK-NEXT:    ret.n
@@ -48,14 +47,11 @@ define i32 @load_i32_unaligned_1(ptr %p) {
 ; CHECK-LABEL: load_i32_unaligned_1:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    l8ui a3, a2, 0
-; CHECK-NEXT:    addi a4, a2, 1
-; CHECK-NEXT:    l8ui a4, a4, 0
+; CHECK-NEXT:    l8ui a4, a2, 1
 ; CHECK-NEXT:    slli a4, a4, 8
 ; CHECK-NEXT:    or a3, a4, a3
-; CHECK-NEXT:    addi a4, a2, 2
-; CHECK-NEXT:    l8ui a4, a4, 0
-; CHECK-NEXT:    addi a2, a2, 3
-; CHECK-NEXT:    l8ui a2, a2, 0
+; CHECK-NEXT:    l8ui a4, a2, 2
+; CHECK-NEXT:    l8ui a2, a2, 3
 ; CHECK-NEXT:    slli a2, a2, 24
 ; CHECK-NEXT:    slli a4, a4, 16
 ; CHECK-NEXT:    or a2, a2, a4
@@ -70,8 +66,7 @@ define i32 @load_i32_unaligned_2(ptr %p) {
 ; CHECK-LABEL: load_i32_unaligned_2:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    l16ui a3, a2, 0
-; CHECK-NEXT:    addi a2, a2, 2
-; CHECK-NEXT:    l16ui a2, a2, 0
+; CHECK-NEXT:    l16ui a2, a2, 2
 ; CHECK-NEXT:    slli a2, a2, 16
 ; CHECK-NEXT:    or a2, a2, a3
 ; CHECK-NEXT:    ret.n
@@ -84,8 +79,7 @@ define i64 @load_i64(ptr %p) {
 ; CHECK-LABEL: load_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    l32i.n a4, a2, 0
-; CHECK-NEXT:    addi a2, a2, 4
-; CHECK-NEXT:    l32i.n a3, a2, 0
+; CHECK-NEXT:    l32i.n a3, a2, 4
 ; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 entry:
@@ -97,28 +91,21 @@ define i64 @load_i64_unaligned_1(ptr %p) {
 ; CHECK-LABEL: load_i64_unaligned_1:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    l8ui a3, a2, 0
-; CHECK-NEXT:    addi a4, a2, 1
-; CHECK-NEXT:    l8ui a4, a4, 0
+; CHECK-NEXT:    l8ui a4, a2, 1
 ; CHECK-NEXT:    slli a4, a4, 8
 ; CHECK-NEXT:    or a3, a4, a3
-; CHECK-NEXT:    addi a4, a2, 2
-; CHECK-NEXT:    l8ui a4, a4, 0
-; CHECK-NEXT:    addi a5, a2, 3
-; CHECK-NEXT:    l8ui a5, a5, 0
+; CHECK-NEXT:    l8ui a4, a2, 2
+; CHECK-NEXT:    l8ui a5, a2, 3
 ; CHECK-NEXT:    slli a5, a5, 24
 ; CHECK-NEXT:    slli a4, a4, 16
 ; CHECK-NEXT:    or a4, a5, a4
 ; CHECK-NEXT:    or a4, a4, a3
-; CHECK-NEXT:    addi a3, a2, 4
-; CHECK-NEXT:    l8ui a3, a3, 0
-; CHECK-NEXT:    addi a5, a2, 5
-; CHECK-NEXT:    l8ui a5, a5, 0
+; CHECK-NEXT:    l8ui a3, a2, 4
+; CHECK-NEXT:    l8ui a5, a2, 5
 ; CHECK-NEXT:    slli a5, a5, 8
 ; CHECK-NEXT:    or a3, a5, a3
-; CHECK-NEXT:    addi a5, a2, 6
-; CHECK-NEXT:    l8ui a5, a5, 0
-; CHECK-NEXT:    addi a2, a2, 7
-; CHECK-NEXT:    l8ui a2, a2, 0
+; CHECK-NEXT:    l8ui a5, a2, 6
+; CHECK-NEXT:    l8ui a2, a2, 7
 ; CHECK-NEXT:    slli a2, a2, 24
 ; CHECK-NEXT:    slli a5, a5, 16
 ; CHECK-NEXT:    or a2, a2, a5
@@ -134,14 +121,11 @@ define i64 @load_i64_unaligned_2(ptr %p) {
 ; CHECK-LABEL: load_i64_unaligned_2:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    l16ui a3, a2, 0
-; CHECK-NEXT:    addi a4, a2, 2
-; CHECK-NEXT:    l16ui a4, a4, 0
+; CHECK-NEXT:    l16ui a4, a2, 2
 ; CHECK-NEXT:    slli a4, a4, 16
 ; CHECK-NEXT:    or a4, a4, a3
-; CHECK-NEXT:    addi a3, a2, 4
-; CHECK-NEXT:    l16ui a3, a3, 0
-; CHECK-NEXT:    addi a2, a2, 6
-; CHECK-NEXT:    l16ui a2, a2, 0
+; CHECK-NEXT:    l16ui a3, a2, 4
+; CHECK-NEXT:    l16ui a2, a2, 6
 ; CHECK-NEXT:    slli a2, a2, 16
 ; CHECK-NEXT:    or a3, a2, a3
 ; CHECK-NEXT:    mov.n a2, a4
@@ -155,8 +139,7 @@ define i64 @load_i64_unaligned_4(ptr %p) {
 ; CHECK-LABEL: load_i64_unaligned_4:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    l32i.n a4, a2, 0
-; CHECK-NEXT:    addi a2, a2, 4
-; CHECK-NEXT:    l32i.n a3, a2, 0
+; CHECK-NEXT:    l32i.n a3, a2, 4
 ; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 entry:

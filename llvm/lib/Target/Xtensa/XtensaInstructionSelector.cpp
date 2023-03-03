@@ -76,6 +76,9 @@ private:
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
 
   ComplexRendererFns selectEXTUILshrImm(MachineOperand &Root) const;
+  template <unsigned W, unsigned S>
+  ComplexRendererFns selectPtrOff(MachineOperand &Root) const;
+
   void renderNegImm(MachineInstrBuilder &MIB, const MachineInstr &I,
                     int OpIdx = -1) const;
 
@@ -237,6 +240,27 @@ XtensaInstructionSelector::selectEXTUILshrImm(MachineOperand &Root) const {
       [=](MachineInstrBuilder &MIB) { MIB.addImm(ShiftImm); },
       // Mask size
       [=](MachineInstrBuilder &MIB) { MIB.addImm(32 - ShiftImm); },
+  }};
+}
+
+template <unsigned W, unsigned S>
+InstructionSelector::ComplexRendererFns
+XtensaInstructionSelector::selectPtrOff(MachineOperand &Root) const {
+  const MachineRegisterInfo &MRI = MF->getRegInfo();
+
+  Register Base;
+  int64_t Offset = 0;
+  if (!mi_match(Root.getReg(), MRI, m_GPtrAdd(m_Reg(Base), m_ICst(Offset)))) {
+    return None;
+  }
+
+  if (!isShiftedUInt<W, S>(Offset)) {
+    return None;
+  }
+
+  return {{
+      [=](MachineInstrBuilder &MIB) { MIB.addReg(Base); },
+      [=](MachineInstrBuilder &MIB) { MIB.addImm(Offset); },
   }};
 }
 
