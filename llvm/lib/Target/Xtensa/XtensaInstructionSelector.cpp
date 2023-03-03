@@ -218,9 +218,7 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
 }
 
 bool XtensaInstructionSelector::selectANDAsEXTUI(MachineInstr &I) const {
-  MachineBasicBlock &MBB = *I.getParent();
-  MachineFunction &MF = *MBB.getParent();
-  const MachineRegisterInfo &MRI = MF.getRegInfo();
+  const MachineRegisterInfo &MRI = MF->getRegInfo();
 
   int64_t AndImm = 0;
   Register InputReg;
@@ -238,11 +236,12 @@ bool XtensaInstructionSelector::selectANDAsEXTUI(MachineInstr &I) const {
     tryFoldShrIntoEXTUI(*InputMI, MRI, MaskWidth, InputReg, ShiftWidth);
   }
 
-  MachineInstr *Extui = BuildMI(MBB, I, I.getDebugLoc(), TII.get(Xtensa::EXTUI))
-                            .add(I.getOperand(0))
-                            .addReg(InputReg)
-                            .addImm(ShiftWidth)
-                            .addImm(MaskWidth);
+  MachineInstr *Extui =
+      BuildMI(*CurMBB, I, I.getDebugLoc(), TII.get(Xtensa::EXTUI))
+          .add(I.getOperand(0))
+          .addReg(InputReg)
+          .addImm(ShiftWidth)
+          .addImm(MaskWidth);
   if (!constrainSelectedInstRegOperands(*Extui, TII, TRI, RBI)) {
     return false;
   }
@@ -275,9 +274,6 @@ void XtensaInstructionSelector::tryFoldShrIntoEXTUI(
 }
 
 bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
-  MachineBasicBlock &MBB = *I.getParent();
-  MachineFunction &MF = *MBB.getParent();
-
   switch (I.getOpcode()) {
   case Xtensa::G_CONSTANT: {
     // Any remaining constants at this point couldn't be folded or selected to a
@@ -286,11 +282,12 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
     assert(Val->getBitWidth() == 32 &&
            "Illegal constant width, should have been legalized");
 
-    MachineConstantPool *MCP = MF.getConstantPool();
+    MachineConstantPool *MCP = MF->getConstantPool();
     unsigned CPIdx = MCP->getConstantPoolIndex(Val, Align(4));
-    MachineInstr *L32 = BuildMI(MBB, I, I.getDebugLoc(), TII.get(Xtensa::L32R))
-                            .add(I.getOperand(0))
-                            .addConstantPoolIndex(CPIdx);
+    MachineInstr *L32 =
+        BuildMI(*CurMBB, I, I.getDebugLoc(), TII.get(Xtensa::L32R))
+            .add(I.getOperand(0))
+            .addConstantPoolIndex(CPIdx);
     if (!constrainSelectedInstRegOperands(*L32, TII, TRI, RBI)) {
       return false;
     }
