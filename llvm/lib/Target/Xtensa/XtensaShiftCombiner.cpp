@@ -189,8 +189,7 @@ static bool matchSetSarMaskedConstAddSub(const CombinerHelper &Helper,
     auto MaskedConst = B.buildConstant(S32, MaskedConstVal);
     Srcs[ConstOp - 1] = MaskedConst;
     auto NewAmount = B.buildInstr(Opcode, {S32}, Srcs);
-    Helper.replaceRegOpWith(MRI, MI.getOperand(0),
-                            NewAmount->getOperand(0).getReg());
+    Helper.replaceRegOpWith(MRI, MI.getOperand(0), NewAmount.getReg(0));
   };
 
   return true;
