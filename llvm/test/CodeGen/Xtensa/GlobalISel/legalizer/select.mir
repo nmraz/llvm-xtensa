@@ -428,8 +428,11 @@ body:             |
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:_(p0) = COPY $a4
     ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
     ; CHECK-NEXT: [[AND:%[0-9]+]]:_(s32) = G_AND [[COPY]], [[C]]
-    ; CHECK-NEXT: [[SELECT:%[0-9]+]]:_(p0) = G_SELECT [[AND]](s32), [[COPY1]], [[COPY2]]
-    ; CHECK-NEXT: $a2 = COPY [[SELECT]](p0)
+    ; CHECK-NEXT: [[PTRTOINT:%[0-9]+]]:_(s32) = G_PTRTOINT [[COPY1]](p0)
+    ; CHECK-NEXT: [[PTRTOINT1:%[0-9]+]]:_(s32) = G_PTRTOINT [[COPY2]](p0)
+    ; CHECK-NEXT: [[SELECT:%[0-9]+]]:_(s32) = G_SELECT [[AND]](s32), [[PTRTOINT]], [[PTRTOINT1]]
+    ; CHECK-NEXT: [[INTTOPTR:%[0-9]+]]:_(p0) = G_INTTOPTR [[SELECT]](s32)
+    ; CHECK-NEXT: $a2 = COPY [[INTTOPTR]](p0)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %3:_(s32) = COPY $a2
     %0:_(s1) = G_TRUNC %3(s32)

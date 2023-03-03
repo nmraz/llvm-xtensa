@@ -1,7 +1,9 @@
 #include "XtensaLegalizerInfo.h"
 #include "XtensaSubtarget.h"
+#include "llvm/CodeGen/GlobalISel/LegalizerHelper.h"
 #include "llvm/CodeGen/TargetOpcodes.h"
 #include "llvm/Support/LowLevelTypeImpl.h"
+#include <cassert>
 
 using namespace llvm;
 
@@ -22,10 +24,11 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .clampScalar(0, S32, S32);
 
   getActionDefinitionsBuilder(G_SELECT)
-      .legalFor({{S32, S32}, {P0, S32}})
+      .legalFor({{S32, S32}})
+      .customFor({{P0, S32}})
+      .clampScalar(1, S32, S32)
       .widenScalarToNextPow2(0)
-      .clampScalar(0, S32, S32)
-      .clampScalar(1, S32, S32);
+      .clampScalar(0, S32, S32);
 
   getActionDefinitionsBuilder(
       {G_AND, G_OR, G_XOR, G_ADD, G_SUB, G_MUL, G_UMULH, G_SMULH})
@@ -114,4 +117,49 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   getLegacyLegalizerInfo().computeTables();
 
   verify(*ST.getInstrInfo());
+}
+
+bool XtensaLegalizerInfo::legalizeCustom(LegalizerHelper &Helper,
+                                         MachineInstr &MI) const {
+  MachineIRBuilder &MIRBuilder = Helper.MIRBuilder;
+  MachineRegisterInfo &MRI = *MIRBuilder.getMRI();
+  GISelChangeObserver &Observer = Helper.Observer;
+
+  switch (MI.getOpcode()) {
+  case TargetOpcode::G_SELECT:
+    return legalizeSelect(MI, MRI, MIRBuilder, Observer);
+  }
+  return false;
+}
+
+bool XtensaLegalizerInfo::legalizeSelect(MachineInstr &MI,
+                                         MachineRegisterInfo &MRI,
+                                         MachineIRBuilder &MIRBuilder,
+                                         GISelChangeObserver &Observer) const {
+  Register DstReg = MI.getOperand(0).getReg();
+  Register TrueReg = MI.getOperand(2).getReg();
+  Register FalseReg = MI.getOperand(3).getReg();
+
+  LLT PtrTy = MRI.getType(DstReg);
+  assert(PtrTy.isPointer() &&
+         "Custom legalization attempted for non-pointer select");
+  LLT IntPtrTy = LLT::scalar(PtrTy.getSizeInBits());
+
+  Register DstIntReg = MRI.createGenericVirtualRegister(IntPtrTy);
+
+  Register TrueIntReg =
+      MIRBuilder.buildPtrToInt({IntPtrTy}, {TrueReg}).getReg(0);
+  Register FalseIntReg =
+      MIRBuilder.buildPtrToInt({IntPtrTy}, {FalseReg}).getReg(0);
+
+  MIRBuilder.setInsertPt(MIRBuilder.getMBB(), ++MIRBuilder.getInsertPt());
+  MIRBuilder.buildIntToPtr({DstReg}, {DstIntReg});
+
+  Observer.changingInstr(MI);
+  MI.getOperand(0).setReg(DstIntReg);
+  MI.getOperand(2).setReg(TrueIntReg);
+  MI.getOperand(3).setReg(FalseIntReg);
+  Observer.changedInstr(MI);
+
+  return true;
 }

@@ -43,3 +43,14 @@ define i32 @select_i32(i1 %val, i32 %a, i32 %b) {
   %select = select i1 %val, i32 %a, i32 %b
   ret i32 %select
 }
+
+define ptr @select_ptr(i1 %val, ptr %a, ptr %b) {
+; CHECK-LABEL: select_ptr:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    extui a2, a2, 0, 1
+; CHECK-NEXT:    moveqz a3, a4, a2
+; CHECK-NEXT:    mov.n a2, a3
+; CHECK-NEXT:    ret.n
+  %select = select i1 %val, ptr %a, ptr %b
+  ret ptr %select
+}
