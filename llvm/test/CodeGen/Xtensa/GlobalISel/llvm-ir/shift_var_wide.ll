@@ -4,21 +4,19 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; CHECK-LABEL: shl_i33:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    movi.n a5, 32
-; CHECK-NEXT:    addi a7, a4, -32
-; CHECK-NEXT:    sub a6, a5, a4
-; CHECK-NEXT:    saltu a8, a4, a5
+; CHECK-NEXT:    saltu a7, a4, a5
 ; CHECK-NEXT:    ssl a4
 ; CHECK-NEXT:    sll a5, a2
+; CHECK-NEXT:    neg a6, a4
 ; CHECK-NEXT:    ssr a6
 ; CHECK-NEXT:    srl a6, a2
 ; CHECK-NEXT:    ssl a4
-; CHECK-NEXT:    sll a9, a3
-; CHECK-NEXT:    or a6, a6, a9
-; CHECK-NEXT:    movi.n a9, 0
-; CHECK-NEXT:    ssl a7
+; CHECK-NEXT:    sll a8, a3
+; CHECK-NEXT:    or a6, a6, a8
+; CHECK-NEXT:    movi.n a8, 0
 ; CHECK-NEXT:    sll a2, a2
-; CHECK-NEXT:    moveqz a5, a9, a8
-; CHECK-NEXT:    moveqz a6, a2, a8
+; CHECK-NEXT:    moveqz a5, a8, a7
+; CHECK-NEXT:    moveqz a6, a2, a7
 ; CHECK-NEXT:    moveqz a6, a3, a4
 ; CHECK-NEXT:    mov.n a2, a5
 ; CHECK-NEXT:    mov.n a3, a6
@@ -32,21 +30,19 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; CHECK-LABEL: shl_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    movi.n a5, 32
-; CHECK-NEXT:    addi a7, a4, -32
-; CHECK-NEXT:    sub a6, a5, a4
-; CHECK-NEXT:    saltu a8, a4, a5
+; CHECK-NEXT:    saltu a7, a4, a5
 ; CHECK-NEXT:    ssl a4
 ; CHECK-NEXT:    sll a5, a2
+; CHECK-NEXT:    neg a6, a4
 ; CHECK-NEXT:    ssr a6
 ; CHECK-NEXT:    srl a6, a2
 ; CHECK-NEXT:    ssl a4
-; CHECK-NEXT:    sll a9, a3
-; CHECK-NEXT:    or a6, a6, a9
-; CHECK-NEXT:    movi.n a9, 0
-; CHECK-NEXT:    ssl a7
+; CHECK-NEXT:    sll a8, a3
+; CHECK-NEXT:    or a6, a6, a8
+; CHECK-NEXT:    movi.n a8, 0
 ; CHECK-NEXT:    sll a2, a2
-; CHECK-NEXT:    moveqz a5, a9, a8
-; CHECK-NEXT:    moveqz a6, a2, a8
+; CHECK-NEXT:    moveqz a5, a8, a7
+; CHECK-NEXT:    moveqz a6, a2, a7
 ; CHECK-NEXT:    moveqz a6, a3, a4
 ; CHECK-NEXT:    mov.n a2, a5
 ; CHECK-NEXT:    mov.n a3, a6
@@ -61,21 +57,20 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    extui a6, a3, 0, 1
 ; CHECK-NEXT:    movi.n a3, 32
-; CHECK-NEXT:    addi a7, a4, -32
-; CHECK-NEXT:    sub a5, a3, a4
-; CHECK-NEXT:    saltu a8, a4, a3
+; CHECK-NEXT:    saltu a7, a4, a3
 ; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    srl a3, a6
-; CHECK-NEXT:    srl a9, a2
-; CHECK-NEXT:    ssl a5
-; CHECK-NEXT:    sll a5, a6
-; CHECK-NEXT:    or a5, a9, a5
-; CHECK-NEXT:    movi.n a9, 0
-; CHECK-NEXT:    ssr a7
+; CHECK-NEXT:    srl a5, a2
+; CHECK-NEXT:    neg a8, a4
+; CHECK-NEXT:    ssl a8
+; CHECK-NEXT:    sll a8, a6
+; CHECK-NEXT:    or a5, a5, a8
+; CHECK-NEXT:    movi.n a8, 0
+; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    srl a6, a6
-; CHECK-NEXT:    moveqz a5, a6, a8
+; CHECK-NEXT:    moveqz a5, a6, a7
 ; CHECK-NEXT:    moveqz a5, a2, a4
-; CHECK-NEXT:    moveqz a3, a9, a8
+; CHECK-NEXT:    moveqz a3, a8, a7
 ; CHECK-NEXT:    mov.n a2, a5
 ; CHECK-NEXT:    ret.n
 entry:
@@ -87,21 +82,20 @@ define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; CHECK-LABEL: lshr_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    movi.n a5, 32
-; CHECK-NEXT:    addi a7, a4, -32
-; CHECK-NEXT:    sub a6, a5, a4
-; CHECK-NEXT:    saltu a8, a4, a5
+; CHECK-NEXT:    saltu a7, a4, a5
 ; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    srl a5, a3
-; CHECK-NEXT:    srl a9, a2
-; CHECK-NEXT:    ssl a6
-; CHECK-NEXT:    sll a6, a3
-; CHECK-NEXT:    or a6, a9, a6
-; CHECK-NEXT:    movi.n a9, 0
-; CHECK-NEXT:    ssr a7
+; CHECK-NEXT:    srl a6, a2
+; CHECK-NEXT:    neg a8, a4
+; CHECK-NEXT:    ssl a8
+; CHECK-NEXT:    sll a8, a3
+; CHECK-NEXT:    or a6, a6, a8
+; CHECK-NEXT:    movi.n a8, 0
+; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    srl a3, a3
-; CHECK-NEXT:    moveqz a6, a3, a8
+; CHECK-NEXT:    moveqz a6, a3, a7
 ; CHECK-NEXT:    moveqz a6, a2, a4
-; CHECK-NEXT:    moveqz a5, a9, a8
+; CHECK-NEXT:    moveqz a5, a8, a7
 ; CHECK-NEXT:    mov.n a2, a6
 ; CHECK-NEXT:    mov.n a3, a5
 ; CHECK-NEXT:    ret.n
@@ -122,20 +116,19 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; CHECK-NEXT:    or a5, a3, a5
 ; CHECK-NEXT:    srai a6, a2, 31
 ; CHECK-NEXT:    movi.n a2, 32
-; CHECK-NEXT:    addi a7, a4, -32
-; CHECK-NEXT:    sub a8, a2, a4
-; CHECK-NEXT:    saltu a9, a4, a2
+; CHECK-NEXT:    saltu a7, a4, a2
 ; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    sra a3, a6
 ; CHECK-NEXT:    srl a2, a5
+; CHECK-NEXT:    neg a8, a4
 ; CHECK-NEXT:    ssl a8
 ; CHECK-NEXT:    sll a8, a6
 ; CHECK-NEXT:    or a2, a2, a8
-; CHECK-NEXT:    ssr a7
-; CHECK-NEXT:    sra a7, a6
-; CHECK-NEXT:    moveqz a2, a7, a9
+; CHECK-NEXT:    ssr a4
+; CHECK-NEXT:    sra a8, a6
+; CHECK-NEXT:    moveqz a2, a8, a7
 ; CHECK-NEXT:    moveqz a2, a5, a4
-; CHECK-NEXT:    moveqz a3, a6, a9
+; CHECK-NEXT:    moveqz a3, a6, a7
 ; CHECK-NEXT:    ret.n
 entry:
   %ashr = ashr i33 %val, %shamt
@@ -146,21 +139,20 @@ define i64 @ashr_i64(i64 %val, i64 %shamt) {
 ; CHECK-LABEL: ashr_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    movi.n a5, 32
-; CHECK-NEXT:    addi a7, a4, -32
-; CHECK-NEXT:    sub a6, a5, a4
-; CHECK-NEXT:    saltu a8, a4, a5
+; CHECK-NEXT:    saltu a7, a4, a5
 ; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    sra a5, a3
-; CHECK-NEXT:    srl a9, a2
-; CHECK-NEXT:    ssl a6
-; CHECK-NEXT:    sll a6, a3
-; CHECK-NEXT:    or a6, a9, a6
-; CHECK-NEXT:    srai a9, a3, 31
-; CHECK-NEXT:    ssr a7
+; CHECK-NEXT:    srl a6, a2
+; CHECK-NEXT:    neg a8, a4
+; CHECK-NEXT:    ssl a8
+; CHECK-NEXT:    sll a8, a3
+; CHECK-NEXT:    or a6, a6, a8
+; CHECK-NEXT:    srai a8, a3, 31
+; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    sra a3, a3
-; CHECK-NEXT:    moveqz a6, a3, a8
+; CHECK-NEXT:    moveqz a6, a3, a7
 ; CHECK-NEXT:    moveqz a6, a2, a4
-; CHECK-NEXT:    moveqz a5, a9, a8
+; CHECK-NEXT:    moveqz a5, a8, a7
 ; CHECK-NEXT:    mov.n a2, a6
 ; CHECK-NEXT:    mov.n a3, a5
 ; CHECK-NEXT:    ret.n

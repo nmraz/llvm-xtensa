@@ -30,6 +30,20 @@ def invert_set_sar_masked : GICombineRule<
   (apply [{ applySetSarLowering(Helper, MRI, *${root}, ${matchinfo}); }])
 >;
 
+def set_sar_masked_const_add_sub_left : GICombineRule<
+  (defs root:$root, build_fn_matchinfo:$matchinfo),
+  (match (wip_match_opcode G_XTENSA_SSR_MASKED, G_XTENSA_SSL_MASKED):$root,
+    [{ return matchSetSarMaskedConstAddSub(Helper, MRI, *${root}, 1, ${matchinfo}); }]),
+  (apply [{ Helper.applyBuildFnNoErase(*${root}, ${matchinfo}); }])
+>;
+
+def set_sar_masked_const_add_sub_right : GICombineRule<
+  (defs root:$root, build_fn_matchinfo:$matchinfo),
+  (match (wip_match_opcode G_XTENSA_SSR_MASKED, G_XTENSA_SSL_MASKED):$root,
+    [{ return matchSetSarMaskedConstAddSub(Helper, MRI, *${root}, 2, ${matchinfo}); }]),
+  (apply [{ Helper.applyBuildFnNoErase(*${root}, ${matchinfo}); }])
+>;
+
 def XtensaPostLegalizerCombinerHelper : GICombinerHelper<
   "XtensaGenPostLegalizerCombinerHelper",
   [all_combines, left_identity_zero]> {
@@ -38,6 +52,8 @@ def XtensaPostLegalizerCombinerHelper : GICombinerHelper<
 
 def XtensaShiftCombinerHelper : GICombinerHelper<
   "XtensaGenShiftCombinerHelper",
-  [lower_set_sar_inrange, set_sar_masked_redundant_and, invert_set_sar_masked]> {
+  [lower_set_sar_inrange, set_sar_masked_redundant_and, invert_set_sar_masked,
+   set_sar_masked_const_add_sub_left, set_sar_masked_const_add_sub_right,
+   right_identity_zero, left_identity_zero]> {
   let DisableRuleOption = "xtensashiftcombiner-disable-rule";
 }

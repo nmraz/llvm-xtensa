@@ -10,7 +10,10 @@
 #include "llvm/CodeGen/GlobalISel/GISelKnownBits.h"
 #include "llvm/CodeGen/GlobalISel/MIPatternMatch.h"
 #include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
+#include "llvm/CodeGen/GlobalISel/Utils.h"
+#include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstr.h"
+#include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
 #include "llvm/CodeGen/Register.h"
@@ -18,6 +21,7 @@
 #include "llvm/InitializePasses.h"
 #include "llvm/Target/TargetMachine.h"
 #include <cassert>
+#include <cstdint>
 
 #define DEBUG_TYPE "xtensa-shift-combiner"
 
@@ -142,6 +146,49 @@ void applySetSarLowering(const CombinerHelper &Helper, MachineRegisterInfo &MRI,
   if (Info.Operand) {
     Helper.replaceRegOpWith(MRI, MI.getOperand(0), *Info.Operand);
   }
+}
+
+bool matchSetSarMaskedConstAddSub(const CombinerHelper &Helper,
+                                  MachineRegisterInfo &MRI, MachineInstr &MI,
+                                  unsigned ConstOp, BuildFnTy &BuildFn) {
+  assert(ConstOp == 1 || ConstOp == 2);
+
+  MachineInstr *Amount = nullptr;
+  if (!mi_match(MI.getOperand(0).getReg(), MRI,
+                m_OneNonDBGUse(m_MInstr(Amount)))) {
+    return false;
+  }
+
+  unsigned Opcode = Amount->getOpcode();
+  if (Opcode != Xtensa::G_ADD && Opcode != Xtensa::G_SUB) {
+    return false;
+  }
+
+  Optional<int64_t> MaybeConstVal =
+      getIConstantVRegSExtVal(Amount->getOperand(ConstOp).getReg(), MRI);
+  if (!MaybeConstVal) {
+    return false;
+  }
+
+  uint64_t ConstVal = *MaybeConstVal;
+  uint64_t MaskedConstVal = ConstVal & 31;
+  if (MaskedConstVal == ConstVal) {
+    return false;
+  }
+
+  BuildFn = [=, &Helper, &MI, &MRI](MachineIRBuilder &B) {
+    auto S32 = LLT::scalar(32);
+    SrcOp Srcs[] = {Amount->getOperand(1), Amount->getOperand(2)};
+
+    B.setDebugLoc(Amount->getDebugLoc());
+    auto MaskedConst = B.buildConstant(S32, MaskedConstVal);
+    Srcs[ConstOp - 1] = MaskedConst;
+    auto NewAmount = B.buildInstr(Opcode, {S32}, Srcs);
+    Helper.replaceRegOpWith(MRI, MI.getOperand(0),
+                            NewAmount->getOperand(0).getReg());
+  };
+
+  return true;
 }
 
 } // namespace
