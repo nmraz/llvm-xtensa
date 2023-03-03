@@ -28,6 +28,7 @@
 #include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineOperand.h"
+#include "llvm/CodeGen/MachineRegisterInfo.h"
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetOpcodes.h"
 #include "llvm/CodeGen/TargetRegisterInfo.h"
@@ -62,6 +63,8 @@ public:
 private:
   const TargetRegisterClass &
   getRegisterClassForReg(Register Reg, const MachineRegisterInfo &MRI) const;
+
+  bool selectCOPY(MachineInstr &I, MachineRegisterInfo &MRI);
 
   /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
@@ -110,7 +113,7 @@ XtensaInstructionSelector::XtensaInstructionSelector(
 {
 }
 
-static bool isExtuiMask(uint64_t Value) {
+static bool isEXTUIMask(uint64_t Value) {
   return Value <= 0xffff && isMask_64(Value);
 }
 
@@ -120,16 +123,27 @@ const TargetRegisterClass &XtensaInstructionSelector::getRegisterClassForReg(
   return Xtensa::GPRRegClass;
 }
 
+bool XtensaInstructionSelector::selectCOPY(MachineInstr &I,
+                                           MachineRegisterInfo &MRI) {
+  for (MachineOperand &Op : I.operands()) {
+    Register Reg = Op.getReg();
+    if (Reg.isPhysical()) {
+      continue;
+    }
+
+    if (!RBI.constrainGenericRegister(Reg, getRegisterClassForReg(Reg, MRI),
+                                      MRI)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 bool XtensaInstructionSelector::select(MachineInstr &I) {
   if (I.getOpcode() == Xtensa::COPY) {
     MachineRegisterInfo &MRI = I.getParent()->getParent()->getRegInfo();
-
-    Register DstReg = I.getOperand(0).getReg();
-    if (DstReg.isPhysical()) {
-      return true;
-    }
-    return RBI.constrainGenericRegister(
-        DstReg, getRegisterClassForReg(DstReg, MRI), MRI);
+    return selectCOPY(I, MRI);
   }
 
   if (!I.isPreISelOpcode()) {
@@ -210,7 +224,7 @@ bool XtensaInstructionSelector::selectANDAsEXTUI(MachineInstr &I) const {
     return false;
   }
 
-  if (!isExtuiMask(AndImm)) {
+  if (!isEXTUIMask(AndImm)) {
     return false;
   }
   uint32_t MaskWidth = countTrailingOnes(static_cast<uint64_t>(AndImm));
