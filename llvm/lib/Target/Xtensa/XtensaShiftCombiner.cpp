@@ -179,7 +179,7 @@ static bool matchSetSarMaskedConstAddSub(const CombinerHelper &Helper,
   }
 
   BuildFn = [=, &Helper, &MI, &MRI](MachineIRBuilder &B) {
-    auto S32 = LLT::scalar(32);
+    LLT S32 = LLT::scalar(32);
     SrcOp Srcs[] = {Amount->getOperand(1), Amount->getOperand(2)};
 
     B.setDebugLoc(Amount->getDebugLoc());
