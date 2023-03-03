@@ -11,6 +11,12 @@
     ret ptr %p2
   }
 
+  define ptr @ptr_sub(ptr %p, i32 %off) {
+    %neg_off = sub i32 0, %off
+    %p2 = getelementptr i8, ptr %p, i32 %neg_off
+    ret ptr %p2
+  }
+
 ...
 ---
 name:            ptr_add
@@ -82,6 +88,85 @@ body:             |
     %2:_(p0) = G_PTR_ADD %0, %1(s32)
     %3:_(p0) = COPY %2(p0)
     $a2 = COPY %3(p0)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            ptr_sub
+alignment:       4
+exposesReturnsTwice: false
+legalized:       false
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: _, preferred-register: '' }
+  - { id: 4, class: _, preferred-register: '' }
+  - { id: 5, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1 (%ir-block.0):
+    liveins: $a2, $a3
+
+    ; CHECK-LABEL: name: ptr_sub
+    ; CHECK: liveins: $a2, $a3
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(p0) = COPY $a2
+    ; CHECK-NEXT: [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+    ; CHECK-NEXT: [[SUB:%[0-9]+]]:_(s32) = G_SUB [[C]], [[COPY1]]
+    ; CHECK-NEXT: [[PTR_ADD:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY]], [[SUB]](s32)
+    ; CHECK-NEXT: [[COPY2:%[0-9]+]]:_(p0) = COPY [[PTR_ADD]](p0)
+    ; CHECK-NEXT: $a2 = COPY [[COPY2]](p0)
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:_(p0) = COPY $a2
+    %1:_(s32) = COPY $a3
+    %2:_(s32) = G_CONSTANT i32 0
+    %3:_(s32) = G_SUB %2, %1
+    %4:_(p0) = G_PTR_ADD %0, %3(s32)
+    %5:_(p0) = COPY %4(p0)
+    $a2 = COPY %5(p0)
     RETN implicit $a0, implicit $a2
 
 ...

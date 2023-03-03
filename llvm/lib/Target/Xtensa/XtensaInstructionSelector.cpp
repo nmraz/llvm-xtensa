@@ -214,6 +214,14 @@ void XtensaInstructionSelector::convertPtrAddToAdd(MachineInstr &I) {
   I.setDesc(TII.get(Xtensa::G_ADD));
   MRI.setType(I.getOperand(0).getReg(), S32);
   I.getOperand(1).setReg(IntReg);
+
+  // Fold in negation of the offset to create a `G_SUB`
+  Register OffReg = I.getOperand(2).getReg();
+  Register NegOffReg;
+  if (mi_match(OffReg, MRI, m_GSub(m_SpecificICst(0), m_Reg(NegOffReg)))) {
+    I.setDesc(TII.get(Xtensa::G_SUB));
+    I.getOperand(2).setReg(NegOffReg);
+  }
 }
 
 InstructionSelector::ComplexRendererFns

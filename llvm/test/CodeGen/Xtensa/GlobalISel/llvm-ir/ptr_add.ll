@@ -8,3 +8,13 @@ define ptr @ptr_add(ptr %p, i32 %off) {
   %p2 = getelementptr i8, ptr %p, i32 %off
   ret ptr %p2
 }
+
+define ptr @ptr_sub(ptr %p, i32 %off) {
+; CHECK-LABEL: ptr_sub:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    sub a2, a2, a3
+; CHECK-NEXT:    ret.n
+  %neg_off = sub i32 0, %off
+  %p2 = getelementptr i8, ptr %p, i32 %neg_off
+  ret ptr %p2
+}
