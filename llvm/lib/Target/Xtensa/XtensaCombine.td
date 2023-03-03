@@ -1,6 +1,7 @@
 include "llvm/Target/GlobalISel/Combine.td"
 
 def set_sar_lowering_info : GIDefMatchData<"SetSarLoweringInfo">;
+def int32_matchinfo : GIDefMatchData<"int32_t">;
 
 def left_identity_zero : GICombineRule<
   (defs root:$root),
@@ -44,6 +45,20 @@ def set_sar_masked_const_add_sub_right : GICombineRule<
   (apply [{ Helper.applyBuildFnNoErase(*${root}, ${matchinfo}); }])
 >;
 
+def ssr_masked_const : GICombineRule<
+  (defs root:$root, int32_matchinfo:$matchinfo),
+  (match (wip_match_opcode G_XTENSA_SSR_MASKED):$root,
+    [{ return matchUnmaskedConst(MRI, *${root}, ${matchinfo}); }]),
+  (apply [{ replaceOperandWithConstant(Helper, MRI, B, ${root}->getOperand(0), ${matchinfo}); }])
+>;
+
+def ssl_masked_const : GICombineRule<
+  (defs root:$root, int32_matchinfo:$matchinfo),
+  (match (wip_match_opcode G_XTENSA_SSL_MASKED):$root,
+    [{ return matchSSLMaskedConst(MRI, *${root}, ${matchinfo}); }]),
+  (apply [{ applySSLMaskedConst(Helper, MRI, B, *${root}, ${matchinfo}); }])
+>;
+
 def XtensaPostLegalizerCombinerHelper : GICombinerHelper<
   "XtensaGenPostLegalizerCombinerHelper",
   [all_combines, left_identity_zero]> {
@@ -54,6 +69,6 @@ def XtensaShiftCombinerHelper : GICombinerHelper<
   "XtensaGenShiftCombinerHelper",
   [lower_set_sar_inrange, set_sar_masked_redundant_and, invert_set_sar_masked,
    set_sar_masked_const_add_sub_left, set_sar_masked_const_add_sub_right,
-   right_identity_zero, left_identity_zero]> {
+   ssr_masked_const, ssl_masked_const, right_identity_zero, left_identity_zero]> {
   let DisableRuleOption = "xtensashiftcombiner-disable-rule";
 }

@@ -282,8 +282,7 @@ entry:
 define i32 @not_extui_neg_lshr(i32 %val) {
 ; CHECK-LABEL: not_extui_neg_lshr:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a3, -1
-; CHECK-NEXT:    ssr a3
+; CHECK-NEXT:    ssai 31
 ; CHECK-NEXT:    srl a2, a2
 ; CHECK-NEXT:    extui a2, a2, 0, 1
 ; CHECK-NEXT:    ret.n
@@ -296,8 +295,7 @@ entry:
 define i32 @not_extui_neg_ashr(i32 %val) {
 ; CHECK-LABEL: not_extui_neg_ashr:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a3, -1
-; CHECK-NEXT:    ssr a3
+; CHECK-NEXT:    ssai 31
 ; CHECK-NEXT:    sra a2, a2
 ; CHECK-NEXT:    extui a2, a2, 0, 1
 ; CHECK-NEXT:    ret.n

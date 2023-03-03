@@ -94,8 +94,7 @@ entry:
 define i64 @lshr_const_overflow(i64 %val) {
 ; CHECK-LABEL: lshr_const_overflow:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a2, 32
-; CHECK-NEXT:    ssr a2
+; CHECK-NEXT:    ssai 0
 ; CHECK-NEXT:    srl a2, a3
 ; CHECK-NEXT:    movi.n a3, 0
 ; CHECK-NEXT:    ret.n
@@ -144,8 +143,7 @@ entry:
 define i64 @ashr_const_overflow(i64 %val) {
 ; CHECK-LABEL: ashr_const_overflow:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a2, 32
-; CHECK-NEXT:    ssr a2
+; CHECK-NEXT:    ssai 0
 ; CHECK-NEXT:    sra a2, a3
 ; CHECK-NEXT:    srai a3, a3, 31
 ; CHECK-NEXT:    ret.n

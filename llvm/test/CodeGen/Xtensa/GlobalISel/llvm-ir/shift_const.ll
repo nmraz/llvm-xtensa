@@ -73,8 +73,7 @@ entry:
 define i32 @lshr_const_overflow(i32 %val) {
 ; CHECK-LABEL: lshr_const_overflow:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a3, 32
-; CHECK-NEXT:    ssr a3
+; CHECK-NEXT:    ssai 0
 ; CHECK-NEXT:    srl a2, a2
 ; CHECK-NEXT:    ret.n
 entry:
@@ -114,8 +113,7 @@ entry:
 define i32 @ashr_const_overflow(i32 %val) {
 ; CHECK-LABEL: ashr_const_overflow:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a3, 32
-; CHECK-NEXT:    ssr a3
+; CHECK-NEXT:    ssai 0
 ; CHECK-NEXT:    sra a2, a2
 ; CHECK-NEXT:    ret.n
 entry:

@@ -150,6 +150,8 @@ static void applySetSarLowering(const CombinerHelper &Helper,
   }
 }
 
+static uint64_t getMaskedSarValue(uint64_t Value) { return Value & 31; }
+
 static bool matchSetSarMaskedConstAddSub(const CombinerHelper &Helper,
                                          MachineRegisterInfo &MRI,
                                          MachineInstr &MI, unsigned ConstOp,
@@ -174,7 +176,7 @@ static bool matchSetSarMaskedConstAddSub(const CombinerHelper &Helper,
   }
 
   uint64_t ConstVal = *MaybeConstVal;
-  uint64_t MaskedConstVal = ConstVal & 31;
+  uint64_t MaskedConstVal = getMaskedSarValue(ConstVal);
   if (MaskedConstVal == ConstVal) {
     return false;
   }
@@ -192,6 +194,53 @@ static bool matchSetSarMaskedConstAddSub(const CombinerHelper &Helper,
   };
 
   return true;
+}
+
+static bool matchUnmaskedConst(const MachineRegisterInfo &MRI, MachineInstr &MI,
+                               int32_t &MatchInfo) {
+  Optional<int64_t> MaybeConstVal =
+      getIConstantVRegSExtVal(MI.getOperand(0).getReg(), MRI);
+  if (!MaybeConstVal) {
+    return false;
+  }
+
+  int64_t ConstVal = *MaybeConstVal;
+  uint32_t MaskedConstVal = getMaskedSarValue(ConstVal);
+  if (MaskedConstVal == ConstVal) {
+    return false;
+  }
+
+  MatchInfo = MaskedConstVal;
+  return true;
+}
+
+static void replaceOperandWithConstant(const CombinerHelper &Helper,
+                                       MachineRegisterInfo &MRI,
+                                       MachineIRBuilder &B, MachineOperand &Op,
+                                       int32_t Value) {
+  B.setInstrAndDebugLoc(*Op.getParent());
+  Helper.replaceRegOpWith(
+      MRI, Op, B.buildConstant(LLT::scalar(32), Value)->getOperand(0).getReg());
+}
+
+static bool matchSSLMaskedConst(const MachineRegisterInfo &MRI,
+                                MachineInstr &MI, int32_t &MatchInfo) {
+  assert(MI.getOpcode() == Xtensa::G_XTENSA_SSL_MASKED);
+  if (!matchUnmaskedConst(MRI, MI, MatchInfo)) {
+    return false;
+  }
+
+  // We can't replace `SSL 0`, as that actually needs to set SAR to 32.
+  return MatchInfo != 0;
+}
+
+static void applySSLMaskedConst(const CombinerHelper &Helper,
+                                MachineRegisterInfo &MRI, MachineIRBuilder &B,
+                                MachineInstr &MI, int32_t MaskedValue) {
+  assert(MaskedValue != 0 && "Attempting to invert SSL 0");
+  Helper.replaceOpcodeWith(MI, Xtensa::G_XTENSA_SSR_MASKED);
+  replaceOperandWithConstant(Helper, MRI, B, MI.getOperand(0),
+                             32 - MaskedValue);
 }
 
 #define XTENSASHIFTCOMBINERHELPER_GENCOMBINERHELPER_DEPS
