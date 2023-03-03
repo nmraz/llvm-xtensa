@@ -173,6 +173,14 @@ def L16SI : LoadRRI8<0b0010, 0b1001, uimm8_sl1, "l16si", []>;
 def L16UI : LoadRRI8<0b0010, 0b0001, uimm8_sl1, "l16ui", []>;
 def L32I : LoadRRI8<0b0010, 0b0010, uimm8_sl2, "l32i", []>;
 def L32IN : LoadRRRN<0b1000, uimm4_sl2, "l32i.n", []>;
+
+def : Pat<(extloadi8 i32:$ptr), (L8UI i32:$ptr, 0)>;
+def : Pat<(zextloadi8 i32:$ptr), (L8UI i32:$ptr, 0)>;
+def : Pat<(extloadi16 i32:$ptr), (L16UI i32:$ptr, 0)>;
+def : Pat<(zextloadi16 i32:$ptr), (L16UI i32:$ptr, 0)>;
+def : Pat<(sextloadi16 i32:$ptr), (L16SI i32:$ptr, 0)>;
+def : Pat<(load i32:$ptr), (L32I i32:$ptr, 0)>;
+
 def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []>;
 
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
