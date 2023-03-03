@@ -377,9 +377,9 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
                      list<dag> pattern>
     : I_RRR<0b0000, op1, op2, outs, ins, asmstr, pattern>;
 
-  class ArithRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
-    : I_RRI8<op0, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
-              !strconcat(name, "\t$at, $as, $imm8"), pattern> {
+  class ArithBaseRRI8<bits<4> op0, bits<4> r, dag outs, dag ins, string asmstr,
+                      list<dag> pattern>
+    : I_RRI8<op0, outs, ins, asmstr, pattern> {
     let ar = r;
   }
 
@@ -403,6 +403,10 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
 class ArithRRR<bits<4> op1, bits<4> op2, string name, list<dag> pattern>
   : ArithBaseRRR<op1, op2, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
           !strconcat(name, "\t$ar, $as, $at"), pattern>;
+
+class ArithRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
+  : ArithBaseRRI8<op0, r, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
+                  !strconcat(name, "\t$at, $as, $imm8"), pattern>;
 
 class MovRRR<bits<4> op2, string name, list<dag> pattern>
   : ArithBaseRRR<0b0011, op2, (outs GPR:$ar), (ins GPR:$_ar, GPR:$as, GPR:$at),
@@ -453,10 +457,11 @@ let hasSideEffects = false, mayLoad = true, mayStore = false in {
 // Store instruction classes
 let mayLoad = false, mayStore = true in {
   class StoreRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
-    : ArithRRI8<op0, r, Imm, name, pattern>;
+    : ArithBaseRRI8<op0, r, (outs), (ins GPR:$at, GPR:$as, Imm:$offset),
+                    !strconcat(name, "\t$at, $as, $offset"), pattern>;
 
   class StoreRRRN<bits<4> op0, Operand Imm, string name, list<dag> pattern>
-    : ArithBaseRRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
+    : ArithBaseRRRN<op0, (outs), (ins GPR:$at, GPR:$as, Imm:$offset),
               !strconcat(name, "\t$at, $as, $offset"), pattern> {
     bits<4> offset;
     let ar = offset;

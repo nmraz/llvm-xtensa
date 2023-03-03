@@ -247,6 +247,10 @@ def S16I : StoreRRI8<0b0010, 0b0101, uimm8_sl1, "s16i", []>;
 def S32I : StoreRRI8<0b0010, 0b0101, uimm8_sl2, "s32i", []>;
 def S32IN : StoreRRRN<0b1001, uimm4_sl2, "s32i.n", []>;
 
+def : Pat<(truncstorei8 i32:$val, i32:$ptr), (S8I i32:$val, i32:$ptr, 0)>;
+def : Pat<(truncstorei16 i32:$val, i32:$ptr), (S16I i32:$val, i32:$ptr, 0)>;
+def : Pat<(store i32:$val, i32:$ptr), (S32IN i32:$val, i32:$ptr, 0)>;
+
 // def S32NB
 
 def SALT : ArithRRR<0b0010, 0b0111, "salt", []>;
