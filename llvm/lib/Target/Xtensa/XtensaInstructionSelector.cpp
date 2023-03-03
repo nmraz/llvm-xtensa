@@ -125,6 +125,7 @@ const TargetRegisterClass &XtensaInstructionSelector::getRegisterClassForReg(
 
 bool XtensaInstructionSelector::selectCOPY(MachineInstr &I,
                                            MachineRegisterInfo &MRI) {
+  I.setDesc(TII.get(Xtensa::COPY));
   for (MachineOperand &Op : I.operands()) {
     Register Reg = Op.getReg();
     if (Reg.isPhysical()) {
@@ -200,14 +201,17 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
   MachineRegisterInfo &MRI = I.getParent()->getParent()->getRegInfo();
 
   switch (I.getOpcode()) {
-  case Xtensa::G_AND:
-    return selectANDAsEXTUI(I);
   case Xtensa::G_PHI: {
     I.setDesc(TII.get(Xtensa::PHI));
     Register DstReg = I.getOperand(0).getReg();
     return RBI.constrainGenericRegister(
         DstReg, getRegisterClassForReg(DstReg, MRI), MRI);
   }
+  case Xtensa::G_AND:
+    return selectANDAsEXTUI(I);
+  case Xtensa::G_PTRTOINT:
+  case Xtensa::G_INTTOPTR:
+    return selectCOPY(I, MRI);
   }
 
   return false;
