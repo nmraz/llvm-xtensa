@@ -397,9 +397,9 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 128
-    ; CHECK-NEXT: [[ADDN:%[0-9]+]]:gpr = ADDN [[COPY]], [[MOVI]]
-    ; CHECK-NEXT: $a2 = COPY [[ADDN]]
+    ; CHECK-NEXT: [[ADDMI:%[0-9]+]]:gpr = ADDMI [[COPY]], 256
+    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[ADDMI]], -128
+    ; CHECK-NEXT: $a2 = COPY [[ADDI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 128
@@ -466,9 +466,9 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI -129
-    ; CHECK-NEXT: [[ADDN:%[0-9]+]]:gpr = ADDN [[COPY]], [[MOVI]]
-    ; CHECK-NEXT: $a2 = COPY [[ADDN]]
+    ; CHECK-NEXT: [[ADDMI:%[0-9]+]]:gpr = ADDMI [[COPY]], -256
+    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[ADDMI]], 127
+    ; CHECK-NEXT: $a2 = COPY [[ADDI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 -129
@@ -807,9 +807,9 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 129
-    ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[COPY]], [[MOVI]]
-    ; CHECK-NEXT: $a2 = COPY [[SUB]]
+    ; CHECK-NEXT: [[ADDMI:%[0-9]+]]:gpr = ADDMI [[COPY]], -256
+    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[ADDMI]], 127
+    ; CHECK-NEXT: $a2 = COPY [[ADDI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 129
@@ -876,9 +876,9 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI -128
-    ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[COPY]], [[MOVI]]
-    ; CHECK-NEXT: $a2 = COPY [[SUB]]
+    ; CHECK-NEXT: [[ADDMI:%[0-9]+]]:gpr = ADDMI [[COPY]], 256
+    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[ADDMI]], -128
+    ; CHECK-NEXT: $a2 = COPY [[ADDI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = G_CONSTANT i32 -128
