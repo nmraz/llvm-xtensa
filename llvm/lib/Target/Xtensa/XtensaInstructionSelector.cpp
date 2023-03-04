@@ -66,8 +66,8 @@ private:
 
   MachineInstrBuilder emitInstrFor(MachineInstr &I, unsigned Opcode) const;
 
-  bool selectCOPY(MachineInstr &I, MachineRegisterInfo &MRI);
-  void emitCOPY(MachineInstr &I, Register Dest, Register Src);
+  bool selectCopy(MachineInstr &I, MachineRegisterInfo &MRI);
+  void emitCopy(MachineInstr &I, Register Dest, Register Src);
 
   void preISelLower(MachineInstr &I);
   void convertPtrAddToAdd(MachineInstr &I);
@@ -75,7 +75,7 @@ private:
   /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
 
-  ComplexRendererFns selectEXTUILshrImm(MachineOperand &Root) const;
+  ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
   template <unsigned W, unsigned S>
   ComplexRendererFns selectPtrOff(MachineOperand &Root) const;
 
@@ -83,8 +83,8 @@ private:
                     int OpIdx = -1) const;
 
   bool selectEarly(MachineInstr &I);
-  bool selectANDAsEXTUI(MachineInstr &I) const;
-  void tryFoldShrIntoEXTUI(const MachineInstr &InputMI,
+  bool selectAndAsExtui(MachineInstr &I) const;
+  void tryFoldShrIntoExtui(const MachineInstr &InputMI,
                            const MachineRegisterInfo &MRI, uint32_t MaskWidth,
                            Register &NewInputReg, uint32_t &ShiftWidth) const;
 
@@ -129,7 +129,7 @@ static bool isEXTUIMask(uint64_t Value) {
 bool XtensaInstructionSelector::select(MachineInstr &I) {
   if (I.getOpcode() == Xtensa::COPY) {
     MachineRegisterInfo &MRI = I.getParent()->getParent()->getRegInfo();
-    return selectCOPY(I, MRI);
+    return selectCopy(I, MRI);
   }
 
   if (!I.isPreISelOpcode()) {
@@ -161,7 +161,7 @@ XtensaInstructionSelector::emitInstrFor(MachineInstr &I,
   return BuildMI(*CurMBB, I, I.getDebugLoc(), TII.get(Opcode));
 }
 
-bool XtensaInstructionSelector::selectCOPY(MachineInstr &I,
+bool XtensaInstructionSelector::selectCopy(MachineInstr &I,
                                            MachineRegisterInfo &MRI) {
   I.setDesc(TII.get(Xtensa::COPY));
   for (MachineOperand &Op : I.operands()) {
@@ -179,11 +179,11 @@ bool XtensaInstructionSelector::selectCOPY(MachineInstr &I,
   return true;
 }
 
-void XtensaInstructionSelector::emitCOPY(MachineInstr &I, Register Dest,
+void XtensaInstructionSelector::emitCopy(MachineInstr &I, Register Dest,
                                          Register Src) {
   MachineInstr *CopyInst =
       emitInstrFor(I, Xtensa::COPY).addDef(Dest).addReg(Src);
-  if (!selectCOPY(*CopyInst, MF->getRegInfo())) {
+  if (!selectCopy(*CopyInst, MF->getRegInfo())) {
     llvm_unreachable("Failed to emit a copy");
   }
 }
@@ -209,7 +209,7 @@ void XtensaInstructionSelector::convertPtrAddToAdd(MachineInstr &I) {
   // before defs, so we can change its type directly.
   Register IntReg = MRI.createGenericVirtualRegister(S32);
   MRI.setRegBank(IntReg, RBI.getRegBank(Xtensa::GPRRegBankID));
-  emitCOPY(I, IntReg, I.getOperand(1).getReg());
+  emitCopy(I, IntReg, I.getOperand(1).getReg());
 
   I.setDesc(TII.get(Xtensa::G_ADD));
   MRI.setType(I.getOperand(0).getReg(), S32);
@@ -225,7 +225,7 @@ void XtensaInstructionSelector::convertPtrAddToAdd(MachineInstr &I) {
 }
 
 InstructionSelector::ComplexRendererFns
-XtensaInstructionSelector::selectEXTUILshrImm(MachineOperand &Root) const {
+XtensaInstructionSelector::selectExtuiLshrImm(MachineOperand &Root) const {
   if (!Root.isReg()) {
     return None;
   }
@@ -291,16 +291,16 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
         DstReg, getRegisterClassForReg(DstReg, MRI), MRI);
   }
   case Xtensa::G_AND:
-    return selectANDAsEXTUI(I);
+    return selectAndAsExtui(I);
   case Xtensa::G_PTRTOINT:
   case Xtensa::G_INTTOPTR:
-    return selectCOPY(I, MRI);
+    return selectCopy(I, MRI);
   }
 
   return false;
 }
 
-bool XtensaInstructionSelector::selectANDAsEXTUI(MachineInstr &I) const {
+bool XtensaInstructionSelector::selectAndAsExtui(MachineInstr &I) const {
   const MachineRegisterInfo &MRI = MF->getRegInfo();
 
   int64_t AndImm = 0;
@@ -316,7 +316,7 @@ bool XtensaInstructionSelector::selectANDAsEXTUI(MachineInstr &I) const {
   uint32_t ShiftWidth = 0;
 
   if (MachineInstr *InputMI = MRI.getVRegDef(InputReg)) {
-    tryFoldShrIntoEXTUI(*InputMI, MRI, MaskWidth, InputReg, ShiftWidth);
+    tryFoldShrIntoExtui(*InputMI, MRI, MaskWidth, InputReg, ShiftWidth);
   }
 
   MachineInstr *Extui = emitInstrFor(I, Xtensa::EXTUI)
@@ -332,7 +332,7 @@ bool XtensaInstructionSelector::selectANDAsEXTUI(MachineInstr &I) const {
   return true;
 }
 
-void XtensaInstructionSelector::tryFoldShrIntoEXTUI(
+void XtensaInstructionSelector::tryFoldShrIntoExtui(
     const MachineInstr &InputMI, const MachineRegisterInfo &MRI,
     uint32_t MaskWidth, Register &NewInputReg, uint32_t &ShiftWidth) const {
   unsigned InputOpcode = InputMI.getOpcode();

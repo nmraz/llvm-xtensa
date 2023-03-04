@@ -34,7 +34,7 @@ def neg_simm8 : ImmLeaf<i32, [{ return isInt<8>(-Imm); }], neg_imm_xform>;
 def neg_simm8_sl8 : ImmLeaf<i32, [{ return isShiftedInt<8, 8>(-Imm); }], neg_imm_xform>;
 
 def extui_lshrimm : ComplexPattern<i32, 2, "", []>;
-def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectEXTUILshrImm">,
+def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectExtuiLshrImm">,
                        GIComplexPatternEquiv<extui_lshrimm>;
 
 def ptroff_uimm4_sl2 : ComplexPattern<iPTR, 2, "", []>;
