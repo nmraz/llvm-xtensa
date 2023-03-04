@@ -41,6 +41,46 @@ define i32 @add_const_mixed_neg_low_comm(i32 %a) {
   ret i32 %add
 }
 
+define i32 @add_small_low_const_twice(i32 %a, i32 %b) {
+; CHECK-LABEL: add_small_low_const_twice:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    addi a2, a2, 55
+; CHECK-NEXT:    addi a3, a3, 55
+; CHECK-NEXT:    or a2, a2, a3
+; CHECK-NEXT:    ret.n
+  %add1 = add i32 %a, 55
+  %add2 = add i32 %b, 55
+  %or = or i32 %add1, %add2
+  ret i32 %or
+}
+
+define i32 @add_small_high_const_twice(i32 %a, i32 %b) {
+; CHECK-LABEL: add_small_high_const_twice:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    addmi a2, a2, 256
+; CHECK-NEXT:    addmi a3, a3, 256
+; CHECK-NEXT:    or a2, a2, a3
+; CHECK-NEXT:    ret.n
+  %add1 = add i32 %a, 256
+  %add2 = add i32 %b, 256
+  %or = or i32 %add1, %add2
+  ret i32 %or
+}
+
+define i32 @add_big_const_twice(i32 %a, i32 %b) {
+; CHECK-LABEL: add_big_const_twice:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    l32r a4, .LCPI6_0
+; CHECK-NEXT:    add.n a2, a2, a4
+; CHECK-NEXT:    add.n a3, a3, a4
+; CHECK-NEXT:    or a2, a2, a3
+; CHECK-NEXT:    ret.n
+  %add1 = add i32 %a, 12806
+  %add2 = add i32 %b, 12806
+  %or = or i32 %add1, %add2
+  ret i32 %or
+}
+
 define i32 @sub_const_mixed(i32 %a) {
 ; CHECK-LABEL: sub_const_mixed:
 ; CHECK:       # %bb.0:
@@ -64,7 +104,7 @@ define i32 @sub_const_mixed_pos_low(i32 %a) {
 define i32 @sub_const_mixed_not_comm(i32 %a) {
 ; CHECK-LABEL: sub_const_mixed_not_comm:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    l32r a3, .LCPI6_0
+; CHECK-NEXT:    l32r a3, .LCPI9_0
 ; CHECK-NEXT:    sub a2, a3, a2
 ; CHECK-NEXT:    ret.n
   %sub = sub i32 12806, %a
@@ -74,7 +114,7 @@ define i32 @sub_const_mixed_not_comm(i32 %a) {
 define i32 @sub_const_mixed_pos_low_not_comm(i32 %a) {
 ; CHECK-LABEL: sub_const_mixed_pos_low_not_comm:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    l32r a3, .LCPI7_0
+; CHECK-NEXT:    l32r a3, .LCPI10_0
 ; CHECK-NEXT:    sub a2, a3, a2
 ; CHECK-NEXT:    ret.n
   %sub = sub i32 12934, %a
