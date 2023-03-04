@@ -244,8 +244,7 @@ XtensaInstructionSelector::selectExtuiLshrImm(MachineOperand &Root) const {
     return None;
   }
 
-  MachineRegisterInfo &MRI =
-      Root.getParent()->getParent()->getParent()->getRegInfo();
+  MachineRegisterInfo &MRI = MF->getRegInfo();
 
   Optional<int64_t> MaybeShiftImm = getIConstantVRegSExtVal(Root.getReg(), MRI);
   if (!MaybeShiftImm) {
