@@ -56,8 +56,8 @@ define i16 @offset_load_i16_oob(ptr %base) {
 define i16 @offset_load_i16_oob2(ptr %base) {
 ; CHECK-LABEL: offset_load_i16_oob2:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi a3, 600
-; CHECK-NEXT:    add.n a2, a2, a3
+; CHECK-NEXT:    addmi a2, a2, 512
+; CHECK-NEXT:    addi a2, a2, 88
 ; CHECK-NEXT:    l16ui a2, a2, 0
 ; CHECK-NEXT:    ret.n
   %p = getelementptr i16, ptr %base, i32 300
@@ -133,8 +133,8 @@ define i32 @offset_load_i32_oob(ptr %base) {
 define i32 @offset_load_i32_oob2(ptr %base) {
 ; CHECK-LABEL: offset_load_i32_oob2:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi a3, 1200
-; CHECK-NEXT:    add.n a2, a2, a3
+; CHECK-NEXT:    addmi a2, a2, 1280
+; CHECK-NEXT:    addi a2, a2, -80
 ; CHECK-NEXT:    l32i.n a2, a2, 0
 ; CHECK-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 300

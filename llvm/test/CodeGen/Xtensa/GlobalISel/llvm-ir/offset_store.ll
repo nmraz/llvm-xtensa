@@ -56,8 +56,8 @@ define void @offset_store_i16_oob(ptr %base, i16 %val) {
 define void @offset_store_i16_oob2(ptr %base, i16 %val) {
 ; CHECK-LABEL: offset_store_i16_oob2:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi a4, 600
-; CHECK-NEXT:    add.n a2, a2, a4
+; CHECK-NEXT:    addmi a2, a2, 512
+; CHECK-NEXT:    addi a2, a2, 88
 ; CHECK-NEXT:    s16i a3, a2, 0
 ; CHECK-NEXT:    ret.n
   %p = getelementptr i16, ptr %base, i32 300
@@ -133,8 +133,8 @@ define void @offset_store_i32_oob(ptr %base, i32 %val) {
 define void @offset_store_i32_oob2(ptr %base, i32 %val) {
 ; CHECK-LABEL: offset_store_i32_oob2:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi a4, 1200
-; CHECK-NEXT:    add.n a2, a2, a4
+; CHECK-NEXT:    addmi a2, a2, 1280
+; CHECK-NEXT:    addi a2, a2, -80
 ; CHECK-NEXT:    s32i.n a3, a2, 0
 ; CHECK-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 300

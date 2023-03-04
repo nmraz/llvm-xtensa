@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
+#include "XtensaISelUtils.h"
 #include "XtensaInstrInfo.h"
 #include "XtensaRegisterBankInfo.h"
 #include "XtensaRegisterInfo.h"
@@ -44,6 +45,7 @@
 
 using namespace llvm;
 using namespace MIPatternMatch;
+using namespace XtensaISelUtils;
 
 namespace {
 
@@ -63,6 +65,8 @@ public:
 private:
   const TargetRegisterClass &
   getRegisterClassForReg(Register Reg, const MachineRegisterInfo &MRI) const;
+
+  Register createVirtualGPR() const;
 
   MachineInstrBuilder emitInstrFor(MachineInstr &I, unsigned Opcode) const;
 
@@ -87,6 +91,9 @@ private:
   void tryFoldShrIntoExtui(const MachineInstr &InputMI,
                            const MachineRegisterInfo &MRI, uint32_t MaskWidth,
                            Register &NewInputReg, uint32_t &ShiftWidth) const;
+  bool selectAddSubConst(MachineInstr &I);
+  void emitAddParts(MachineInstr &I, Register Dest, Register Operand,
+                    const AddConstParts &Parts);
 
   bool selectLate(MachineInstr &I);
 
@@ -157,6 +164,13 @@ const TargetRegisterClass &XtensaInstructionSelector::getRegisterClassForReg(
   return Xtensa::GPRRegClass;
 }
 
+Register XtensaInstructionSelector::createVirtualGPR() const {
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+  Register Reg = MRI.createGenericVirtualRegister(LLT::scalar(32));
+  MRI.setRegBank(Reg, RBI.getRegBank(Xtensa::GPRRegBankID));
+  return Reg;
+}
+
 MachineInstrBuilder
 XtensaInstructionSelector::emitInstrFor(MachineInstr &I,
                                         unsigned Opcode) const {
@@ -199,7 +213,6 @@ bool XtensaInstructionSelector::preISelLower(MachineInstr &I) {
 
 bool XtensaInstructionSelector::convertPtrAddToAdd(MachineInstr &I) {
   MachineRegisterInfo &MRI = MF->getRegInfo();
-  LLT S32 = LLT::scalar(32);
 
   // If this instruction still exists at this point, we haven't been able to
   // fold it into a neighboring load or store. Lower it to a regular add so the
@@ -208,14 +221,13 @@ bool XtensaInstructionSelector::convertPtrAddToAdd(MachineInstr &I) {
   // Emit a pointer-to-integer copy for the source operand. We don't need to do
   // something analagous for the destination operand as uses are always selected
   // before defs, so we can change its type directly.
-  Register IntReg = MRI.createGenericVirtualRegister(S32);
-  MRI.setRegBank(IntReg, RBI.getRegBank(Xtensa::GPRRegBankID));
+  Register IntReg = createVirtualGPR();
   if (!emitCopy(I, IntReg, I.getOperand(1).getReg())) {
     return false;
   }
 
   I.setDesc(TII.get(Xtensa::G_ADD));
-  MRI.setType(I.getOperand(0).getReg(), S32);
+  MRI.setType(I.getOperand(0).getReg(), LLT::scalar(32));
   I.getOperand(1).setReg(IntReg);
 
   // Fold in negation of the offset to create a `G_SUB`
@@ -297,6 +309,9 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
   }
   case Xtensa::G_AND:
     return selectAndAsExtui(I);
+  case Xtensa::G_ADD:
+  case Xtensa::G_SUB:
+    return selectAddSubConst(I);
   case Xtensa::G_PTRTOINT:
   case Xtensa::G_INTTOPTR:
     return selectCopy(I, MRI);
@@ -358,6 +373,94 @@ void XtensaInstructionSelector::tryFoldShrIntoExtui(
 
   NewInputReg = InputMI.getOperand(1).getReg();
   ShiftWidth = static_cast<uint32_t>(ShiftImm);
+}
+
+bool XtensaInstructionSelector::selectAddSubConst(MachineInstr &I) {
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+
+  unsigned Opcode = I.getOpcode();
+  assert(Opcode == Xtensa::G_ADD || Opcode == Xtensa::G_SUB);
+
+  bool IsSub = Opcode == Xtensa::G_SUB;
+
+  Register Dest = I.getOperand(0).getReg();
+  Register LHS = I.getOperand(1).getReg();
+  Register RHS = I.getOperand(2).getReg();
+
+  // Start by trying to match a constant RHS, which works for both addition and
+  // subtraction.
+  Register ConstOperand = RHS;
+  Register OtherOperand = LHS;
+  Optional<int64_t> MaybeConstValue =
+      getIConstantVRegSExtVal(ConstOperand, MRI);
+
+  // For addition, a constant LHS can also be optimized.
+  if (!MaybeConstValue && !IsSub) {
+    ConstOperand = LHS;
+    OtherOperand = RHS;
+    MaybeConstValue = getIConstantVRegSExtVal(ConstOperand, MRI);
+  }
+
+  if (!MaybeConstValue) {
+    return false;
+  }
+
+  int64_t ConstValue = *MaybeConstValue;
+  if (IsSub) {
+    ConstValue = -ConstValue;
+  }
+
+  Optional<AddConstParts> Parts = splitAddConst(ConstValue);
+  if (!Parts) {
+    return false;
+  }
+
+  // Heuristic: this is a big constant, so if it is used elsewhere and we would
+  // need two instructions anyway, it's probably better to just let the original
+  // constant be materialized.
+  if (Parts->High && Parts->Low && !MRI.hasOneNonDBGUse(ConstOperand)) {
+    return false;
+  }
+
+  emitAddParts(I, Dest, OtherOperand, *Parts);
+  I.removeFromParent();
+  return true;
+}
+
+void XtensaInstructionSelector::emitAddParts(MachineInstr &I, Register Dest,
+                                             Register Operand,
+                                             const AddConstParts &Parts) {
+  Register AddmiDest = Dest;
+  Register AddiSrc = Operand;
+
+  if (!Parts.High && !Parts.Low) {
+    // Make sure adding 0 still emits at least something.
+    emitCopy(I, Dest, Operand);
+    return;
+  }
+
+  if (Parts.High && Parts.Low) {
+    // We need two opcodes, so create a new temporary register.
+    Register TempReg = createVirtualGPR();
+    AddmiDest = TempReg;
+    AddiSrc = TempReg;
+  }
+
+  if (Parts.High) {
+    MachineInstr *AddMi = emitInstrFor(I, Xtensa::ADDMI)
+                              .addDef(AddmiDest)
+                              .addReg(Operand)
+                              .addImm(Parts.High << 8);
+    constrainSelectedInstRegOperands(*AddMi, TII, TRI, RBI);
+  }
+
+  if (Parts.Low) {
+    MachineInstr *Addi = emitInstrFor(I, Xtensa::ADDI)
+                             .addDef(Dest)
+                             .addReg(AddiSrc)
+                             .addImm(Parts.Low);
+    constrainSelectedInstRegOperands(*Addi, TII, TRI, RBI);
+  }
 }
 
 bool XtensaInstructionSelector::selectLate(MachineInstr &I) {

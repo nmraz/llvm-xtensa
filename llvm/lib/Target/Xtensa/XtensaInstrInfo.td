@@ -79,11 +79,6 @@ def ADD   : ArithRRR<0b0000, 0b1000, "add", []>;
 def ADDI  : ArithRRI8<0b0010, 0b1100, simm8, "addi", []>;
 def ADDMI : ArithRRI8<0b0010, 0b1101, simm8_sl8, "addmi", []>;
 
-def : Pat<(add i32:$a, simm8:$imm), (ADDI i32:$a, simm8:$imm)>;
-def : Pat<(sub i32:$a, neg_simm8:$imm), (ADDI i32:$a, neg_simm8:$imm)>;
-def : Pat<(add i32:$a, simm8_sl8:$imm), (ADDMI i32:$a, simm8_sl8:$imm)>;
-def : Pat<(sub i32:$a, neg_simm8_sl8:$imm), (ADDMI i32:$a, neg_simm8_sl8:$imm)>;
-
 def ADDX2 : ArithRRR<0b0000, 0b1001, "addx2", [
   (set i32:$ar, (add i32:$at, (shl i32:$as, (i32 1))))
 ]>;

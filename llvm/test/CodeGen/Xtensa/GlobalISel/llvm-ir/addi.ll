@@ -39,8 +39,8 @@ define i32 @addi_neg_min(i32 %a) {
 define i32 @not_addi_pos_min(i32 %a) {
 ; CHECK-LABEL: not_addi_pos_min:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi a3, 128
-; CHECK-NEXT:    add.n a2, a2, a3
+; CHECK-NEXT:    addmi a2, a2, 256
+; CHECK-NEXT:    addi a2, a2, -128
 ; CHECK-NEXT:    ret.n
   %add = add i32 %a, 128
   ret i32 %add
@@ -49,8 +49,8 @@ define i32 @not_addi_pos_min(i32 %a) {
 define i32 @not_addi_neg_max(i32 %a) {
 ; CHECK-LABEL: not_addi_neg_max:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi a3, -129
-; CHECK-NEXT:    add.n a2, a2, a3
+; CHECK-NEXT:    addmi a2, a2, -256
+; CHECK-NEXT:    addi a2, a2, 127
 ; CHECK-NEXT:    ret.n
   %add = add i32 %a, -129
   ret i32 %add
@@ -95,8 +95,8 @@ define i32 @subi_neg_min(i32 %a) {
 define i32 @not_subi_pos_min(i32 %a) {
 ; CHECK-LABEL: not_subi_pos_min:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi a3, 129
-; CHECK-NEXT:    sub a2, a2, a3
+; CHECK-NEXT:    addmi a2, a2, -256
+; CHECK-NEXT:    addi a2, a2, 127
 ; CHECK-NEXT:    ret.n
   %sub = sub i32 %a, 129
   ret i32 %sub
@@ -105,8 +105,8 @@ define i32 @not_subi_pos_min(i32 %a) {
 define i32 @not_subi_neg_max(i32 %a) {
 ; CHECK-LABEL: not_subi_neg_max:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi a3, -128
-; CHECK-NEXT:    sub a2, a2, a3
+; CHECK-NEXT:    addmi a2, a2, 256
+; CHECK-NEXT:    addi a2, a2, -128
 ; CHECK-NEXT:    ret.n
   %sub = sub i32 %a, -128
   ret i32 %sub
