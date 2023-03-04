@@ -67,10 +67,10 @@ private:
   MachineInstrBuilder emitInstrFor(MachineInstr &I, unsigned Opcode) const;
 
   bool selectCopy(MachineInstr &I, MachineRegisterInfo &MRI);
-  void emitCopy(MachineInstr &I, Register Dest, Register Src);
+  bool emitCopy(MachineInstr &I, Register Dest, Register Src);
 
-  void preISelLower(MachineInstr &I);
-  void convertPtrAddToAdd(MachineInstr &I);
+  bool preISelLower(MachineInstr &I);
+  bool convertPtrAddToAdd(MachineInstr &I);
 
   /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
@@ -137,7 +137,9 @@ bool XtensaInstructionSelector::select(MachineInstr &I) {
     return true;
   }
 
-  preISelLower(I);
+  if (!preISelLower(I)) {
+    return false;
+  }
 
   if (selectEarly(I)) {
     return true;
@@ -179,24 +181,23 @@ bool XtensaInstructionSelector::selectCopy(MachineInstr &I,
   return true;
 }
 
-void XtensaInstructionSelector::emitCopy(MachineInstr &I, Register Dest,
+bool XtensaInstructionSelector::emitCopy(MachineInstr &I, Register Dest,
                                          Register Src) {
   MachineInstr *CopyInst =
       emitInstrFor(I, Xtensa::COPY).addDef(Dest).addReg(Src);
-  if (!selectCopy(*CopyInst, MF->getRegInfo())) {
-    llvm_unreachable("Failed to emit a copy");
-  }
+  return selectCopy(*CopyInst, MF->getRegInfo());
 }
 
-void XtensaInstructionSelector::preISelLower(MachineInstr &I) {
+bool XtensaInstructionSelector::preISelLower(MachineInstr &I) {
   switch (I.getOpcode()) {
   case Xtensa::G_PTR_ADD:
-    convertPtrAddToAdd(I);
-    break;
+    return convertPtrAddToAdd(I);
   }
+
+  return true;
 }
 
-void XtensaInstructionSelector::convertPtrAddToAdd(MachineInstr &I) {
+bool XtensaInstructionSelector::convertPtrAddToAdd(MachineInstr &I) {
   MachineRegisterInfo &MRI = MF->getRegInfo();
   LLT S32 = LLT::scalar(32);
 
@@ -209,7 +210,9 @@ void XtensaInstructionSelector::convertPtrAddToAdd(MachineInstr &I) {
   // before defs, so we can change its type directly.
   Register IntReg = MRI.createGenericVirtualRegister(S32);
   MRI.setRegBank(IntReg, RBI.getRegBank(Xtensa::GPRRegBankID));
-  emitCopy(I, IntReg, I.getOperand(1).getReg());
+  if (!emitCopy(I, IntReg, I.getOperand(1).getReg())) {
+    return false;
+  }
 
   I.setDesc(TII.get(Xtensa::G_ADD));
   MRI.setType(I.getOperand(0).getReg(), S32);
@@ -222,6 +225,8 @@ void XtensaInstructionSelector::convertPtrAddToAdd(MachineInstr &I) {
     I.setDesc(TII.get(Xtensa::G_SUB));
     I.getOperand(2).setReg(NegOffReg);
   }
+
+  return true;
 }
 
 InstructionSelector::ComplexRendererFns
