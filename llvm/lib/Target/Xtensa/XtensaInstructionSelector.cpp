@@ -70,7 +70,7 @@ private:
 
   MachineInstrBuilder emitInstrFor(MachineInstr &I, unsigned Opcode) const;
 
-  bool selectCopy(MachineInstr &I, MachineRegisterInfo &MRI);
+  bool selectCopy(MachineInstr &I);
   bool emitCopy(MachineInstr &I, Register Dest, Register Src);
 
   bool preISelLower(MachineInstr &I);
@@ -126,14 +126,13 @@ XtensaInstructionSelector::XtensaInstructionSelector(
 {
 }
 
-static bool isEXTUIMask(uint64_t Value) {
+static bool isExtuiMask(uint64_t Value) {
   return Value <= 0xffff && isMask_64(Value);
 }
 
 bool XtensaInstructionSelector::select(MachineInstr &I) {
   if (I.getOpcode() == Xtensa::COPY) {
-    MachineRegisterInfo &MRI = I.getParent()->getParent()->getRegInfo();
-    return selectCopy(I, MRI);
+    return selectCopy(I);
   }
 
   if (!I.isPreISelOpcode()) {
@@ -174,8 +173,9 @@ XtensaInstructionSelector::emitInstrFor(MachineInstr &I,
   return BuildMI(*CurMBB, I, I.getDebugLoc(), TII.get(Opcode));
 }
 
-bool XtensaInstructionSelector::selectCopy(MachineInstr &I,
-                                           MachineRegisterInfo &MRI) {
+bool XtensaInstructionSelector::selectCopy(MachineInstr &I) {
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+
   I.setDesc(TII.get(Xtensa::COPY));
   for (MachineOperand &Op : I.operands()) {
     Register Reg = Op.getReg();
@@ -196,7 +196,7 @@ bool XtensaInstructionSelector::emitCopy(MachineInstr &I, Register Dest,
                                          Register Src) {
   MachineInstr *CopyInst =
       emitInstrFor(I, Xtensa::COPY).addDef(Dest).addReg(Src);
-  return selectCopy(*CopyInst, MF->getRegInfo());
+  return selectCopy(*CopyInst);
 }
 
 bool XtensaInstructionSelector::preISelLower(MachineInstr &I) {
@@ -287,7 +287,7 @@ XtensaInstructionSelector::selectPtrOff(MachineOperand &Root) const {
 }
 
 bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
-  MachineRegisterInfo &MRI = I.getParent()->getParent()->getRegInfo();
+  MachineRegisterInfo &MRI = MF->getRegInfo();
 
   switch (I.getOpcode()) {
   case Xtensa::G_PHI: {
@@ -303,7 +303,7 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
     return selectAddSubConst(I);
   case Xtensa::G_PTRTOINT:
   case Xtensa::G_INTTOPTR:
-    return selectCopy(I, MRI);
+    return selectCopy(I);
   }
 
   return false;
@@ -318,7 +318,7 @@ bool XtensaInstructionSelector::selectAndAsExtui(MachineInstr &I) const {
     return false;
   }
 
-  if (!isEXTUIMask(AndImm)) {
+  if (!isExtuiMask(AndImm)) {
     return false;
   }
   uint32_t MaskWidth = countTrailingOnes(static_cast<uint64_t>(AndImm));
