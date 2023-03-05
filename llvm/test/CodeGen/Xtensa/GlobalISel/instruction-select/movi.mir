@@ -911,7 +911,7 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: not_movi_positive_low_limit
-    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0 :: (load (s32) from constant-pool)
     ; CHECK-NEXT: $a2 = COPY [[L32R]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = G_CONSTANT i32 2048
@@ -969,7 +969,7 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: not_movi_negative_high_limit
-    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0 :: (load (s32) from constant-pool)
     ; CHECK-NEXT: $a2 = COPY [[L32R]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = G_CONSTANT i32 -2049
@@ -1027,7 +1027,7 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: not_movi_max
-    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0 :: (load (s32) from constant-pool)
     ; CHECK-NEXT: $a2 = COPY [[L32R]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = G_CONSTANT i32 2147483647
@@ -1085,7 +1085,7 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: not_movi_min
-    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0 :: (load (s32) from constant-pool)
     ; CHECK-NEXT: $a2 = COPY [[L32R]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = G_CONSTANT i32 -2147483648
@@ -1147,8 +1147,8 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: i64_split_not_movi_not_movi
-    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.1
-    ; CHECK-NEXT: [[L32R1:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.1 :: (load (s32) from constant-pool)
+    ; CHECK-NEXT: [[L32R1:%[0-9]+]]:gpr = L32R %const.0 :: (load (s32) from constant-pool)
     ; CHECK-NEXT: $a2 = COPY [[L32R]]
     ; CHECK-NEXT: $a3 = COPY [[L32R1]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
@@ -1213,7 +1213,7 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: i64_split_movi_not_movi
-    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK: [[L32R:%[0-9]+]]:gpr = L32R %const.0 :: (load (s32) from constant-pool)
     ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 255
     ; CHECK-NEXT: $a2 = COPY [[L32R]]
     ; CHECK-NEXT: $a3 = COPY [[MOVI]]

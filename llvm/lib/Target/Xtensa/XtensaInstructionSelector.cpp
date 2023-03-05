@@ -28,15 +28,19 @@
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
+#include "llvm/CodeGen/MachineMemOperand.h"
 #include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
+#include "llvm/CodeGen/PseudoSourceValue.h"
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetOpcodes.h"
 #include "llvm/CodeGen/TargetRegisterInfo.h"
 #include "llvm/IR/Constants.h"
+#include "llvm/IR/Value.h"
 #include "llvm/Support/Alignment.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/ErrorHandling.h"
+#include "llvm/Support/LowLevelTypeImpl.h"
 #include "llvm/Support/MathExtras.h"
 #include <cassert>
 #include <cstdint>
@@ -69,9 +73,10 @@ private:
   Register createVirtualGPR() const;
 
   MachineInstrBuilder emitInstrFor(MachineInstr &I, unsigned Opcode) const;
+  bool emitCopy(MachineInstr &I, Register Dest, Register Src);
+  bool emitL32R(MachineInstr &I, Register Dest, const Constant *Value);
 
   bool selectCopy(MachineInstr &I);
-  bool emitCopy(MachineInstr &I, Register Dest, Register Src);
 
   bool preISelLower(MachineInstr &I);
   bool convertPtrAddToAdd(MachineInstr &I);
@@ -173,6 +178,30 @@ XtensaInstructionSelector::emitInstrFor(MachineInstr &I,
   return BuildMI(*CurMBB, I, I.getDebugLoc(), TII.get(Opcode));
 }
 
+bool XtensaInstructionSelector::emitL32R(MachineInstr &I, Register Dest,
+                                         const Constant *Value) {
+  MachineConstantPool *MCP = MF->getConstantPool();
+
+  Align Alignment = Align(4);
+  unsigned CPIdx = MCP->getConstantPoolIndex(Value, Alignment);
+  MachineMemOperand *MMO = MF->getMachineMemOperand(
+      MachinePointerInfo::getConstantPool(*MF), MachineMemOperand::MOLoad,
+      LLT::scalar(32), Alignment);
+
+  MachineInstr *L32 = emitInstrFor(I, Xtensa::L32R)
+                          .addDef(Dest)
+                          .addConstantPoolIndex(CPIdx)
+                          .addMemOperand(MMO);
+  return constrainSelectedInstRegOperands(*L32, TII, TRI, RBI);
+}
+
+bool XtensaInstructionSelector::emitCopy(MachineInstr &I, Register Dest,
+                                         Register Src) {
+  MachineInstr *CopyInst =
+      emitInstrFor(I, Xtensa::COPY).addDef(Dest).addReg(Src);
+  return selectCopy(*CopyInst);
+}
+
 bool XtensaInstructionSelector::selectCopy(MachineInstr &I) {
   MachineRegisterInfo &MRI = MF->getRegInfo();
 
@@ -190,13 +219,6 @@ bool XtensaInstructionSelector::selectCopy(MachineInstr &I) {
   }
 
   return true;
-}
-
-bool XtensaInstructionSelector::emitCopy(MachineInstr &I, Register Dest,
-                                         Register Src) {
-  MachineInstr *CopyInst =
-      emitInstrFor(I, Xtensa::COPY).addDef(Dest).addReg(Src);
-  return selectCopy(*CopyInst);
 }
 
 bool XtensaInstructionSelector::preISelLower(MachineInstr &I) {
@@ -460,12 +482,7 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
     assert(Val->getBitWidth() == 32 &&
            "Illegal constant width, should have been legalized");
 
-    MachineConstantPool *MCP = MF->getConstantPool();
-    unsigned CPIdx = MCP->getConstantPoolIndex(Val, Align(4));
-    MachineInstr *L32 = emitInstrFor(I, Xtensa::L32R)
-                            .add(I.getOperand(0))
-                            .addConstantPoolIndex(CPIdx);
-    if (!constrainSelectedInstRegOperands(*L32, TII, TRI, RBI)) {
+    if (!emitL32R(I, I.getOperand(0).getReg(), Val)) {
       return false;
     }
     I.eraseFromParent();

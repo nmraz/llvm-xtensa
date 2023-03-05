@@ -2055,7 +2055,7 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[L32R:%[0-9]+]]:gpr = L32R %const.0
+    ; CHECK-NEXT: [[L32R:%[0-9]+]]:gpr = L32R %const.0 :: (load (s32) from constant-pool)
     ; CHECK-NEXT: [[AND:%[0-9]+]]:gpr = AND [[COPY]], [[L32R]]
     ; CHECK-NEXT: $a2 = COPY [[AND]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
