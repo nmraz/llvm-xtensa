@@ -69,14 +69,13 @@ public:
 private:
   const TargetRegisterClass &
   getRegisterClassForReg(Register Reg, const MachineRegisterInfo &MRI) const;
+  bool forceConstrainInstrRegisters(MachineInstr &MI);
 
   Register createVirtualGPR() const;
 
   MachineInstrBuilder emitInstrFor(MachineInstr &I, unsigned Opcode) const;
   bool emitCopy(MachineInstr &I, Register Dest, Register Src);
   bool emitL32R(MachineInstr &I, Register Dest, const Constant *Value);
-
-  bool selectCopy(MachineInstr &I);
 
   bool preISelLower(MachineInstr &I);
   bool convertPtrAddToAdd(MachineInstr &I);
@@ -137,7 +136,7 @@ static bool isExtuiMask(uint64_t Value) {
 
 bool XtensaInstructionSelector::select(MachineInstr &I) {
   if (I.getOpcode() == Xtensa::COPY) {
-    return selectCopy(I);
+    return forceConstrainInstrRegisters(I);
   }
 
   if (!I.isPreISelOpcode()) {
@@ -163,6 +162,27 @@ const TargetRegisterClass &XtensaInstructionSelector::getRegisterClassForReg(
     Register Reg, const MachineRegisterInfo &MRI) const {
   assert(RBI.getRegBank(Reg, MRI, TRI)->getID() == Xtensa::GPRRegBankID);
   return Xtensa::GPRRegClass;
+}
+
+bool XtensaInstructionSelector::forceConstrainInstrRegisters(MachineInstr &MI) {
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+
+  for (MachineOperand &MO : MI.operands()) {
+    if (!MO.isReg()) {
+      continue;
+    }
+
+    Register Reg = MO.getReg();
+    if (Reg.isPhysical()) {
+      continue;
+    }
+
+    if (!RBI.constrainGenericRegister(Reg, getRegisterClassForReg(Reg, MRI),
+                                      MRI)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 Register XtensaInstructionSelector::createVirtualGPR() const {
@@ -199,26 +219,7 @@ bool XtensaInstructionSelector::emitCopy(MachineInstr &I, Register Dest,
                                          Register Src) {
   MachineInstr *CopyInst =
       emitInstrFor(I, Xtensa::COPY).addDef(Dest).addReg(Src);
-  return selectCopy(*CopyInst);
-}
-
-bool XtensaInstructionSelector::selectCopy(MachineInstr &I) {
-  MachineRegisterInfo &MRI = MF->getRegInfo();
-
-  I.setDesc(TII.get(Xtensa::COPY));
-  for (MachineOperand &Op : I.operands()) {
-    Register Reg = Op.getReg();
-    if (Reg.isPhysical()) {
-      continue;
-    }
-
-    if (!RBI.constrainGenericRegister(Reg, getRegisterClassForReg(Reg, MRI),
-                                      MRI)) {
-      return false;
-    }
-  }
-
-  return true;
+  return forceConstrainInstrRegisters(*CopyInst);
 }
 
 bool XtensaInstructionSelector::preISelLower(MachineInstr &I) {
@@ -308,15 +309,10 @@ XtensaInstructionSelector::selectPtrOff(MachineOperand &Root) const {
 }
 
 bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
-  MachineRegisterInfo &MRI = MF->getRegInfo();
-
   switch (I.getOpcode()) {
-  case Xtensa::G_PHI: {
+  case Xtensa::G_PHI:
     I.setDesc(TII.get(Xtensa::PHI));
-    Register DstReg = I.getOperand(0).getReg();
-    return RBI.constrainGenericRegister(
-        DstReg, getRegisterClassForReg(DstReg, MRI), MRI);
-  }
+    return forceConstrainInstrRegisters(I);
   case Xtensa::G_AND:
     return selectAndAsExtui(I);
   case Xtensa::G_ADD:
@@ -324,7 +320,8 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
     return selectAddSubConst(I);
   case Xtensa::G_PTRTOINT:
   case Xtensa::G_INTTOPTR:
-    return selectCopy(I);
+    I.setDesc(TII.get(Xtensa::COPY));
+    return forceConstrainInstrRegisters(I);
   }
 
   return false;
