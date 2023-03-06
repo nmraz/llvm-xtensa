@@ -322,6 +322,10 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
   case Xtensa::G_INTTOPTR:
     I.setDesc(TII.get(Xtensa::COPY));
     return forceConstrainInstrRegisters(I);
+  case Xtensa::G_FRAME_INDEX:
+    I.setDesc(TII.get(Xtensa::ADDI));
+    I.addOperand(MachineOperand::CreateImm(0));
+    return constrainSelectedInstRegOperands(I, TII, TRI, RBI);
   }
 
   return false;
