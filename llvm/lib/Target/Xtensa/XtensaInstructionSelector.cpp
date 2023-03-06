@@ -84,8 +84,10 @@ private:
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
 
   ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
+
   template <unsigned W, unsigned S>
   ComplexRendererFns selectPtrOff(MachineOperand &Root) const;
+  ComplexRendererFns selectFrameIndexOff(MachineOperand &Root) const;
 
   bool selectEarly(MachineInstr &I);
   bool selectAndAsExtui(MachineInstr &I) const;
@@ -304,6 +306,36 @@ XtensaInstructionSelector::selectPtrOff(MachineOperand &Root) const {
 
   return {{
       [=](MachineInstrBuilder &MIB) { MIB.addReg(Base); },
+      [=](MachineInstrBuilder &MIB) { MIB.addImm(Offset); },
+  }};
+}
+
+InstructionSelector::ComplexRendererFns
+XtensaInstructionSelector::selectFrameIndexOff(MachineOperand &Root) const {
+  const MachineRegisterInfo &MRI = MF->getRegInfo();
+
+  MachineInstr *RootMI = MRI.getVRegDef(Root.getReg());
+
+  int FrameIndex = 0;
+  int64_t Offset = 0;
+  if (RootMI->getOpcode() == Xtensa::G_FRAME_INDEX) {
+    FrameIndex = RootMI->getOperand(1).getIndex();
+  } else {
+    Register Base;
+    if (!mi_match(RootMI, MRI, m_GPtrAdd(m_Reg(Base), m_ICst(Offset)))) {
+      return None;
+    }
+
+    MachineInstr *BaseMI = MRI.getVRegDef(Base);
+    if (BaseMI->getOpcode() != Xtensa::G_FRAME_INDEX) {
+      return None;
+    }
+
+    FrameIndex = RootMI->getOperand(1).getIndex();
+  }
+
+  return {{
+      [=](MachineInstrBuilder &MIB) { MIB.addFrameIndex(FrameIndex); },
       [=](MachineInstrBuilder &MIB) { MIB.addImm(Offset); },
   }};
 }

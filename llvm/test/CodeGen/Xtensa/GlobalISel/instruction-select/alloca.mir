@@ -75,8 +75,8 @@ body:             |
     ; CHECK-NEXT: $a2 = COPY [[ADDI]]
     ; CHECK-NEXT: CALL0 @f, csr_xtensa_call0, implicit-def $a0, implicit $a2
     ; CHECK-NEXT: ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
-    ; CHECK-NEXT: [[L32IN:%[0-9]+]]:gpr = L32IN [[ADDI]], 0 :: (dereferenceable load (s32) from %ir.p)
-    ; CHECK-NEXT: $a2 = COPY [[L32IN]]
+    ; CHECK-NEXT: [[L32I:%[0-9]+]]:gpr = L32I %stack.0.p, 0 :: (dereferenceable load (s32) from %ir.p)
+    ; CHECK-NEXT: $a2 = COPY [[L32I]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(p0) = G_FRAME_INDEX %stack.0.p
     ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1

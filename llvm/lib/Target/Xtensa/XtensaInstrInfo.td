@@ -46,6 +46,10 @@ def ptroff_uimm8_sl2 : ComplexPattern<iPTR, 2, "", []>;
 def gi_ptroff_uimm8_sl2 : GIComplexOperandMatcher<s32, "selectPtrOff<8, 2>">,
                           GIComplexPatternEquiv<ptroff_uimm8_sl2>;
 
+def frameindexoff : ComplexPattern<iPTR, 2, "", []>;
+def gi_frameindexoff : GIComplexOperandMatcher<s32, "selectFrameIndexOff">,
+                       GIComplexPatternEquiv<frameindexoff>;
+
 // Pseudo-instructions for codegen/lowering
 
 let Uses = [A1], Defs = [A1] in {
@@ -177,26 +181,29 @@ def L16UI : LoadRRI8<0b0010, 0b0001, uimm8_sl1, "l16ui", []>;
 def L32I : LoadRRI8<0b0010, 0b0010, uimm8_sl2, "l32i", []>;
 def L32IN : LoadRRRN<0b1000, uimm4_sl2, "l32i.n", []>;
 
+class FrameIndexOffLoadPat<SDPatternOperator loadop, Instruction loadinst>
+   : Pat<(loadop (frameindexoff i32:$fi, i32:$off)),
+         (loadinst i32:$fi, i32:$off)>;
+
+multiclass ExtLoadPats<SDPatternOperator loadop, ComplexPattern offop,
+                       Instruction loadinst> {
+  def : FrameIndexOffLoadPat<loadop, loadinst>;
+  def : Pat<(loadop (offop i32:$ptr, i32:$off)),
+            (loadinst i32:$ptr, i32:$off)>;
+  def : Pat<(loadop i32:$ptr), (loadinst i32:$ptr, 0)>;
+}
+
 // 8-bit loads
-def : Pat<(extloadi8 (ptroff_uimm8 i32:$ptr, i32:$off)),
-          (L8UI i32:$ptr, i32:$off)>;
-def : Pat<(zextloadi8 (ptroff_uimm8 i32:$ptr, i32:$off)),
-          (L8UI i32:$ptr, i32:$off)>;
-def : Pat<(extloadi8 i32:$ptr), (L8UI i32:$ptr, 0)>;
-def : Pat<(zextloadi8 i32:$ptr), (L8UI i32:$ptr, 0)>;
+defm : ExtLoadPats<extloadi8, ptroff_uimm8, L8UI>;
+defm : ExtLoadPats<zextloadi8, ptroff_uimm8, L8UI>;
 
 // 16-bit loads
-def : Pat<(extloadi16 (ptroff_uimm8_sl1 i32:$ptr, i32:$off)),
-          (L16UI i32:$ptr, i32:$off)>;
-def : Pat<(zextloadi16 (ptroff_uimm8_sl1 i32:$ptr, i32:$off)),
-          (L16UI i32:$ptr, i32:$off)>;
-def : Pat<(sextloadi16 (ptroff_uimm8_sl1 i32:$ptr, i32:$off)),
-          (L16SI i32:$ptr, i32:$off)>;
-def : Pat<(extloadi16 i32:$ptr), (L16UI i32:$ptr, 0)>;
-def : Pat<(zextloadi16 i32:$ptr), (L16UI i32:$ptr, 0)>;
-def : Pat<(sextloadi16 i32:$ptr), (L16SI i32:$ptr, 0)>;
+defm : ExtLoadPats<extloadi16, ptroff_uimm8_sl1, L16UI>;
+defm : ExtLoadPats<zextloadi16, ptroff_uimm8_sl1, L16UI>;
+defm : ExtLoadPats<sextloadi16, ptroff_uimm8_sl1, L16SI>;
 
-// 32-bit loads
+// 32-bit loads: custom patterns due to special handling of narrow instructions
+def : FrameIndexOffLoadPat<load, L32I>;
 def : Pat<(load (ptroff_uimm4_sl2 i32:$ptr, i32:$off)),
           (L32IN i32:$ptr, i32:$off)>;
 def : Pat<(load (ptroff_uimm8_sl2 i32:$ptr, i32:$off)),
@@ -269,17 +276,27 @@ def S16I : StoreRRI8<0b0010, 0b0101, uimm8_sl1, "s16i", []>;
 def S32I : StoreRRI8<0b0010, 0b0101, uimm8_sl2, "s32i", []>;
 def S32IN : StoreRRRN<0b1001, uimm4_sl2, "s32i.n", []>;
 
+class FrameIndexOffStorePat<SDPatternOperator storeop, Instruction storeinst>
+   : Pat<(storeop i32:$val, (frameindexoff i32:$fi, i32:$off)),
+         (storeinst i32:$val, i32:$fi, i32:$off)>;
+
+multiclass TruncStorePats<SDPatternOperator storeop, ComplexPattern offop,
+                          Instruction storeinst> {
+  def : FrameIndexOffStorePat<storeop, storeinst>;
+  def : Pat<(storeop i32:$val, (offop i32:$ptr, i32:$off)),
+            (storeinst i32:$val, i32:$ptr, i32:$off)>;
+  def : Pat<(storeop i32:$val, i32:$ptr),
+            (storeinst i32:$val, i32:$ptr, 0)>;
+}
+
 // 8-bit stores
-def : Pat<(truncstorei8 i32:$val, (ptroff_uimm8 i32:$ptr, i32:$off)),
-          (S8I i32:$val, i32:$ptr, i32:$off)>;
-def : Pat<(truncstorei8 i32:$val, i32:$ptr), (S8I i32:$val, i32:$ptr, 0)>;
+defm : TruncStorePats<truncstorei8, ptroff_uimm8, S8I>;
 
 // 16-bit stores
-def : Pat<(truncstorei16 i32:$val, (ptroff_uimm8_sl1 i32:$ptr, i32:$off)),
-          (S16I i32:$val, i32:$ptr, i32:$off)>;
-def : Pat<(truncstorei16 i32:$val, i32:$ptr), (S16I i32:$val, i32:$ptr, 0)>;
+defm : TruncStorePats<truncstorei16, ptroff_uimm8_sl1, S16I>;
 
-// 32-bit stores
+// 32-bit stores: custom patterns due to special handling of narrow instructions
+def : FrameIndexOffStorePat<store, S32I>;
 def : Pat<(store i32:$val, (ptroff_uimm4_sl2 i32:$ptr, i32:$off)),
           (S32IN i32:$val, i32:$ptr, i32:$off)>;
 def : Pat<(store i32:$val, (ptroff_uimm8_sl2 i32:$ptr, i32:$off)),
