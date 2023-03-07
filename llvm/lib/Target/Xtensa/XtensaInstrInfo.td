@@ -62,7 +62,7 @@ let Uses = [A1], Defs = [A1] in {
   // Pseudo-instruction used to model deallocation of stack slots for argument
   // passing. `amt1` represents the number of bytes to be popped off the stack,
   // and `amt2` represents the number of bytes that have already been popped by
-  // the caller.
+  // the callee.
   def ADJCALLSTACKUP : XtensaPseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), []>;
 }
 
