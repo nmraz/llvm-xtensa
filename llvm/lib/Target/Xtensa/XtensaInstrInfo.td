@@ -214,19 +214,21 @@ def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []>;
 
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
 
-let isSelect = 1 in {
+let isSelect = true in {
   def MOVEQZ : MovRRR<0b1000, "moveqz", []>;
   def MOVNEZ : MovRRR<0b1001, "movnez", []>;
   def MOVLTZ : MovRRR<0b1010, "movltz", []>;
   def MOVGEZ : MovRRR<0b1011, "movgez", []>;
 }
 
-def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", [(set i32:$as, movin_imm7:$imm7)]>;
-def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi", [(set i32:$at, simm12:$imm12)]>;
+let isAsCheapAsAMove = true, isReMaterializable = true in {
+  def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", [(set i32:$as, movin_imm7:$imm7)]>;
+  def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi", [(set i32:$at, simm12:$imm12)]>;
 
-def MOVN : ArithBaseRRRN<0b1101, (outs GPR:$at), (ins GPR:$as),
-                         "mov.n $at, $as", []> {
-  let ar = 0b0000;
+  def MOVN : ArithBaseRRRN<0b1101, (outs GPR:$at), (ins GPR:$as),
+                          "mov.n $at, $as", []> {
+    let ar = 0b0000;
+  }
 }
 
 def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s", []>;

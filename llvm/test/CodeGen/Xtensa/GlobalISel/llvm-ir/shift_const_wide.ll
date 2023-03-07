@@ -31,9 +31,8 @@ entry:
 define i64 @shl_const_6bit(i64 %val) {
 ; CHECK-LABEL: shl_const_6bit:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a4, 0
 ; CHECK-NEXT:    slli a3, a2, 5
-; CHECK-NEXT:    mov.n a2, a4
+; CHECK-NEXT:    movi.n a2, 0
 ; CHECK-NEXT:    ret.n
 entry:
   %shl = shl i64 %val, 37
@@ -43,11 +42,10 @@ entry:
 define i64 @shl_const_overflow(i64 %val) {
 ; CHECK-LABEL: shl_const_overflow:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a4, 0
 ; CHECK-NEXT:    movi.n a3, 32
 ; CHECK-NEXT:    ssl a3
 ; CHECK-NEXT:    sll a3, a2
-; CHECK-NEXT:    mov.n a2, a4
+; CHECK-NEXT:    movi.n a2, 0
 ; CHECK-NEXT:    ret.n
 entry:
   %shl = shl i64 %val, 64
