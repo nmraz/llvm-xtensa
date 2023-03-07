@@ -21,6 +21,7 @@
 
 namespace llvm {
 
+class MachineInstr;
 class XtensaSubtarget;
 
 class XtensaInstrInfo : public XtensaGenInstrInfo {
@@ -31,6 +32,11 @@ public:
   explicit XtensaInstrInfo(XtensaSubtarget &ST);
 
   const XtensaRegisterInfo &getRegisterInfo() const { return RI; }
+
+  MachineInstr *loadConstWithL32R(MachineBasicBlock &MBB,
+                                  MachineBasicBlock::iterator I,
+                                  const DebugLoc &DL, Register Dest,
+                                  const Constant *Value) const;
 
   void copyPhysReg(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
                    const DebugLoc &DL, MCRegister DestReg, MCRegister SrcReg,

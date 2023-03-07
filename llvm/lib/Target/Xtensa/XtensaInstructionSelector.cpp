@@ -202,18 +202,8 @@ XtensaInstructionSelector::emitInstrFor(MachineInstr &I,
 
 bool XtensaInstructionSelector::emitL32R(MachineInstr &I, Register Dest,
                                          const Constant *Value) {
-  MachineConstantPool *MCP = MF->getConstantPool();
-
-  Align Alignment = Align(4);
-  unsigned CPIdx = MCP->getConstantPoolIndex(Value, Alignment);
-  MachineMemOperand *MMO = MF->getMachineMemOperand(
-      MachinePointerInfo::getConstantPool(*MF), MachineMemOperand::MOLoad,
-      LLT::scalar(32), Alignment);
-
-  MachineInstr *L32 = emitInstrFor(I, Xtensa::L32R)
-                          .addDef(Dest)
-                          .addConstantPoolIndex(CPIdx)
-                          .addMemOperand(MMO);
+  MachineInstr *L32 =
+      TII.loadConstWithL32R(*I.getParent(), I, I.getDebugLoc(), Dest, Value);
   return constrainSelectedInstRegOperands(*L32, TII, TRI, RBI);
 }
 

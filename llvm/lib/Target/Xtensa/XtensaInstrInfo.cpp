@@ -2,9 +2,11 @@
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
 #include "XtensaFrameLowering.h"
 #include "XtensaRegisterInfo.h"
+#include "llvm/CodeGen/MachineConstantPool.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineMemOperand.h"
+#include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/IR/DebugLoc.h"
 #include "llvm/Support/ErrorHandling.h"
 #include <cassert>
@@ -17,6 +19,27 @@ using namespace llvm;
 XtensaInstrInfo::XtensaInstrInfo(XtensaSubtarget &ST)
     : XtensaGenInstrInfo(Xtensa::ADJCALLSTACKDOWN, Xtensa::ADJCALLSTACKUP),
       Subtarget(ST) {}
+
+MachineInstr *XtensaInstrInfo::loadConstWithL32R(MachineBasicBlock &MBB,
+                                                 MachineBasicBlock::iterator I,
+                                                 const DebugLoc &DL,
+                                                 Register Dest,
+                                                 const Constant *Value) const {
+  MachineFunction &MF = *I->getMF();
+
+  MachineConstantPool *MCP = MF.getConstantPool();
+
+  Align Alignment = Align(4);
+  unsigned CPIdx = MCP->getConstantPoolIndex(Value, Alignment);
+  MachineMemOperand *MMO = MF.getMachineMemOperand(
+      MachinePointerInfo::getConstantPool(MF), MachineMemOperand::MOLoad,
+      LLT::scalar(32), Alignment);
+
+  return BuildMI(MBB, I, DL, get(Xtensa::L32R))
+      .addDef(Dest)
+      .addConstantPoolIndex(CPIdx)
+      .addMemOperand(MMO);
+}
 
 void XtensaInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
                                   MachineBasicBlock::iterator I,
