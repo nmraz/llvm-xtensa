@@ -6,11 +6,9 @@
   target datalayout = "e-m:e-p:32:32-i64:64-n32-S128"
   target triple = "xtensa"
 
-  declare void @f(ptr)
-
-  define i32 @alloca_func() {
+  define i32 @alloca_func(i32 %val) {
     %p = alloca i32, align 4
-    call void @f(ptr %p)
+    store i32 %val, ptr %p, align 4
     %retval = load i32, ptr %p, align 4
     ret i32 %retval
   }
@@ -36,7 +34,9 @@ tracksDebugUserValues: false
 registers:
   - { id: 0, class: gprb, preferred-register: '' }
   - { id: 1, class: gprb, preferred-register: '' }
-liveins:         []
+  - { id: 2, class: gprb, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
 frameInfo:
   isFrameAddressTaken: false
   isReturnAddressTaken: false
@@ -69,22 +69,21 @@ constants:       []
 machineFunctionInfo: {}
 body:             |
   bb.1 (%ir-block.0):
+    liveins: $a2
+
     ; CHECK-LABEL: name: alloca_func
-    ; CHECK: [[ADDI:%[0-9]+]]:gpr = ADDI %stack.0.p, 0
-    ; CHECK-NEXT: ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
-    ; CHECK-NEXT: $a2 = COPY [[ADDI]]
-    ; CHECK-NEXT: CALL0 @f, csr_xtensa_call0, implicit-def $a0, implicit $a2
-    ; CHECK-NEXT: ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+    ; CHECK: liveins: $a2
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
+    ; CHECK-NEXT: S32I [[COPY]], %stack.0.p, 0 :: (store (s32) into %ir.p)
     ; CHECK-NEXT: [[L32I:%[0-9]+]]:gpr = L32I %stack.0.p, 0 :: (dereferenceable load (s32) from %ir.p)
     ; CHECK-NEXT: $a2 = COPY [[L32I]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
-    %0:gprb(p0) = G_FRAME_INDEX %stack.0.p
-    ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
-    $a2 = COPY %0(p0)
-    CALL0 @f, csr_xtensa_call0, implicit-def $a0, implicit $a2
-    ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
-    %1:gprb(s32) = G_LOAD %0(p0) :: (dereferenceable load (s32) from %ir.p)
-    $a2 = COPY %1(s32)
+    %0:gprb(s32) = COPY $a2
+    %1:gprb(p0) = G_FRAME_INDEX %stack.0.p
+    G_STORE %0(s32), %1(p0) :: (store (s32) into %ir.p)
+    %2:gprb(s32) = G_LOAD %1(p0) :: (dereferenceable load (s32) from %ir.p)
+    $a2 = COPY %2(s32)
     RETN implicit $a0, implicit $a2
 
 ...
