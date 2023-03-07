@@ -1,17 +1,23 @@
 #include "XtensaInstrInfo.h"
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
 #include "XtensaFrameLowering.h"
+#include "XtensaISelUtils.h"
 #include "XtensaRegisterInfo.h"
+#include "llvm/ADT/APInt.h"
 #include "llvm/CodeGen/MachineConstantPool.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineMemOperand.h"
 #include "llvm/CodeGen/MachineOperand.h"
+#include "llvm/CodeGen/Register.h"
+#include "llvm/IR/Constants.h"
 #include "llvm/IR/DebugLoc.h"
+#include "llvm/IR/LLVMContext.h"
 #include "llvm/Support/ErrorHandling.h"
 #include <cassert>
 
 using namespace llvm;
+using namespace XtensaISelUtils;
 
 #define GET_INSTRINFO_CTOR_DTOR
 #include "XtensaGenInstrInfo.inc"
@@ -39,6 +45,37 @@ MachineInstr *XtensaInstrInfo::loadConstWithL32R(MachineBasicBlock &MBB,
       .addDef(Dest)
       .addConstantPoolIndex(CPIdx)
       .addMemOperand(MMO);
+}
+
+void XtensaInstrInfo::addConst(MachineBasicBlock &MBB,
+                               MachineBasicBlock::iterator I,
+                               const DebugLoc &DL, Register Dest, Register Src,
+                               int32_t Value) const {
+  if (auto Parts = splitAddConst(Value)) {
+    Register LowSrc = Src;
+    bool KillLowSrc = false;
+
+    if (Parts->High) {
+      BuildMI(MBB, I, DL, get(Xtensa::ADDMI), Dest)
+          .addReg(Src)
+          .addImm(Parts->High << 8);
+      LowSrc = Dest;
+      KillLowSrc = true;
+    }
+
+    if (Parts->Low || !Parts->High) {
+      BuildMI(MBB, I, DL, get(Xtensa::ADDI), Dest)
+          .addReg(LowSrc, getKillRegState(KillLowSrc))
+          .addImm(Parts->Low);
+    }
+  } else {
+    LLVMContext &Context = MBB.getParent()->getFunction().getContext();
+    loadConstWithL32R(MBB, I, DL, Dest,
+                      ConstantInt::get(Context, APInt(32, Value)));
+    BuildMI(MBB, I, DL, get(Xtensa::ADDN), Dest)
+        .addReg(Src)
+        .addReg(Dest, RegState::Kill);
+  }
 }
 
 void XtensaInstrInfo::copyPhysReg(MachineBasicBlock &MBB,

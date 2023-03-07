@@ -14,7 +14,11 @@
 #define LLVM_LIB_TARGET_XTENSA_XTENSAINSTRINFO_H
 
 #include "XtensaRegisterInfo.h"
+#include "llvm/CodeGen/MachineOperand.h"
+#include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetInstrInfo.h"
+#include "llvm/IR/DebugLoc.h"
+#include <cstdint>
 
 #define GET_INSTRINFO_HEADER
 #include "XtensaGenInstrInfo.inc"
@@ -37,6 +41,12 @@ public:
                                   MachineBasicBlock::iterator I,
                                   const DebugLoc &DL, Register Dest,
                                   const Constant *Value) const;
+
+  /// Emits a sequence of instructions adding `Src` and `Value` into `Dest`
+  /// before `I`. The emitted instructions may not be in SSA form.
+  void addConst(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
+                const DebugLoc &DL, Register Dest, Register Src,
+                int32_t Value) const;
 
   void copyPhysReg(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
                    const DebugLoc &DL, MCRegister DestReg, MCRegister SrcReg,
