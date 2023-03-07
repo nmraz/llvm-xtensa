@@ -321,7 +321,7 @@ XtensaInstructionSelector::selectFrameIndexOff(MachineOperand &Root) const {
       return None;
     }
 
-    FrameIndex = RootMI->getOperand(1).getIndex();
+    FrameIndex = BaseMI->getOperand(1).getIndex();
   }
 
   return {{
