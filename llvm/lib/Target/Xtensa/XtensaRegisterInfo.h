@@ -10,6 +10,7 @@
 
 namespace llvm {
 
+class MachineFunction;
 class TargetRegisterClass;
 
 class XtensaRegisterInfo : public XtensaGenRegisterInfo {
@@ -17,13 +18,15 @@ public:
   XtensaRegisterInfo();
 
   const MCPhysReg *getCalleeSavedRegs(const MachineFunction *MF) const override;
-
   const uint32_t *getCallPreservedMask(const MachineFunction &MF,
                                        CallingConv::ID) const override;
 
   BitVector getReservedRegs(const MachineFunction &MF) const override;
 
-  void eliminateFrameIndex(MachineBasicBlock::iterator MI, int SPAdj,
+  bool requiresRegisterScavenging(const MachineFunction &MF) const override;
+  bool requiresFrameIndexScavenging(const MachineFunction &MF) const override;
+
+  void eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
                            unsigned FIOperandNum,
                            RegScavenger *RS = nullptr) const override;
 
