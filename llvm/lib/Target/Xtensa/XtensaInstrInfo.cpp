@@ -47,10 +47,10 @@ MachineInstr *XtensaInstrInfo::loadConstWithL32R(MachineBasicBlock &MBB,
       .addMemOperand(MMO);
 }
 
-void XtensaInstrInfo::addConst(MachineBasicBlock &MBB,
-                               MachineBasicBlock::iterator I,
-                               const DebugLoc &DL, Register Dest, Register Src,
-                               int32_t Value) const {
+void XtensaInstrInfo::addRegImm(MachineBasicBlock &MBB,
+                                MachineBasicBlock::iterator I,
+                                const DebugLoc &DL, Register Dest, Register Src,
+                                int32_t Value) const {
   if (auto Parts = splitAddConst(Value)) {
     Register LowSrc = Src;
     bool KillLowSrc = false;

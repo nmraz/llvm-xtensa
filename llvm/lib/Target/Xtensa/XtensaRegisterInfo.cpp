@@ -71,8 +71,8 @@ void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
 
   // TODO: fold into neighboring instruction where possible.
   Register TmpReg = MRI.createVirtualRegister(&Xtensa::GPRRegClass);
-  TII.addConst(*II->getParent(), II, II->getDebugLoc(), TmpReg, FrameReg,
-               RealOffset);
+  TII.addRegImm(*II->getParent(), II, II->getDebugLoc(), TmpReg, FrameReg,
+                RealOffset);
   MI.getOperand(FIOperandNum).ChangeToRegister(TmpReg, false, false, true);
   MI.getOperand(FIOperandNum + 1).ChangeToImmediate(0);
 }

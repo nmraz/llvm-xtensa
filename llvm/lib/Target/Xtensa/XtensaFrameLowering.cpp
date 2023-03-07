@@ -22,8 +22,8 @@ void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
     return;
   }
 
-  TII.addConst(MBB, MBB.begin(), DebugLoc(), Xtensa::A1, Xtensa::A1,
-               -FrameSize);
+  TII.addRegImm(MBB, MBB.begin(), DebugLoc(), Xtensa::A1, Xtensa::A1,
+                -FrameSize);
 }
 
 void XtensaFrameLowering::emitEpilogue(MachineFunction &MF,
@@ -37,6 +37,6 @@ void XtensaFrameLowering::emitEpilogue(MachineFunction &MF,
     return;
   }
 
-  TII.addConst(MBB, MBB.getFirstTerminator(), DebugLoc(), Xtensa::A1,
-               Xtensa::A1, FrameSize);
+  TII.addRegImm(MBB, MBB.getFirstTerminator(), DebugLoc(), Xtensa::A1,
+                Xtensa::A1, FrameSize);
 }

@@ -44,9 +44,9 @@ public:
 
   /// Emits a sequence of instructions adding `Src` and `Value` into `Dest`
   /// before `I`. The emitted instructions may not be in SSA form.
-  void addConst(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
-                const DebugLoc &DL, Register Dest, Register Src,
-                int32_t Value) const;
+  void addRegImm(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
+                 const DebugLoc &DL, Register Dest, Register Src,
+                 int32_t Value) const;
 
   void copyPhysReg(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
                    const DebugLoc &DL, MCRegister DestReg, MCRegister SrcReg,
