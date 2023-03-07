@@ -66,7 +66,8 @@ void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
   Register FrameReg = getFrameRegister(MF);
   int FI = MI.getOperand(FIOperandNum).getIndex();
   int64_t AddedOffset = MI.getOperand(FIOperandNum + 1).getImm();
-  int64_t RealOffset = MFI.getObjectOffset(FI) + AddedOffset;
+  int64_t RealOffset =
+      MFI.getStackSize() + MFI.getObjectOffset(FI) + AddedOffset;
 
   // TODO: fold into neighboring instruction where possible.
   Register TmpReg = MRI.createVirtualRegister(&Xtensa::GPRRegClass);

@@ -3,10 +3,12 @@
 define i32 @alloca_func(i32 %val) {
 ; CHECK-LABEL: alloca_func:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    addi a3, a1, -4
+; CHECK-NEXT:    addi a1, a1, -4
+; CHECK-NEXT:    addi a3, a1, 0
 ; CHECK-NEXT:    s32i a2, a3, 0
-; CHECK-NEXT:    addi a2, a1, -4
+; CHECK-NEXT:    addi a2, a1, 0
 ; CHECK-NEXT:    l32i a2, a2, 0
+; CHECK-NEXT:    addi a1, a1, 4
 ; CHECK-NEXT:    ret.n
   %p = alloca i32
   store i32 %val, ptr %p
