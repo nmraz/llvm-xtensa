@@ -23,7 +23,7 @@ Optional<AddConstParts> splitAddConst(int32_t Value) {
     High++;
   }
 
-  return {{Low, static_cast<int8_t>(High)}};
+  return {{Low, static_cast<int16_t>(static_cast<int8_t>(High) << 8)}};
 }
 
 } // namespace XtensaISelUtils

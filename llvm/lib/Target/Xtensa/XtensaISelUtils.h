@@ -9,7 +9,7 @@ namespace XtensaISelUtils {
 
 struct AddConstParts {
   int8_t Low;
-  int8_t High;
+  int16_t High;
 };
 
 Optional<AddConstParts> splitAddConst(int32_t Value);

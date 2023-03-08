@@ -483,7 +483,7 @@ void XtensaInstructionSelector::emitAddParts(MachineInstr &I, Register Dest,
     MachineInstr *AddMi = emitInstrFor(I, Xtensa::ADDMI)
                               .addDef(AddmiDest)
                               .addReg(Operand)
-                              .addImm(Parts.High << 8);
+                              .addImm(Parts.High);
     constrainSelectedInstRegOperands(*AddMi, TII, TRI, RBI);
   }
 
