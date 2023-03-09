@@ -76,6 +76,8 @@ private:
   MachineInstrBuilder emitInstrFor(MachineInstr &I, unsigned Opcode) const;
   bool emitCopy(MachineInstr &I, Register Dest, Register Src);
   bool emitL32R(MachineInstr &I, Register Dest, const Constant *Value);
+  void emitAddParts(MachineInstr &I, Register Dest, Register Operand,
+                    const AddConstParts &Parts);
 
   bool preISelLower(MachineInstr &I);
   bool convertPtrAddToAdd(MachineInstr &I);
@@ -95,10 +97,9 @@ private:
                            const MachineRegisterInfo &MRI, uint32_t MaskWidth,
                            Register &NewInputReg, uint32_t &ShiftWidth) const;
   bool selectAddSubConst(MachineInstr &I);
-  void emitAddParts(MachineInstr &I, Register Dest, Register Operand,
-                    const AddConstParts &Parts);
 
   bool selectLate(MachineInstr &I);
+  bool selectLoadStore(MachineInstr &I);
 
   const XtensaInstrInfo &TII;
   const XtensaRegisterInfo &TRI;
@@ -134,6 +135,53 @@ XtensaInstructionSelector::XtensaInstructionSelector(
 
 static bool isExtuiMask(uint64_t Value) {
   return Value <= 0xffff && isMask_64(Value);
+}
+
+static Optional<unsigned> getLoadOpcode(unsigned ByteSize) {
+  switch (ByteSize) {
+  case 1:
+    return Xtensa::L8UI;
+  case 2:
+    return Xtensa::L16UI;
+  case 4:
+    return Xtensa::L32I;
+  }
+  return None;
+}
+
+static Optional<unsigned> getStoreOpcode(unsigned ByteSize) {
+  switch (ByteSize) {
+  case 1:
+    return Xtensa::S8I;
+  case 2:
+    return Xtensa::S16I;
+  case 4:
+    return Xtensa::S32I;
+  }
+  return None;
+}
+
+static Optional<unsigned> getSextLoadOpcode(unsigned ByteSize) {
+  switch (ByteSize) {
+  case 2:
+    return Xtensa::L16SI;
+  }
+  return None;
+}
+
+static Optional<unsigned> getLoadStoreOpcode(unsigned Opcode,
+                                             uint64_t ByteSize) {
+  switch (Opcode) {
+  case Xtensa::G_LOAD:
+  case Xtensa::G_ZEXTLOAD:
+    return getLoadOpcode(ByteSize);
+  case Xtensa::G_SEXTLOAD:
+    return getSextLoadOpcode(ByteSize);
+  case Xtensa::G_STORE:
+    return getStoreOpcode(ByteSize);
+  }
+
+  return None;
 }
 
 bool XtensaInstructionSelector::select(MachineInstr &I) {
@@ -200,6 +248,13 @@ XtensaInstructionSelector::emitInstrFor(MachineInstr &I,
   return BuildMI(*CurMBB, I, I.getDebugLoc(), TII.get(Opcode));
 }
 
+bool XtensaInstructionSelector::emitCopy(MachineInstr &I, Register Dest,
+                                         Register Src) {
+  MachineInstr *CopyInst =
+      emitInstrFor(I, Xtensa::COPY).addDef(Dest).addReg(Src);
+  return forceConstrainInstrRegisters(*CopyInst);
+}
+
 bool XtensaInstructionSelector::emitL32R(MachineInstr &I, Register Dest,
                                          const Constant *Value) {
   MachineInstr *L32 =
@@ -207,11 +262,40 @@ bool XtensaInstructionSelector::emitL32R(MachineInstr &I, Register Dest,
   return constrainSelectedInstRegOperands(*L32, TII, TRI, RBI);
 }
 
-bool XtensaInstructionSelector::emitCopy(MachineInstr &I, Register Dest,
-                                         Register Src) {
-  MachineInstr *CopyInst =
-      emitInstrFor(I, Xtensa::COPY).addDef(Dest).addReg(Src);
-  return forceConstrainInstrRegisters(*CopyInst);
+void XtensaInstructionSelector::emitAddParts(MachineInstr &I, Register Dest,
+                                             Register Operand,
+                                             const AddConstParts &Parts) {
+  Register AddmiDest = Dest;
+  Register AddiSrc = Operand;
+
+  if (!Parts.Middle && !Parts.Low) {
+    // Make sure adding 0 still emits at least something.
+    emitCopy(I, Dest, Operand);
+    return;
+  }
+
+  if (Parts.Middle && Parts.Low) {
+    // We need two opcodes, so create a new temporary register.
+    Register TempReg = createVirtualGPR();
+    AddmiDest = TempReg;
+    AddiSrc = TempReg;
+  }
+
+  if (Parts.Middle) {
+    MachineInstr *AddMi = emitInstrFor(I, Xtensa::ADDMI)
+                              .addDef(AddmiDest)
+                              .addReg(Operand)
+                              .addImm(Parts.Middle);
+    constrainSelectedInstRegOperands(*AddMi, TII, TRI, RBI);
+  }
+
+  if (Parts.Low) {
+    MachineInstr *Addi = emitInstrFor(I, Xtensa::ADDI)
+                             .addDef(Dest)
+                             .addReg(AddiSrc)
+                             .addImm(Parts.Low);
+    constrainSelectedInstRegOperands(*Addi, TII, TRI, RBI);
+  }
 }
 
 bool XtensaInstructionSelector::preISelLower(MachineInstr &I) {
@@ -460,42 +544,6 @@ bool XtensaInstructionSelector::selectAddSubConst(MachineInstr &I) {
   return true;
 }
 
-void XtensaInstructionSelector::emitAddParts(MachineInstr &I, Register Dest,
-                                             Register Operand,
-                                             const AddConstParts &Parts) {
-  Register AddmiDest = Dest;
-  Register AddiSrc = Operand;
-
-  if (!Parts.Middle && !Parts.Low) {
-    // Make sure adding 0 still emits at least something.
-    emitCopy(I, Dest, Operand);
-    return;
-  }
-
-  if (Parts.Middle && Parts.Low) {
-    // We need two opcodes, so create a new temporary register.
-    Register TempReg = createVirtualGPR();
-    AddmiDest = TempReg;
-    AddiSrc = TempReg;
-  }
-
-  if (Parts.Middle) {
-    MachineInstr *AddMi = emitInstrFor(I, Xtensa::ADDMI)
-                              .addDef(AddmiDest)
-                              .addReg(Operand)
-                              .addImm(Parts.Middle);
-    constrainSelectedInstRegOperands(*AddMi, TII, TRI, RBI);
-  }
-
-  if (Parts.Low) {
-    MachineInstr *Addi = emitInstrFor(I, Xtensa::ADDI)
-                             .addDef(Dest)
-                             .addReg(AddiSrc)
-                             .addImm(Parts.Low);
-    constrainSelectedInstRegOperands(*Addi, TII, TRI, RBI);
-  }
-}
-
 bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
   switch (I.getOpcode()) {
   case Xtensa::G_CONSTANT: {
@@ -511,6 +559,11 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
     I.eraseFromParent();
     return true;
   }
+  case Xtensa::G_LOAD:
+  case Xtensa::G_SEXTLOAD:
+  case Xtensa::G_ZEXTLOAD:
+  case Xtensa::G_STORE:
+    return selectLoadStore(I);
   case Xtensa::G_XTENSA_SSR_MASKED:
   case Xtensa::G_XTENSA_SSR_INRANGE:
     // We mutate the opcode manually due to a tablegen bug with implicit defs:
@@ -526,6 +579,51 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
   }
 
   return false;
+}
+
+bool XtensaInstructionSelector::selectLoadStore(MachineInstr &I) {
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+
+  Register Base = I.getOperand(1).getReg();
+  int64_t Offset = 0;
+  mi_match(Base, MRI, m_GPtrAdd(m_Reg(Base), m_ICst(Offset)));
+
+  if (!I.hasOneMemOperand()) {
+    return false;
+  }
+
+  MachineMemOperand *MMO = I.memoperands()[0];
+  uint64_t ByteSize = MMO->getSize();
+
+  Optional<unsigned> MaybeOpcode = getLoadStoreOpcode(I.getOpcode(), ByteSize);
+  if (!MaybeOpcode) {
+    return false;
+  }
+  unsigned Opcode = *MaybeOpcode;
+
+  uint16_t InlineOffset = 0;
+  AddConstParts PreAddParts = {0, 0};
+  if (auto OffParts = splitOffsetConst(Offset, Log2_32(ByteSize))) {
+    InlineOffset = OffParts->Offset;
+    PreAddParts.Low = OffParts->LowAdd;
+    PreAddParts.Middle = OffParts->MiddleAdd;
+  } else {
+    // We couldn't fold the offset into the instruction, so just use the operand
+    // provided to the instruction with a 0 offset and let large offset be
+    // handled later.
+    Base = I.getOperand(1).getReg();
+  }
+
+  Register PreAdd = createVirtualGPR();
+  emitAddParts(I, PreAdd, Base, PreAddParts);
+  emitInstrFor(I, Opcode)
+      .add(I.getOperand(0))
+      .addReg(PreAdd)
+      .addImm(InlineOffset)
+      .addMemOperand(MMO);
+
+  I.removeFromParent();
+  return true;
 }
 
 namespace llvm {

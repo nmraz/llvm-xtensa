@@ -185,30 +185,17 @@ class FrameIndexOffLoadPat<SDPatternOperator loadop, Instruction loadinst>
    : Pat<(loadop (frameindexoff i32:$fi, i32:$off)),
          (loadinst i32:$fi, i32:$off)>;
 
-multiclass ExtLoadPats<SDPatternOperator loadop, ComplexPattern offop,
-                       Instruction loadinst> {
-  def : FrameIndexOffLoadPat<loadop, loadinst>;
-  def : Pat<(loadop (offop i32:$ptr, i32:$off)),
-            (loadinst i32:$ptr, i32:$off)>;
-  def : Pat<(loadop i32:$ptr), (loadinst i32:$ptr, 0)>;
-}
-
 // 8-bit loads
-defm : ExtLoadPats<extloadi8, ptroff_uimm8, L8UI>;
-defm : ExtLoadPats<zextloadi8, ptroff_uimm8, L8UI>;
+def : FrameIndexOffLoadPat<extloadi8, L8UI>;
+def : FrameIndexOffLoadPat<zextloadi8, L8UI>;
 
 // 16-bit loads
-defm : ExtLoadPats<extloadi16, ptroff_uimm8_sl1, L16UI>;
-defm : ExtLoadPats<zextloadi16, ptroff_uimm8_sl1, L16UI>;
-defm : ExtLoadPats<sextloadi16, ptroff_uimm8_sl1, L16SI>;
+def : FrameIndexOffLoadPat<extloadi16, L16UI>;
+def : FrameIndexOffLoadPat<zextloadi16, L16UI>;
+def : FrameIndexOffLoadPat<sextloadi16, L16SI>;
 
-// 32-bit loads: custom patterns due to special handling of narrow instructions
+// 32-bit loads
 def : FrameIndexOffLoadPat<load, L32I>;
-def : Pat<(load (ptroff_uimm4_sl2 i32:$ptr, i32:$off)),
-          (L32IN i32:$ptr, i32:$off)>;
-def : Pat<(load (ptroff_uimm8_sl2 i32:$ptr, i32:$off)),
-          (L32I i32:$ptr, i32:$off)>;
-def : Pat<(load i32:$ptr), (L32IN i32:$ptr, 0)>;
 
 def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []>;
 
@@ -282,28 +269,9 @@ class FrameIndexOffStorePat<SDPatternOperator storeop, Instruction storeinst>
    : Pat<(storeop i32:$val, (frameindexoff i32:$fi, i32:$off)),
          (storeinst i32:$val, i32:$fi, i32:$off)>;
 
-multiclass TruncStorePats<SDPatternOperator storeop, ComplexPattern offop,
-                          Instruction storeinst> {
-  def : FrameIndexOffStorePat<storeop, storeinst>;
-  def : Pat<(storeop i32:$val, (offop i32:$ptr, i32:$off)),
-            (storeinst i32:$val, i32:$ptr, i32:$off)>;
-  def : Pat<(storeop i32:$val, i32:$ptr),
-            (storeinst i32:$val, i32:$ptr, 0)>;
-}
-
-// 8-bit stores
-defm : TruncStorePats<truncstorei8, ptroff_uimm8, S8I>;
-
-// 16-bit stores
-defm : TruncStorePats<truncstorei16, ptroff_uimm8_sl1, S16I>;
-
-// 32-bit stores: custom patterns due to special handling of narrow instructions
+def : FrameIndexOffStorePat<truncstorei8, S8I>;
+def : FrameIndexOffStorePat<truncstorei16, S16I>;
 def : FrameIndexOffStorePat<store, S32I>;
-def : Pat<(store i32:$val, (ptroff_uimm4_sl2 i32:$ptr, i32:$off)),
-          (S32IN i32:$val, i32:$ptr, i32:$off)>;
-def : Pat<(store i32:$val, (ptroff_uimm8_sl2 i32:$ptr, i32:$off)),
-          (S32I i32:$val, i32:$ptr, i32:$off)>;
-def : Pat<(store i32:$val, i32:$ptr), (S32IN i32:$val, i32:$ptr, 0)>;
 
 // def S32NB
 

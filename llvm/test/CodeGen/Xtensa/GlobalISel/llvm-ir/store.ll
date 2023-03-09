@@ -63,12 +63,12 @@ entry:
 define void @store_i32(ptr %p, i32 %val) {
 ; OPT-LABEL: store_i32:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    s32i.n a3, a2, 0
+; OPT-NEXT:    s32i a3, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: store_i32:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    s32i.n a3, a2, 0
+; UNOPT-NEXT:    s32i a3, a2, 0
 ; UNOPT-NEXT:    ret.n
 entry:
   store i32 %val, ptr %p, align 4
@@ -137,14 +137,14 @@ entry:
 define void @store_i64(ptr %p, i64 %val) {
 ; OPT-LABEL: store_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    s32i.n a4, a2, 0
-; OPT-NEXT:    s32i.n a5, a2, 4
+; OPT-NEXT:    s32i a4, a2, 0
+; OPT-NEXT:    s32i a5, a2, 4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: store_i64:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    s32i.n a4, a2, 0
-; UNOPT-NEXT:    s32i.n a5, a2, 4
+; UNOPT-NEXT:    s32i a4, a2, 0
+; UNOPT-NEXT:    s32i a5, a2, 4
 ; UNOPT-NEXT:    ret.n
 entry:
   store i64 %val, ptr %p, align 8
@@ -240,14 +240,14 @@ entry:
 define void @store_i64_unaligned_4(ptr %p, i64 %val) {
 ; OPT-LABEL: store_i64_unaligned_4:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    s32i.n a4, a2, 0
-; OPT-NEXT:    s32i.n a5, a2, 4
+; OPT-NEXT:    s32i a4, a2, 0
+; OPT-NEXT:    s32i a5, a2, 4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: store_i64_unaligned_4:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    s32i.n a4, a2, 0
-; UNOPT-NEXT:    s32i.n a5, a2, 4
+; UNOPT-NEXT:    s32i a4, a2, 0
+; UNOPT-NEXT:    s32i a5, a2, 4
 ; UNOPT-NEXT:    ret.n
 entry:
   store i64 %val, ptr %p, align 4

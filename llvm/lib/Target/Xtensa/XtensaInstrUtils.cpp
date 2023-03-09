@@ -1,7 +1,36 @@
 #include "XtensaInstrUtils.h"
 #include "llvm/ADT/Optional.h"
 #include "llvm/Support/MathExtras.h"
+#include <cassert>
 #include <cstdint>
+
+using namespace llvm;
+
+struct OffsetConstInnerParts {
+  uint16_t Offset;
+  int16_t MiddleAdd;
+};
+
+static Optional<OffsetConstInnerParts>
+splitOffsetConstInner(int32_t Value, unsigned int Shift) {
+  assert(Shift <= 2 && "Shift amount for offset too large");
+
+  uint32_t ZeroMask = (1 << Shift) - 1;
+  uint32_t HighMask = static_cast<uint32_t>(-1) << (Shift + 8);
+
+  if ((Value & ZeroMask) != 0) {
+    return None;
+  }
+
+  int32_t High = Value & HighMask;
+  if (!isInt<16>(High)) {
+    return None;
+  }
+
+  uint16_t Low = Value - High;
+
+  return {{Low, static_cast<int16_t>(High & 0xff00)}};
+}
 
 namespace llvm {
 namespace XtensaInstrUtils {
@@ -24,6 +53,18 @@ Optional<AddConstParts> splitAddConst(int32_t Value) {
   }
 
   return {{Low, static_cast<int16_t>(static_cast<int8_t>(High) << 8)}};
+}
+
+Optional<OffsetConstParts> splitOffsetConst(int32_t Value, unsigned Shift) {
+  if (auto InnerParts = splitOffsetConstInner(Value, Shift)) {
+    return {{InnerParts->Offset, 0, InnerParts->MiddleAdd}};
+  }
+
+  if (auto AddParts = splitAddConst(Value)) {
+    return {{0, AddParts->Low, AddParts->Middle}};
+  }
+
+  return None;
 }
 
 } // namespace XtensaInstrUtils

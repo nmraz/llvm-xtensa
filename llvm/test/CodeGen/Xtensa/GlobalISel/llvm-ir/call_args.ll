@@ -178,7 +178,7 @@ define void @call_stack() {
 ; OPT-NEXT:    addi a2, a1, 4
 ; OPT-NEXT:    s32i a13, a2, 0 # 4-byte Folded Spill
 ; OPT-NEXT:    movi.n a12, 7
-; OPT-NEXT:    s32i.n a12, a1, 0
+; OPT-NEXT:    s32i a12, a1, 0
 ; OPT-NEXT:    movi.n a13, 1
 ; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    movi.n a3, 2
@@ -187,7 +187,7 @@ define void @call_stack() {
 ; OPT-NEXT:    movi.n a6, 5
 ; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    call0 stack_arg_i32
-; OPT-NEXT:    s32i.n a13, a1, 0
+; OPT-NEXT:    s32i a13, a1, 0
 ; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    movi.n a3, 2
 ; OPT-NEXT:    movi.n a4, 3
@@ -195,7 +195,7 @@ define void @call_stack() {
 ; OPT-NEXT:    movi.n a6, 5
 ; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    call0 stack_arg_i1
-; OPT-NEXT:    s32i.n a12, a1, 0
+; OPT-NEXT:    s32i a12, a1, 0
 ; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    movi.n a3, 2
 ; OPT-NEXT:    movi.n a4, 3
@@ -203,7 +203,7 @@ define void @call_stack() {
 ; OPT-NEXT:    movi.n a6, 5
 ; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    call0 stack_arg_i8
-; OPT-NEXT:    s32i.n a12, a1, 0
+; OPT-NEXT:    s32i a12, a1, 0
 ; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    movi.n a3, 2
 ; OPT-NEXT:    movi.n a4, 3
@@ -227,7 +227,7 @@ define void @call_stack() {
 ; UNOPT-NEXT:    s32i a0, a2, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    movi.n a2, 7
-; UNOPT-NEXT:    s32i.n a2, a3, 0
+; UNOPT-NEXT:    s32i a2, a3, 0
 ; UNOPT-NEXT:    movi.n a2, 1
 ; UNOPT-NEXT:    addi a3, a1, 4
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
@@ -261,7 +261,7 @@ define void @call_stack() {
 ; UNOPT-NEXT:    l32i a7, a7, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    mov.n a9, a1
 ; UNOPT-NEXT:    movi.n a8, 1
-; UNOPT-NEXT:    s32i.n a8, a9, 0
+; UNOPT-NEXT:    s32i a8, a9, 0
 ; UNOPT-NEXT:    call0 stack_arg_i1
 ; UNOPT-NEXT:    addi a2, a1, 4
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
@@ -277,7 +277,7 @@ define void @call_stack() {
 ; UNOPT-NEXT:    l32i a7, a7, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    mov.n a9, a1
 ; UNOPT-NEXT:    movi.n a8, 7
-; UNOPT-NEXT:    s32i.n a8, a9, 0
+; UNOPT-NEXT:    s32i a8, a9, 0
 ; UNOPT-NEXT:    call0 stack_arg_i8
 ; UNOPT-NEXT:    addi a2, a1, 4
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
@@ -293,7 +293,7 @@ define void @call_stack() {
 ; UNOPT-NEXT:    l32i a7, a7, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    mov.n a9, a1
 ; UNOPT-NEXT:    movi.n a8, 7
-; UNOPT-NEXT:    s32i.n a8, a9, 0
+; UNOPT-NEXT:    s32i a8, a9, 0
 ; UNOPT-NEXT:    call0 stack_arg_i16
 ; UNOPT-NEXT:    addi a2, a1, 28
 ; UNOPT-NEXT:    l32i a0, a2, 0 # 4-byte Folded Reload
@@ -320,9 +320,9 @@ define void @call_stack_i64() {
 ; OPT-NEXT:    addi a2, a1, 0
 ; OPT-NEXT:    s32i a14, a2, 0 # 4-byte Folded Spill
 ; OPT-NEXT:    movi.n a13, 7
-; OPT-NEXT:    s32i.n a13, a1, 0
+; OPT-NEXT:    s32i a13, a1, 0
 ; OPT-NEXT:    movi.n a12, 0
-; OPT-NEXT:    s32i.n a12, a1, 4
+; OPT-NEXT:    s32i a12, a1, 4
 ; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    movi.n a3, 2
 ; OPT-NEXT:    movi.n a4, 3
@@ -331,18 +331,18 @@ define void @call_stack_i64() {
 ; OPT-NEXT:    movi.n a14, 6
 ; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    call0 stack_arg_i64
-; OPT-NEXT:    s32i.n a14, a1, 0
-; OPT-NEXT:    s32i.n a12, a1, 4
+; OPT-NEXT:    s32i a14, a1, 0
+; OPT-NEXT:    s32i a12, a1, 4
 ; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    movi.n a3, 2
 ; OPT-NEXT:    movi.n a4, 3
 ; OPT-NEXT:    movi.n a5, 4
 ; OPT-NEXT:    movi.n a6, 5
 ; OPT-NEXT:    call0 stack_arg_i64_reg_unaligned
-; OPT-NEXT:    s32i.n a13, a1, 0
+; OPT-NEXT:    s32i a13, a1, 0
 ; OPT-NEXT:    movi.n a2, 8
-; OPT-NEXT:    s32i.n a2, a1, 8
-; OPT-NEXT:    s32i.n a12, a1, 12
+; OPT-NEXT:    s32i a2, a1, 8
+; OPT-NEXT:    s32i a12, a1, 12
 ; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    movi.n a3, 2
 ; OPT-NEXT:    movi.n a4, 3
@@ -368,10 +368,10 @@ define void @call_stack_i64() {
 ; UNOPT-NEXT:    s32i a0, a2, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    movi.n a2, 7
-; UNOPT-NEXT:    s32i.n a2, a3, 0
+; UNOPT-NEXT:    s32i a2, a3, 0
 ; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    movi.n a2, 0
-; UNOPT-NEXT:    s32i.n a2, a3, 4
+; UNOPT-NEXT:    s32i a2, a3, 4
 ; UNOPT-NEXT:    movi.n a2, 1
 ; UNOPT-NEXT:    addi a3, a1, 4
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
@@ -403,10 +403,10 @@ define void @call_stack_i64() {
 ; UNOPT-NEXT:    l32i a6, a6, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    mov.n a8, a1
 ; UNOPT-NEXT:    movi.n a7, 6
-; UNOPT-NEXT:    s32i.n a7, a8, 0
+; UNOPT-NEXT:    s32i a7, a8, 0
 ; UNOPT-NEXT:    mov.n a8, a1
 ; UNOPT-NEXT:    movi.n a7, 0
-; UNOPT-NEXT:    s32i.n a7, a8, 4
+; UNOPT-NEXT:    s32i a7, a8, 4
 ; UNOPT-NEXT:    call0 stack_arg_i64_reg_unaligned
 ; UNOPT-NEXT:    addi a2, a1, 4
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
@@ -422,13 +422,13 @@ define void @call_stack_i64() {
 ; UNOPT-NEXT:    l32i a7, a7, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    mov.n a9, a1
 ; UNOPT-NEXT:    movi.n a8, 7
-; UNOPT-NEXT:    s32i.n a8, a9, 0
+; UNOPT-NEXT:    s32i a8, a9, 0
 ; UNOPT-NEXT:    mov.n a9, a1
 ; UNOPT-NEXT:    movi.n a8, 8
-; UNOPT-NEXT:    s32i.n a8, a9, 8
+; UNOPT-NEXT:    s32i a8, a9, 8
 ; UNOPT-NEXT:    mov.n a9, a1
 ; UNOPT-NEXT:    movi.n a8, 0
-; UNOPT-NEXT:    s32i.n a8, a9, 12
+; UNOPT-NEXT:    s32i a8, a9, 12
 ; UNOPT-NEXT:    call0 stack_arg_i64_aligned
 ; UNOPT-NEXT:    addi a2, a1, 28
 ; UNOPT-NEXT:    l32i a0, a2, 0 # 4-byte Folded Reload

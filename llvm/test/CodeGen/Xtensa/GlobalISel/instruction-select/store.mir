@@ -356,7 +356,7 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: S32IN [[COPY1]], [[COPY]], 0 :: (store (s32) into %ir.p)
+    ; CHECK-NEXT: S32I [[COPY1]], [[COPY]], 0 :: (store (s32) into %ir.p)
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(p0) = COPY $a2
     %1:gprb(s32) = COPY $a3
@@ -638,8 +638,8 @@ body:             |
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a4
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a5
-    ; CHECK-NEXT: S32IN [[COPY1]], [[COPY]], 0 :: (store (s32) into %ir.p, align 8)
-    ; CHECK-NEXT: S32IN [[COPY2]], [[COPY]], 4 :: (store (s32) into %ir.p + 4, basealign 8)
+    ; CHECK-NEXT: S32I [[COPY1]], [[COPY]], 0 :: (store (s32) into %ir.p, align 8)
+    ; CHECK-NEXT: S32I [[COPY2]], [[COPY]], 4 :: (store (s32) into %ir.p + 4, basealign 8)
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(p0) = COPY $a2
     %2:gprb(s32) = COPY $a4
@@ -1026,8 +1026,8 @@ body:             |
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a4
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a5
-    ; CHECK-NEXT: S32IN [[COPY1]], [[COPY]], 0 :: (store (s32) into %ir.p)
-    ; CHECK-NEXT: S32IN [[COPY2]], [[COPY]], 4 :: (store (s32) into %ir.p + 4)
+    ; CHECK-NEXT: S32I [[COPY1]], [[COPY]], 0 :: (store (s32) into %ir.p)
+    ; CHECK-NEXT: S32I [[COPY2]], [[COPY]], 4 :: (store (s32) into %ir.p + 4)
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(p0) = COPY $a2
     %2:gprb(s32) = COPY $a4

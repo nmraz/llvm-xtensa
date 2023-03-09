@@ -87,15 +87,13 @@ define void @offset_store_i16_oob2(ptr %base, i16 %val) {
 ; OPT-LABEL: offset_store_i16_oob2:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addmi a2, a2, 512
-; OPT-NEXT:    addi a2, a2, 88
-; OPT-NEXT:    s16i a3, a2, 0
+; OPT-NEXT:    s16i a3, a2, 88
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i16_oob2:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addmi a2, a2, 512
-; UNOPT-NEXT:    addi a2, a2, 88
-; UNOPT-NEXT:    s16i a3, a2, 0
+; UNOPT-NEXT:    s16i a3, a2, 88
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i16, ptr %base, i32 300
   store i16 %val, ptr %p
@@ -129,12 +127,12 @@ define void @offset_store_i16_unaligned(ptr %base, i16 %val) {
 define void @offset_store_i32(ptr %base, i32 %val) {
 ; OPT-LABEL: offset_store_i32:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    s32i.n a3, a2, 20
+; OPT-NEXT:    s32i a3, a2, 20
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i32:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    s32i.n a3, a2, 20
+; UNOPT-NEXT:    s32i a3, a2, 20
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 5
   store i32 %val, ptr %p
@@ -144,12 +142,12 @@ define void @offset_store_i32(ptr %base, i32 %val) {
 define void @offset_store_i32_narrow_max(ptr %base, i32 %val) {
 ; OPT-LABEL: offset_store_i32_narrow_max:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    s32i.n a3, a2, 60
+; OPT-NEXT:    s32i a3, a2, 60
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i32_narrow_max:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    s32i.n a3, a2, 60
+; UNOPT-NEXT:    s32i a3, a2, 60
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 15
   store i32 %val, ptr %p
@@ -175,13 +173,13 @@ define void @offset_store_i32_unaligned_off(ptr %base, i32 %val) {
 ; OPT-LABEL: offset_store_i32_unaligned_off:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addi a2, a2, 22
-; OPT-NEXT:    s32i.n a3, a2, 0
+; OPT-NEXT:    s32i a3, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i32_unaligned_off:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a2, a2, 22
-; UNOPT-NEXT:    s32i.n a3, a2, 0
+; UNOPT-NEXT:    s32i a3, a2, 0
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i8, ptr %base, i32 22
   store i32 %val, ptr %p
@@ -192,13 +190,13 @@ define void @offset_store_i32_oob(ptr %base, i32 %val) {
 ; OPT-LABEL: offset_store_i32_oob:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addmi a2, a2, 1024
-; OPT-NEXT:    s32i.n a3, a2, 0
+; OPT-NEXT:    s32i a3, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i32_oob:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addmi a2, a2, 1024
-; UNOPT-NEXT:    s32i.n a3, a2, 0
+; UNOPT-NEXT:    s32i a3, a2, 0
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 256
   store i32 %val, ptr %p
@@ -208,16 +206,14 @@ define void @offset_store_i32_oob(ptr %base, i32 %val) {
 define void @offset_store_i32_oob2(ptr %base, i32 %val) {
 ; OPT-LABEL: offset_store_i32_oob2:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    addmi a2, a2, 1280
-; OPT-NEXT:    addi a2, a2, -80
-; OPT-NEXT:    s32i.n a3, a2, 0
+; OPT-NEXT:    addmi a2, a2, 1024
+; OPT-NEXT:    s32i a3, a2, 176
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i32_oob2:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addmi a2, a2, 1280
-; UNOPT-NEXT:    addi a2, a2, -80
-; UNOPT-NEXT:    s32i.n a3, a2, 0
+; UNOPT-NEXT:    addmi a2, a2, 1024
+; UNOPT-NEXT:    s32i a3, a2, 176
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 300
   store i32 %val, ptr %p
@@ -261,16 +257,16 @@ define void @offset_store_i32_unaligned(ptr %base, i32 %val) {
 define void @offset_store_i64(ptr %base, i64 %val) {
 ; OPT-LABEL: offset_store_i64:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    s32i.n a4, a2, 40
-; OPT-NEXT:    s32i.n a5, a2, 44
+; OPT-NEXT:    s32i a4, a2, 40
+; OPT-NEXT:    s32i a5, a2, 44
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i64:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    mov.n a3, a2
 ; UNOPT-NEXT:    addi a2, a3, 40
-; UNOPT-NEXT:    s32i.n a4, a3, 40
-; UNOPT-NEXT:    s32i.n a5, a2, 4
+; UNOPT-NEXT:    s32i a4, a3, 40
+; UNOPT-NEXT:    s32i a5, a2, 4
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i64, ptr %base, i32 5
   store i64 %val, ptr %p
@@ -280,16 +276,16 @@ define void @offset_store_i64(ptr %base, i64 %val) {
 define void @offset_store_i64_unaligned_off4(ptr %base, i64 %val) {
 ; OPT-LABEL: offset_store_i64_unaligned_off4:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    s32i.n a4, a2, 20
-; OPT-NEXT:    s32i.n a5, a2, 24
+; OPT-NEXT:    s32i a4, a2, 20
+; OPT-NEXT:    s32i a5, a2, 24
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i64_unaligned_off4:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    mov.n a3, a2
 ; UNOPT-NEXT:    addi a2, a3, 20
-; UNOPT-NEXT:    s32i.n a4, a3, 20
-; UNOPT-NEXT:    s32i.n a5, a2, 4
+; UNOPT-NEXT:    s32i a4, a3, 20
+; UNOPT-NEXT:    s32i a5, a2, 4
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 5
   store i64 %val, ptr %p
@@ -300,16 +296,18 @@ define void @offset_store_i64_unaligned_off(ptr %base, i64 %val) {
 ; OPT-LABEL: offset_store_i64_unaligned_off:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addi a3, a2, 21
-; OPT-NEXT:    s32i.n a4, a3, 0
+; OPT-NEXT:    s32i a4, a3, 0
 ; OPT-NEXT:    addi a2, a2, 25
-; OPT-NEXT:    s32i.n a5, a2, 0
+; OPT-NEXT:    s32i a5, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i64_unaligned_off:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addi a2, a2, 21
-; UNOPT-NEXT:    s32i.n a4, a2, 0
-; UNOPT-NEXT:    s32i.n a5, a2, 4
+; UNOPT-NEXT:    mov.n a3, a2
+; UNOPT-NEXT:    addi a2, a3, 21
+; UNOPT-NEXT:    addi a3, a3, 21
+; UNOPT-NEXT:    s32i a4, a3, 0
+; UNOPT-NEXT:    s32i a5, a2, 4
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i8, ptr %base, i32 21
   store i64 %val, ptr %p

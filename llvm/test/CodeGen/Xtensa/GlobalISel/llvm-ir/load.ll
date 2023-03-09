@@ -56,12 +56,12 @@ entry:
 define i32 @load_i32(ptr %p) {
 ; OPT-LABEL: load_i32:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    l32i.n a2, a2, 0
+; OPT-NEXT:    l32i a2, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: load_i32:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    l32i.n a2, a2, 0
+; UNOPT-NEXT:    l32i a2, a2, 0
 ; UNOPT-NEXT:    ret.n
 entry:
   %load = load i32, ptr %p, align 4
@@ -127,16 +127,16 @@ entry:
 define i64 @load_i64(ptr %p) {
 ; OPT-LABEL: load_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    l32i.n a4, a2, 0
-; OPT-NEXT:    l32i.n a3, a2, 4
+; OPT-NEXT:    l32i a4, a2, 0
+; OPT-NEXT:    l32i a3, a2, 4
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: load_i64:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    mov.n a3, a2
-; UNOPT-NEXT:    l32i.n a2, a3, 0
-; UNOPT-NEXT:    l32i.n a3, a3, 4
+; UNOPT-NEXT:    l32i a2, a3, 0
+; UNOPT-NEXT:    l32i a3, a3, 4
 ; UNOPT-NEXT:    ret.n
 entry:
   %load = load i64, ptr %p, align 8
@@ -236,16 +236,16 @@ entry:
 define i64 @load_i64_unaligned_4(ptr %p) {
 ; OPT-LABEL: load_i64_unaligned_4:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    l32i.n a4, a2, 0
-; OPT-NEXT:    l32i.n a3, a2, 4
+; OPT-NEXT:    l32i a4, a2, 0
+; OPT-NEXT:    l32i a3, a2, 4
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: load_i64_unaligned_4:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    mov.n a3, a2
-; UNOPT-NEXT:    l32i.n a2, a3, 0
-; UNOPT-NEXT:    l32i.n a3, a3, 4
+; UNOPT-NEXT:    l32i a2, a3, 0
+; UNOPT-NEXT:    l32i a3, a3, 4
 ; UNOPT-NEXT:    ret.n
 entry:
   %load = load i64, ptr %p, align 4
