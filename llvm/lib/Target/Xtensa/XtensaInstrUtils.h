@@ -9,7 +9,7 @@ namespace XtensaInstrUtils {
 
 struct AddConstParts {
   int8_t Low;
-  int16_t High;
+  int16_t Middle;
 };
 
 Optional<AddConstParts> splitAddConst(int32_t Value);

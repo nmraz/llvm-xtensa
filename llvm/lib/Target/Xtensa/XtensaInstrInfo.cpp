@@ -55,15 +55,15 @@ void XtensaInstrInfo::addRegImm(MachineBasicBlock &MBB,
     Register LowSrc = Src;
     bool KillLowSrc = false;
 
-    if (Parts->High) {
+    if (Parts->Middle) {
       BuildMI(MBB, I, DL, get(Xtensa::ADDMI), Dest)
           .addReg(Src)
-          .addImm(Parts->High);
+          .addImm(Parts->Middle);
       LowSrc = Dest;
       KillLowSrc = true;
     }
 
-    if (Parts->Low || !Parts->High) {
+    if (Parts->Low || !Parts->Middle) {
       BuildMI(MBB, I, DL, get(Xtensa::ADDI), Dest)
           .addReg(LowSrc, getKillRegState(KillLowSrc))
           .addImm(Parts->Low);

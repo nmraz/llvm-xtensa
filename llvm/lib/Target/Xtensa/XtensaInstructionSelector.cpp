@@ -451,7 +451,7 @@ bool XtensaInstructionSelector::selectAddSubConst(MachineInstr &I) {
   // Heuristic: this is a big constant, so if it is used elsewhere and we would
   // need two instructions anyway, it's probably better to just let the original
   // constant be materialized.
-  if (Parts->High && Parts->Low && !MRI.hasOneNonDBGUse(ConstOperand)) {
+  if (Parts->Middle && Parts->Low && !MRI.hasOneNonDBGUse(ConstOperand)) {
     return false;
   }
 
@@ -466,24 +466,24 @@ void XtensaInstructionSelector::emitAddParts(MachineInstr &I, Register Dest,
   Register AddmiDest = Dest;
   Register AddiSrc = Operand;
 
-  if (!Parts.High && !Parts.Low) {
+  if (!Parts.Middle && !Parts.Low) {
     // Make sure adding 0 still emits at least something.
     emitCopy(I, Dest, Operand);
     return;
   }
 
-  if (Parts.High && Parts.Low) {
+  if (Parts.Middle && Parts.Low) {
     // We need two opcodes, so create a new temporary register.
     Register TempReg = createVirtualGPR();
     AddmiDest = TempReg;
     AddiSrc = TempReg;
   }
 
-  if (Parts.High) {
+  if (Parts.Middle) {
     MachineInstr *AddMi = emitInstrFor(I, Xtensa::ADDMI)
                               .addDef(AddmiDest)
                               .addReg(Operand)
-                              .addImm(Parts.High);
+                              .addImm(Parts.Middle);
     constrainSelectedInstRegOperands(*AddMi, TII, TRI, RBI);
   }
 
