@@ -1,11 +1,11 @@
-#ifndef LLVM_LIB_TARGET_XTENSA_XTENSAISELUTILS_H
-#define LLVM_LIB_TARGET_XTENSA_XTENSAISELUTILS_H
+#ifndef LLVM_LIB_TARGET_XTENSA_XtensaInstrUtils_H
+#define LLVM_LIB_TARGET_XTENSA_XtensaInstrUtils_H
 
 #include "llvm/ADT/Optional.h"
 #include <cstdint>
 
 namespace llvm {
-namespace XtensaISelUtils {
+namespace XtensaInstrUtils {
 
 struct AddConstParts {
   int8_t Low;
@@ -14,7 +14,7 @@ struct AddConstParts {
 
 Optional<AddConstParts> splitAddConst(int32_t Value);
 
-} // namespace XtensaISelUtils
+} // namespace XtensaInstrUtils
 } // namespace llvm
 
 #endif

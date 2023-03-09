@@ -1,10 +1,10 @@
-#include "XtensaISelUtils.h"
+#include "XtensaInstrUtils.h"
 #include "llvm/ADT/Optional.h"
 #include "llvm/Support/MathExtras.h"
 #include <cstdint>
 
 namespace llvm {
-namespace XtensaISelUtils {
+namespace XtensaInstrUtils {
 
 Optional<AddConstParts> splitAddConst(int32_t Value) {
   if (!isInt<16>(Value)) {
@@ -26,5 +26,5 @@ Optional<AddConstParts> splitAddConst(int32_t Value) {
   return {{Low, static_cast<int16_t>(static_cast<int8_t>(High) << 8)}};
 }
 
-} // namespace XtensaISelUtils
+} // namespace XtensaInstrUtils
 } // namespace llvm

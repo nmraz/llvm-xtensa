@@ -1,7 +1,7 @@
 #include "XtensaInstrInfo.h"
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
 #include "XtensaFrameLowering.h"
-#include "XtensaISelUtils.h"
+#include "XtensaInstrUtils.h"
 #include "XtensaRegisterInfo.h"
 #include "llvm/ADT/APInt.h"
 #include "llvm/CodeGen/MachineConstantPool.h"
@@ -17,7 +17,7 @@
 #include <cassert>
 
 using namespace llvm;
-using namespace XtensaISelUtils;
+using namespace XtensaInstrUtils;
 
 #define GET_INSTRINFO_CTOR_DTOR
 #include "XtensaGenInstrInfo.inc"

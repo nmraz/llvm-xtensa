@@ -11,8 +11,8 @@
 //===----------------------------------------------------------------------===//
 
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
-#include "XtensaISelUtils.h"
 #include "XtensaInstrInfo.h"
+#include "XtensaInstrUtils.h"
 #include "XtensaRegisterBankInfo.h"
 #include "XtensaRegisterInfo.h"
 #include "XtensaSubtarget.h"
@@ -49,7 +49,7 @@
 
 using namespace llvm;
 using namespace MIPatternMatch;
-using namespace XtensaISelUtils;
+using namespace XtensaInstrUtils;
 
 namespace {
 
