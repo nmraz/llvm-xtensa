@@ -3,9 +3,11 @@
 #include "XtensaInstrInfo.h"
 #include "XtensaSubtarget.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
+#include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/TargetFrameLowering.h"
 #include "llvm/IR/DebugLoc.h"
+#include "llvm/Support/Debug.h"
 #include <cassert>
 #include <cstdint>
 
@@ -42,6 +44,17 @@ void XtensaFrameLowering::emitEpilogue(MachineFunction &MF,
 
   TII.addRegImm(MBB, MBB.getFirstTerminator(), DebugLoc(), Xtensa::A1,
                 Xtensa::A1, FrameSize);
+}
+
+void XtensaFrameLowering::determineCalleeSaves(MachineFunction &MF,
+                                               BitVector &SavedRegs,
+                                               RegScavenger *RS) const {
+  TargetFrameLowering::determineCalleeSaves(MF, SavedRegs, RS);
+
+  const MachineFrameInfo &MFI = MF.getFrameInfo();
+  if (MFI.hasCalls()) {
+    SavedRegs.set(Xtensa::A0);
+  }
 }
 
 MachineBasicBlock::iterator XtensaFrameLowering::eliminateCallFramePseudoInstr(

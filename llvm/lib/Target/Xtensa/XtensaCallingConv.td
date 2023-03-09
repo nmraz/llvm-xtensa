@@ -19,4 +19,4 @@ def CC_Xtensa_Call0 : CallingConv<[
   CCIfType<[i32], CCAssignToStack<4, 4>>
 ]>;
 
-def CSR_Xtensa_Call0 : CalleeSavedRegs<(sequence "A%u", 12, 15)>;
+def CSR_Xtensa_Call0 : CalleeSavedRegs<(add A0, (sequence "A%u", 12, 15))>;

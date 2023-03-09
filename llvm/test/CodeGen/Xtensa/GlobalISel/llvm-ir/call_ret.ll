@@ -10,11 +10,17 @@ declare i64 @ret_i64()
 define void @do_calls() {
 ; CHECK-LABEL: do_calls:
 ; CHECK:       # %bb.0: # %entry
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    addi a2, a1, 12
+; CHECK-NEXT:    s32i a0, a2, 0 # 4-byte Folded Spill
 ; CHECK-NEXT:    call0 ret_i32
 ; CHECK-NEXT:    call0 ret_i1
 ; CHECK-NEXT:    call0 ret_i8
 ; CHECK-NEXT:    call0 ret_i16
 ; CHECK-NEXT:    call0 ret_i64
+; CHECK-NEXT:    addi a2, a1, 12
+; CHECK-NEXT:    l32i a0, a2, 0 # 4-byte Folded Reload
+; CHECK-NEXT:    addi a1, a1, 16
 ; CHECK-NEXT:    ret.n
 entry:
   %ret32 = call i32 @ret_i32()
