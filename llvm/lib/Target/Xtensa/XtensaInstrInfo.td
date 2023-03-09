@@ -30,22 +30,6 @@ def extui_lshrimm : ComplexPattern<i32, 2, "", []>;
 def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectExtuiLshrImm">,
                        GIComplexPatternEquiv<extui_lshrimm>;
 
-def ptroff_uimm4_sl2 : ComplexPattern<iPTR, 2, "", []>;
-def gi_ptroff_uimm4_sl2 : GIComplexOperandMatcher<s32, "selectPtrOff<4, 2>">,
-                          GIComplexPatternEquiv<ptroff_uimm4_sl2>;
-
-def ptroff_uimm8 : ComplexPattern<iPTR, 2, "", []>;
-def gi_ptroff_uimm8 : GIComplexOperandMatcher<s32, "selectPtrOff<8, 0>">,
-                      GIComplexPatternEquiv<ptroff_uimm8>;
-
-def ptroff_uimm8_sl1 : ComplexPattern<iPTR, 2, "", []>;
-def gi_ptroff_uimm8_sl1 : GIComplexOperandMatcher<s32, "selectPtrOff<8, 1>">,
-                          GIComplexPatternEquiv<ptroff_uimm8_sl1>;
-
-def ptroff_uimm8_sl2 : ComplexPattern<iPTR, 2, "", []>;
-def gi_ptroff_uimm8_sl2 : GIComplexOperandMatcher<s32, "selectPtrOff<8, 2>">,
-                          GIComplexPatternEquiv<ptroff_uimm8_sl2>;
-
 def frameindexoff : ComplexPattern<iPTR, 2, "", []>;
 def gi_frameindexoff : GIComplexOperandMatcher<s32, "selectFrameIndexOff">,
                        GIComplexPatternEquiv<frameindexoff>;
