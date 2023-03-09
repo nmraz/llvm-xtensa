@@ -50,14 +50,14 @@ MachineInstr *XtensaInstrInfo::loadConstWithL32R(MachineBasicBlock &MBB,
 void XtensaInstrInfo::addRegImm(MachineBasicBlock &MBB,
                                 MachineBasicBlock::iterator I,
                                 const DebugLoc &DL, Register Dest, Register Src,
-                                int32_t Value) const {
+                                bool KillSrc, int32_t Value) const {
   if (auto Parts = splitAddConst(Value)) {
     Register LowSrc = Src;
-    bool KillLowSrc = false;
+    bool KillLowSrc = KillSrc;
 
     if (Parts->Middle) {
       BuildMI(MBB, I, DL, get(Xtensa::ADDMI), Dest)
-          .addReg(Src)
+          .addReg(Src, getKillRegState(KillSrc))
           .addImm(Parts->Middle);
       LowSrc = Dest;
       KillLowSrc = true;
@@ -73,7 +73,7 @@ void XtensaInstrInfo::addRegImm(MachineBasicBlock &MBB,
     loadConstWithL32R(MBB, I, DL, Dest,
                       ConstantInt::get(Context, APInt(32, Value)));
     BuildMI(MBB, I, DL, get(Xtensa::ADDN), Dest)
-        .addReg(Src)
+        .addReg(Src, getKillRegState(KillSrc))
         .addReg(Dest, RegState::Kill);
   }
 }
