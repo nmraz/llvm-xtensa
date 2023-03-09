@@ -8,6 +8,7 @@
 #include "llvm/CodeGen/GlobalISel/IRTranslator.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelect.h"
 #include "llvm/CodeGen/GlobalISel/Legalizer.h"
+#include "llvm/CodeGen/GlobalISel/Localizer.h"
 #include "llvm/CodeGen/GlobalISel/RegBankSelect.h"
 #include "llvm/CodeGen/TargetLoweringObjectFileImpl.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
@@ -61,6 +62,7 @@ public:
   bool addLegalizeMachineIR() override;
   void addPreRegBankSelect() override;
   bool addRegBankSelect() override;
+  void addPreGlobalInstructionSelect() override;
   bool addGlobalInstructionSelect() override;
 };
 
@@ -94,6 +96,10 @@ void XtensaPassConfig::addPreRegBankSelect() {
 bool XtensaPassConfig::addRegBankSelect() {
   addPass(new RegBankSelect());
   return false;
+}
+
+void XtensaPassConfig::addPreGlobalInstructionSelect() {
+  addPass(new Localizer());
 }
 
 bool XtensaPassConfig::addGlobalInstructionSelect() {

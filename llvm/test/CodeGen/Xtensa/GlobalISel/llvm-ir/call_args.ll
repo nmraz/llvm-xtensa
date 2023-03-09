@@ -111,9 +111,9 @@ define void @call_stack() {
 ; CHECK-NEXT:    s32i a12, a2, 0 # 4-byte Folded Spill
 ; CHECK-NEXT:    addi a2, a1, 4
 ; CHECK-NEXT:    s32i a13, a2, 0 # 4-byte Folded Spill
-; CHECK-NEXT:    movi.n a13, 1
 ; CHECK-NEXT:    movi.n a12, 7
 ; CHECK-NEXT:    s32i.n a12, a1, 0
+; CHECK-NEXT:    movi.n a13, 1
 ; CHECK-NEXT:    movi.n a2, 1
 ; CHECK-NEXT:    movi.n a3, 2
 ; CHECK-NEXT:    movi.n a4, 3
@@ -164,31 +164,28 @@ entry:
 define void @call_stack_i64() {
 ; CHECK-LABEL: call_stack_i64:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    addi a1, a1, -32
-; CHECK-NEXT:    addi a2, a1, 28
-; CHECK-NEXT:    s32i a0, a2, 0 # 4-byte Folded Spill
-; CHECK-NEXT:    addi a2, a1, 24
-; CHECK-NEXT:    s32i a12, a2, 0 # 4-byte Folded Spill
-; CHECK-NEXT:    addi a2, a1, 20
-; CHECK-NEXT:    s32i a13, a2, 0 # 4-byte Folded Spill
-; CHECK-NEXT:    addi a2, a1, 16
-; CHECK-NEXT:    s32i a14, a2, 0 # 4-byte Folded Spill
+; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    addi a2, a1, 12
-; CHECK-NEXT:    s32i a15, a2, 0 # 4-byte Folded Spill
-; CHECK-NEXT:    movi.n a15, 6
-; CHECK-NEXT:    movi.n a14, 7
+; CHECK-NEXT:    s32i a0, a2, 0 # 4-byte Folded Spill
+; CHECK-NEXT:    addi a2, a1, 8
+; CHECK-NEXT:    s32i a12, a2, 0 # 4-byte Folded Spill
+; CHECK-NEXT:    addi a2, a1, 4
+; CHECK-NEXT:    s32i a13, a2, 0 # 4-byte Folded Spill
+; CHECK-NEXT:    addi a2, a1, 0
+; CHECK-NEXT:    s32i a14, a2, 0 # 4-byte Folded Spill
+; CHECK-NEXT:    movi.n a13, 7
+; CHECK-NEXT:    s32i.n a13, a1, 0
 ; CHECK-NEXT:    movi.n a12, 0
-; CHECK-NEXT:    movi.n a13, 8
-; CHECK-NEXT:    s32i.n a14, a1, 0
 ; CHECK-NEXT:    s32i.n a12, a1, 4
 ; CHECK-NEXT:    movi.n a2, 1
 ; CHECK-NEXT:    movi.n a3, 2
 ; CHECK-NEXT:    movi.n a4, 3
 ; CHECK-NEXT:    movi.n a5, 4
 ; CHECK-NEXT:    movi.n a6, 5
+; CHECK-NEXT:    movi.n a14, 6
 ; CHECK-NEXT:    movi.n a7, 6
 ; CHECK-NEXT:    call0 stack_arg_i64
-; CHECK-NEXT:    s32i.n a15, a1, 0
+; CHECK-NEXT:    s32i.n a14, a1, 0
 ; CHECK-NEXT:    s32i.n a12, a1, 4
 ; CHECK-NEXT:    movi.n a2, 1
 ; CHECK-NEXT:    movi.n a3, 2
@@ -196,8 +193,9 @@ define void @call_stack_i64() {
 ; CHECK-NEXT:    movi.n a5, 4
 ; CHECK-NEXT:    movi.n a6, 5
 ; CHECK-NEXT:    call0 stack_arg_i64_reg_unaligned
-; CHECK-NEXT:    s32i.n a14, a1, 0
-; CHECK-NEXT:    s32i.n a13, a1, 8
+; CHECK-NEXT:    s32i.n a13, a1, 0
+; CHECK-NEXT:    movi.n a2, 8
+; CHECK-NEXT:    s32i.n a2, a1, 8
 ; CHECK-NEXT:    s32i.n a12, a1, 12
 ; CHECK-NEXT:    movi.n a2, 1
 ; CHECK-NEXT:    movi.n a3, 2
@@ -206,17 +204,15 @@ define void @call_stack_i64() {
 ; CHECK-NEXT:    movi.n a6, 5
 ; CHECK-NEXT:    movi.n a7, 6
 ; CHECK-NEXT:    call0 stack_arg_i64_aligned
-; CHECK-NEXT:    addi a2, a1, 12
-; CHECK-NEXT:    l32i a15, a2, 0 # 4-byte Folded Reload
-; CHECK-NEXT:    addi a2, a1, 16
+; CHECK-NEXT:    addi a2, a1, 0
 ; CHECK-NEXT:    l32i a14, a2, 0 # 4-byte Folded Reload
-; CHECK-NEXT:    addi a2, a1, 20
+; CHECK-NEXT:    addi a2, a1, 4
 ; CHECK-NEXT:    l32i a13, a2, 0 # 4-byte Folded Reload
-; CHECK-NEXT:    addi a2, a1, 24
+; CHECK-NEXT:    addi a2, a1, 8
 ; CHECK-NEXT:    l32i a12, a2, 0 # 4-byte Folded Reload
-; CHECK-NEXT:    addi a2, a1, 28
+; CHECK-NEXT:    addi a2, a1, 12
 ; CHECK-NEXT:    l32i a0, a2, 0 # 4-byte Folded Reload
-; CHECK-NEXT:    addi a1, a1, 32
+; CHECK-NEXT:    addi a1, a1, 16
 ; CHECK-NEXT:    ret.n
 entry:
   call void @stack_arg_i64(i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i64 7)

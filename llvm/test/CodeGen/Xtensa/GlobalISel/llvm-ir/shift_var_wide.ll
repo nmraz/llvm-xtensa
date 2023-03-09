@@ -13,8 +13,8 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; CHECK-NEXT:    ssl a4
 ; CHECK-NEXT:    sll a8, a3
 ; CHECK-NEXT:    or a6, a6, a8
-; CHECK-NEXT:    movi.n a8, 0
 ; CHECK-NEXT:    sll a2, a2
+; CHECK-NEXT:    movi.n a8, 0
 ; CHECK-NEXT:    moveqz a5, a8, a7
 ; CHECK-NEXT:    moveqz a6, a2, a7
 ; CHECK-NEXT:    moveqz a6, a3, a4
@@ -39,8 +39,8 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; CHECK-NEXT:    ssl a4
 ; CHECK-NEXT:    sll a8, a3
 ; CHECK-NEXT:    or a6, a6, a8
-; CHECK-NEXT:    movi.n a8, 0
 ; CHECK-NEXT:    sll a2, a2
+; CHECK-NEXT:    movi.n a8, 0
 ; CHECK-NEXT:    moveqz a5, a8, a7
 ; CHECK-NEXT:    moveqz a6, a2, a7
 ; CHECK-NEXT:    moveqz a6, a3, a4
@@ -65,12 +65,12 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; CHECK-NEXT:    ssl a8
 ; CHECK-NEXT:    sll a8, a6
 ; CHECK-NEXT:    or a5, a5, a8
-; CHECK-NEXT:    movi.n a8, 0
 ; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    srl a6, a6
 ; CHECK-NEXT:    moveqz a5, a6, a7
 ; CHECK-NEXT:    moveqz a5, a2, a4
-; CHECK-NEXT:    moveqz a3, a8, a7
+; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    moveqz a3, a2, a7
 ; CHECK-NEXT:    mov.n a2, a5
 ; CHECK-NEXT:    ret.n
 entry:
@@ -90,12 +90,12 @@ define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; CHECK-NEXT:    ssl a8
 ; CHECK-NEXT:    sll a8, a3
 ; CHECK-NEXT:    or a6, a6, a8
-; CHECK-NEXT:    movi.n a8, 0
 ; CHECK-NEXT:    ssr a4
 ; CHECK-NEXT:    srl a3, a3
 ; CHECK-NEXT:    moveqz a6, a3, a7
 ; CHECK-NEXT:    moveqz a6, a2, a4
-; CHECK-NEXT:    moveqz a5, a8, a7
+; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    moveqz a5, a2, a7
 ; CHECK-NEXT:    mov.n a2, a6
 ; CHECK-NEXT:    mov.n a3, a5
 ; CHECK-NEXT:    ret.n
