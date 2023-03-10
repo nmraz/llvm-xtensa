@@ -251,3 +251,74 @@ entry:
   %load = load i64, ptr %p, align 4
   ret i64 %load
 }
+
+define ptr @load_ptr(ptr %p) {
+; OPT-LABEL: load_ptr:
+; OPT:       # %bb.0: # %entry
+; OPT-NEXT:    l32i a2, a2, 0
+; OPT-NEXT:    ret.n
+;
+; UNOPT-LABEL: load_ptr:
+; UNOPT:       # %bb.1: # %entry
+; UNOPT-NEXT:    l32i a2, a2, 0
+; UNOPT-NEXT:    ret.n
+entry:
+  %load = load ptr, ptr %p, align 4
+  ret ptr %load
+}
+
+define ptr @load_ptr_unaligned_1(ptr %p) {
+; OPT-LABEL: load_ptr_unaligned_1:
+; OPT:       # %bb.0: # %entry
+; OPT-NEXT:    l8ui a3, a2, 0
+; OPT-NEXT:    l8ui a4, a2, 1
+; OPT-NEXT:    slli a4, a4, 8
+; OPT-NEXT:    or a3, a4, a3
+; OPT-NEXT:    l8ui a4, a2, 2
+; OPT-NEXT:    l8ui a2, a2, 3
+; OPT-NEXT:    slli a2, a2, 24
+; OPT-NEXT:    slli a4, a4, 16
+; OPT-NEXT:    or a2, a2, a4
+; OPT-NEXT:    or a2, a2, a3
+; OPT-NEXT:    ret.n
+;
+; UNOPT-LABEL: load_ptr_unaligned_1:
+; UNOPT:       # %bb.1: # %entry
+; UNOPT-NEXT:    mov.n a4, a2
+; UNOPT-NEXT:    l8ui a3, a4, 0
+; UNOPT-NEXT:    l8ui a2, a4, 1
+; UNOPT-NEXT:    slli a2, a2, 8
+; UNOPT-NEXT:    or a3, a2, a3
+; UNOPT-NEXT:    addi a2, a4, 2
+; UNOPT-NEXT:    l8ui a4, a4, 2
+; UNOPT-NEXT:    l8ui a2, a2, 1
+; UNOPT-NEXT:    slli a2, a2, 8
+; UNOPT-NEXT:    or a2, a2, a4
+; UNOPT-NEXT:    slli a2, a2, 16
+; UNOPT-NEXT:    or a2, a2, a3
+; UNOPT-NEXT:    ret.n
+entry:
+  %load = load ptr, ptr %p, align 1
+  ret ptr %load
+}
+
+define ptr @load_ptr_unaligned_2(ptr %p) {
+; OPT-LABEL: load_ptr_unaligned_2:
+; OPT:       # %bb.0: # %entry
+; OPT-NEXT:    l16ui a3, a2, 0
+; OPT-NEXT:    l16ui a2, a2, 2
+; OPT-NEXT:    slli a2, a2, 16
+; OPT-NEXT:    or a2, a2, a3
+; OPT-NEXT:    ret.n
+;
+; UNOPT-LABEL: load_ptr_unaligned_2:
+; UNOPT:       # %bb.1: # %entry
+; UNOPT-NEXT:    l16ui a3, a2, 0
+; UNOPT-NEXT:    l16ui a2, a2, 2
+; UNOPT-NEXT:    slli a2, a2, 16
+; UNOPT-NEXT:    or a2, a2, a3
+; UNOPT-NEXT:    ret.n
+entry:
+  %load = load ptr, ptr %p, align 2
+  ret ptr %load
+}

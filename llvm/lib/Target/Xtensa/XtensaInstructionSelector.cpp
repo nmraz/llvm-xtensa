@@ -81,6 +81,8 @@ private:
 
   bool preISelLower(MachineInstr &I);
   bool convertPtrAddToAdd(MachineInstr &I);
+  void convertPtrLoad(MachineInstr &I);
+  bool convertPtrStore(MachineInstr &I);
 
   /// Auto-generated implementation using tablegen patterns.
   bool selectImpl(MachineInstr &I, CodeGenCoverage &CoverageInfo) const;
@@ -299,6 +301,13 @@ bool XtensaInstructionSelector::preISelLower(MachineInstr &I) {
   switch (I.getOpcode()) {
   case Xtensa::G_PTR_ADD:
     return convertPtrAddToAdd(I);
+  case Xtensa::G_LOAD:
+  case Xtensa::G_ZEXTLOAD:
+  case Xtensa::G_SEXTLOAD:
+    convertPtrLoad(I);
+    break;
+  case Xtensa::G_STORE:
+    break;
   }
 
   return true;
@@ -329,6 +338,35 @@ bool XtensaInstructionSelector::convertPtrAddToAdd(MachineInstr &I) {
   if (mi_match(OffReg, MRI, m_GSub(m_SpecificICst(0), m_Reg(NegOffReg)))) {
     I.setDesc(TII.get(Xtensa::G_SUB));
     I.getOperand(2).setReg(NegOffReg);
+  }
+
+  return true;
+}
+
+void XtensaInstructionSelector::convertPtrLoad(MachineInstr &I) {
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+
+  // Convert pointer loads to integer loads so that our generated patterns
+  // match. Since uses are always selected before defs, we can safely change
+  // the destination type without an intermediary copy.
+  Register Dest = I.getOperand(0).getReg();
+  if (MRI.getType(Dest).isPointer()) {
+    MRI.setType(Dest, LLT::scalar(32));
+  }
+}
+
+bool XtensaInstructionSelector::convertPtrStore(MachineInstr &I) {
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+
+  Register Value = I.getOperand(0).getReg();
+  if (MRI.getType(Value).isPointer()) {
+    // There may be other uses/defs of the value that need to be integers, so
+    // emit a pointer-to-integer copy feeding into the store.
+    Register IntReg = createVirtualGPR();
+    if (!emitCopy(I, IntReg, Value)) {
+      return false;
+    }
+    I.getOperand(1).setReg(IntReg);
   }
 
   return true;

@@ -66,6 +66,24 @@
     ret i64 %load
   }
 
+  define ptr @load_ptr(ptr %p) {
+  entry:
+    %load = load ptr, ptr %p, align 4
+    ret ptr %load
+  }
+
+  define ptr @load_ptr_unaligned_1(ptr %p) {
+  entry:
+    %load = load ptr, ptr %p, align 1
+    ret ptr %load
+  }
+
+  define ptr @load_ptr_unaligned_2(ptr %p) {
+  entry:
+    %load = load ptr, ptr %p, align 2
+    ret ptr %load
+  }
+
 ...
 ---
 name:            load_i8
@@ -979,5 +997,268 @@ body:             |
     $a2 = COPY %4(s32)
     $a3 = COPY %7(s32)
     RETN implicit $a0, implicit $a2, implicit $a3
+
+...
+---
+name:            load_ptr
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 1, class: gprb, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    liveins: $a2
+
+    ; CHECK-LABEL: name: load_ptr
+    ; CHECK: liveins: $a2
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
+    ; CHECK-NEXT: [[L32I:%[0-9]+]]:gpr = L32I [[COPY]], 0 :: (load (p0) from %ir.p)
+    ; CHECK-NEXT: $a2 = COPY [[L32I]]
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:gprb(p0) = COPY $a2
+    %1:gprb(p0) = G_LOAD %0(p0) :: (load (p0) from %ir.p)
+    $a2 = COPY %1(p0)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            load_ptr_unaligned_1
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 1, class: gprb, preferred-register: '' }
+  - { id: 2, class: gprb, preferred-register: '' }
+  - { id: 3, class: gprb, preferred-register: '' }
+  - { id: 4, class: gprb, preferred-register: '' }
+  - { id: 5, class: gprb, preferred-register: '' }
+  - { id: 6, class: gprb, preferred-register: '' }
+  - { id: 7, class: gprb, preferred-register: '' }
+  - { id: 8, class: gprb, preferred-register: '' }
+  - { id: 9, class: gprb, preferred-register: '' }
+  - { id: 10, class: gprb, preferred-register: '' }
+  - { id: 11, class: gprb, preferred-register: '' }
+  - { id: 12, class: gprb, preferred-register: '' }
+  - { id: 13, class: gprb, preferred-register: '' }
+  - { id: 14, class: gprb, preferred-register: '' }
+  - { id: 15, class: gprb, preferred-register: '' }
+  - { id: 16, class: gprb, preferred-register: '' }
+  - { id: 17, class: gprb, preferred-register: '' }
+  - { id: 18, class: gprb, preferred-register: '' }
+  - { id: 19, class: gprb, preferred-register: '' }
+  - { id: 20, class: gprb, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    liveins: $a2
+
+    ; CHECK-LABEL: name: load_ptr_unaligned_1
+    ; CHECK: liveins: $a2
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
+    ; CHECK-NEXT: [[L8UI:%[0-9]+]]:gpr = L8UI [[COPY]], 0 :: (load (s8) from %ir.p)
+    ; CHECK-NEXT: [[L8UI1:%[0-9]+]]:gpr = L8UI [[COPY]], 1 :: (load (s8) from %ir.p + 1)
+    ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[L8UI1]], 8
+    ; CHECK-NEXT: [[OR:%[0-9]+]]:gpr = OR [[SLLI]], [[L8UI]]
+    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], 2
+    ; CHECK-NEXT: [[L8UI2:%[0-9]+]]:gpr = L8UI [[COPY]], 2 :: (load (s8) from %ir.p + 2)
+    ; CHECK-NEXT: [[L8UI3:%[0-9]+]]:gpr = L8UI [[ADDI]], 1 :: (load (s8) from %ir.p + 3)
+    ; CHECK-NEXT: [[SLLI1:%[0-9]+]]:gpr = SLLI [[L8UI3]], 8
+    ; CHECK-NEXT: [[OR1:%[0-9]+]]:gpr = OR [[SLLI1]], [[L8UI2]]
+    ; CHECK-NEXT: [[SLLI2:%[0-9]+]]:gpr = SLLI [[OR1]], 16
+    ; CHECK-NEXT: [[OR2:%[0-9]+]]:gpr = OR [[SLLI2]], [[OR]]
+    ; CHECK-NEXT: $a2 = COPY [[OR2]]
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:gprb(p0) = COPY $a2
+    %15:gprb(s32) = G_ZEXTLOAD %0(p0) :: (load (s8) from %ir.p)
+    %16:gprb(s32) = G_CONSTANT i32 1
+    %17:gprb(p0) = G_PTR_ADD %0, %16(s32)
+    %18:gprb(s32) = G_ZEXTLOAD %17(p0) :: (load (s8) from %ir.p + 1)
+    %19:gprb(s32) = G_CONSTANT i32 8
+    %20:gprb(s32) = G_SHL %18, %19(s32)
+    %2:gprb(s32) = G_OR %20, %15
+    %3:gprb(s32) = G_CONSTANT i32 2
+    %4:gprb(p0) = G_PTR_ADD %0, %3(s32)
+    %9:gprb(s32) = G_ZEXTLOAD %4(p0) :: (load (s8) from %ir.p + 2)
+    %10:gprb(s32) = G_CONSTANT i32 1
+    %11:gprb(p0) = G_PTR_ADD %4, %10(s32)
+    %12:gprb(s32) = G_LOAD %11(p0) :: (load (s8) from %ir.p + 3)
+    %13:gprb(s32) = G_CONSTANT i32 8
+    %14:gprb(s32) = G_SHL %12, %13(s32)
+    %5:gprb(s32) = G_OR %14, %9
+    %6:gprb(s32) = G_CONSTANT i32 16
+    %7:gprb(s32) = G_SHL %5, %6(s32)
+    %8:gprb(s32) = G_OR %7, %2
+    %1:gprb(p0) = G_INTTOPTR %8(s32)
+    $a2 = COPY %1(p0)
+    RETN implicit $a0, implicit $a2
+
+...
+---
+name:            load_ptr_unaligned_2
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 1, class: gprb, preferred-register: '' }
+  - { id: 2, class: gprb, preferred-register: '' }
+  - { id: 3, class: gprb, preferred-register: '' }
+  - { id: 4, class: gprb, preferred-register: '' }
+  - { id: 5, class: gprb, preferred-register: '' }
+  - { id: 6, class: gprb, preferred-register: '' }
+  - { id: 7, class: gprb, preferred-register: '' }
+  - { id: 8, class: gprb, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:           []
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1.entry:
+    liveins: $a2
+
+    ; CHECK-LABEL: name: load_ptr_unaligned_2
+    ; CHECK: liveins: $a2
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
+    ; CHECK-NEXT: [[L16UI:%[0-9]+]]:gpr = L16UI [[COPY]], 0 :: (load (s16) from %ir.p)
+    ; CHECK-NEXT: [[L16UI1:%[0-9]+]]:gpr = L16UI [[COPY]], 2 :: (load (s16) from %ir.p + 2)
+    ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[L16UI1]], 16
+    ; CHECK-NEXT: [[OR:%[0-9]+]]:gpr = OR [[SLLI]], [[L16UI]]
+    ; CHECK-NEXT: $a2 = COPY [[OR]]
+    ; CHECK-NEXT: RETN implicit $a0, implicit $a2
+    %0:gprb(p0) = COPY $a2
+    %2:gprb(s32) = G_ZEXTLOAD %0(p0) :: (load (s16) from %ir.p)
+    %3:gprb(s32) = G_CONSTANT i32 2
+    %4:gprb(p0) = G_PTR_ADD %0, %3(s32)
+    %5:gprb(s32) = G_LOAD %4(p0) :: (load (s16) from %ir.p + 2)
+    %6:gprb(s32) = G_CONSTANT i32 16
+    %7:gprb(s32) = G_SHL %5, %6(s32)
+    %8:gprb(s32) = G_OR %7, %2
+    %1:gprb(p0) = G_INTTOPTR %8(s32)
+    $a2 = COPY %1(p0)
+    RETN implicit $a0, implicit $a2
 
 ...

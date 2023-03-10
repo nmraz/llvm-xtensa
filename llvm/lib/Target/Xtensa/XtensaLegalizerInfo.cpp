@@ -74,6 +74,7 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
           {S32, P0, S8, 8},
           {S32, P0, S16, 16},
           {S32, P0, S32, 32},
+          {P0, P0, S32, 32},
       })
       .clampScalar(0, S32, S32)
       .lower();
@@ -88,6 +89,7 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
           {S32, P0, S8, 8},
           {S32, P0, S16, 16},
           {S32, P0, S32, 32},
+          {P0, P0, S32, 32},
       })
       .clampScalar(0, S32, S32)
       .lower();

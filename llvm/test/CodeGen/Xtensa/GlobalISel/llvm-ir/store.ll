@@ -247,3 +247,75 @@ entry:
   store i64 %val, ptr %p, align 4
   ret void
 }
+
+define void @store_ptr(ptr %p, ptr %val) {
+; OPT-LABEL: store_ptr:
+; OPT:       # %bb.0: # %entry
+; OPT-NEXT:    s32i a3, a2, 0
+; OPT-NEXT:    ret.n
+;
+; UNOPT-LABEL: store_ptr:
+; UNOPT:       # %bb.1: # %entry
+; UNOPT-NEXT:    s32i a3, a2, 0
+; UNOPT-NEXT:    ret.n
+entry:
+  store ptr %val, ptr %p, align 4
+  ret void
+}
+
+define void @store_ptr_unaligned_1(ptr %p, ptr %val) {
+; OPT-LABEL: store_ptr_unaligned_1:
+; OPT:       # %bb.0: # %entry
+; OPT-NEXT:    extui a4, a3, 16, 16
+; OPT-NEXT:    extui a5, a3, 0, 16
+; OPT-NEXT:    srli a5, a5, 8
+; OPT-NEXT:    s8i a3, a2, 0
+; OPT-NEXT:    s8i a5, a2, 1
+; OPT-NEXT:    extui a3, a3, 24, 8
+; OPT-NEXT:    s8i a4, a2, 2
+; OPT-NEXT:    s8i a3, a2, 3
+; OPT-NEXT:    ret.n
+;
+; UNOPT-LABEL: store_ptr_unaligned_1:
+; UNOPT:       # %bb.1: # %entry
+; UNOPT-NEXT:    mov.n a5, a2
+; UNOPT-NEXT:    mov.n a2, a3
+; UNOPT-NEXT:    extui a4, a2, 16, 16
+; UNOPT-NEXT:    addi a3, a5, 2
+; UNOPT-NEXT:    extui a6, a2, 0, 16
+; UNOPT-NEXT:    srli a6, a6, 8
+; UNOPT-NEXT:    s8i a2, a5, 0
+; UNOPT-NEXT:    s8i a6, a5, 1
+; UNOPT-NEXT:    extui a2, a2, 16, 16
+; UNOPT-NEXT:    srli a2, a2, 8
+; UNOPT-NEXT:    s8i a4, a5, 2
+; UNOPT-NEXT:    s8i a2, a3, 1
+; UNOPT-NEXT:    ret.n
+entry:
+  store ptr %val, ptr %p, align 1
+  ret void
+}
+
+define void @store_ptr_unaligned_2(ptr %p, ptr %val) {
+; OPT-LABEL: store_ptr_unaligned_2:
+; OPT:       # %bb.0: # %entry
+; OPT-NEXT:    extui a4, a3, 16, 16
+; OPT-NEXT:    s16i a3, a2, 0
+; OPT-NEXT:    s16i a4, a2, 2
+; OPT-NEXT:    ret.n
+;
+; UNOPT-LABEL: store_ptr_unaligned_2:
+; UNOPT:       # %bb.1: # %entry
+; UNOPT-NEXT:    addi a1, a1, -4
+; UNOPT-NEXT:    s32i a2, a1, 0 # 4-byte Folded Spill
+; UNOPT-NEXT:    mov.n a4, a3
+; UNOPT-NEXT:    l32i a3, a1, 0 # 4-byte Folded Reload
+; UNOPT-NEXT:    extui a2, a4, 16, 16
+; UNOPT-NEXT:    s16i a4, a3, 0
+; UNOPT-NEXT:    s16i a2, a3, 2
+; UNOPT-NEXT:    addi a1, a1, 4
+; UNOPT-NEXT:    ret.n
+entry:
+  store ptr %val, ptr %p, align 2
+  ret void
+}
