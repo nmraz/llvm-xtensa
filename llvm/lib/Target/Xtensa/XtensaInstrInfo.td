@@ -26,6 +26,13 @@ def xtensa_ssl_masked : SDNode<"XtensaISD::SSL_MASKED", SDTSetSAR>;
 def : GINodeEquiv<G_XTENSA_SSR_MASKED, xtensa_ssr_masked>;
 def : GINodeEquiv<G_XTENSA_SSL_MASKED, xtensa_ssl_masked>;
 
+def neg_imm_xform : SDNodeXForm<imm, [{ unimplemented }]>;
+def gi_neg_imm : GICustomOperandRenderer<"renderNegImm">,
+                 GISDNodeXFormEquiv<neg_imm_xform>;
+
+def neg_simm8 : ImmLeaf<i32, [{ return isInt<8>(-Imm); }], neg_imm_xform>;
+def neg_simm8_sl8 : ImmLeaf<i32, [{ return isShiftedInt<8, 8>(-Imm); }], neg_imm_xform>;
+
 def extui_lshrimm : ComplexPattern<i32, 2, "", []>;
 def gi_extui_lshrimm : GIComplexOperandMatcher<s32, "selectExtuiLshrImm">,
                        GIComplexPatternEquiv<extui_lshrimm>;

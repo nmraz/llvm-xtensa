@@ -90,6 +90,9 @@ private:
   ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
   ComplexRendererFns selectFrameIndexOff(MachineOperand &Root) const;
 
+  void renderNegImm(MachineInstrBuilder &MIB, const MachineInstr &I,
+                    int OpIdx = -1) const;
+
   bool selectEarly(MachineInstr &I);
   bool selectAndAsExtui(MachineInstr &I) const;
   void tryFoldShrIntoExtui(const MachineInstr &InputMI,
@@ -429,6 +432,14 @@ XtensaInstructionSelector::selectFrameIndexOff(MachineOperand &Root) const {
       [=](MachineInstrBuilder &MIB) { MIB.addFrameIndex(FrameIndex); },
       [=](MachineInstrBuilder &MIB) { MIB.addImm(Offset); },
   }};
+}
+
+void XtensaInstructionSelector::renderNegImm(MachineInstrBuilder &MIB,
+                                             const MachineInstr &I,
+                                             int OpIdx) const {
+  assert(OpIdx == -1);
+  int64_t Val = I.getOperand(1).getCImm()->getSExtValue();
+  MIB.addImm(-Val);
 }
 
 bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
