@@ -78,6 +78,20 @@ void XtensaInstrInfo::addRegImmParts(MachineBasicBlock &MBB,
   }
 }
 
+void XtensaInstrInfo::addRegImmL32R(MachineBasicBlock &MBB,
+                                    MachineBasicBlock::iterator I,
+                                    const DebugLoc &DL, Register Dest,
+                                    Register Src, bool KillSrc, Register Temp,
+                                    int32_t Value) const {
+  assert(Temp != Src && "Temporary register would clobber source");
+  LLVMContext &Context = MBB.getParent()->getFunction().getContext();
+  loadConstWithL32R(MBB, I, DL, Temp,
+                    ConstantInt::get(Context, APInt(32, Value)));
+  BuildMI(MBB, I, DL, get(Xtensa::ADDN), Dest)
+      .addReg(Src, getKillRegState(KillSrc))
+      .addReg(Temp, RegState::Kill);
+}
+
 void XtensaInstrInfo::addRegImm(MachineBasicBlock &MBB,
                                 MachineBasicBlock::iterator I,
                                 const DebugLoc &DL, Register Dest, Register Src,
@@ -85,12 +99,7 @@ void XtensaInstrInfo::addRegImm(MachineBasicBlock &MBB,
   if (auto Parts = splitAddConst(Value)) {
     addRegImmParts(MBB, I, DL, Dest, Src, KillSrc, *Parts);
   } else {
-    LLVMContext &Context = MBB.getParent()->getFunction().getContext();
-    loadConstWithL32R(MBB, I, DL, Dest,
-                      ConstantInt::get(Context, APInt(32, Value)));
-    BuildMI(MBB, I, DL, get(Xtensa::ADDN), Dest)
-        .addReg(Src, getKillRegState(KillSrc))
-        .addReg(Dest, RegState::Kill);
+    addRegImmL32R(MBB, I, DL, Dest, Src, KillSrc, Dest, Value);
   }
 }
 
