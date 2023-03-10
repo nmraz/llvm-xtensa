@@ -307,6 +307,7 @@ bool XtensaInstructionSelector::preISelLower(MachineInstr &I) {
     convertPtrLoad(I);
     break;
   case Xtensa::G_STORE:
+    convertPtrStore(I);
     break;
   }
 
@@ -366,7 +367,7 @@ bool XtensaInstructionSelector::convertPtrStore(MachineInstr &I) {
     if (!emitCopy(I, IntReg, Value)) {
       return false;
     }
-    I.getOperand(1).setReg(IntReg);
+    I.getOperand(0).setReg(IntReg);
   }
 
   return true;
