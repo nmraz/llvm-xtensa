@@ -96,6 +96,8 @@ private:
                            const MachineRegisterInfo &MRI, uint32_t MaskWidth,
                            Register &NewInputReg, uint32_t &ShiftWidth) const;
   bool selectAddSubConst(MachineInstr &I);
+  bool selectAddSubFrameIndexConst(MachineInstr &I, MachineInstr &OperandMI,
+                                   int64_t Offset);
 
   bool selectLate(MachineInstr &I);
   bool selectLoadStore(MachineInstr &I);
@@ -542,6 +544,11 @@ bool XtensaInstructionSelector::selectAddSubConst(MachineInstr &I) {
     ConstValue = -ConstValue;
   }
 
+  MachineInstr *OtherOperandMI = MRI.getVRegDef(OtherOperand);
+  if (selectAddSubFrameIndexConst(I, *OtherOperandMI, ConstValue)) {
+    return true;
+  }
+
   Optional<AddConstParts> Parts = splitAddConst(ConstValue);
   if (!Parts) {
     return false;
@@ -556,6 +563,24 @@ bool XtensaInstructionSelector::selectAddSubConst(MachineInstr &I) {
 
   emitAddParts(I, Dest, OtherOperand, *Parts);
   I.removeFromParent();
+  return true;
+}
+
+bool XtensaInstructionSelector::selectAddSubFrameIndexConst(
+    MachineInstr &I, MachineInstr &OperandMI, int64_t Offset) {
+  if (OperandMI.getOpcode() != Xtensa::G_FRAME_INDEX) {
+    return false;
+  }
+
+  MachineInstr *Addi = emitInstrFor(I, Xtensa::ADDI)
+                           .add(I.getOperand(0))
+                           .add(OperandMI.getOperand(1))
+                           .addImm(Offset);
+  if (!constrainSelectedInstRegOperands(*Addi, TII, TRI, RBI)) {
+    return false;
+  }
+
+  I.eraseFromParent();
   return true;
 }
 
