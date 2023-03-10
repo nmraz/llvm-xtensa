@@ -43,6 +43,9 @@ public:
                                   const DebugLoc &DL, Register Dest,
                                   const Constant *Value) const;
 
+  void loadImm(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
+               const DebugLoc &DL, Register Dest, int32_t Value) const;
+
   /// Emits a sequence of instructions adding `Src` and `Parts` into `Dest`
   /// before `I`. The emitted instructions may not be in SSA form.
   void addRegImmParts(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
@@ -51,17 +54,19 @@ public:
                       const XtensaInstrUtils::AddConstParts &Parts) const;
 
   /// Emits a sequence of instructions adding `Src` and `Value` into `Dest`
-  /// before `I`, using `l32r` to load the value. The emitted instructions may
-  /// not be in SSA form.
-  void addRegImmL32R(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
-                     const DebugLoc &DL, Register Dest, Register Src,
-                     bool KillSrc, Register Temp, int32_t Value) const;
+  /// before `I`, by loading the value into a temporary register and using an
+  /// ordinary add. The emitted instructions may not be in SSA form.
+  void addRegImmWithLoad(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
+                         const DebugLoc &DL, Register Dest, Register Src,
+                         bool KillSrc, Register Temp, int32_t Value) const;
 
   /// Emits a sequence of instructions adding `Src` and `Value` into `Dest`
   /// before `I`. The emitted instructions may not be in SSA form.
+  /// If `AllowSplit` is true, the addition may be split across several add
+  /// instructions when deemed beneficial.
   void addRegImm(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
                  const DebugLoc &DL, Register Dest, Register Src, bool KillSrc,
-                 int32_t Value) const;
+                 Register Temp, int32_t Value, bool AllowSplit = true) const;
 
   void copyPhysReg(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
                    const DebugLoc &DL, MCRegister DestReg, MCRegister SrcReg,

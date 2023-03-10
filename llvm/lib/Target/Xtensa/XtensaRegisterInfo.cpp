@@ -60,8 +60,8 @@ static void eliminateLoadStoreFrameIndex(MachineInstr &MI,
     OffsetOp.ChangeToImmediate(Parts->Offset);
   } else {
     Register TempReg = MRI.createVirtualRegister(&Xtensa::GPRRegClass);
-    TII.addRegImmL32R(MBB, MI, MI.getDebugLoc(), TempReg, FrameReg, false,
-                      TempReg, Offset);
+    TII.addRegImmWithLoad(MBB, MI, MI.getDebugLoc(), TempReg, FrameReg, false,
+                          TempReg, Offset);
     BaseOp.ChangeToRegister(TempReg, false, false, true);
     OffsetOp.ChangeToImmediate(0);
   }
@@ -119,11 +119,13 @@ void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
       MFI.getStackSize() + MFI.getObjectOffset(FI) + AddedOffset;
 
   switch (MI.getOpcode()) {
-  case Xtensa::ADDI:
-    TII.addRegImm(MBB, II, MI.getDebugLoc(), MI.getOperand(0).getReg(),
-                  FrameReg, false, RealOffset);
+  case Xtensa::ADDI: {
+    Register Dest = MI.getOperand(0).getReg();
+    TII.addRegImm(MBB, II, MI.getDebugLoc(), Dest, FrameReg, false, Dest,
+                  RealOffset);
     MI.removeFromParent();
     break;
+  }
   case Xtensa::L8UI:
   case Xtensa::L16UI:
   case Xtensa::L16SI:

@@ -13,6 +13,16 @@
 
 using namespace llvm;
 
+static void adjustStackPointer(const XtensaInstrInfo &TII, MachineInstr &I,
+                               int32_t Offset) {
+  // Note: we never want to split the stack pointer adjustment, as that may
+  // cause it to be temporarily misaligned.
+  // The `a8` register is always safe to use as a temporary, as arguments use at
+  // most `a7`.
+  TII.addRegImm(*I.getParent(), I, DebugLoc(), Xtensa::A1, Xtensa::A1, true,
+                Xtensa::A8, Offset, false);
+}
+
 XtensaFrameLowering::XtensaFrameLowering(const XtensaSubtarget &STI)
     : TargetFrameLowering(StackGrowsDown, Align(16), 0), STI(STI) {}
 
@@ -27,8 +37,7 @@ void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
     return;
   }
 
-  TII.addRegImm(MBB, MBB.begin(), DebugLoc(), Xtensa::A1, Xtensa::A1, true,
-                -FrameSize);
+  adjustStackPointer(TII, *MBB.begin(), -FrameSize);
 }
 
 void XtensaFrameLowering::emitEpilogue(MachineFunction &MF,
@@ -42,8 +51,7 @@ void XtensaFrameLowering::emitEpilogue(MachineFunction &MF,
     return;
   }
 
-  TII.addRegImm(MBB, MBB.getFirstTerminator(), DebugLoc(), Xtensa::A1,
-                Xtensa::A1, true, FrameSize);
+  adjustStackPointer(TII, *MBB.getFirstTerminator(), FrameSize);
 }
 
 void XtensaFrameLowering::determineCalleeSaves(MachineFunction &MF,

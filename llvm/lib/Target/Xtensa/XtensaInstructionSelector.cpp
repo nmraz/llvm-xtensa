@@ -90,17 +90,14 @@ private:
   ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
   ComplexRendererFns selectFrameIndexOff(MachineOperand &Root) const;
 
-  void renderNegImm(MachineInstrBuilder &MIB, const MachineInstr &I,
-                    int OpIdx = -1) const;
-
   bool selectEarly(MachineInstr &I);
   bool selectAndAsExtui(MachineInstr &I) const;
   void tryFoldShrIntoExtui(const MachineInstr &InputMI,
                            const MachineRegisterInfo &MRI, uint32_t MaskWidth,
                            Register &NewInputReg, uint32_t &ShiftWidth) const;
   bool selectAddSubConst(MachineInstr &I);
-  bool selectAddSubFrameIndexConst(MachineInstr &I, MachineInstr &OperandMI,
-                                   int64_t Offset);
+  bool selectFrameIndexOffset(MachineInstr &I, MachineInstr &OperandMI,
+                              int64_t Offset);
 
   bool selectLate(MachineInstr &I);
   bool selectLoadStore(MachineInstr &I);
@@ -434,14 +431,6 @@ XtensaInstructionSelector::selectFrameIndexOff(MachineOperand &Root) const {
   }};
 }
 
-void XtensaInstructionSelector::renderNegImm(MachineInstrBuilder &MIB,
-                                             const MachineInstr &I,
-                                             int OpIdx) const {
-  assert(OpIdx == -1);
-  int64_t Val = I.getOperand(1).getCImm()->getSExtValue();
-  MIB.addImm(-Val);
-}
-
 bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
   switch (I.getOpcode()) {
   case Xtensa::G_PHI:
@@ -556,7 +545,7 @@ bool XtensaInstructionSelector::selectAddSubConst(MachineInstr &I) {
   }
 
   MachineInstr *OtherOperandMI = MRI.getVRegDef(OtherOperand);
-  if (selectAddSubFrameIndexConst(I, *OtherOperandMI, ConstValue)) {
+  if (selectFrameIndexOffset(I, *OtherOperandMI, ConstValue)) {
     return true;
   }
 
@@ -577,8 +566,9 @@ bool XtensaInstructionSelector::selectAddSubConst(MachineInstr &I) {
   return true;
 }
 
-bool XtensaInstructionSelector::selectAddSubFrameIndexConst(
-    MachineInstr &I, MachineInstr &OperandMI, int64_t Offset) {
+bool XtensaInstructionSelector::selectFrameIndexOffset(MachineInstr &I,
+                                                       MachineInstr &OperandMI,
+                                                       int64_t Offset) {
   if (OperandMI.getOpcode() != Xtensa::G_FRAME_INDEX) {
     return false;
   }

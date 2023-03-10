@@ -36,7 +36,17 @@ namespace llvm {
 namespace XtensaInstrUtils {
 
 Optional<AddConstParts> splitAddConst(int32_t Value) {
-  if (!isInt<16>(Value)) {
+  if (isInt<8>(Value)) {
+    return {{static_cast<int8_t>(Value), 0}};
+  }
+
+  if (isShiftedInt<8, 8>(Value)) {
+    return {{0, static_cast<int16_t>(Value)}};
+  }
+
+  // 12-bit immediates fit in a `movi` instruction, anything beyond 16 bits
+  // won't be representable as two adds anyway.
+  if (isInt<12>(Value) || !isInt<16>(Value)) {
     return None;
   }
 

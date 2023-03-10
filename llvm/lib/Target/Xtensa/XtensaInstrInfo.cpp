@@ -14,6 +14,7 @@
 #include "llvm/IR/DebugLoc.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/Support/ErrorHandling.h"
+#include "llvm/Support/MathExtras.h"
 #include <cassert>
 
 using namespace llvm;
@@ -47,6 +48,18 @@ MachineInstr *XtensaInstrInfo::loadConstWithL32R(MachineBasicBlock &MBB,
       .addMemOperand(MMO);
 }
 
+void XtensaInstrInfo::loadImm(MachineBasicBlock &MBB,
+                              MachineBasicBlock::iterator I, const DebugLoc &DL,
+                              Register Dest, int32_t Value) const {
+  if (isInt<12>(Value)) {
+    BuildMI(MBB, I, DL, get(Xtensa::MOVI), Dest).addImm(Value);
+  } else {
+    LLVMContext &Context = MBB.getParent()->getFunction().getContext();
+    loadConstWithL32R(MBB, I, DL, Dest,
+                      ConstantInt::get(Context, APInt(32, Value)));
+  }
+}
+
 void XtensaInstrInfo::addRegImmParts(MachineBasicBlock &MBB,
                                      MachineBasicBlock::iterator I,
                                      const DebugLoc &DL, Register Dest,
@@ -78,15 +91,13 @@ void XtensaInstrInfo::addRegImmParts(MachineBasicBlock &MBB,
   }
 }
 
-void XtensaInstrInfo::addRegImmL32R(MachineBasicBlock &MBB,
-                                    MachineBasicBlock::iterator I,
-                                    const DebugLoc &DL, Register Dest,
-                                    Register Src, bool KillSrc, Register Temp,
-                                    int32_t Value) const {
+void XtensaInstrInfo::addRegImmWithLoad(MachineBasicBlock &MBB,
+                                        MachineBasicBlock::iterator I,
+                                        const DebugLoc &DL, Register Dest,
+                                        Register Src, bool KillSrc,
+                                        Register Temp, int32_t Value) const {
   assert(Temp != Src && "Temporary register would clobber source");
-  LLVMContext &Context = MBB.getParent()->getFunction().getContext();
-  loadConstWithL32R(MBB, I, DL, Temp,
-                    ConstantInt::get(Context, APInt(32, Value)));
+  loadImm(MBB, I, DL, Temp, Value);
   BuildMI(MBB, I, DL, get(Xtensa::ADDN), Dest)
       .addReg(Src, getKillRegState(KillSrc))
       .addReg(Temp, RegState::Kill);
@@ -95,12 +106,15 @@ void XtensaInstrInfo::addRegImmL32R(MachineBasicBlock &MBB,
 void XtensaInstrInfo::addRegImm(MachineBasicBlock &MBB,
                                 MachineBasicBlock::iterator I,
                                 const DebugLoc &DL, Register Dest, Register Src,
-                                bool KillSrc, int32_t Value) const {
+                                bool KillSrc, Register Temp, int32_t Value,
+                                bool AllowSplit) const {
   if (auto Parts = splitAddConst(Value)) {
-    addRegImmParts(MBB, I, DL, Dest, Src, KillSrc, *Parts);
-  } else {
-    addRegImmL32R(MBB, I, DL, Dest, Src, KillSrc, Dest, Value);
+    if (AllowSplit || !(Parts->Low && Parts->Middle)) {
+      addRegImmParts(MBB, I, DL, Dest, Src, KillSrc, *Parts);
+      return;
+    }
   }
+  addRegImmWithLoad(MBB, I, DL, Dest, Src, KillSrc, Temp, Value);
 }
 
 void XtensaInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
