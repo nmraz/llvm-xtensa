@@ -317,7 +317,7 @@ define void @call_stack_i64() {
 ; OPT-NEXT:    s32i a12, a2, 0 # 4-byte Folded Spill
 ; OPT-NEXT:    addi a2, a1, 4
 ; OPT-NEXT:    s32i a13, a2, 0 # 4-byte Folded Spill
-; OPT-NEXT:    addi a2, a1, 0
+; OPT-NEXT:    mov.n a2, a1
 ; OPT-NEXT:    s32i a14, a2, 0 # 4-byte Folded Spill
 ; OPT-NEXT:    movi.n a13, 7
 ; OPT-NEXT:    s32i a13, a1, 0
@@ -350,7 +350,7 @@ define void @call_stack_i64() {
 ; OPT-NEXT:    movi.n a6, 5
 ; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    call0 stack_arg_i64_aligned
-; OPT-NEXT:    addi a2, a1, 0
+; OPT-NEXT:    mov.n a2, a1
 ; OPT-NEXT:    l32i a14, a2, 0 # 4-byte Folded Reload
 ; OPT-NEXT:    addi a2, a1, 4
 ; OPT-NEXT:    l32i a13, a2, 0 # 4-byte Folded Reload

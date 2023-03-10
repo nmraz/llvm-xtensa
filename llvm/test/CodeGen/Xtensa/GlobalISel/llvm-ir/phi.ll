@@ -28,17 +28,17 @@ define i1 @phi_i1(i1 %cnd, i1 %a, i1 %b) {
 ; UNOPT-NEXT:  .LBB0_2: # %cond.true
 ; UNOPT-NEXT:    addi a2, a1, 4
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a3, a1, 0
+; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    j .LBB0_4
 ; UNOPT-NEXT:  .LBB0_3: # %cond.false
 ; UNOPT-NEXT:    addi a2, a1, 8
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a3, a1, 0
+; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    j .LBB0_4
 ; UNOPT-NEXT:  .LBB0_4: # %cond.end
-; UNOPT-NEXT:    addi a2, a1, 0
+; UNOPT-NEXT:    mov.n a2, a1
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    addi a1, a1, 12
 ; UNOPT-NEXT:    ret.n
@@ -82,17 +82,17 @@ define i8 @phi_i8(i1 %cnd, i8 %a, i8 %b) {
 ; UNOPT-NEXT:  .LBB1_2: # %cond.true
 ; UNOPT-NEXT:    addi a2, a1, 4
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a3, a1, 0
+; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    j .LBB1_4
 ; UNOPT-NEXT:  .LBB1_3: # %cond.false
 ; UNOPT-NEXT:    addi a2, a1, 8
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a3, a1, 0
+; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    j .LBB1_4
 ; UNOPT-NEXT:  .LBB1_4: # %cond.end
-; UNOPT-NEXT:    addi a2, a1, 0
+; UNOPT-NEXT:    mov.n a2, a1
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    addi a1, a1, 12
 ; UNOPT-NEXT:    ret.n
@@ -136,17 +136,17 @@ define i16 @phi_i16(i1 %cnd, i16 %a, i16 %b) {
 ; UNOPT-NEXT:  .LBB2_2: # %cond.true
 ; UNOPT-NEXT:    addi a2, a1, 4
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a3, a1, 0
+; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    j .LBB2_4
 ; UNOPT-NEXT:  .LBB2_3: # %cond.false
 ; UNOPT-NEXT:    addi a2, a1, 8
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a3, a1, 0
+; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    j .LBB2_4
 ; UNOPT-NEXT:  .LBB2_4: # %cond.end
-; UNOPT-NEXT:    addi a2, a1, 0
+; UNOPT-NEXT:    mov.n a2, a1
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    addi a1, a1, 12
 ; UNOPT-NEXT:    ret.n
@@ -190,17 +190,17 @@ define i32 @phi_i32(i1 %cnd, i32 %a, i32 %b) {
 ; UNOPT-NEXT:  .LBB3_2: # %cond.true
 ; UNOPT-NEXT:    addi a2, a1, 4
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a3, a1, 0
+; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    j .LBB3_4
 ; UNOPT-NEXT:  .LBB3_3: # %cond.false
 ; UNOPT-NEXT:    addi a2, a1, 8
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a3, a1, 0
+; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    j .LBB3_4
 ; UNOPT-NEXT:  .LBB3_4: # %cond.end
-; UNOPT-NEXT:    addi a2, a1, 0
+; UNOPT-NEXT:    mov.n a2, a1
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    addi a1, a1, 12
 ; UNOPT-NEXT:    ret.n
@@ -252,7 +252,7 @@ define i64 @phi_i64(i1 %cnd, i64 %a, i64 %b) {
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    addi a3, a1, 8
 ; UNOPT-NEXT:    l32i a3, a3, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a4, a1, 0
+; UNOPT-NEXT:    mov.n a4, a1
 ; UNOPT-NEXT:    s32i a3, a4, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    addi a3, a1, 4
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
@@ -262,13 +262,13 @@ define i64 @phi_i64(i1 %cnd, i64 %a, i64 %b) {
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    addi a3, a1, 16
 ; UNOPT-NEXT:    l32i a3, a3, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a4, a1, 0
+; UNOPT-NEXT:    mov.n a4, a1
 ; UNOPT-NEXT:    s32i a3, a4, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    addi a3, a1, 4
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    j .LBB4_4
 ; UNOPT-NEXT:  .LBB4_4: # %cond.end
-; UNOPT-NEXT:    addi a2, a1, 0
+; UNOPT-NEXT:    mov.n a2, a1
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    addi a3, a1, 4
 ; UNOPT-NEXT:    l32i a3, a3, 0 # 4-byte Folded Reload
@@ -314,17 +314,17 @@ define ptr @phi_ptr(i1 %cnd, ptr %a, ptr %b) {
 ; UNOPT-NEXT:  .LBB5_2: # %cond.true
 ; UNOPT-NEXT:    addi a2, a1, 4
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a3, a1, 0
+; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    j .LBB5_4
 ; UNOPT-NEXT:  .LBB5_3: # %cond.false
 ; UNOPT-NEXT:    addi a2, a1, 8
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
-; UNOPT-NEXT:    addi a3, a1, 0
+; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    s32i a2, a3, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    j .LBB5_4
 ; UNOPT-NEXT:  .LBB5_4: # %cond.end
-; UNOPT-NEXT:    addi a2, a1, 0
+; UNOPT-NEXT:    mov.n a2, a1
 ; UNOPT-NEXT:    l32i a2, a2, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    addi a1, a1, 12
 ; UNOPT-NEXT:    ret.n

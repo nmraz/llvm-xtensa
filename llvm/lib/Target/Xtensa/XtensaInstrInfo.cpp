@@ -47,27 +47,43 @@ MachineInstr *XtensaInstrInfo::loadConstWithL32R(MachineBasicBlock &MBB,
       .addMemOperand(MMO);
 }
 
+void XtensaInstrInfo::addRegImmParts(MachineBasicBlock &MBB,
+                                     MachineBasicBlock::iterator I,
+                                     const DebugLoc &DL, Register Dest,
+                                     Register Src, bool KillSrc,
+                                     const AddConstParts &Parts) const {
+  if (!Parts.Low && !Parts.Middle) {
+    if (Dest != Src) {
+      BuildMI(MBB, I, DL, get(Xtensa::MOVN), Dest)
+          .addReg(Src, getKillRegState(KillSrc));
+    }
+    return;
+  }
+
+  Register LowSrc = Src;
+  bool KillLowSrc = KillSrc;
+
+  if (Parts.Middle) {
+    BuildMI(MBB, I, DL, get(Xtensa::ADDMI), Dest)
+        .addReg(Src, getKillRegState(KillSrc))
+        .addImm(Parts.Middle);
+    LowSrc = Dest;
+    KillLowSrc = true;
+  }
+
+  if (Parts.Low) {
+    BuildMI(MBB, I, DL, get(Xtensa::ADDI), Dest)
+        .addReg(LowSrc, getKillRegState(KillLowSrc))
+        .addImm(Parts.Low);
+  }
+}
+
 void XtensaInstrInfo::addRegImm(MachineBasicBlock &MBB,
                                 MachineBasicBlock::iterator I,
                                 const DebugLoc &DL, Register Dest, Register Src,
                                 bool KillSrc, int32_t Value) const {
   if (auto Parts = splitAddConst(Value)) {
-    Register LowSrc = Src;
-    bool KillLowSrc = KillSrc;
-
-    if (Parts->Middle) {
-      BuildMI(MBB, I, DL, get(Xtensa::ADDMI), Dest)
-          .addReg(Src, getKillRegState(KillSrc))
-          .addImm(Parts->Middle);
-      LowSrc = Dest;
-      KillLowSrc = true;
-    }
-
-    if (Parts->Low || !Parts->Middle) {
-      BuildMI(MBB, I, DL, get(Xtensa::ADDI), Dest)
-          .addReg(LowSrc, getKillRegState(KillLowSrc))
-          .addImm(Parts->Low);
-    }
+    addRegImmParts(MBB, I, DL, Dest, Src, KillSrc, *Parts);
   } else {
     LLVMContext &Context = MBB.getParent()->getFunction().getContext();
     loadConstWithL32R(MBB, I, DL, Dest,

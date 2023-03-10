@@ -78,10 +78,10 @@ define i33 @mul_i33(i33 %a, i33 %b) {
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    addi a1, a1, -4
 ; UNOPT-NEXT:    mov.n a6, a2
-; UNOPT-NEXT:    addi a2, a1, 0
+; UNOPT-NEXT:    mov.n a2, a1
 ; UNOPT-NEXT:    s32i a3, a2, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    mov.n a3, a5
-; UNOPT-NEXT:    addi a2, a1, 0
+; UNOPT-NEXT:    mov.n a2, a1
 ; UNOPT-NEXT:    l32i a5, a2, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    mull a2, a4, a6
 ; UNOPT-NEXT:    mull a3, a3, a6
@@ -112,10 +112,10 @@ define i64 @mul_i64(i64 %a, i64 %b) {
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    addi a1, a1, -4
 ; UNOPT-NEXT:    mov.n a6, a2
-; UNOPT-NEXT:    addi a2, a1, 0
+; UNOPT-NEXT:    mov.n a2, a1
 ; UNOPT-NEXT:    s32i a3, a2, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    mov.n a3, a5
-; UNOPT-NEXT:    addi a2, a1, 0
+; UNOPT-NEXT:    mov.n a2, a1
 ; UNOPT-NEXT:    l32i a5, a2, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    mull a2, a4, a6
 ; UNOPT-NEXT:    mull a3, a3, a6

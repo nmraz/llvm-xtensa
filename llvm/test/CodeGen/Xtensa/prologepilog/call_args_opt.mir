@@ -541,7 +541,7 @@ body:             |
     ; CHECK-NEXT: S32I killed $a12, killed $a2, 0 :: (store (s32) into %stack.1)
     ; CHECK-NEXT: $a2 = ADDI $a1, 4
     ; CHECK-NEXT: S32I killed $a13, killed $a2, 0 :: (store (s32) into %stack.2)
-    ; CHECK-NEXT: $a2 = ADDI $a1, 0
+    ; CHECK-NEXT: $a2 = MOVN $a1
     ; CHECK-NEXT: S32I killed $a14, killed $a2, 0 :: (store (s32) into %stack.3)
     ; CHECK-NEXT: renamable $a13 = MOVIN 7
     ; CHECK-NEXT: S32I renamable $a13, $a1, 0 :: (store (s32) into stack)
@@ -574,7 +574,7 @@ body:             |
     ; CHECK-NEXT: $a6 = MOVIN 5
     ; CHECK-NEXT: $a7 = MOVIN 6
     ; CHECK-NEXT: CALL0 @stack_arg_i64_aligned, csr_xtensa_call0, implicit-def $a0, implicit $a2, implicit killed $a3, implicit killed $a4, implicit killed $a5, implicit killed $a6, implicit killed $a7
-    ; CHECK-NEXT: $a2 = ADDI $a1, 0
+    ; CHECK-NEXT: $a2 = MOVN $a1
     ; CHECK-NEXT: $a14 = L32I killed $a2, 0 :: (load (s32) from %stack.3)
     ; CHECK-NEXT: $a2 = ADDI $a1, 4
     ; CHECK-NEXT: $a13 = L32I killed $a2, 0 :: (load (s32) from %stack.2)

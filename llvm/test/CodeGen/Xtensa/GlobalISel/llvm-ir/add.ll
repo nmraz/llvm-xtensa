@@ -75,10 +75,10 @@ define i33 @add_i33(i33 %a, i33 %b) {
 ; UNOPT-LABEL: add_i33:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    addi a6, a1, 0
+; UNOPT-NEXT:    mov.n a6, a1
 ; UNOPT-NEXT:    s32i a2, a6, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    mov.n a2, a4
-; UNOPT-NEXT:    addi a4, a1, 0
+; UNOPT-NEXT:    mov.n a4, a1
 ; UNOPT-NEXT:    l32i a4, a4, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    add.n a2, a2, a4
 ; UNOPT-NEXT:    saltu a4, a2, a4
@@ -105,10 +105,10 @@ define i64 @add_i64(i64 %a, i64 %b) {
 ; UNOPT-LABEL: add_i64:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    addi a6, a1, 0
+; UNOPT-NEXT:    mov.n a6, a1
 ; UNOPT-NEXT:    s32i a2, a6, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    mov.n a2, a4
-; UNOPT-NEXT:    addi a4, a1, 0
+; UNOPT-NEXT:    mov.n a4, a1
 ; UNOPT-NEXT:    l32i a4, a4, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    add.n a2, a2, a4
 ; UNOPT-NEXT:    saltu a4, a2, a4

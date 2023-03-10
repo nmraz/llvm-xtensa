@@ -13,6 +13,7 @@
 #ifndef LLVM_LIB_TARGET_XTENSA_XTENSAINSTRINFO_H
 #define LLVM_LIB_TARGET_XTENSA_XTENSAINSTRINFO_H
 
+#include "XtensaInstrUtils.h"
 #include "XtensaRegisterInfo.h"
 #include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/Register.h"
@@ -41,6 +42,13 @@ public:
                                   MachineBasicBlock::iterator I,
                                   const DebugLoc &DL, Register Dest,
                                   const Constant *Value) const;
+
+  /// Emits a sequence of instructions adding `Src` and `Parts` into `Dest`
+  /// before `I`. The emitted instructions may not be in SSA form.
+  void addRegImmParts(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
+                      const DebugLoc &DL, Register Dest, Register Src,
+                      bool KillSrc,
+                      const XtensaInstrUtils::AddConstParts &Parts) const;
 
   /// Emits a sequence of instructions adding `Src` and `Value` into `Dest`
   /// before `I`. The emitted instructions may not be in SSA form.
