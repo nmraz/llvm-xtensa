@@ -93,10 +93,8 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: $a1 = ADDI killed $a1, -1
-    ; CHECK-NEXT: $a3 = MOVN $a1
-    ; CHECK-NEXT: S8I killed renamable $a2, killed $a3, 0 :: (store (s8) into %ir.p)
-    ; CHECK-NEXT: $a2 = MOVN $a1
-    ; CHECK-NEXT: renamable $a2 = L8UI killed $a2, 0 :: (dereferenceable load (s8) from %ir.p)
+    ; CHECK-NEXT: S8I killed renamable $a2, $a1, 0 :: (store (s8) into %ir.p)
+    ; CHECK-NEXT: renamable $a2 = L8UI $a1, 0 :: (dereferenceable load (s8) from %ir.p)
     ; CHECK-NEXT: $a1 = ADDI killed $a1, 1
     ; CHECK-NEXT: RETN implicit $a0, implicit killed $a2
     S8I killed renamable $a2, %stack.0.p, 0 :: (store (s8) into %ir.p)
@@ -162,10 +160,8 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: $a1 = ADDI killed $a1, -2
-    ; CHECK-NEXT: $a3 = MOVN $a1
-    ; CHECK-NEXT: S16I killed renamable $a2, killed $a3, 0 :: (store (s16) into %ir.p)
-    ; CHECK-NEXT: $a2 = MOVN $a1
-    ; CHECK-NEXT: renamable $a2 = L16UI killed $a2, 0 :: (dereferenceable load (s16) from %ir.p)
+    ; CHECK-NEXT: S16I killed renamable $a2, $a1, 0 :: (store (s16) into %ir.p)
+    ; CHECK-NEXT: renamable $a2 = L16UI $a1, 0 :: (dereferenceable load (s16) from %ir.p)
     ; CHECK-NEXT: $a1 = ADDI killed $a1, 2
     ; CHECK-NEXT: RETN implicit $a0, implicit killed $a2
     S16I killed renamable $a2, %stack.0.p, 0 :: (store (s16) into %ir.p)
@@ -231,10 +227,8 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: $a1 = ADDI killed $a1, -4
-    ; CHECK-NEXT: $a3 = MOVN $a1
-    ; CHECK-NEXT: S32I killed renamable $a2, killed $a3, 0 :: (store (s32) into %ir.p)
-    ; CHECK-NEXT: $a2 = MOVN $a1
-    ; CHECK-NEXT: renamable $a2 = L32I killed $a2, 0 :: (dereferenceable load (s32) from %ir.p)
+    ; CHECK-NEXT: S32I killed renamable $a2, $a1, 0 :: (store (s32) into %ir.p)
+    ; CHECK-NEXT: renamable $a2 = L32I $a1, 0 :: (dereferenceable load (s32) from %ir.p)
     ; CHECK-NEXT: $a1 = ADDI killed $a1, 4
     ; CHECK-NEXT: RETN implicit $a0, implicit killed $a2
     S32I killed renamable $a2, %stack.0.p, 0 :: (store (s32) into %ir.p)
@@ -301,14 +295,10 @@ body:             |
     ; CHECK: liveins: $a2, $a3
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: $a1 = ADDI killed $a1, -8
-    ; CHECK-NEXT: $a4 = MOVN $a1
-    ; CHECK-NEXT: S32I killed renamable $a2, killed $a4, 0 :: (store (s32) into %ir.p, align 8)
-    ; CHECK-NEXT: $a2 = ADDI $a1, 4
-    ; CHECK-NEXT: S32I killed renamable $a3, killed $a2, 0 :: (store (s32) into %ir.p + 4, basealign 8)
-    ; CHECK-NEXT: $a2 = MOVN $a1
-    ; CHECK-NEXT: renamable $a2 = L32I killed $a2, 0 :: (dereferenceable load (s32) from %ir.p, align 8)
-    ; CHECK-NEXT: $a3 = ADDI $a1, 4
-    ; CHECK-NEXT: renamable $a3 = L32I killed $a3, 0 :: (dereferenceable load (s32) from %ir.p + 4, basealign 8)
+    ; CHECK-NEXT: S32I killed renamable $a2, $a1, 0 :: (store (s32) into %ir.p, align 8)
+    ; CHECK-NEXT: S32I killed renamable $a3, $a1, 4 :: (store (s32) into %ir.p + 4, basealign 8)
+    ; CHECK-NEXT: renamable $a2 = L32I $a1, 0 :: (dereferenceable load (s32) from %ir.p, align 8)
+    ; CHECK-NEXT: renamable $a3 = L32I $a1, 4 :: (dereferenceable load (s32) from %ir.p + 4, basealign 8)
     ; CHECK-NEXT: $a1 = ADDI killed $a1, 8
     ; CHECK-NEXT: RETN implicit $a0, implicit killed $a2, implicit killed $a3
     S32I killed renamable $a2, %stack.0.p, 0 :: (store (s32) into %ir.p, align 8)

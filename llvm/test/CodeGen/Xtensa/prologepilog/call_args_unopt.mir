@@ -131,8 +131,7 @@ body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: call_simple_reg_args
     ; CHECK: $a1 = ADDI killed $a1, -16
-    ; CHECK-NEXT: $a2 = ADDI $a1, 12
-    ; CHECK-NEXT: S32I killed $a0, killed $a2, 0 :: (store (s32) into %stack.0)
+    ; CHECK-NEXT: S32I killed $a0, $a1, 12 :: (store (s32) into %stack.0)
     ; CHECK-NEXT: renamable $a2 = MOVIN 1
     ; CHECK-NEXT: renamable $a3 = MOVIN 2
     ; CHECK-NEXT: renamable $a4 = MOVIN 3
@@ -146,8 +145,7 @@ body:             |
     ; CHECK-NEXT: CALL0 @reg_arg_i8, csr_xtensa_call0, implicit-def $a0, implicit killed $a2
     ; CHECK-NEXT: renamable $a2 = MOVIN 1
     ; CHECK-NEXT: CALL0 @reg_arg_i16, csr_xtensa_call0, implicit-def $a0, implicit killed $a2
-    ; CHECK-NEXT: $a2 = ADDI $a1, 12
-    ; CHECK-NEXT: $a0 = L32I killed $a2, 0 :: (load (s32) from %stack.0)
+    ; CHECK-NEXT: $a0 = L32I $a1, 12 :: (load (s32) from %stack.0)
     ; CHECK-NEXT: $a1 = ADDI killed $a1, 16
     ; CHECK-NEXT: RETN implicit $a0
     ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
@@ -227,25 +225,21 @@ body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: call_reg_i64
     ; CHECK: $a1 = ADDI killed $a1, -16
-    ; CHECK-NEXT: $a2 = ADDI $a1, 12
-    ; CHECK-NEXT: S32I killed $a0, killed $a2, 0 :: (store (s32) into %stack.1)
+    ; CHECK-NEXT: S32I killed $a0, $a1, 12 :: (store (s32) into %stack.1)
     ; CHECK-NEXT: renamable $a2 = MOVIN 1
     ; CHECK-NEXT: renamable $a3 = MOVIN 0
     ; CHECK-NEXT: CALL0 @reg_arg_i64, csr_xtensa_call0, implicit-def $a0, implicit killed $a2, implicit killed $a3
     ; CHECK-NEXT: renamable $a2 = MOVIN 1
-    ; CHECK-NEXT: $a3 = ADDI $a1, 8
-    ; CHECK-NEXT: S32I $a2, killed $a3, 0 :: (store (s32) into %stack.0)
+    ; CHECK-NEXT: S32I $a2, $a1, 8 :: (store (s32) into %stack.0)
     ; CHECK-NEXT: renamable $a3 = MOVIN 2
     ; CHECK-NEXT: renamable $a4 = MOVIN 3
     ; CHECK-NEXT: renamable $a5 = MOVIN 0
     ; CHECK-NEXT: CALL0 @reg_arg_i64_packed, csr_xtensa_call0, implicit-def $a0, implicit killed $a2, implicit killed $a3, implicit killed $a4, implicit killed $a5
-    ; CHECK-NEXT: $a2 = ADDI $a1, 8
-    ; CHECK-NEXT: $a2 = L32I killed $a2, 0 :: (load (s32) from %stack.0)
+    ; CHECK-NEXT: $a2 = L32I $a1, 8 :: (load (s32) from %stack.0)
     ; CHECK-NEXT: renamable $a4 = MOVIN 2
     ; CHECK-NEXT: renamable $a5 = MOVIN 0
     ; CHECK-NEXT: CALL0 @reg_arg_i64_aligned, csr_xtensa_call0, implicit-def $a0, implicit killed $a2, implicit killed $a4, implicit killed $a5
-    ; CHECK-NEXT: $a2 = ADDI $a1, 12
-    ; CHECK-NEXT: $a0 = L32I killed $a2, 0 :: (load (s32) from %stack.1)
+    ; CHECK-NEXT: $a0 = L32I $a1, 12 :: (load (s32) from %stack.1)
     ; CHECK-NEXT: $a1 = ADDI killed $a1, 16
     ; CHECK-NEXT: RETN implicit $a0
     ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
@@ -320,8 +314,7 @@ body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: call_mixed_reg_args
     ; CHECK: $a1 = ADDI killed $a1, -16
-    ; CHECK-NEXT: $a2 = ADDI $a1, 12
-    ; CHECK-NEXT: S32I killed $a0, killed $a2, 0 :: (store (s32) into %stack.0)
+    ; CHECK-NEXT: S32I killed $a0, $a1, 12 :: (store (s32) into %stack.0)
     ; CHECK-NEXT: renamable $a2 = MOVIN 1
     ; CHECK-NEXT: renamable $a3 = MOVIN 1
     ; CHECK-NEXT: renamable $a4 = MOVIN 3
@@ -329,8 +322,7 @@ body:             |
     ; CHECK-NEXT: renamable $a6 = MOVIN 4
     ; CHECK-NEXT: renamable $a7 = MOVIN 5
     ; CHECK-NEXT: CALL0 @mixed_reg_args, csr_xtensa_call0, implicit-def $a0, implicit killed $a2, implicit killed $a3, implicit killed $a4, implicit killed $a5, implicit killed $a6, implicit killed $a7
-    ; CHECK-NEXT: $a2 = ADDI $a1, 12
-    ; CHECK-NEXT: $a0 = L32I killed $a2, 0 :: (load (s32) from %stack.0)
+    ; CHECK-NEXT: $a0 = L32I $a1, 12 :: (load (s32) from %stack.0)
     ; CHECK-NEXT: $a1 = ADDI killed $a1, 16
     ; CHECK-NEXT: RETN implicit $a0
     ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
@@ -413,80 +405,54 @@ body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: call_stack
     ; CHECK: $a1 = ADDI killed $a1, -32
-    ; CHECK-NEXT: $a2 = ADDI $a1, 28
-    ; CHECK-NEXT: S32I killed $a0, killed $a2, 0 :: (store (s32) into %stack.6)
+    ; CHECK-NEXT: S32I killed $a0, $a1, 28 :: (store (s32) into %stack.6)
     ; CHECK-NEXT: renamable $a3 = COPY $a1
     ; CHECK-NEXT: renamable $a2 = MOVIN 7
     ; CHECK-NEXT: S32I killed renamable $a2, killed renamable $a3, 0 :: (store (s32) into stack)
     ; CHECK-NEXT: renamable $a2 = MOVIN 1
-    ; CHECK-NEXT: $a3 = ADDI $a1, 4
-    ; CHECK-NEXT: S32I $a2, killed $a3, 0 :: (store (s32) into %stack.5)
+    ; CHECK-NEXT: S32I $a2, $a1, 4 :: (store (s32) into %stack.5)
     ; CHECK-NEXT: renamable $a3 = MOVIN 2
-    ; CHECK-NEXT: $a4 = ADDI $a1, 8
-    ; CHECK-NEXT: S32I $a3, killed $a4, 0 :: (store (s32) into %stack.4)
+    ; CHECK-NEXT: S32I $a3, $a1, 8 :: (store (s32) into %stack.4)
     ; CHECK-NEXT: renamable $a4 = MOVIN 3
-    ; CHECK-NEXT: $a5 = ADDI $a1, 12
-    ; CHECK-NEXT: S32I $a4, killed $a5, 0 :: (store (s32) into %stack.3)
+    ; CHECK-NEXT: S32I $a4, $a1, 12 :: (store (s32) into %stack.3)
     ; CHECK-NEXT: renamable $a5 = MOVIN 4
-    ; CHECK-NEXT: $a6 = ADDI $a1, 16
-    ; CHECK-NEXT: S32I $a5, killed $a6, 0 :: (store (s32) into %stack.2)
+    ; CHECK-NEXT: S32I $a5, $a1, 16 :: (store (s32) into %stack.2)
     ; CHECK-NEXT: renamable $a6 = MOVIN 5
-    ; CHECK-NEXT: $a7 = ADDI $a1, 20
-    ; CHECK-NEXT: S32I $a6, killed $a7, 0 :: (store (s32) into %stack.1)
+    ; CHECK-NEXT: S32I $a6, $a1, 20 :: (store (s32) into %stack.1)
     ; CHECK-NEXT: renamable $a7 = MOVIN 6
-    ; CHECK-NEXT: $a8 = ADDI $a1, 24
-    ; CHECK-NEXT: S32I $a7, killed $a8, 0 :: (store (s32) into %stack.0)
+    ; CHECK-NEXT: S32I $a7, $a1, 24 :: (store (s32) into %stack.0)
     ; CHECK-NEXT: CALL0 @stack_arg_i32, csr_xtensa_call0, implicit-def $a0, implicit killed $a2, implicit killed $a3, implicit killed $a4, implicit killed $a5, implicit killed $a6, implicit killed $a7
-    ; CHECK-NEXT: $a2 = ADDI $a1, 4
-    ; CHECK-NEXT: $a2 = L32I killed $a2, 0 :: (load (s32) from %stack.5)
-    ; CHECK-NEXT: $a3 = ADDI $a1, 8
-    ; CHECK-NEXT: $a3 = L32I killed $a3, 0 :: (load (s32) from %stack.4)
-    ; CHECK-NEXT: $a4 = ADDI $a1, 12
-    ; CHECK-NEXT: $a4 = L32I killed $a4, 0 :: (load (s32) from %stack.3)
-    ; CHECK-NEXT: $a5 = ADDI $a1, 16
-    ; CHECK-NEXT: $a5 = L32I killed $a5, 0 :: (load (s32) from %stack.2)
-    ; CHECK-NEXT: $a6 = ADDI $a1, 20
-    ; CHECK-NEXT: $a6 = L32I killed $a6, 0 :: (load (s32) from %stack.1)
-    ; CHECK-NEXT: $a7 = ADDI $a1, 24
-    ; CHECK-NEXT: $a7 = L32I killed $a7, 0 :: (load (s32) from %stack.0)
+    ; CHECK-NEXT: $a2 = L32I $a1, 4 :: (load (s32) from %stack.5)
+    ; CHECK-NEXT: $a3 = L32I $a1, 8 :: (load (s32) from %stack.4)
+    ; CHECK-NEXT: $a4 = L32I $a1, 12 :: (load (s32) from %stack.3)
+    ; CHECK-NEXT: $a5 = L32I $a1, 16 :: (load (s32) from %stack.2)
+    ; CHECK-NEXT: $a6 = L32I $a1, 20 :: (load (s32) from %stack.1)
+    ; CHECK-NEXT: $a7 = L32I $a1, 24 :: (load (s32) from %stack.0)
     ; CHECK-NEXT: renamable $a9 = COPY $a1
     ; CHECK-NEXT: renamable $a8 = MOVIN 1
     ; CHECK-NEXT: S32I killed renamable $a8, killed renamable $a9, 0 :: (store (s32) into stack)
     ; CHECK-NEXT: CALL0 @stack_arg_i1, csr_xtensa_call0, implicit-def $a0, implicit killed $a2, implicit killed $a3, implicit killed $a4, implicit killed $a5, implicit killed $a6, implicit killed $a7
-    ; CHECK-NEXT: $a2 = ADDI $a1, 4
-    ; CHECK-NEXT: $a2 = L32I killed $a2, 0 :: (load (s32) from %stack.5)
-    ; CHECK-NEXT: $a3 = ADDI $a1, 8
-    ; CHECK-NEXT: $a3 = L32I killed $a3, 0 :: (load (s32) from %stack.4)
-    ; CHECK-NEXT: $a4 = ADDI $a1, 12
-    ; CHECK-NEXT: $a4 = L32I killed $a4, 0 :: (load (s32) from %stack.3)
-    ; CHECK-NEXT: $a5 = ADDI $a1, 16
-    ; CHECK-NEXT: $a5 = L32I killed $a5, 0 :: (load (s32) from %stack.2)
-    ; CHECK-NEXT: $a6 = ADDI $a1, 20
-    ; CHECK-NEXT: $a6 = L32I killed $a6, 0 :: (load (s32) from %stack.1)
-    ; CHECK-NEXT: $a7 = ADDI $a1, 24
-    ; CHECK-NEXT: $a7 = L32I killed $a7, 0 :: (load (s32) from %stack.0)
+    ; CHECK-NEXT: $a2 = L32I $a1, 4 :: (load (s32) from %stack.5)
+    ; CHECK-NEXT: $a3 = L32I $a1, 8 :: (load (s32) from %stack.4)
+    ; CHECK-NEXT: $a4 = L32I $a1, 12 :: (load (s32) from %stack.3)
+    ; CHECK-NEXT: $a5 = L32I $a1, 16 :: (load (s32) from %stack.2)
+    ; CHECK-NEXT: $a6 = L32I $a1, 20 :: (load (s32) from %stack.1)
+    ; CHECK-NEXT: $a7 = L32I $a1, 24 :: (load (s32) from %stack.0)
     ; CHECK-NEXT: renamable $a9 = COPY $a1
     ; CHECK-NEXT: renamable $a8 = MOVIN 7
     ; CHECK-NEXT: S32I killed renamable $a8, killed renamable $a9, 0 :: (store (s32) into stack)
     ; CHECK-NEXT: CALL0 @stack_arg_i8, csr_xtensa_call0, implicit-def $a0, implicit killed $a2, implicit killed $a3, implicit killed $a4, implicit killed $a5, implicit killed $a6, implicit killed $a7
-    ; CHECK-NEXT: $a2 = ADDI $a1, 4
-    ; CHECK-NEXT: $a2 = L32I killed $a2, 0 :: (load (s32) from %stack.5)
-    ; CHECK-NEXT: $a3 = ADDI $a1, 8
-    ; CHECK-NEXT: $a3 = L32I killed $a3, 0 :: (load (s32) from %stack.4)
-    ; CHECK-NEXT: $a4 = ADDI $a1, 12
-    ; CHECK-NEXT: $a4 = L32I killed $a4, 0 :: (load (s32) from %stack.3)
-    ; CHECK-NEXT: $a5 = ADDI $a1, 16
-    ; CHECK-NEXT: $a5 = L32I killed $a5, 0 :: (load (s32) from %stack.2)
-    ; CHECK-NEXT: $a6 = ADDI $a1, 20
-    ; CHECK-NEXT: $a6 = L32I killed $a6, 0 :: (load (s32) from %stack.1)
-    ; CHECK-NEXT: $a7 = ADDI $a1, 24
-    ; CHECK-NEXT: $a7 = L32I killed $a7, 0 :: (load (s32) from %stack.0)
+    ; CHECK-NEXT: $a2 = L32I $a1, 4 :: (load (s32) from %stack.5)
+    ; CHECK-NEXT: $a3 = L32I $a1, 8 :: (load (s32) from %stack.4)
+    ; CHECK-NEXT: $a4 = L32I $a1, 12 :: (load (s32) from %stack.3)
+    ; CHECK-NEXT: $a5 = L32I $a1, 16 :: (load (s32) from %stack.2)
+    ; CHECK-NEXT: $a6 = L32I $a1, 20 :: (load (s32) from %stack.1)
+    ; CHECK-NEXT: $a7 = L32I $a1, 24 :: (load (s32) from %stack.0)
     ; CHECK-NEXT: renamable $a9 = COPY $a1
     ; CHECK-NEXT: renamable $a8 = MOVIN 7
     ; CHECK-NEXT: S32I killed renamable $a8, killed renamable $a9, 0 :: (store (s32) into stack)
     ; CHECK-NEXT: CALL0 @stack_arg_i16, csr_xtensa_call0, implicit-def $a0, implicit killed $a2, implicit killed $a3, implicit killed $a4, implicit killed $a5, implicit killed $a6, implicit killed $a7
-    ; CHECK-NEXT: $a2 = ADDI $a1, 28
-    ; CHECK-NEXT: $a0 = L32I killed $a2, 0 :: (load (s32) from %stack.6)
+    ; CHECK-NEXT: $a0 = L32I $a1, 28 :: (load (s32) from %stack.6)
     ; CHECK-NEXT: $a1 = ADDI killed $a1, 32
     ; CHECK-NEXT: RETN implicit $a0
     ADJCALLSTACKDOWN 4, 0, implicit-def $a1, implicit $a1
@@ -614,8 +580,7 @@ body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: call_stack_i64
     ; CHECK: $a1 = ADDI killed $a1, -32
-    ; CHECK-NEXT: $a2 = ADDI $a1, 28
-    ; CHECK-NEXT: S32I killed $a0, killed $a2, 0 :: (store (s32) into %stack.6)
+    ; CHECK-NEXT: S32I killed $a0, $a1, 28 :: (store (s32) into %stack.6)
     ; CHECK-NEXT: renamable $a3 = COPY $a1
     ; CHECK-NEXT: renamable $a2 = MOVIN 7
     ; CHECK-NEXT: S32I killed renamable $a2, killed renamable $a3, 0 :: (store (s32) into stack)
@@ -623,34 +588,23 @@ body:             |
     ; CHECK-NEXT: renamable $a2 = MOVIN 0
     ; CHECK-NEXT: S32I killed renamable $a2, killed renamable $a3, 4 :: (store (s32) into stack + 4)
     ; CHECK-NEXT: renamable $a2 = MOVIN 1
-    ; CHECK-NEXT: $a3 = ADDI $a1, 4
-    ; CHECK-NEXT: S32I $a2, killed $a3, 0 :: (store (s32) into %stack.5)
+    ; CHECK-NEXT: S32I $a2, $a1, 4 :: (store (s32) into %stack.5)
     ; CHECK-NEXT: renamable $a3 = MOVIN 2
-    ; CHECK-NEXT: $a4 = ADDI $a1, 8
-    ; CHECK-NEXT: S32I $a3, killed $a4, 0 :: (store (s32) into %stack.4)
+    ; CHECK-NEXT: S32I $a3, $a1, 8 :: (store (s32) into %stack.4)
     ; CHECK-NEXT: renamable $a4 = MOVIN 3
-    ; CHECK-NEXT: $a5 = ADDI $a1, 12
-    ; CHECK-NEXT: S32I $a4, killed $a5, 0 :: (store (s32) into %stack.3)
+    ; CHECK-NEXT: S32I $a4, $a1, 12 :: (store (s32) into %stack.3)
     ; CHECK-NEXT: renamable $a5 = MOVIN 4
-    ; CHECK-NEXT: $a6 = ADDI $a1, 16
-    ; CHECK-NEXT: S32I $a5, killed $a6, 0 :: (store (s32) into %stack.2)
+    ; CHECK-NEXT: S32I $a5, $a1, 16 :: (store (s32) into %stack.2)
     ; CHECK-NEXT: renamable $a6 = MOVIN 5
-    ; CHECK-NEXT: $a7 = ADDI $a1, 20
-    ; CHECK-NEXT: S32I $a6, killed $a7, 0 :: (store (s32) into %stack.1)
+    ; CHECK-NEXT: S32I $a6, $a1, 20 :: (store (s32) into %stack.1)
     ; CHECK-NEXT: renamable $a7 = MOVIN 6
-    ; CHECK-NEXT: $a8 = ADDI $a1, 24
-    ; CHECK-NEXT: S32I $a7, killed $a8, 0 :: (store (s32) into %stack.0)
+    ; CHECK-NEXT: S32I $a7, $a1, 24 :: (store (s32) into %stack.0)
     ; CHECK-NEXT: CALL0 @stack_arg_i64, csr_xtensa_call0, implicit-def $a0, implicit killed $a2, implicit killed $a3, implicit killed $a4, implicit killed $a5, implicit killed $a6, implicit killed $a7
-    ; CHECK-NEXT: $a2 = ADDI $a1, 4
-    ; CHECK-NEXT: $a2 = L32I killed $a2, 0 :: (load (s32) from %stack.5)
-    ; CHECK-NEXT: $a3 = ADDI $a1, 8
-    ; CHECK-NEXT: $a3 = L32I killed $a3, 0 :: (load (s32) from %stack.4)
-    ; CHECK-NEXT: $a4 = ADDI $a1, 12
-    ; CHECK-NEXT: $a4 = L32I killed $a4, 0 :: (load (s32) from %stack.3)
-    ; CHECK-NEXT: $a5 = ADDI $a1, 16
-    ; CHECK-NEXT: $a5 = L32I killed $a5, 0 :: (load (s32) from %stack.2)
-    ; CHECK-NEXT: $a6 = ADDI $a1, 20
-    ; CHECK-NEXT: $a6 = L32I killed $a6, 0 :: (load (s32) from %stack.1)
+    ; CHECK-NEXT: $a2 = L32I $a1, 4 :: (load (s32) from %stack.5)
+    ; CHECK-NEXT: $a3 = L32I $a1, 8 :: (load (s32) from %stack.4)
+    ; CHECK-NEXT: $a4 = L32I $a1, 12 :: (load (s32) from %stack.3)
+    ; CHECK-NEXT: $a5 = L32I $a1, 16 :: (load (s32) from %stack.2)
+    ; CHECK-NEXT: $a6 = L32I $a1, 20 :: (load (s32) from %stack.1)
     ; CHECK-NEXT: renamable $a8 = COPY $a1
     ; CHECK-NEXT: renamable $a7 = MOVIN 6
     ; CHECK-NEXT: S32I killed renamable $a7, killed renamable $a8, 0 :: (store (s32) into stack)
@@ -658,18 +612,12 @@ body:             |
     ; CHECK-NEXT: renamable $a7 = MOVIN 0
     ; CHECK-NEXT: S32I killed renamable $a7, killed renamable $a8, 4 :: (store (s32) into stack + 4)
     ; CHECK-NEXT: CALL0 @stack_arg_i64_reg_unaligned, csr_xtensa_call0, implicit-def $a0, implicit killed $a2, implicit killed $a3, implicit killed $a4, implicit killed $a5, implicit killed $a6
-    ; CHECK-NEXT: $a2 = ADDI $a1, 4
-    ; CHECK-NEXT: $a2 = L32I killed $a2, 0 :: (load (s32) from %stack.5)
-    ; CHECK-NEXT: $a3 = ADDI $a1, 8
-    ; CHECK-NEXT: $a3 = L32I killed $a3, 0 :: (load (s32) from %stack.4)
-    ; CHECK-NEXT: $a4 = ADDI $a1, 12
-    ; CHECK-NEXT: $a4 = L32I killed $a4, 0 :: (load (s32) from %stack.3)
-    ; CHECK-NEXT: $a5 = ADDI $a1, 16
-    ; CHECK-NEXT: $a5 = L32I killed $a5, 0 :: (load (s32) from %stack.2)
-    ; CHECK-NEXT: $a6 = ADDI $a1, 20
-    ; CHECK-NEXT: $a6 = L32I killed $a6, 0 :: (load (s32) from %stack.1)
-    ; CHECK-NEXT: $a7 = ADDI $a1, 24
-    ; CHECK-NEXT: $a7 = L32I killed $a7, 0 :: (load (s32) from %stack.0)
+    ; CHECK-NEXT: $a2 = L32I $a1, 4 :: (load (s32) from %stack.5)
+    ; CHECK-NEXT: $a3 = L32I $a1, 8 :: (load (s32) from %stack.4)
+    ; CHECK-NEXT: $a4 = L32I $a1, 12 :: (load (s32) from %stack.3)
+    ; CHECK-NEXT: $a5 = L32I $a1, 16 :: (load (s32) from %stack.2)
+    ; CHECK-NEXT: $a6 = L32I $a1, 20 :: (load (s32) from %stack.1)
+    ; CHECK-NEXT: $a7 = L32I $a1, 24 :: (load (s32) from %stack.0)
     ; CHECK-NEXT: renamable $a9 = COPY $a1
     ; CHECK-NEXT: renamable $a8 = MOVIN 7
     ; CHECK-NEXT: S32I killed renamable $a8, killed renamable $a9, 0 :: (store (s32) into stack)
@@ -680,8 +628,7 @@ body:             |
     ; CHECK-NEXT: renamable $a8 = MOVIN 0
     ; CHECK-NEXT: S32I killed renamable $a8, killed renamable $a9, 12 :: (store (s32) into stack + 12)
     ; CHECK-NEXT: CALL0 @stack_arg_i64_aligned, csr_xtensa_call0, implicit-def $a0, implicit killed $a2, implicit killed $a3, implicit killed $a4, implicit killed $a5, implicit killed $a6, implicit killed $a7
-    ; CHECK-NEXT: $a2 = ADDI $a1, 28
-    ; CHECK-NEXT: $a0 = L32I killed $a2, 0 :: (load (s32) from %stack.6)
+    ; CHECK-NEXT: $a0 = L32I $a1, 28 :: (load (s32) from %stack.6)
     ; CHECK-NEXT: $a1 = ADDI killed $a1, 32
     ; CHECK-NEXT: RETN implicit $a0
     ADJCALLSTACKDOWN 8, 0, implicit-def $a1, implicit $a1
