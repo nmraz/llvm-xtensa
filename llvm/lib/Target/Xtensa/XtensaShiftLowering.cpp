@@ -22,31 +22,6 @@
 using namespace llvm;
 using namespace MIPatternMatch;
 
-namespace {
-
-bool isLegalConstantShift(unsigned Opcode, uint64_t Value) {
-  switch (Opcode) {
-  case Xtensa::G_SHL:
-    // SLLI doesn't support 0 immediates
-    return Value > 0 && Value < 32;
-  default:
-    return Value < 32;
-  }
-}
-
-unsigned getXtensaShiftOpcode(unsigned GenericOpcode) {
-  switch (GenericOpcode) {
-  case Xtensa::G_SHL:
-    return Xtensa::SLL;
-  case Xtensa::G_LSHR:
-    return Xtensa::SRL;
-  case Xtensa::G_ASHR:
-    return Xtensa::SRA;
-  default:
-    llvm_unreachable("Unknown shift opcode!");
-  }
-}
-
 class XtensaShiftLowering : public MachineFunctionPass {
 public:
   static char ID;
@@ -61,10 +36,31 @@ public:
   void getAnalysisUsage(AnalysisUsage &AU) const override;
 };
 
-} // namespace
-
 XtensaShiftLowering::XtensaShiftLowering() : MachineFunctionPass(ID) {
   initializeXtensaShiftLoweringPass(*PassRegistry::getPassRegistry());
+}
+
+static bool isLegalConstantShift(unsigned Opcode, uint64_t Value) {
+  switch (Opcode) {
+  case Xtensa::G_SHL:
+    // SLLI doesn't support 0 immediates
+    return Value > 0 && Value < 32;
+  default:
+    return Value < 32;
+  }
+}
+
+static unsigned getXtensaShiftOpcode(unsigned GenericOpcode) {
+  switch (GenericOpcode) {
+  case Xtensa::G_SHL:
+    return Xtensa::SLL;
+  case Xtensa::G_LSHR:
+    return Xtensa::SRL;
+  case Xtensa::G_ASHR:
+    return Xtensa::SRA;
+  default:
+    llvm_unreachable("Unknown shift opcode!");
+  }
 }
 
 bool XtensaShiftLowering::lower(MachineInstr &MI) {
