@@ -12,26 +12,26 @@ define void @do_calls() {
 ; OPT-LABEL: do_calls:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addi a1, a1, -16
-; OPT-NEXT:    s32i.n a0, a1, 12 # 4-byte Folded Spill
+; OPT-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; OPT-NEXT:    call0 ret_i32
 ; OPT-NEXT:    call0 ret_i1
 ; OPT-NEXT:    call0 ret_i8
 ; OPT-NEXT:    call0 ret_i16
 ; OPT-NEXT:    call0 ret_i64
-; OPT-NEXT:    l32i.n a0, a1, 12 # 4-byte Folded Reload
+; OPT-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
 ; OPT-NEXT:    addi a1, a1, 16
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: do_calls:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a1, a1, -16
-; UNOPT-NEXT:    s32i.n a0, a1, 12 # 4-byte Folded Spill
+; UNOPT-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    call0 ret_i32
 ; UNOPT-NEXT:    call0 ret_i1
 ; UNOPT-NEXT:    call0 ret_i8
 ; UNOPT-NEXT:    call0 ret_i16
 ; UNOPT-NEXT:    call0 ret_i64
-; UNOPT-NEXT:    l32i.n a0, a1, 12 # 4-byte Folded Reload
+; UNOPT-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
 ; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
   %ret32 = call i32 @ret_i32()

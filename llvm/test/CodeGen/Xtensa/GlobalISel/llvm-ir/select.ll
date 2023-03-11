@@ -13,9 +13,9 @@ define i1 @select_i1(i1 %val, i1 %a, i1 %b) {
 ; UNOPT-LABEL: select_i1:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Folded Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a2, a3
-; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Folded Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Reload
 ; UNOPT-NEXT:    extui a3, a3, 0, 1
 ; UNOPT-NEXT:    moveqz a2, a4, a3
 ; UNOPT-NEXT:    addi a1, a1, 4
@@ -35,9 +35,9 @@ define i8 @select_i8(i1 %val, i8 %a, i8 %b) {
 ; UNOPT-LABEL: select_i8:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Folded Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a2, a3
-; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Folded Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Reload
 ; UNOPT-NEXT:    extui a3, a3, 0, 1
 ; UNOPT-NEXT:    moveqz a2, a4, a3
 ; UNOPT-NEXT:    addi a1, a1, 4
@@ -57,9 +57,9 @@ define i16 @select_i16(i1 %val, i16 %a, i16 %b) {
 ; UNOPT-LABEL: select_i16:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Folded Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a2, a3
-; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Folded Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Reload
 ; UNOPT-NEXT:    extui a3, a3, 0, 1
 ; UNOPT-NEXT:    moveqz a2, a4, a3
 ; UNOPT-NEXT:    addi a1, a1, 4
@@ -79,9 +79,9 @@ define i32 @select_i32(i1 %val, i32 %a, i32 %b) {
 ; UNOPT-LABEL: select_i32:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Folded Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a2, a3
-; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Folded Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Reload
 ; UNOPT-NEXT:    extui a3, a3, 0, 1
 ; UNOPT-NEXT:    moveqz a2, a4, a3
 ; UNOPT-NEXT:    addi a1, a1, 4
@@ -101,9 +101,9 @@ define ptr @select_ptr(i1 %val, ptr %a, ptr %b) {
 ; UNOPT-LABEL: select_ptr:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Folded Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a2, a3
-; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Folded Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Reload
 ; UNOPT-NEXT:    extui a3, a3, 0, 1
 ; UNOPT-NEXT:    moveqz a2, a4, a3
 ; UNOPT-NEXT:    addi a1, a1, 4

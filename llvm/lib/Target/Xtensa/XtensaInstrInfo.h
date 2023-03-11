@@ -68,6 +68,16 @@ public:
                  const DebugLoc &DL, Register Dest, Register Src, bool KillSrc,
                  Register Temp, int32_t Value, bool AllowSplit = true) const;
 
+  unsigned isLoadFromStackSlot(const MachineInstr &MI,
+                               int &FrameIndex) const override;
+  unsigned isLoadFromStackSlotPostFE(const MachineInstr &MI,
+                                     int &FrameIndex) const override;
+
+  unsigned isStoreToStackSlot(const MachineInstr &MI,
+                              int &FrameIndex) const override;
+  unsigned isStoreToStackSlotPostFE(const MachineInstr &MI,
+                                    int &FrameIndex) const override;
+
   void copyPhysReg(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
                    const DebugLoc &DL, MCRegister DestReg, MCRegister SrcReg,
                    bool KillSrc) const override;
@@ -77,6 +87,7 @@ public:
                            bool IsKill, int FrameIndex,
                            const TargetRegisterClass *RC,
                            const TargetRegisterInfo *TRI) const override;
+
   void loadRegFromStackSlot(MachineBasicBlock &MBB,
                             MachineBasicBlock::iterator MI, Register DestReg,
                             int FrameIndex, const TargetRegisterClass *RC,

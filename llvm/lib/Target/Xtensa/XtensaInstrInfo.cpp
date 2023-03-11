@@ -23,6 +23,29 @@ using namespace XtensaInstrUtils;
 #define GET_INSTRINFO_CTOR_DTOR
 #include "XtensaGenInstrInfo.inc"
 
+static bool isLoad(unsigned Opcode) {
+  switch (Opcode) {
+  case Xtensa::L8UI:
+  case Xtensa::L16UI:
+  case Xtensa::L16SI:
+  case Xtensa::L32I:
+    return true;
+  default:
+    return false;
+  }
+}
+
+static bool isStore(unsigned Opcode) {
+  switch (Opcode) {
+  case Xtensa::S8I:
+  case Xtensa::S16I:
+  case Xtensa::S32I:
+    return true;
+  default:
+    return false;
+  }
+}
+
 XtensaInstrInfo::XtensaInstrInfo(XtensaSubtarget &ST)
     : XtensaGenInstrInfo(Xtensa::ADJCALLSTACKDOWN, Xtensa::ADJCALLSTACKUP),
       Subtarget(ST) {}
@@ -115,6 +138,56 @@ void XtensaInstrInfo::addRegImm(MachineBasicBlock &MBB,
     }
   }
   addRegImmWithLoad(MBB, I, DL, Dest, Src, KillSrc, Temp, Value);
+}
+
+unsigned XtensaInstrInfo::isLoadFromStackSlot(const MachineInstr &MI,
+                                              int &FrameIndex) const {
+  if (isLoad(MI.getOpcode()) && MI.getOperand(1).isFI() &&
+      MI.getOperand(2).getImm() == 0) {
+    FrameIndex = MI.getOperand(1).getIndex();
+    return true;
+  }
+
+  return false;
+}
+
+unsigned XtensaInstrInfo::isLoadFromStackSlotPostFE(const MachineInstr &MI,
+                                                    int &FrameIndex) const {
+
+  SmallVector<const MachineMemOperand *, 1> Accesses;
+  if (MI.mayLoad() && hasLoadFromStackSlot(MI, Accesses) &&
+      Accesses.size() == 1) {
+    FrameIndex =
+        cast<FixedStackPseudoSourceValue>(Accesses.front()->getPseudoValue())
+            ->getFrameIndex();
+    return true;
+  }
+  return false;
+}
+
+unsigned XtensaInstrInfo::isStoreToStackSlot(const MachineInstr &MI,
+                                             int &FrameIndex) const {
+  if (isStore(MI.getOpcode()) && MI.getOperand(1).isFI() &&
+      MI.getOperand(2).getImm() == 0) {
+    FrameIndex = MI.getOperand(1).getIndex();
+    return true;
+  }
+
+  return false;
+}
+
+unsigned XtensaInstrInfo::isStoreToStackSlotPostFE(const MachineInstr &MI,
+                                                   int &FrameIndex) const {
+
+  SmallVector<const MachineMemOperand *, 1> Accesses;
+  if (MI.mayStore() && hasStoreToStackSlot(MI, Accesses) &&
+      Accesses.size() == 1) {
+    FrameIndex =
+        cast<FixedStackPseudoSourceValue>(Accesses.front()->getPseudoValue())
+            ->getFrameIndex();
+    return true;
+  }
+  return false;
 }
 
 void XtensaInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
