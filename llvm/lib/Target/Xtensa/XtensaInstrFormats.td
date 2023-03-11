@@ -126,7 +126,7 @@ def uimm5_sub32 : ImmOperand<i32, "UImm5">, ImmLeaf<i32, [{ return Imm >= 1 && I
 // 7-bit immediate, extended to 32 bits by the bitwise AND of its top 2 bits
 // (bits 5 and 6); used only in narrow `movi` instruction
 def MoviNImm7OperandClass : ConstantImmOperandClass<"MoviNImm7", "expected a constant in the range [-32, 95]">;
-def movin_imm7 : ImmOperand<i32, "MoviNImm7">, ImmLeaf<i32, [{ return Imm >= -32 && Imm <= 95; }]>;
+def movin_imm7 : ImmOperand<i32, "MoviNImm7">;
 
 
 // PC-relative operands (branches and loads)

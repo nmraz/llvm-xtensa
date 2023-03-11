@@ -157,8 +157,8 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: movin_zero
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN 0
-    ; CHECK-NEXT: $a2 = COPY [[MOVIN]]
+    ; CHECK: [[MOVI:%[0-9]+]]:gpr = MOVI 0
+    ; CHECK-NEXT: $a2 = COPY [[MOVI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = G_CONSTANT i32 0
     $a2 = COPY %0(s32)
@@ -215,8 +215,8 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: movin_one
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN 1
-    ; CHECK-NEXT: $a2 = COPY [[MOVIN]]
+    ; CHECK: [[MOVI:%[0-9]+]]:gpr = MOVI 1
+    ; CHECK-NEXT: $a2 = COPY [[MOVI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = G_CONSTANT i32 1
     $a2 = COPY %0(s32)
@@ -273,8 +273,8 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: movin_neg_one
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN -1
-    ; CHECK-NEXT: $a2 = COPY [[MOVIN]]
+    ; CHECK: [[MOVI:%[0-9]+]]:gpr = MOVI -1
+    ; CHECK-NEXT: $a2 = COPY [[MOVI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = G_CONSTANT i32 -1
     $a2 = COPY %0(s32)
@@ -331,8 +331,8 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: movin_positive
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN 7
-    ; CHECK-NEXT: $a2 = COPY [[MOVIN]]
+    ; CHECK: [[MOVI:%[0-9]+]]:gpr = MOVI 7
+    ; CHECK-NEXT: $a2 = COPY [[MOVI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = G_CONSTANT i32 7
     $a2 = COPY %0(s32)
@@ -389,8 +389,8 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: movin_positive_limit
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN 95
-    ; CHECK-NEXT: $a2 = COPY [[MOVIN]]
+    ; CHECK: [[MOVI:%[0-9]+]]:gpr = MOVI 95
+    ; CHECK-NEXT: $a2 = COPY [[MOVI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = G_CONSTANT i32 95
     $a2 = COPY %0(s32)
@@ -621,8 +621,8 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: movin_negative
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN -7
-    ; CHECK-NEXT: $a2 = COPY [[MOVIN]]
+    ; CHECK: [[MOVI:%[0-9]+]]:gpr = MOVI -7
+    ; CHECK-NEXT: $a2 = COPY [[MOVI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = G_CONSTANT i32 -7
     $a2 = COPY %0(s32)
@@ -679,8 +679,8 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: movin_negative_limit
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN -32
-    ; CHECK-NEXT: $a2 = COPY [[MOVIN]]
+    ; CHECK: [[MOVI:%[0-9]+]]:gpr = MOVI -32
+    ; CHECK-NEXT: $a2 = COPY [[MOVI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = G_CONSTANT i32 -32
     $a2 = COPY %0(s32)
@@ -1279,10 +1279,10 @@ machineFunctionInfo: {}
 body:             |
   bb.1.entry:
     ; CHECK-LABEL: name: i64_split_movin_movi
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN -1
-    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 291
-    ; CHECK-NEXT: $a2 = COPY [[MOVIN]]
-    ; CHECK-NEXT: $a3 = COPY [[MOVI]]
+    ; CHECK: [[MOVI:%[0-9]+]]:gpr = MOVI -1
+    ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 291
+    ; CHECK-NEXT: $a2 = COPY [[MOVI]]
+    ; CHECK-NEXT: $a3 = COPY [[MOVI1]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
     %3:gprb(s32) = G_CONSTANT i32 -1
     %4:gprb(s32) = G_CONSTANT i32 291

@@ -824,8 +824,8 @@ body:             |
     ; CHECK: liveins: $a2, $a3
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 1
-    ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[COPY]], [[MOVIN]]
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 1
+    ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[COPY]], [[MOVI]]
     ; CHECK-NEXT: $a2 = COPY [[SALT]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -898,8 +898,8 @@ body:             |
     ; CHECK: liveins: $a2, $a3
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 0
-    ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[MOVIN]], [[COPY]]
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 0
+    ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[MOVI]], [[COPY]]
     ; CHECK-NEXT: $a2 = COPY [[SALT]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -972,8 +972,8 @@ body:             |
     ; CHECK: liveins: $a2, $a3
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN -1
-    ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[MOVIN]], [[COPY]]
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI -1
+    ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[MOVI]], [[COPY]]
     ; CHECK-NEXT: $a2 = COPY [[SALT]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2

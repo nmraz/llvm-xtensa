@@ -5,7 +5,7 @@
 define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; OPT-LABEL: shl_i33:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a5, 32
+; OPT-NEXT:    movi a5, 32
 ; OPT-NEXT:    saltu a7, a4, a5
 ; OPT-NEXT:    ssl a4
 ; OPT-NEXT:    sll a5, a2
@@ -16,7 +16,7 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; OPT-NEXT:    sll a8, a3
 ; OPT-NEXT:    or a6, a6, a8
 ; OPT-NEXT:    sll a2, a2
-; OPT-NEXT:    movi.n a8, 0
+; OPT-NEXT:    movi a8, 0
 ; OPT-NEXT:    moveqz a5, a8, a7
 ; OPT-NEXT:    moveqz a6, a2, a7
 ; OPT-NEXT:    moveqz a6, a3, a4
@@ -28,7 +28,7 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    mov.n a6, a2
 ; UNOPT-NEXT:    mov.n a9, a4
-; UNOPT-NEXT:    movi.n a2, 32
+; UNOPT-NEXT:    movi a2, 32
 ; UNOPT-NEXT:    addi a8, a9, -32
 ; UNOPT-NEXT:    sub a4, a2, a9
 ; UNOPT-NEXT:    saltu a7, a9, a2
@@ -45,7 +45,7 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; UNOPT-NEXT:    ssl a8
 ; UNOPT-NEXT:    sll a6, a6
 ; UNOPT-NEXT:    extui a9, a7, 0, 1
-; UNOPT-NEXT:    movi.n a8, 0
+; UNOPT-NEXT:    movi a8, 0
 ; UNOPT-NEXT:    moveqz a2, a8, a9
 ; UNOPT-NEXT:    extui a7, a7, 0, 1
 ; UNOPT-NEXT:    moveqz a4, a6, a7
@@ -60,7 +60,7 @@ entry:
 define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; OPT-LABEL: shl_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a5, 32
+; OPT-NEXT:    movi a5, 32
 ; OPT-NEXT:    saltu a7, a4, a5
 ; OPT-NEXT:    ssl a4
 ; OPT-NEXT:    sll a5, a2
@@ -71,7 +71,7 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; OPT-NEXT:    sll a8, a3
 ; OPT-NEXT:    or a6, a6, a8
 ; OPT-NEXT:    sll a2, a2
-; OPT-NEXT:    movi.n a8, 0
+; OPT-NEXT:    movi a8, 0
 ; OPT-NEXT:    moveqz a5, a8, a7
 ; OPT-NEXT:    moveqz a6, a2, a7
 ; OPT-NEXT:    moveqz a6, a3, a4
@@ -83,7 +83,7 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    mov.n a6, a2
 ; UNOPT-NEXT:    mov.n a9, a4
-; UNOPT-NEXT:    movi.n a2, 32
+; UNOPT-NEXT:    movi a2, 32
 ; UNOPT-NEXT:    addi a8, a9, -32
 ; UNOPT-NEXT:    sub a4, a2, a9
 ; UNOPT-NEXT:    saltu a7, a9, a2
@@ -100,7 +100,7 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; UNOPT-NEXT:    ssl a8
 ; UNOPT-NEXT:    sll a6, a6
 ; UNOPT-NEXT:    extui a9, a7, 0, 1
-; UNOPT-NEXT:    movi.n a8, 0
+; UNOPT-NEXT:    movi a8, 0
 ; UNOPT-NEXT:    moveqz a2, a8, a9
 ; UNOPT-NEXT:    extui a7, a7, 0, 1
 ; UNOPT-NEXT:    moveqz a4, a6, a7
@@ -116,7 +116,7 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; OPT-LABEL: lshr_i33:
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    extui a6, a3, 0, 1
-; OPT-NEXT:    movi.n a3, 32
+; OPT-NEXT:    movi a3, 32
 ; OPT-NEXT:    saltu a7, a4, a3
 ; OPT-NEXT:    ssr a4
 ; OPT-NEXT:    srl a3, a6
@@ -129,7 +129,7 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; OPT-NEXT:    srl a6, a6
 ; OPT-NEXT:    moveqz a5, a6, a7
 ; OPT-NEXT:    moveqz a5, a2, a4
-; OPT-NEXT:    movi.n a2, 0
+; OPT-NEXT:    movi a2, 0
 ; OPT-NEXT:    moveqz a3, a2, a7
 ; OPT-NEXT:    mov.n a2, a5
 ; OPT-NEXT:    ret.n
@@ -137,10 +137,10 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; UNOPT-LABEL: lshr_i33:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    mov.n a5, a4
-; UNOPT-NEXT:    movi.n a4, -1
+; UNOPT-NEXT:    movi a4, -1
 ; UNOPT-NEXT:    and a2, a2, a4
 ; UNOPT-NEXT:    extui a7, a3, 0, 1
-; UNOPT-NEXT:    movi.n a3, 32
+; UNOPT-NEXT:    movi a3, 32
 ; UNOPT-NEXT:    addi a8, a5, -32
 ; UNOPT-NEXT:    sub a9, a3, a5
 ; UNOPT-NEXT:    saltu a4, a5, a3
@@ -161,7 +161,7 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; UNOPT-NEXT:    extui a6, a6, 0, 1
 ; UNOPT-NEXT:    moveqz a2, a5, a6
 ; UNOPT-NEXT:    extui a5, a4, 0, 1
-; UNOPT-NEXT:    movi.n a4, 0
+; UNOPT-NEXT:    movi a4, 0
 ; UNOPT-NEXT:    moveqz a3, a4, a5
 ; UNOPT-NEXT:    ret.n
 entry:
@@ -172,7 +172,7 @@ entry:
 define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; OPT-LABEL: lshr_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a5, 32
+; OPT-NEXT:    movi a5, 32
 ; OPT-NEXT:    saltu a7, a4, a5
 ; OPT-NEXT:    ssr a4
 ; OPT-NEXT:    srl a5, a3
@@ -185,7 +185,7 @@ define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; OPT-NEXT:    srl a3, a3
 ; OPT-NEXT:    moveqz a6, a3, a7
 ; OPT-NEXT:    moveqz a6, a2, a4
-; OPT-NEXT:    movi.n a2, 0
+; OPT-NEXT:    movi a2, 0
 ; OPT-NEXT:    moveqz a5, a2, a7
 ; OPT-NEXT:    mov.n a2, a6
 ; OPT-NEXT:    mov.n a3, a5
@@ -195,7 +195,7 @@ define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    mov.n a7, a3
 ; UNOPT-NEXT:    mov.n a5, a4
-; UNOPT-NEXT:    movi.n a3, 32
+; UNOPT-NEXT:    movi a3, 32
 ; UNOPT-NEXT:    addi a8, a5, -32
 ; UNOPT-NEXT:    sub a9, a3, a5
 ; UNOPT-NEXT:    saltu a4, a5, a3
@@ -216,7 +216,7 @@ define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; UNOPT-NEXT:    extui a6, a6, 0, 1
 ; UNOPT-NEXT:    moveqz a2, a5, a6
 ; UNOPT-NEXT:    extui a5, a4, 0, 1
-; UNOPT-NEXT:    movi.n a4, 0
+; UNOPT-NEXT:    movi a4, 0
 ; UNOPT-NEXT:    moveqz a3, a4, a5
 ; UNOPT-NEXT:    ret.n
 entry:
@@ -235,7 +235,7 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; OPT-NEXT:    slli a5, a2, 1
 ; OPT-NEXT:    or a5, a3, a5
 ; OPT-NEXT:    srai a6, a2, 31
-; OPT-NEXT:    movi.n a2, 32
+; OPT-NEXT:    movi a2, 32
 ; OPT-NEXT:    saltu a7, a4, a2
 ; OPT-NEXT:    ssr a4
 ; OPT-NEXT:    sra a3, a6
@@ -262,7 +262,7 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; UNOPT-NEXT:    slli a5, a3, 1
 ; UNOPT-NEXT:    or a2, a2, a5
 ; UNOPT-NEXT:    srai a8, a3, 31
-; UNOPT-NEXT:    movi.n a3, 32
+; UNOPT-NEXT:    movi a3, 32
 ; UNOPT-NEXT:    addi a9, a4, -32
 ; UNOPT-NEXT:    sub a6, a3, a4
 ; UNOPT-NEXT:    saltu a5, a4, a3
@@ -294,7 +294,7 @@ entry:
 define i64 @ashr_i64(i64 %val, i64 %shamt) {
 ; OPT-LABEL: ashr_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a5, 32
+; OPT-NEXT:    movi a5, 32
 ; OPT-NEXT:    saltu a7, a4, a5
 ; OPT-NEXT:    ssr a4
 ; OPT-NEXT:    sra a5, a3
@@ -316,7 +316,7 @@ define i64 @ashr_i64(i64 %val, i64 %shamt) {
 ; UNOPT-LABEL: ashr_i64:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    mov.n a8, a3
-; UNOPT-NEXT:    movi.n a3, 32
+; UNOPT-NEXT:    movi a3, 32
 ; UNOPT-NEXT:    addi a9, a4, -32
 ; UNOPT-NEXT:    sub a6, a3, a4
 ; UNOPT-NEXT:    saltu a5, a4, a3

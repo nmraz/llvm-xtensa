@@ -193,7 +193,7 @@ let isSelect = true in {
 }
 
 let isAsCheapAsAMove = true, isReMaterializable = true in {
-  def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", [(set i32:$as, movin_imm7:$imm7)]>;
+  def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", []>;
   def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi", [(set i32:$at, simm12:$imm12)]>;
 
   def MOVN : ArithBaseRRRN<0b1101, (outs GPR:$at), (ins GPR:$as),

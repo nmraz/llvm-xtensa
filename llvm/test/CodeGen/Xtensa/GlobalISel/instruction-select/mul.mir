@@ -649,11 +649,11 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 0
-    ; CHECK-NEXT: [[MOVIN1:%[0-9]+]]:gpr = MOVIN 0
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 0
+    ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MULL:%[0-9]+]]:gpr = MULL [[COPY]], [[COPY1]]
-    ; CHECK-NEXT: [[MULL1:%[0-9]+]]:gpr = MULL [[MOVIN]], [[COPY1]]
-    ; CHECK-NEXT: [[MULL2:%[0-9]+]]:gpr = MULL [[COPY]], [[MOVIN1]]
+    ; CHECK-NEXT: [[MULL1:%[0-9]+]]:gpr = MULL [[MOVI]], [[COPY1]]
+    ; CHECK-NEXT: [[MULL2:%[0-9]+]]:gpr = MULL [[COPY]], [[MOVI1]]
     ; CHECK-NEXT: [[MULUH:%[0-9]+]]:gpr = MULUH [[COPY]], [[COPY1]]
     ; CHECK-NEXT: [[ADDN:%[0-9]+]]:gpr = ADDN [[MULL1]], [[MULL2]]
     ; CHECK-NEXT: [[ADDN1:%[0-9]+]]:gpr = ADDN [[ADDN]], [[MULUH]]

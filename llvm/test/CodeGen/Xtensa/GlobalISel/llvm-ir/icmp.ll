@@ -109,7 +109,7 @@ entry:
 define i1 @icmp_slez_i32(i32 %a, i32 %b) {
 ; CHECK-LABEL: icmp_slez_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a3, 1
+; CHECK-NEXT:    movi a3, 1
 ; CHECK-NEXT:    salt a2, a2, a3
 ; CHECK-NEXT:    ret.n
 entry:
@@ -120,7 +120,7 @@ entry:
 define i1 @icmp_sgtz_i32(i32 %a, i32 %b) {
 ; CHECK-LABEL: icmp_sgtz_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a3, 0
+; CHECK-NEXT:    movi a3, 0
 ; CHECK-NEXT:    salt a2, a3, a2
 ; CHECK-NEXT:    ret.n
 entry:
@@ -131,7 +131,7 @@ entry:
 define i1 @icmp_sgez_i32(i32 %a, i32 %b) {
 ; CHECK-LABEL: icmp_sgez_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a3, -1
+; CHECK-NEXT:    movi a3, -1
 ; CHECK-NEXT:    salt a2, a3, a2
 ; CHECK-NEXT:    ret.n
 entry:

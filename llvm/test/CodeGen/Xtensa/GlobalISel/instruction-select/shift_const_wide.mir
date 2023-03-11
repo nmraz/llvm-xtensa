@@ -344,9 +344,9 @@ body:             |
     ; CHECK: liveins: $a2, $a3
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 0
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[COPY]], 5
-    ; CHECK-NEXT: $a2 = COPY [[MOVIN]]
+    ; CHECK-NEXT: $a2 = COPY [[MOVI]]
     ; CHECK-NEXT: $a3 = COPY [[SLLI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
     %1:gprb(s32) = COPY $a2
@@ -429,11 +429,11 @@ body:             |
     ; CHECK: liveins: $a2, $a3
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 0
-    ; CHECK-NEXT: [[MOVIN1:%[0-9]+]]:gpr = MOVIN 32
-    ; CHECK-NEXT: SSL [[MOVIN1]], implicit-def $sar
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 0
+    ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 32
+    ; CHECK-NEXT: SSL [[MOVI1]], implicit-def $sar
     ; CHECK-NEXT: [[SLL:%[0-9]+]]:gpr = SLL [[COPY]], implicit $sar
-    ; CHECK-NEXT: $a2 = COPY [[MOVIN]]
+    ; CHECK-NEXT: $a2 = COPY [[MOVI]]
     ; CHECK-NEXT: $a3 = COPY [[SLL]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
     %1:gpr(s32) = COPY $a2
@@ -708,9 +708,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a3
     ; CHECK-NEXT: [[SRLI:%[0-9]+]]:gpr = SRLI [[COPY]], 5
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 0
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: $a2 = COPY [[SRLI]]
-    ; CHECK-NEXT: $a3 = COPY [[MOVIN]]
+    ; CHECK-NEXT: $a3 = COPY [[MOVI]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
     %2:gprb(s32) = COPY $a3
     %10:gprb(s32) = G_CONSTANT i32 5
@@ -792,12 +792,12 @@ body:             |
     ; CHECK: liveins: $a2, $a3
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 32
-    ; CHECK-NEXT: SSR [[MOVIN]], implicit-def $sar
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 32
+    ; CHECK-NEXT: SSR [[MOVI]], implicit-def $sar
     ; CHECK-NEXT: [[SRL:%[0-9]+]]:gpr = SRL [[COPY]], implicit $sar
-    ; CHECK-NEXT: [[MOVIN1:%[0-9]+]]:gpr = MOVIN 0
+    ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: $a2 = COPY [[SRL]]
-    ; CHECK-NEXT: $a3 = COPY [[MOVIN1]]
+    ; CHECK-NEXT: $a3 = COPY [[MOVI1]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
     %2:gpr(s32) = COPY $a3
     %10:gprb(s32) = G_CONSTANT i32 32
@@ -1158,8 +1158,8 @@ body:             |
     ; CHECK: liveins: $a2, $a3
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 32
-    ; CHECK-NEXT: SSR [[MOVIN]], implicit-def $sar
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 32
+    ; CHECK-NEXT: SSR [[MOVI]], implicit-def $sar
     ; CHECK-NEXT: [[SRA:%[0-9]+]]:gpr = SRA [[COPY]], implicit $sar
     ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[COPY]], 31
     ; CHECK-NEXT: $a2 = COPY [[SRA]]

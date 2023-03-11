@@ -8,7 +8,7 @@ define void @xor_loop(ptr noundef %a, ptr noundef %b, i32 noundef %n) {
 ; CHECK-NEXT:    s32i a2, a1, 12
 ; CHECK-NEXT:    s32i a3, a1, 8
 ; CHECK-NEXT:    s32i a4, a1, 4
-; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    movi a2, 0
 ; CHECK-NEXT:    s32i a2, a1, 0
 ; CHECK-NEXT:    j .LBB0_2
 ; CHECK-NEXT:  .LBB0_2: # %for.cond

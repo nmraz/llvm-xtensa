@@ -139,9 +139,9 @@ define i64 @mul_i32_i64_unsigned(i32 %a, i32 %b) {
 ; UNOPT-NEXT:    mov.n a4, a2
 ; UNOPT-NEXT:    mov.n a6, a3
 ; UNOPT-NEXT:    mull a2, a4, a6
-; UNOPT-NEXT:    movi.n a3, 0
+; UNOPT-NEXT:    movi a3, 0
 ; UNOPT-NEXT:    mull a3, a3, a6
-; UNOPT-NEXT:    movi.n a5, 0
+; UNOPT-NEXT:    movi a5, 0
 ; UNOPT-NEXT:    mull a5, a4, a5
 ; UNOPT-NEXT:    muluh a4, a4, a6
 ; UNOPT-NEXT:    add.n a3, a3, a5

@@ -276,8 +276,8 @@ machineFunctionInfo: {}
 body:             |
   bb.1 (%ir-block.0):
     ; CHECK-LABEL: name: ssr_masked_const_large
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN 33
-    ; CHECK-NEXT: SSR [[MOVIN]], implicit-def $sar
+    ; CHECK: [[MOVI:%[0-9]+]]:gpr = MOVI 33
+    ; CHECK-NEXT: SSR [[MOVI]], implicit-def $sar
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(s32) = G_CONSTANT i32 33
     G_XTENSA_SSR_MASKED %0(s32), implicit-def $sar
@@ -334,8 +334,8 @@ machineFunctionInfo: {}
 body:             |
   bb.1 (%ir-block.0):
     ; CHECK-LABEL: name: ssr_masked_const_neg
-    ; CHECK: [[MOVIN:%[0-9]+]]:gpr = MOVIN -3
-    ; CHECK-NEXT: SSR [[MOVIN]], implicit-def $sar
+    ; CHECK: [[MOVI:%[0-9]+]]:gpr = MOVI -3
+    ; CHECK-NEXT: SSR [[MOVI]], implicit-def $sar
     ; CHECK-NEXT: RETN implicit $a0
     %0:gprb(s32) = G_CONSTANT i32 -3
     G_XTENSA_SSR_MASKED %0(s32), implicit-def $sar
