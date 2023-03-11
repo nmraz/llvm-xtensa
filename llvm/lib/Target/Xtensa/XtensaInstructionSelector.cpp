@@ -449,6 +449,12 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
     I.setDesc(TII.get(Xtensa::ADDI));
     I.addOperand(MachineOperand::CreateImm(0));
     return constrainSelectedInstRegOperands(I, TII, TRI, RBI);
+  case Xtensa::G_GLOBAL_VALUE:
+    if (!emitL32R(I, I.getOperand(0).getReg(), I.getOperand(1).getGlobal())) {
+      return false;
+    }
+    I.eraseFromParent();
+    return true;
   }
 
   return false;
