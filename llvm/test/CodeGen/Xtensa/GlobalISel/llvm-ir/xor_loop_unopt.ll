@@ -5,30 +5,30 @@ define void @xor_loop(ptr noundef %a, ptr noundef %b, i32 noundef %n) {
 ; CHECK-LABEL: xor_loop:
 ; CHECK:       # %bb.1: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
-; CHECK-NEXT:    s32i a2, a1, 12
-; CHECK-NEXT:    s32i a3, a1, 8
-; CHECK-NEXT:    s32i a4, a1, 4
-; CHECK-NEXT:    movi a2, 0
-; CHECK-NEXT:    s32i a2, a1, 0
+; CHECK-NEXT:    s32i.n a2, a1, 12
+; CHECK-NEXT:    s32i.n a3, a1, 8
+; CHECK-NEXT:    s32i.n a4, a1, 4
+; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    s32i.n a2, a1, 0
 ; CHECK-NEXT:    j .LBB0_2
 ; CHECK-NEXT:  .LBB0_2: # %for.cond
 ; CHECK-NEXT:    # =>This Inner Loop Header: Depth=1
-; CHECK-NEXT:    l32i a2, a1, 0
-; CHECK-NEXT:    l32i a3, a1, 4
+; CHECK-NEXT:    l32i.n a2, a1, 0
+; CHECK-NEXT:    l32i.n a3, a1, 4
 ; CHECK-NEXT:    saltu a2, a2, a3
 ; CHECK-NEXT:    extui a2, a2, 0, 1
 ; CHECK-NEXT:    bnez a2, .LBB0_3
 ; CHECK-NEXT:    j .LBB0_5
 ; CHECK-NEXT:  .LBB0_3: # %for.body
 ; CHECK-NEXT:    # in Loop: Header=BB0_2 Depth=1
-; CHECK-NEXT:    l32i a2, a1, 8
-; CHECK-NEXT:    l32i a3, a1, 0
+; CHECK-NEXT:    l32i.n a2, a1, 8
+; CHECK-NEXT:    l32i.n a3, a1, 0
 ; CHECK-NEXT:    add.n a2, a2, a3
 ; CHECK-NEXT:    l8ui a2, a2, 0
 ; CHECK-NEXT:    slli a2, a2, 24
 ; CHECK-NEXT:    srai a4, a2, 24
-; CHECK-NEXT:    l32i a2, a1, 12
-; CHECK-NEXT:    l32i a3, a1, 0
+; CHECK-NEXT:    l32i.n a2, a1, 12
+; CHECK-NEXT:    l32i.n a3, a1, 0
 ; CHECK-NEXT:    add.n a3, a2, a3
 ; CHECK-NEXT:    l8ui a2, a3, 0
 ; CHECK-NEXT:    slli a2, a2, 24
@@ -38,9 +38,9 @@ define void @xor_loop(ptr noundef %a, ptr noundef %b, i32 noundef %n) {
 ; CHECK-NEXT:    j .LBB0_4
 ; CHECK-NEXT:  .LBB0_4: # %for.inc
 ; CHECK-NEXT:    # in Loop: Header=BB0_2 Depth=1
-; CHECK-NEXT:    l32i a2, a1, 0
+; CHECK-NEXT:    l32i.n a2, a1, 0
 ; CHECK-NEXT:    addi a2, a2, 1
-; CHECK-NEXT:    s32i a2, a1, 0
+; CHECK-NEXT:    s32i.n a2, a1, 0
 ; CHECK-NEXT:    j .LBB0_2
 ; CHECK-NEXT:  .LBB0_5: # %for.end
 ; CHECK-NEXT:    addi a1, a1, 16

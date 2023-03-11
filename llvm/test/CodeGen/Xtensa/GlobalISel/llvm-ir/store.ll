@@ -44,9 +44,9 @@ define void @store_i16_unaligned_1(ptr %p, i16 %val) {
 ; UNOPT-LABEL: store_i16_unaligned_1:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i a2, a1, 0 # 4-byte Folded Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    mov.n a4, a3
-; UNOPT-NEXT:    l32i a3, a1, 0 # 4-byte Folded Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    extui a2, a4, 0, 16
 ; UNOPT-NEXT:    srli a2, a2, 8
 ; UNOPT-NEXT:    s8i a4, a3, 0
@@ -61,12 +61,12 @@ entry:
 define void @store_i32(ptr %p, i32 %val) {
 ; OPT-LABEL: store_i32:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    s32i a3, a2, 0
+; OPT-NEXT:    s32i.n a3, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: store_i32:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    s32i a3, a2, 0
+; UNOPT-NEXT:    s32i.n a3, a2, 0
 ; UNOPT-NEXT:    ret.n
 entry:
   store i32 %val, ptr %p, align 4
@@ -117,9 +117,9 @@ define void @store_i32_unaligned_2(ptr %p, i32 %val) {
 ; UNOPT-LABEL: store_i32_unaligned_2:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i a2, a1, 0 # 4-byte Folded Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    mov.n a4, a3
-; UNOPT-NEXT:    l32i a3, a1, 0 # 4-byte Folded Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    extui a2, a4, 16, 16
 ; UNOPT-NEXT:    s16i a4, a3, 0
 ; UNOPT-NEXT:    s16i a2, a3, 2
@@ -133,14 +133,14 @@ entry:
 define void @store_i64(ptr %p, i64 %val) {
 ; OPT-LABEL: store_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    s32i a4, a2, 0
-; OPT-NEXT:    s32i a5, a2, 4
+; OPT-NEXT:    s32i.n a4, a2, 0
+; OPT-NEXT:    s32i.n a5, a2, 4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: store_i64:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    s32i a4, a2, 0
-; UNOPT-NEXT:    s32i a5, a2, 4
+; UNOPT-NEXT:    s32i.n a4, a2, 0
+; UNOPT-NEXT:    s32i.n a5, a2, 4
 ; UNOPT-NEXT:    ret.n
 entry:
   store i64 %val, ptr %p, align 8
@@ -214,9 +214,9 @@ define void @store_i64_unaligned_2(ptr %p, i64 %val) {
 ; UNOPT-LABEL: store_i64_unaligned_2:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i a2, a1, 0 # 4-byte Folded Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    mov.n a3, a4
-; UNOPT-NEXT:    l32i a4, a1, 0 # 4-byte Folded Reload
+; UNOPT-NEXT:    l32i.n a4, a1, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    extui a2, a3, 16, 16
 ; UNOPT-NEXT:    s16i a3, a4, 0
 ; UNOPT-NEXT:    s16i a2, a4, 2
@@ -234,14 +234,14 @@ entry:
 define void @store_i64_unaligned_4(ptr %p, i64 %val) {
 ; OPT-LABEL: store_i64_unaligned_4:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    s32i a4, a2, 0
-; OPT-NEXT:    s32i a5, a2, 4
+; OPT-NEXT:    s32i.n a4, a2, 0
+; OPT-NEXT:    s32i.n a5, a2, 4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: store_i64_unaligned_4:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    s32i a4, a2, 0
-; UNOPT-NEXT:    s32i a5, a2, 4
+; UNOPT-NEXT:    s32i.n a4, a2, 0
+; UNOPT-NEXT:    s32i.n a5, a2, 4
 ; UNOPT-NEXT:    ret.n
 entry:
   store i64 %val, ptr %p, align 4
@@ -251,12 +251,12 @@ entry:
 define void @store_ptr(ptr %p, ptr %val) {
 ; OPT-LABEL: store_ptr:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    s32i a3, a2, 0
+; OPT-NEXT:    s32i.n a3, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: store_ptr:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    s32i a3, a2, 0
+; UNOPT-NEXT:    s32i.n a3, a2, 0
 ; UNOPT-NEXT:    ret.n
 entry:
   store ptr %val, ptr %p, align 4
@@ -307,9 +307,9 @@ define void @store_ptr_unaligned_2(ptr %p, ptr %val) {
 ; UNOPT-LABEL: store_ptr_unaligned_2:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i a2, a1, 0 # 4-byte Folded Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Folded Spill
 ; UNOPT-NEXT:    mov.n a4, a3
-; UNOPT-NEXT:    l32i a3, a1, 0 # 4-byte Folded Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Folded Reload
 ; UNOPT-NEXT:    extui a2, a4, 16, 16
 ; UNOPT-NEXT:    s16i a4, a3, 0
 ; UNOPT-NEXT:    s16i a2, a3, 2

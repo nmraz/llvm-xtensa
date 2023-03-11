@@ -91,6 +91,8 @@ inline Optional<uint64_t> encodeB4ConstU(uint64_t Value) {
   }
 }
 
+inline bool isMoviNImm7(int32_t Value) { return Value >= -32 && Value <= 95; }
+
 } // namespace XtensaII
 
 } // namespace llvm

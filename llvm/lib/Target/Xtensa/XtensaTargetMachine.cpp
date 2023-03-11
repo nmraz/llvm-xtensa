@@ -64,6 +64,7 @@ public:
   bool addRegBankSelect() override;
   void addPreGlobalInstructionSelect() override;
   bool addGlobalInstructionSelect() override;
+  void addPreEmitPass() override;
 };
 
 } // namespace
@@ -105,4 +106,8 @@ void XtensaPassConfig::addPreGlobalInstructionSelect() {
 bool XtensaPassConfig::addGlobalInstructionSelect() {
   addPass(new InstructionSelect(getOptLevel()));
   return false;
+}
+
+void XtensaPassConfig::addPreEmitPass() {
+  addPass(createXtensaSizeReduction());
 }

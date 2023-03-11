@@ -169,17 +169,8 @@ bool XtensaOperand::isUImm4Plus1() const {
 }
 
 bool XtensaOperand::isMoviNImm7() const {
-  // We want to check whether `Val` is a 7-bit immediate, extended by the AND of
-  // its top 2 bits (bits 5 and 6). This holds exactly when it is in the range
-  // [-32, 95]. To see why, note the following:
-  // * When the value is negative, all bits from the MSB through bit 5 must be
-  //   set, bounding it from below by -(2 ^ 5) = -32.
-  // * When the value is positive, all bits beyond 6 must be 0, and at least one
-  //   of bits 5 and 6 must be 0. When bit 6 is 0, we get the range [0, 63] with
-  //   the low 6 bits, and when bit 6 is set we can count up to 31 with the low
-  //   5 bits, covering 64 + [0, 31] = [64, 95].
   int64_t Val = static_cast<int64_t>(getConstImm());
-  return Val >= -32 && Val <= 95;
+  return XtensaII::isMoviNImm7(Val);
 }
 
 bool XtensaOperand::isB4Const() const {

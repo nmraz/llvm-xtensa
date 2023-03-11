@@ -37,6 +37,7 @@ add_llvm_target(XtensaCodeGen
   XtensaPostLegalizerCombiner.cpp
   XtensaRegisterBankInfo.cpp
   XtensaRegisterInfo.cpp
+  XtensaSizeReduction.cpp
   XtensaShiftCombiner.cpp
   XtensaShiftLowering.cpp
   XtensaSubtarget.cpp

@@ -25,10 +25,12 @@ createXtensaInstructionSelector(const XtensaTargetMachine &TM,
 FunctionPass *createXtensaPostLegalizerCombiner();
 FunctionPass *createXtensaShiftLowering();
 FunctionPass *createXtensaShiftCombiner();
+FunctionPass *createXtensaSizeReduction();
 
 void initializeXtensaPostLegalizerCombinerPass(PassRegistry &PR);
 void initializeXtensaShiftLoweringPass(PassRegistry &PR);
 void initializeXtensaShiftCombinerPass(PassRegistry &PR);
+void initializeXtensaSizeReductionPass(PassRegistry &PR);
 
 } // namespace llvm
 

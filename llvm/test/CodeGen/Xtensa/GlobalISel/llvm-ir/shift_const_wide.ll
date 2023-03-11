@@ -52,13 +52,13 @@ define i64 @shl_const_6bit(i64 %val) {
 ; OPT-LABEL: shl_const_6bit:
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    slli a3, a2, 5
-; OPT-NEXT:    movi a2, 0
+; OPT-NEXT:    movi.n a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: shl_const_6bit:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    slli a3, a2, 5
-; UNOPT-NEXT:    movi a2, 0
+; UNOPT-NEXT:    movi.n a2, 0
 ; UNOPT-NEXT:    ret.n
 entry:
   %shl = shl i64 %val, 37
@@ -68,18 +68,18 @@ entry:
 define i64 @shl_const_overflow(i64 %val) {
 ; OPT-LABEL: shl_const_overflow:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi a3, 32
+; OPT-NEXT:    movi.n a3, 32
 ; OPT-NEXT:    ssl a3
 ; OPT-NEXT:    sll a3, a2
-; OPT-NEXT:    movi a2, 0
+; OPT-NEXT:    movi.n a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: shl_const_overflow:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a3, 32
+; UNOPT-NEXT:    movi.n a3, 32
 ; UNOPT-NEXT:    ssl a3
 ; UNOPT-NEXT:    sll a3, a2
-; UNOPT-NEXT:    movi a2, 0
+; UNOPT-NEXT:    movi.n a2, 0
 ; UNOPT-NEXT:    ret.n
 entry:
   %shl = shl i64 %val, 64
@@ -132,13 +132,13 @@ define i64 @lshr_const_6bit(i64 %val) {
 ; OPT-LABEL: lshr_const_6bit:
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    srli a2, a3, 5
-; OPT-NEXT:    movi a3, 0
+; OPT-NEXT:    movi.n a3, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: lshr_const_6bit:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    srli a2, a3, 5
-; UNOPT-NEXT:    movi a3, 0
+; UNOPT-NEXT:    movi.n a3, 0
 ; UNOPT-NEXT:    ret.n
 entry:
   %lshr = lshr i64 %val, 37
@@ -150,15 +150,15 @@ define i64 @lshr_const_overflow(i64 %val) {
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    ssai 0
 ; OPT-NEXT:    srl a2, a3
-; OPT-NEXT:    movi a3, 0
+; OPT-NEXT:    movi.n a3, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: lshr_const_overflow:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a2, 32
+; UNOPT-NEXT:    movi.n a2, 32
 ; UNOPT-NEXT:    ssr a2
 ; UNOPT-NEXT:    srl a2, a3
-; UNOPT-NEXT:    movi a3, 0
+; UNOPT-NEXT:    movi.n a3, 0
 ; UNOPT-NEXT:    ret.n
 entry:
   %lshr = lshr i64 %val, 64
@@ -234,7 +234,7 @@ define i64 @ashr_const_overflow(i64 %val) {
 ;
 ; UNOPT-LABEL: ashr_const_overflow:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a2, 32
+; UNOPT-NEXT:    movi.n a2, 32
 ; UNOPT-NEXT:    ssr a2
 ; UNOPT-NEXT:    sra a2, a3
 ; UNOPT-NEXT:    srai a3, a3, 31

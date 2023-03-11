@@ -422,7 +422,7 @@ define i32 @not_extui_neg_lshr(i32 %val) {
 ;
 ; UNOPT-LABEL: not_extui_neg_lshr:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a3, -1
+; UNOPT-NEXT:    movi.n a3, -1
 ; UNOPT-NEXT:    ssr a3
 ; UNOPT-NEXT:    srl a2, a2
 ; UNOPT-NEXT:    extui a2, a2, 0, 1
@@ -443,7 +443,7 @@ define i32 @not_extui_neg_ashr(i32 %val) {
 ;
 ; UNOPT-LABEL: not_extui_neg_ashr:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a3, -1
+; UNOPT-NEXT:    movi.n a3, -1
 ; UNOPT-NEXT:    ssr a3
 ; UNOPT-NEXT:    sra a2, a2
 ; UNOPT-NEXT:    extui a2, a2, 0, 1
@@ -527,13 +527,13 @@ entry:
 define i32 @not_extui_non_mask(i32 %val) {
 ; OPT-LABEL: not_extui_non_mask:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi a3, 5
+; OPT-NEXT:    movi.n a3, 5
 ; OPT-NEXT:    and a2, a2, a3
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: not_extui_non_mask:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a3, 5
+; UNOPT-NEXT:    movi.n a3, 5
 ; UNOPT-NEXT:    and a2, a2, a3
 ; UNOPT-NEXT:    ret.n
 entry:

@@ -5,12 +5,12 @@
 define i32 @movin_zero() {
 ; OPT-LABEL: movin_zero:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi a2, 0
+; OPT-NEXT:    movi.n a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: movin_zero:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a2, 0
+; UNOPT-NEXT:    movi.n a2, 0
 ; UNOPT-NEXT:    ret.n
 entry:
   ret i32 0
@@ -19,12 +19,12 @@ entry:
 define i32 @movin_one() {
 ; OPT-LABEL: movin_one:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi a2, 1
+; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: movin_one:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a2, 1
+; UNOPT-NEXT:    movi.n a2, 1
 ; UNOPT-NEXT:    ret.n
 entry:
   ret i32 1
@@ -33,12 +33,12 @@ entry:
 define i32 @movin_neg_one() {
 ; OPT-LABEL: movin_neg_one:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi a2, -1
+; OPT-NEXT:    movi.n a2, -1
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: movin_neg_one:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a2, -1
+; UNOPT-NEXT:    movi.n a2, -1
 ; UNOPT-NEXT:    ret.n
 entry:
   ret i32 -1
@@ -47,12 +47,12 @@ entry:
 define i32 @movin_positive() {
 ; OPT-LABEL: movin_positive:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi a2, 7
+; OPT-NEXT:    movi.n a2, 7
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: movin_positive:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a2, 7
+; UNOPT-NEXT:    movi.n a2, 7
 ; UNOPT-NEXT:    ret.n
 entry:
   ret i32 7
@@ -61,12 +61,12 @@ entry:
 define i32 @movin_positive_limit() {
 ; OPT-LABEL: movin_positive_limit:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi a2, 95
+; OPT-NEXT:    movi.n a2, 95
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: movin_positive_limit:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a2, 95
+; UNOPT-NEXT:    movi.n a2, 95
 ; UNOPT-NEXT:    ret.n
 entry:
   ret i32 95
@@ -117,12 +117,12 @@ entry:
 define i32 @movin_negative() {
 ; OPT-LABEL: movin_negative:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi a2, -7
+; OPT-NEXT:    movi.n a2, -7
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: movin_negative:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a2, -7
+; UNOPT-NEXT:    movi.n a2, -7
 ; UNOPT-NEXT:    ret.n
 entry:
   ret i32 -7
@@ -131,12 +131,12 @@ entry:
 define i32 @movin_negative_limit() {
 ; OPT-LABEL: movin_negative_limit:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi a2, -32
+; OPT-NEXT:    movi.n a2, -32
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: movin_negative_limit:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a2, -32
+; UNOPT-NEXT:    movi.n a2, -32
 ; UNOPT-NEXT:    ret.n
 entry:
   ret i32 -32
@@ -275,13 +275,13 @@ entry:
 define i64 @i64_split_movin_movi() {
 ; OPT-LABEL: i64_split_movin_movi:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi a2, -1
+; OPT-NEXT:    movi.n a2, -1
 ; OPT-NEXT:    movi a3, 291
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: i64_split_movin_movi:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a2, -1
+; UNOPT-NEXT:    movi.n a2, -1
 ; UNOPT-NEXT:    movi a3, 291
 ; UNOPT-NEXT:    ret.n
 entry:

@@ -9,7 +9,7 @@ define i32 @shl_zero(i32 %val) {
 ;
 ; UNOPT-LABEL: shl_zero:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a3, 0
+; UNOPT-NEXT:    movi.n a3, 0
 ; UNOPT-NEXT:    ssl a3
 ; UNOPT-NEXT:    sll a2, a2
 ; UNOPT-NEXT:    ret.n
@@ -51,14 +51,14 @@ entry:
 define i32 @shl_const_overflow(i32 %val) {
 ; OPT-LABEL: shl_const_overflow:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi a3, 32
+; OPT-NEXT:    movi.n a3, 32
 ; OPT-NEXT:    ssl a3
 ; OPT-NEXT:    sll a2, a2
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: shl_const_overflow:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a3, 32
+; UNOPT-NEXT:    movi.n a3, 32
 ; UNOPT-NEXT:    ssl a3
 ; UNOPT-NEXT:    sll a2, a2
 ; UNOPT-NEXT:    ret.n
@@ -120,7 +120,7 @@ define i32 @lshr_const_overflow(i32 %val) {
 ;
 ; UNOPT-LABEL: lshr_const_overflow:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a3, 32
+; UNOPT-NEXT:    movi.n a3, 32
 ; UNOPT-NEXT:    ssr a3
 ; UNOPT-NEXT:    srl a2, a2
 ; UNOPT-NEXT:    ret.n
@@ -182,7 +182,7 @@ define i32 @ashr_const_overflow(i32 %val) {
 ;
 ; UNOPT-LABEL: ashr_const_overflow:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    movi a3, 32
+; UNOPT-NEXT:    movi.n a3, 32
 ; UNOPT-NEXT:    ssr a3
 ; UNOPT-NEXT:    sra a2, a2
 ; UNOPT-NEXT:    ret.n

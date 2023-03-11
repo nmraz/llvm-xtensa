@@ -50,16 +50,16 @@ define i32 @alloca_i32(i32 %val) {
 ; OPT-LABEL: alloca_i32:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addi a1, a1, -4
-; OPT-NEXT:    s32i a2, a1, 0
-; OPT-NEXT:    l32i a2, a1, 0
+; OPT-NEXT:    s32i.n a2, a1, 0
+; OPT-NEXT:    l32i.n a2, a1, 0
 ; OPT-NEXT:    addi a1, a1, 4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: alloca_i32:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i a2, a1, 0
-; UNOPT-NEXT:    l32i a2, a1, 0
+; UNOPT-NEXT:    s32i.n a2, a1, 0
+; UNOPT-NEXT:    l32i.n a2, a1, 0
 ; UNOPT-NEXT:    addi a1, a1, 4
 ; UNOPT-NEXT:    ret.n
   %p = alloca i32
@@ -72,20 +72,20 @@ define i64 @alloca_i64(i64 %val) {
 ; OPT-LABEL: alloca_i64:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addi a1, a1, -8
-; OPT-NEXT:    s32i a2, a1, 0
-; OPT-NEXT:    s32i a3, a1, 4
-; OPT-NEXT:    l32i a2, a1, 0
-; OPT-NEXT:    l32i a3, a1, 4
+; OPT-NEXT:    s32i.n a2, a1, 0
+; OPT-NEXT:    s32i.n a3, a1, 4
+; OPT-NEXT:    l32i.n a2, a1, 0
+; OPT-NEXT:    l32i.n a3, a1, 4
 ; OPT-NEXT:    addi a1, a1, 8
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: alloca_i64:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a1, a1, -8
-; UNOPT-NEXT:    s32i a2, a1, 0
-; UNOPT-NEXT:    s32i a3, a1, 4
-; UNOPT-NEXT:    l32i a2, a1, 0
-; UNOPT-NEXT:    l32i a3, a1, 4
+; UNOPT-NEXT:    s32i.n a2, a1, 0
+; UNOPT-NEXT:    s32i.n a3, a1, 4
+; UNOPT-NEXT:    l32i.n a2, a1, 0
+; UNOPT-NEXT:    l32i.n a3, a1, 4
 ; UNOPT-NEXT:    addi a1, a1, 8
 ; UNOPT-NEXT:    ret.n
   %p = alloca i64

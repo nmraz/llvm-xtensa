@@ -126,12 +126,12 @@ define i16 @offset_load_i16_unaligned(ptr %base) {
 define i32 @offset_load_i32(ptr %base) {
 ; OPT-LABEL: offset_load_i32:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    l32i a2, a2, 20
+; OPT-NEXT:    l32i.n a2, a2, 20
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_load_i32:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    l32i a2, a2, 20
+; UNOPT-NEXT:    l32i.n a2, a2, 20
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 5
   %load = load i32, ptr %p
@@ -141,12 +141,12 @@ define i32 @offset_load_i32(ptr %base) {
 define i32 @offset_load_i32_narrow_max(ptr %base) {
 ; OPT-LABEL: offset_load_i32_narrow_max:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    l32i a2, a2, 60
+; OPT-NEXT:    l32i.n a2, a2, 60
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_load_i32_narrow_max:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    l32i a2, a2, 60
+; UNOPT-NEXT:    l32i.n a2, a2, 60
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 15
   %load = load i32, ptr %p
@@ -172,13 +172,13 @@ define i32 @offset_load_i32_unaligned_off(ptr %base) {
 ; OPT-LABEL: offset_load_i32_unaligned_off:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addi a2, a2, 22
-; OPT-NEXT:    l32i a2, a2, 0
+; OPT-NEXT:    l32i.n a2, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_load_i32_unaligned_off:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a2, a2, 22
-; UNOPT-NEXT:    l32i a2, a2, 0
+; UNOPT-NEXT:    l32i.n a2, a2, 0
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i8, ptr %base, i32 22
   %load = load i32, ptr %p
@@ -189,13 +189,13 @@ define i32 @offset_load_i32_oob(ptr %base) {
 ; OPT-LABEL: offset_load_i32_oob:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addmi a2, a2, 1024
-; OPT-NEXT:    l32i a2, a2, 0
+; OPT-NEXT:    l32i.n a2, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_load_i32_oob:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addmi a2, a2, 1024
-; UNOPT-NEXT:    l32i a2, a2, 0
+; UNOPT-NEXT:    l32i.n a2, a2, 0
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 256
   %load = load i32, ptr %p
@@ -257,16 +257,16 @@ define i32 @offset_load_i32_unaligned(ptr %base) {
 define i64 @offset_load_i64(ptr %base) {
 ; OPT-LABEL: offset_load_i64:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    l32i a4, a2, 40
-; OPT-NEXT:    l32i a3, a2, 44
+; OPT-NEXT:    l32i.n a4, a2, 40
+; OPT-NEXT:    l32i.n a3, a2, 44
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_load_i64:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a3, a2, 40
-; UNOPT-NEXT:    l32i a2, a2, 40
-; UNOPT-NEXT:    l32i a3, a3, 4
+; UNOPT-NEXT:    l32i.n a2, a2, 40
+; UNOPT-NEXT:    l32i.n a3, a3, 4
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i64, ptr %base, i32 5
   %load = load i64, ptr %p
@@ -276,16 +276,16 @@ define i64 @offset_load_i64(ptr %base) {
 define i64 @offset_load_i64_unaligned_off4(ptr %base) {
 ; OPT-LABEL: offset_load_i64_unaligned_off4:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    l32i a4, a2, 20
-; OPT-NEXT:    l32i a3, a2, 24
+; OPT-NEXT:    l32i.n a4, a2, 20
+; OPT-NEXT:    l32i.n a3, a2, 24
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_load_i64_unaligned_off4:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a3, a2, 20
-; UNOPT-NEXT:    l32i a2, a2, 20
-; UNOPT-NEXT:    l32i a3, a3, 4
+; UNOPT-NEXT:    l32i.n a2, a2, 20
+; UNOPT-NEXT:    l32i.n a3, a3, 4
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 5
   %load = load i64, ptr %p
@@ -296,9 +296,9 @@ define i64 @offset_load_i64_unaligned_off(ptr %base) {
 ; OPT-LABEL: offset_load_i64_unaligned_off:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addi a3, a2, 21
-; OPT-NEXT:    l32i a4, a3, 0
+; OPT-NEXT:    l32i.n a4, a3, 0
 ; OPT-NEXT:    addi a2, a2, 25
-; OPT-NEXT:    l32i a3, a2, 0
+; OPT-NEXT:    l32i.n a3, a2, 0
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
@@ -306,8 +306,8 @@ define i64 @offset_load_i64_unaligned_off(ptr %base) {
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    addi a3, a2, 21
 ; UNOPT-NEXT:    addi a2, a2, 21
-; UNOPT-NEXT:    l32i a2, a2, 0
-; UNOPT-NEXT:    l32i a3, a3, 4
+; UNOPT-NEXT:    l32i.n a2, a2, 0
+; UNOPT-NEXT:    l32i.n a3, a3, 4
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i8, ptr %base, i32 21
   %load = load i64, ptr %p

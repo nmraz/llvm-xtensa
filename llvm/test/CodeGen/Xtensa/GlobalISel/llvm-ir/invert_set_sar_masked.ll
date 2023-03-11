@@ -3,7 +3,7 @@
 define i32 @invert_shl_masked(i32 %a, i32 %b) {
 ; CHECK-LABEL: invert_shl_masked:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi a4, 3
+; CHECK-NEXT:    movi.n a4, 3
 ; CHECK-NEXT:    or a3, a3, a4
 ; CHECK-NEXT:    ssr a3
 ; CHECK-NEXT:    sll a2, a2
@@ -17,7 +17,7 @@ define i32 @invert_shl_masked(i32 %a, i32 %b) {
 define i32 @invert_lshr_masked(i32 %a, i32 %b) {
 ; CHECK-LABEL: invert_lshr_masked:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi a4, 3
+; CHECK-NEXT:    movi.n a4, 3
 ; CHECK-NEXT:    or a3, a3, a4
 ; CHECK-NEXT:    ssl a3
 ; CHECK-NEXT:    srl a2, a2
