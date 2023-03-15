@@ -125,6 +125,7 @@ def EXTUI
   let hasSideEffects = false;
   let mayLoad = false;
   let mayStore = false;
+  let isReMaterializable = true;
 
   bits<4> ar;
   bits<4> at;
@@ -181,7 +182,9 @@ def : FrameIndexOffLoadPat<sextloadi16, L16SI>;
 // 32-bit loads
 def : FrameIndexOffLoadPat<load, L32I>;
 
-def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []>;
+def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []> {
+  let isReMaterializable = true;
+}
 
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
 
@@ -269,24 +272,26 @@ let Uses = [SAR] in {
   def SRL : ArithRRrt<0b0001, 0b1001, 0b0000, "srl", []>;
 }
 
-def SLLI : ArithBaseRRR<0b0001, 0b0000, (outs GPR:$ar), (ins GPR:$as, uimm5_sub32:$imm),
-                  "slli $ar, $as, $imm", [(set i32:$ar, (shl i32:$as, uimm5_sub32:$imm))]> {
-  bits<5> imm;
-  let at = imm{3...0};
-  let Inst{20} = imm{4};
-}
+let isReMaterializable = true in {
+  def SLLI : ArithBaseRRR<0b0001, 0b0000, (outs GPR:$ar), (ins GPR:$as, uimm5_sub32:$imm),
+                    "slli $ar, $as, $imm", [(set i32:$ar, (shl i32:$as, uimm5_sub32:$imm))]> {
+    bits<5> imm;
+    let at = imm{3...0};
+    let Inst{20} = imm{4};
+  }
 
-def SRAI : ArithBaseRRR<0b0001, 0b0010, (outs GPR:$ar), (ins GPR:$at, uimm5:$imm),
-                  "srai $ar, $at, $imm", [(set i32:$ar, (sra i32:$at, uimm5:$imm))]> {
-  bits<5> imm;
-  let as = imm{3...0};
-  let Inst{20} = imm{4};
-}
+  def SRAI : ArithBaseRRR<0b0001, 0b0010, (outs GPR:$ar), (ins GPR:$at, uimm5:$imm),
+                    "srai $ar, $at, $imm", [(set i32:$ar, (sra i32:$at, uimm5:$imm))]> {
+    bits<5> imm;
+    let as = imm{3...0};
+    let Inst{20} = imm{4};
+  }
 
-def SRLI : ArithBaseRRR<0b0001, 0b0100, (outs GPR:$ar), (ins GPR:$at, uimm4:$imm),
-                  "srli $ar, $at, $imm", [(set i32:$ar, (srl i32:$at, uimm4:$imm))]> {
-  bits<4> imm;
-  let as = imm;
+  def SRLI : ArithBaseRRR<0b0001, 0b0100, (outs GPR:$ar), (ins GPR:$at, uimm4:$imm),
+                    "srli $ar, $at, $imm", [(set i32:$ar, (srl i32:$at, uimm4:$imm))]> {
+    bits<4> imm;
+    let as = imm;
+  }
 }
 
 let Defs = [SAR] in {

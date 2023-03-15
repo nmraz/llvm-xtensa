@@ -406,7 +406,9 @@ class ArithRRR<bits<4> op1, bits<4> op2, string name, list<dag> pattern>
 
 class ArithRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
   : ArithBaseRRI8<op0, r, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
-                  !strconcat(name, "\t$at, $as, $imm8"), pattern>;
+                  !strconcat(name, "\t$at, $as, $imm8"), pattern> {
+  let isReMaterializable = true;
+}
 
 class MovRRR<bits<4> op2, string name, list<dag> pattern>
   : ArithBaseRRR<0b0011, op2, (outs GPR:$ar), (ins GPR:$_ar, GPR:$as, GPR:$at),
@@ -440,7 +442,9 @@ class ArithRRRN<bits<4> op0, string name, list<dag> pattern>
 // Load instruction classes
 let hasSideEffects = false, mayLoad = true, mayStore = false in {
   class LoadRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
-    : ArithRRI8<op0, r, Imm, name, pattern>;
+    : ArithRRI8<op0, r, Imm, name, pattern> {
+      let isReMaterializable = false;
+    }
 
   class LoadRRRN<bits<4> op0, Operand Imm, string name, list<dag> pattern>
     : ArithBaseRRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
