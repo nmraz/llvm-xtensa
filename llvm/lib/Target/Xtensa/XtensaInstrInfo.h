@@ -78,6 +78,19 @@ public:
   unsigned isStoreToStackSlotPostFE(const MachineInstr &MI,
                                     int &FrameIndex) const override;
 
+  bool analyzeBranch(MachineBasicBlock &MBB, MachineBasicBlock *&TBB,
+                     MachineBasicBlock *&FBB,
+                     SmallVectorImpl<MachineOperand> &Cond,
+                     bool AllowModify = false) const override;
+
+  unsigned removeBranch(MachineBasicBlock &MBB,
+                        int *BytesRemoved = nullptr) const override;
+
+  unsigned insertBranch(MachineBasicBlock &MBB, MachineBasicBlock *TBB,
+                        MachineBasicBlock *FBB, ArrayRef<MachineOperand> Cond,
+                        const DebugLoc &DL,
+                        int *BytesAdded = nullptr) const override;
+
   void copyPhysReg(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
                    const DebugLoc &DL, MCRegister DestReg, MCRegister SrcReg,
                    bool KillSrc) const override;

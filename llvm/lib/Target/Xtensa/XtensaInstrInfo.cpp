@@ -13,6 +13,7 @@
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DebugLoc.h"
 #include "llvm/IR/LLVMContext.h"
+#include "llvm/Support/Debug.h"
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/MathExtras.h"
 #include <cassert>
@@ -188,6 +189,61 @@ unsigned XtensaInstrInfo::isStoreToStackSlotPostFE(const MachineInstr &MI,
     return true;
   }
   return false;
+}
+
+bool XtensaInstrInfo::analyzeBranch(MachineBasicBlock &MBB,
+                                    MachineBasicBlock *&TBB,
+                                    MachineBasicBlock *&FBB,
+                                    SmallVectorImpl<MachineOperand> &Cond,
+                                    bool AllowModify) const {
+  // If the block has no terminators, it just falls into the block after it.
+  MachineBasicBlock::iterator I = MBB.getLastNonDebugInstr();
+  if (I == MBB.end())
+    return false;
+
+  if (!isUnpredicatedTerminator(*I))
+    return false;
+
+  if (AllowModify) {
+    // If the BB ends with an unconditional branch to the fallthrough BB,
+    // we eliminate the branch instruction.
+    if (I->getOpcode() == Xtensa::J &&
+        MBB.isLayoutSuccessor(I->getOperand(0).getMBB())) {
+      I->eraseFromParent();
+
+      // We update iterator after deleting the last branch.
+      I = MBB.getLastNonDebugInstr();
+      if (I == MBB.end() || !isUnpredicatedTerminator(*I))
+        return false;
+    }
+  }
+
+  return true;
+}
+
+unsigned XtensaInstrInfo::insertBranch(
+    MachineBasicBlock &MBB, MachineBasicBlock *TBB, MachineBasicBlock *FBB,
+    ArrayRef<MachineOperand> Cond, const DebugLoc &DL, int *BytesAdded) const {
+  assert(Cond.empty() && "Conditional branches are unimplemented");
+  BuildMI(&MBB, DL, get(Xtensa::J)).addMBB(TBB);
+  if (BytesAdded) {
+    *BytesAdded = 3;
+  }
+  return 1;
+}
+
+unsigned XtensaInstrInfo::removeBranch(MachineBasicBlock &MBB,
+                                       int *BytesRemoved) const {
+  MachineBasicBlock::iterator I = MBB.getLastNonDebugInstr();
+  if (I->getOpcode() != Xtensa::J) {
+    return 0;
+  }
+
+  I->eraseFromParent();
+  if (BytesRemoved) {
+    *BytesRemoved = 3;
+  }
+  return 1;
 }
 
 void XtensaInstrInfo::copyPhysReg(MachineBasicBlock &MBB,

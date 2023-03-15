@@ -8,9 +8,7 @@ define void @xor_loop(ptr nocapture noundef %a, ptr nocapture noundef readonly %
 ; CHECK-NEXT:    movi.n a6, 0
 ; CHECK-NEXT:    moveqz a6, a5, a4
 ; CHECK-NEXT:    bnez a6, .LBB0_2
-; CHECK-NEXT:    j .LBB0_1
-; CHECK-NEXT:  .LBB0_1: # %for.body.preheader
-; CHECK-NEXT:    j .LBB0_3
+; CHECK-NEXT:  # %bb.1: # %for.body.preheader
 ; CHECK-NEXT:  .LBB0_3: # %for.body
 ; CHECK-NEXT:    # =>This Inner Loop Header: Depth=1
 ; CHECK-NEXT:    l8ui a6, a3, 0

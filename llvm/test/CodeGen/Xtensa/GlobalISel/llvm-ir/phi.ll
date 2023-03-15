@@ -9,8 +9,7 @@ define i1 @phi_i1(i1 %cnd, i1 %a, i1 %b) {
 ; OPT-NEXT:    mov.n a2, a3
 ; OPT-NEXT:    extui a3, a5, 0, 1
 ; OPT-NEXT:    bnez a3, .LBB0_2
-; OPT-NEXT:    j .LBB0_1
-; OPT-NEXT:  .LBB0_1: # %cond.false
+; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:  .LBB0_2: # %cond.end
 ; OPT-NEXT:    ret.n
@@ -56,8 +55,7 @@ define i8 @phi_i8(i1 %cnd, i8 %a, i8 %b) {
 ; OPT-NEXT:    mov.n a2, a3
 ; OPT-NEXT:    extui a3, a5, 0, 1
 ; OPT-NEXT:    bnez a3, .LBB1_2
-; OPT-NEXT:    j .LBB1_1
-; OPT-NEXT:  .LBB1_1: # %cond.false
+; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:  .LBB1_2: # %cond.end
 ; OPT-NEXT:    ret.n
@@ -103,8 +101,7 @@ define i16 @phi_i16(i1 %cnd, i16 %a, i16 %b) {
 ; OPT-NEXT:    mov.n a2, a3
 ; OPT-NEXT:    extui a3, a5, 0, 1
 ; OPT-NEXT:    bnez a3, .LBB2_2
-; OPT-NEXT:    j .LBB2_1
-; OPT-NEXT:  .LBB2_1: # %cond.false
+; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:  .LBB2_2: # %cond.end
 ; OPT-NEXT:    ret.n
@@ -150,8 +147,7 @@ define i32 @phi_i32(i1 %cnd, i32 %a, i32 %b) {
 ; OPT-NEXT:    mov.n a2, a3
 ; OPT-NEXT:    extui a3, a5, 0, 1
 ; OPT-NEXT:    bnez a3, .LBB3_2
-; OPT-NEXT:    j .LBB3_1
-; OPT-NEXT:  .LBB3_1: # %cond.false
+; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:  .LBB3_2: # %cond.end
 ; OPT-NEXT:    ret.n
@@ -198,8 +194,7 @@ define i64 @phi_i64(i1 %cnd, i64 %a, i64 %b) {
 ; OPT-NEXT:    mov.n a3, a5
 ; OPT-NEXT:    extui a4, a8, 0, 1
 ; OPT-NEXT:    bnez a4, .LBB4_2
-; OPT-NEXT:    j .LBB4_1
-; OPT-NEXT:  .LBB4_1: # %cond.false
+; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a6
 ; OPT-NEXT:    mov.n a3, a7
 ; OPT-NEXT:  .LBB4_2: # %cond.end
@@ -253,8 +248,7 @@ define ptr @phi_ptr(i1 %cnd, ptr %a, ptr %b) {
 ; OPT-NEXT:    mov.n a2, a3
 ; OPT-NEXT:    extui a3, a5, 0, 1
 ; OPT-NEXT:    bnez a3, .LBB5_2
-; OPT-NEXT:    j .LBB5_1
-; OPT-NEXT:  .LBB5_1: # %cond.false
+; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:  .LBB5_2: # %cond.end
 ; OPT-NEXT:    ret.n
