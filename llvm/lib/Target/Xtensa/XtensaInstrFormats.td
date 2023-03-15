@@ -474,9 +474,9 @@ let mayLoad = false, mayStore = true in {
 
 // Branch and call helpers
 let hasSideEffects = false, mayLoad = false, mayStore = false in {
-  class GenericBRI12<bits<4> op0, bits<2> m, bits<2> n, Operand Imm, string name, list<dag> pattern>
+  class GenericBRI12<bits<4> op0, bits<2> m, bits<2> n, Operand Imm, string name>
     : I_BRI12<op0, m, n, (outs), (ins GPR:$as, Imm:$offset),
-              !strconcat(name, "\t$as, $offset"), pattern>;
+              !strconcat(name, "\t$as, $offset"), []>;
 
   class GenericCall<bits<4> op0, bits<2> n, Operand Imm, string name, list<dag> pattern>
     : I_CALL<op0, n, (outs), (ins Imm:$offset),
@@ -520,8 +520,8 @@ let hasSideEffects = false, mayLoad = false, mayStore = false,
     let Inst{7...4} = bbi{3...0};
   }
 
-  class BranchRZ12<bits<2> m, string name, list<dag> pattern>
-    : GenericBRI12<0b0110, m, 0b01, brtarget12, name, pattern>;
+  class BranchRZ12<bits<2> m, string name>
+    : GenericBRI12<0b0110, m, 0b01, brtarget12, name>;
 }
 
 class BranchRI8<bits<2> m, string name> : BranchRC8<m, 0b10, b4const, name>;

@@ -82,22 +82,24 @@ def BBS : BranchRR8<0b1101, "bbs">;
 def BBSI : BranchRB8<0b111, "bbsi">;
 def BEQ : BranchRR8<0b0001, "beq">;
 def BEQI : BranchRI8<0b00, "beqi">;
-def BEQZ : BranchRZ12<0b00, "beqz", []>;
+def BEQZ : BranchRZ12<0b00, "beqz">;
 def BGE : BranchRR8<0b1010, "bge">;
 def BGEI : BranchRI8<0b11, "bgei">;
 def BGEU : BranchRR8<0b1011, "bgeu">;
 def BGEUI : BranchRUI8<0b11, "bgeui">;
-def BGEZ : BranchRZ12<0b11, "bgez", []>;
+def BGEZ : BranchRZ12<0b11, "bgez">;
 def BLT : BranchRR8<0b0010, "blt">;
 def BLTI : BranchRI8<0b10, "blti">;
 def BLTU : BranchRR8<0b0011, "bltu">;
 def BLTUI : BranchRUI8<0b10, "bltui">;
-def BLTZ : BranchRZ12<0b10, "bltz", []>;
+def BLTZ : BranchRZ12<0b10, "bltz">;
 def BNALL : BranchRR8<0b1100, "bnall">;
 def BNE : BranchRR8<0b1001, "bne">;
 def BNEI : BranchRI8<0b01, "bnei">;
-def BNEZ : BranchRZ12<0b01, "bnez", [(brcond i32:$as, bb:$offset)]>;
+def BNEZ : BranchRZ12<0b01, "bnez">;
 def BNONE : BranchRR8<0b0000, "bnone">;
+
+def : Pat<(brcond i32:$as, bb:$offset), (BNEZ i32:$as, bb:$offset)>;
 
 def CALL0  : Call<0b00, A0, "call0">;
 def CALL4  : Call<0b01, A4, "call4">;
@@ -111,7 +113,7 @@ def CALLX12 : CallX<0b11, A12, "callx12">;
 
 def DSYNC : I_Fixed24<0x002030, "dsync", []>;
 
-def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12_sl3, "entry", []> {
+def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12_sl3, "entry"> {
   // This essentially renames all registers.
   let hasSideEffects = true;
 }
