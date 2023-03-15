@@ -4,23 +4,18 @@
 define void @xor_loop(ptr nocapture noundef %a, ptr nocapture noundef readonly %b, i32 noundef %n) {
 ; CHECK-LABEL: xor_loop:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a5, 1
-; CHECK-NEXT:    movi.n a6, 0
-; CHECK-NEXT:    moveqz a6, a5, a4
-; CHECK-NEXT:    bnez a6, .LBB0_2
+; CHECK-NEXT:    beqz a4, .LBB0_2
 ; CHECK-NEXT:  # %bb.1: # %for.body.preheader
 ; CHECK-NEXT:  .LBB0_3: # %for.body
 ; CHECK-NEXT:    # =>This Inner Loop Header: Depth=1
-; CHECK-NEXT:    l8ui a6, a3, 0
-; CHECK-NEXT:    l8ui a7, a2, 0
-; CHECK-NEXT:    xor a6, a7, a6
-; CHECK-NEXT:    s8i a6, a2, 0
+; CHECK-NEXT:    l8ui a5, a3, 0
+; CHECK-NEXT:    l8ui a6, a2, 0
+; CHECK-NEXT:    xor a5, a6, a5
+; CHECK-NEXT:    s8i a5, a2, 0
 ; CHECK-NEXT:    addi a4, a4, -1
 ; CHECK-NEXT:    addi a2, a2, 1
 ; CHECK-NEXT:    addi a3, a3, 1
-; CHECK-NEXT:    movi.n a6, 0
-; CHECK-NEXT:    moveqz a6, a5, a4
-; CHECK-NEXT:    bnez a6, .LBB0_2
+; CHECK-NEXT:    beqz a4, .LBB0_2
 ; CHECK-NEXT:    j .LBB0_3
 ; CHECK-NEXT:  .LBB0_2: # %for.cond.cleanup
 ; CHECK-NEXT:    ret.n

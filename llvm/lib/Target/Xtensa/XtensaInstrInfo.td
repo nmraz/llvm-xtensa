@@ -99,6 +99,33 @@ def BNEI : BranchRI8<0b01, "bnei">;
 def BNEZ : BranchRZ12<0b01, "bnez">;
 def BNONE : BranchRR8<0b0000, "bnone">;
 
+multiclass BoolBranchPats<dag cond, dag instr> {
+  def : Pat<(brcond (i32 cond), bb:$offset), instr>;
+  // This crops up often enough in unoptimized code (and may cause
+  // large penalizations introducing additional branches) that it is worth
+  // matching specially.
+  def : Pat<(brcond (i32 (and cond, 1)), bb:$offset), instr>;
+}
+
+defm : BoolBranchPats<(seteq i32:$a, 0), (BEQZ i32:$a, bb:$offset)>;
+defm : BoolBranchPats<(seteq i32:$a, i32:$b), (BEQ i32:$a, i32:$b, bb:$offset)>;
+defm : BoolBranchPats<(setne i32:$a, 0), (BNEZ i32:$a, bb:$offset)>;
+defm : BoolBranchPats<(setne i32:$a, i32:$b), (BNE i32:$a, i32:$b, bb:$offset)>;
+
+defm : BoolBranchPats<(setgt i32:$a, -1), (BGEZ i32:$a, bb:$offset)>;
+defm : BoolBranchPats<(setge i32:$a, i32:$b), (BGE i32:$a, i32:$b, bb:$offset)>;
+defm : BoolBranchPats<(setgt i32:$a, i32:$b), (BLT i32:$b, i32:$a, bb:$offset)>;
+
+defm : BoolBranchPats<(setle i32:$a, i32:$b), (BGE i32:$b, i32:$a, bb:$offset)>;
+defm : BoolBranchPats<(setlt i32:$a, 0), (BLTZ i32:$a, bb:$offset)>;
+defm : BoolBranchPats<(setlt i32:$a, i32:$b), (BLT i32:$a, i32:$b, bb:$offset)>;
+
+defm : BoolBranchPats<(setuge i32:$a, i32:$b), (BGEU i32:$a, i32:$b, bb:$offset)>;
+defm : BoolBranchPats<(setugt i32:$a, i32:$b), (BLTU i32:$b, i32:$a, bb:$offset)>;
+
+defm : BoolBranchPats<(setule i32:$a, i32:$b), (BGEU i32:$b, i32:$a, bb:$offset)>;
+defm : BoolBranchPats<(setult i32:$a, i32:$b), (BLTU i32:$a, i32:$b, bb:$offset)>;
+
 def : Pat<(brcond i32:$as, bb:$offset), (BNEZ i32:$as, bb:$offset)>;
 
 def CALL0  : Call<0b00, A0, "call0">;

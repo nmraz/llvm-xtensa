@@ -15,9 +15,7 @@ define void @xor_loop(ptr noundef %a, ptr noundef %b, i32 noundef %n) {
 ; CHECK-NEXT:    # =>This Inner Loop Header: Depth=1
 ; CHECK-NEXT:    l32i.n a2, a1, 0
 ; CHECK-NEXT:    l32i.n a3, a1, 4
-; CHECK-NEXT:    saltu a2, a2, a3
-; CHECK-NEXT:    extui a2, a2, 0, 1
-; CHECK-NEXT:    bnez a2, .LBB0_3
+; CHECK-NEXT:    bltu a3, a2, .LBB0_3
 ; CHECK-NEXT:    j .LBB0_5
 ; CHECK-NEXT:  .LBB0_3: # %for.body
 ; CHECK-NEXT:    # in Loop: Header=BB0_2 Depth=1
