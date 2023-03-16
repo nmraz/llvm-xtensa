@@ -224,8 +224,7 @@ define void @branch_slez(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 1
-; CHECK-NEXT:    bge a2, a3, .LBB9_2
+; CHECK-NEXT:    bgei a2, 1, .LBB9_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB9_2: # %if.end

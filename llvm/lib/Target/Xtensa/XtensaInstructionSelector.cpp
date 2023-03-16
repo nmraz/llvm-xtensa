@@ -10,6 +10,7 @@
 /// Xtensa.
 //===----------------------------------------------------------------------===//
 
+#include "MCTargetDesc/XtensaBaseInfo.h"
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
 #include "XtensaInstrInfo.h"
 #include "XtensaInstrUtils.h"
@@ -50,6 +51,7 @@
 using namespace llvm;
 using namespace MIPatternMatch;
 using namespace XtensaInstrUtils;
+using namespace XtensaII;
 
 namespace {
 

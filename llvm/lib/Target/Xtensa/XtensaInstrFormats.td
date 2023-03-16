@@ -102,13 +102,13 @@ def uimm12_sl3 : ShiftedUImmOperand<i32, 12, 3>;
 
 // 4-bit encoded immediate for signed branch comparisons
 def B4ConstOperandClass : ConstantImmOperandClass<"B4Const", "invalid b4const operand">;
-def b4const : ImmOperand<i32, "B4Const"> {
+def b4const : ImmOperand<i32, "B4Const">, ImmLeaf<i32, [{ return encodeB4Const(Imm).has_value(); }]> {
   let EncoderMethod = "getB4ConstOpValue";
 }
 
 // 4-bit encoded immediate for unsigned branch comparisons
 def B4ConstUOperandClass : ConstantImmOperandClass<"B4ConstU", "invalid b4constu operand">;
-def b4constu : ImmOperand<i32, "B4ConstU"> {
+def b4constu : ImmOperand<i32, "B4ConstU">, ImmLeaf<i32, [{ return encodeB4ConstU(Imm).has_value(); }]> {
   let EncoderMethod = "getB4ConstUOpValue";
 }
 

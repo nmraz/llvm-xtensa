@@ -1138,8 +1138,7 @@ body:             |
   ; CHECK-NEXT:   liveins: $a2
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
-  ; CHECK-NEXT:   [[MOVI:%[0-9]+]]:gpr = MOVI 1
-  ; CHECK-NEXT:   BGE [[COPY]], [[MOVI]], %bb.2
+  ; CHECK-NEXT:   BGEI [[COPY]], 1, %bb.2
   ; CHECK-NEXT:   J %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.if.then:

@@ -107,6 +107,8 @@ multiclass BoolBranchPats<dag cond, dag instr> {
   def : Pat<(brcond (i32 (and cond, 1)), bb:$offset), instr>;
 }
 
+// Arithmetic comparison branches
+
 defm : BoolBranchPats<(seteq i32:$a, 0), (BEQZ i32:$a, bb:$offset)>;
 defm : BoolBranchPats<(seteq i32:$a, i32:$b), (BEQ i32:$a, i32:$b, bb:$offset)>;
 defm : BoolBranchPats<(setne i32:$a, 0), (BNEZ i32:$a, bb:$offset)>;
@@ -127,6 +129,19 @@ defm : BoolBranchPats<(setugt i32:$a, i32:$b), (BLTU i32:$b, i32:$a, bb:$offset)
 
 defm : BoolBranchPats<(setule i32:$a, i32:$b), (BGEU i32:$b, i32:$a, bb:$offset)>;
 defm : BoolBranchPats<(setult i32:$a, i32:$b), (BLTU i32:$a, i32:$b, bb:$offset)>;
+
+// Arithmetic constant comparison branches
+
+defm : BoolBranchPats<(seteq i32:$a, b4const:$imm), (BEQI i32:$a, b4const:$imm, bb:$offset)>;
+defm : BoolBranchPats<(setne i32:$a, b4const:$imm), (BNEI i32:$a, b4const:$imm, bb:$offset)>;
+
+defm : BoolBranchPats<(setge i32:$a, b4const:$imm), (BGEI i32:$a, b4const:$imm, bb:$offset)>;
+defm : BoolBranchPats<(setlt i32:$a, b4const:$imm), (BLTI i32:$a, b4const:$imm, bb:$offset)>;
+
+defm : BoolBranchPats<(setuge i32:$a, b4constu:$imm), (BGEUI i32:$a, b4constu:$imm, bb:$offset)>;
+defm : BoolBranchPats<(setult i32:$a, b4constu:$imm), (BLTUI i32:$a, b4constu:$imm, bb:$offset)>;
+
+// Fallback branch pattern
 
 def : Pat<(brcond i32:$as, bb:$offset), (BNEZ i32:$as, bb:$offset)>;
 
