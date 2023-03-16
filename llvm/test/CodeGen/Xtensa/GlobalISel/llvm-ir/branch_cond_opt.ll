@@ -248,8 +248,7 @@ define void @branch_sgtz(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    bge a3, a2, .LBB10_2
+; CHECK-NEXT:    blti a2, 1, .LBB10_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB10_2: # %if.end

@@ -34,6 +34,18 @@ def frameindexoff : ComplexPattern<iPTR, 2, "", []>;
 def gi_frameindexoff : GIComplexOperandMatcher<s32, "selectFrameIndexOff">,
                        GIComplexPatternEquiv<frameindexoff>;
 
+def imm_plus1_xform : SDNodeXForm<imm, [{ unimplemented }]>;
+def gi_imm_plus1 : GICustomOperandRenderer<"renderImmPlus1">,
+                   GISDNodeXFormEquiv<imm_plus1_xform>;
+
+def b4const_minus1 : ImmLeaf<i32, [{
+  return encodeB4Const(Imm + 1).has_value();
+}], imm_plus1_xform>;
+
+def b4constu_minus1 : ImmLeaf<i32, [{
+  return encodeB4ConstU(Imm + 1).has_value();
+}], imm_plus1_xform>;
+
 // Pseudo-instructions for codegen/lowering
 
 let Uses = [A1], Defs = [A1] in {
@@ -136,10 +148,20 @@ defm : BoolBranchPats<(seteq i32:$a, b4const:$imm), (BEQI i32:$a, b4const:$imm, 
 defm : BoolBranchPats<(setne i32:$a, b4const:$imm), (BNEI i32:$a, b4const:$imm, bb:$offset)>;
 
 defm : BoolBranchPats<(setge i32:$a, b4const:$imm), (BGEI i32:$a, b4const:$imm, bb:$offset)>;
+defm : BoolBranchPats<(setgt i32:$a, b4const_minus1:$imm),
+                      (BGEI i32:$a, b4const_minus1:$imm, bb:$offset)>;
+
 defm : BoolBranchPats<(setlt i32:$a, b4const:$imm), (BLTI i32:$a, b4const:$imm, bb:$offset)>;
+defm : BoolBranchPats<(setle i32:$a, b4const_minus1:$imm),
+                      (BLTI i32:$a, b4const_minus1:$imm, bb:$offset)>;
 
 defm : BoolBranchPats<(setuge i32:$a, b4constu:$imm), (BGEUI i32:$a, b4constu:$imm, bb:$offset)>;
+defm : BoolBranchPats<(setugt i32:$a, b4constu_minus1:$imm),
+                      (BGEUI i32:$a, b4constu_minus1:$imm, bb:$offset)>;
+
 defm : BoolBranchPats<(setult i32:$a, b4constu:$imm), (BLTUI i32:$a, b4constu:$imm, bb:$offset)>;
+defm : BoolBranchPats<(setule i32:$a, b4constu_minus1:$imm),
+                      (BLTUI i32:$a, b4constu_minus1:$imm, bb:$offset)>;
 
 // Fallback branch pattern
 

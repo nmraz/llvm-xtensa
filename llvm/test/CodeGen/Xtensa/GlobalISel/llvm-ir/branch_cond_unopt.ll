@@ -318,9 +318,8 @@ define void @branch_slez(i32 %a) {
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; CHECK-NEXT:    s32i.n a2, a1, 8
-; CHECK-NEXT:    l32i.n a3, a1, 8
-; CHECK-NEXT:    movi.n a2, 0
-; CHECK-NEXT:    bge a2, a3, .LBB9_2
+; CHECK-NEXT:    l32i.n a2, a1, 8
+; CHECK-NEXT:    blti a2, 1, .LBB9_2
 ; CHECK-NEXT:    j .LBB9_3
 ; CHECK-NEXT:  .LBB9_2: # %if.then
 ; CHECK-NEXT:    call0 func
@@ -350,9 +349,8 @@ define void @branch_sgtz(i32 %a) {
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; CHECK-NEXT:    s32i.n a2, a1, 8
-; CHECK-NEXT:    l32i.n a3, a1, 8
-; CHECK-NEXT:    movi.n a2, 0
-; CHECK-NEXT:    blt a2, a3, .LBB10_2
+; CHECK-NEXT:    l32i.n a2, a1, 8
+; CHECK-NEXT:    bgei a2, 1, .LBB10_2
 ; CHECK-NEXT:    j .LBB10_3
 ; CHECK-NEXT:  .LBB10_2: # %if.then
 ; CHECK-NEXT:    call0 func

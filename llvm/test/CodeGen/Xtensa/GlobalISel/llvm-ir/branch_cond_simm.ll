@@ -1098,8 +1098,7 @@ define void @branch_sgt_1(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 1
-; CHECK-NEXT:    bge a3, a2, .LBB45_2
+; CHECK-NEXT:    blti a2, 2, .LBB45_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB45_2: # %if.end
@@ -1123,8 +1122,7 @@ define void @branch_sgt_2(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 2
-; CHECK-NEXT:    bge a3, a2, .LBB46_2
+; CHECK-NEXT:    blti a2, 3, .LBB46_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB46_2: # %if.end
@@ -1148,8 +1146,7 @@ define void @branch_sgt_3(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 3
-; CHECK-NEXT:    bge a3, a2, .LBB47_2
+; CHECK-NEXT:    blti a2, 4, .LBB47_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB47_2: # %if.end
@@ -1173,8 +1170,7 @@ define void @branch_sgt_4(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 4
-; CHECK-NEXT:    bge a3, a2, .LBB48_2
+; CHECK-NEXT:    blti a2, 5, .LBB48_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB48_2: # %if.end
@@ -1198,8 +1194,7 @@ define void @branch_sgt_5(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 5
-; CHECK-NEXT:    bge a3, a2, .LBB49_2
+; CHECK-NEXT:    blti a2, 6, .LBB49_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB49_2: # %if.end
@@ -1223,8 +1218,7 @@ define void @branch_sgt_6(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 6
-; CHECK-NEXT:    bge a3, a2, .LBB50_2
+; CHECK-NEXT:    blti a2, 7, .LBB50_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB50_2: # %if.end
@@ -1248,8 +1242,7 @@ define void @branch_sgt_7(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 7
-; CHECK-NEXT:    bge a3, a2, .LBB51_2
+; CHECK-NEXT:    blti a2, 8, .LBB51_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB51_2: # %if.end
@@ -1473,8 +1466,7 @@ define void @branch_sgt_0(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    bge a3, a2, .LBB60_2
+; CHECK-NEXT:    blti a2, 1, .LBB60_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB60_2: # %if.end
@@ -1623,8 +1615,7 @@ define void @branch_sge_neg_1(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, -2
-; CHECK-NEXT:    bge a3, a2, .LBB66_2
+; CHECK-NEXT:    blti a2, -1, .LBB66_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB66_2: # %if.end
@@ -1648,8 +1639,7 @@ define void @branch_sge_1(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    bge a3, a2, .LBB67_2
+; CHECK-NEXT:    blti a2, 1, .LBB67_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB67_2: # %if.end
@@ -1673,8 +1663,7 @@ define void @branch_sge_2(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 1
-; CHECK-NEXT:    bge a3, a2, .LBB68_2
+; CHECK-NEXT:    blti a2, 2, .LBB68_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB68_2: # %if.end
@@ -1698,8 +1687,7 @@ define void @branch_sge_3(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 2
-; CHECK-NEXT:    bge a3, a2, .LBB69_2
+; CHECK-NEXT:    blti a2, 3, .LBB69_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB69_2: # %if.end
@@ -1723,8 +1711,7 @@ define void @branch_sge_4(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 3
-; CHECK-NEXT:    bge a3, a2, .LBB70_2
+; CHECK-NEXT:    blti a2, 4, .LBB70_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB70_2: # %if.end
@@ -1748,8 +1735,7 @@ define void @branch_sge_5(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 4
-; CHECK-NEXT:    bge a3, a2, .LBB71_2
+; CHECK-NEXT:    blti a2, 5, .LBB71_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB71_2: # %if.end
@@ -1773,8 +1759,7 @@ define void @branch_sge_6(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 5
-; CHECK-NEXT:    bge a3, a2, .LBB72_2
+; CHECK-NEXT:    blti a2, 6, .LBB72_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB72_2: # %if.end
@@ -1798,8 +1783,7 @@ define void @branch_sge_7(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 6
-; CHECK-NEXT:    bge a3, a2, .LBB73_2
+; CHECK-NEXT:    blti a2, 7, .LBB73_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB73_2: # %if.end
@@ -1823,8 +1807,7 @@ define void @branch_sge_8(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 7
-; CHECK-NEXT:    bge a3, a2, .LBB74_2
+; CHECK-NEXT:    blti a2, 8, .LBB74_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB74_2: # %if.end
@@ -1848,8 +1831,7 @@ define void @branch_sge_10(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 9
-; CHECK-NEXT:    bge a3, a2, .LBB75_2
+; CHECK-NEXT:    blti a2, 10, .LBB75_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB75_2: # %if.end
@@ -1873,8 +1855,7 @@ define void @branch_sge_12(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 11
-; CHECK-NEXT:    bge a3, a2, .LBB76_2
+; CHECK-NEXT:    blti a2, 12, .LBB76_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB76_2: # %if.end
@@ -1898,8 +1879,7 @@ define void @branch_sge_16(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 15
-; CHECK-NEXT:    bge a3, a2, .LBB77_2
+; CHECK-NEXT:    blti a2, 16, .LBB77_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB77_2: # %if.end
@@ -1923,8 +1903,7 @@ define void @branch_sge_32(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 31
-; CHECK-NEXT:    bge a3, a2, .LBB78_2
+; CHECK-NEXT:    blti a2, 32, .LBB78_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB78_2: # %if.end
@@ -1948,8 +1927,7 @@ define void @branch_sge_64(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a3, 63
-; CHECK-NEXT:    bge a3, a2, .LBB79_2
+; CHECK-NEXT:    blti a2, 64, .LBB79_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB79_2: # %if.end
@@ -1973,8 +1951,7 @@ define void @branch_sge_128(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi a3, 127
-; CHECK-NEXT:    bge a3, a2, .LBB80_2
+; CHECK-NEXT:    blti a2, 128, .LBB80_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB80_2: # %if.end
@@ -1998,8 +1975,7 @@ define void @branch_sge_256(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi a3, 255
-; CHECK-NEXT:    bge a3, a2, .LBB81_2
+; CHECK-NEXT:    blti a2, 256, .LBB81_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB81_2: # %if.end

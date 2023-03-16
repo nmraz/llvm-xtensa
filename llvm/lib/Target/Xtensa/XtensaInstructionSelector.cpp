@@ -92,6 +92,9 @@ private:
   ComplexRendererFns selectExtuiLshrImm(MachineOperand &Root) const;
   ComplexRendererFns selectFrameIndexOff(MachineOperand &Root) const;
 
+  void renderImmPlus1(MachineInstrBuilder &MIB, const MachineInstr &I,
+                      int OpIdx = -1) const;
+
   bool selectEarly(MachineInstr &I);
   bool selectAndAsExtui(MachineInstr &I) const;
   void tryFoldShrIntoExtui(const MachineInstr &InputMI,
@@ -431,6 +434,14 @@ XtensaInstructionSelector::selectFrameIndexOff(MachineOperand &Root) const {
       [=](MachineInstrBuilder &MIB) { MIB.addFrameIndex(FrameIndex); },
       [=](MachineInstrBuilder &MIB) { MIB.addImm(Offset); },
   }};
+}
+
+void XtensaInstructionSelector::renderImmPlus1(MachineInstrBuilder &MIB,
+                                               const MachineInstr &I,
+                                               int OpIdx) const {
+  assert(I.getOpcode() == TargetOpcode::G_CONSTANT && OpIdx == -1 &&
+         "Expected G_CONSTANT");
+  MIB.addImm(I.getOperand(1).getCImm()->getSExtValue() + 1);
 }
 
 bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
