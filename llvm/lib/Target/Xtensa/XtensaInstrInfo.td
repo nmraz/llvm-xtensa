@@ -113,10 +113,12 @@ defm : BoolBranchPats<(setne i32:$a, 0), (BNEZ i32:$a, bb:$offset)>;
 defm : BoolBranchPats<(setne i32:$a, i32:$b), (BNE i32:$a, i32:$b, bb:$offset)>;
 
 defm : BoolBranchPats<(setgt i32:$a, -1), (BGEZ i32:$a, bb:$offset)>;
+defm : BoolBranchPats<(setge i32:$a, 0), (BGEZ i32:$a, bb:$offset)>;
 defm : BoolBranchPats<(setge i32:$a, i32:$b), (BGE i32:$a, i32:$b, bb:$offset)>;
 defm : BoolBranchPats<(setgt i32:$a, i32:$b), (BLT i32:$b, i32:$a, bb:$offset)>;
 
 defm : BoolBranchPats<(setle i32:$a, i32:$b), (BGE i32:$b, i32:$a, bb:$offset)>;
+defm : BoolBranchPats<(setle i32:$a, -1), (BLTZ i32:$a, bb:$offset)>;
 defm : BoolBranchPats<(setlt i32:$a, 0), (BLTZ i32:$a, bb:$offset)>;
 defm : BoolBranchPats<(setlt i32:$a, i32:$b), (BLT i32:$a, i32:$b, bb:$offset)>;
 

@@ -394,8 +394,7 @@ define void @branch_gtez(i32 %a) {
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; CHECK-NEXT:    s32i.n a2, a1, 8
 ; CHECK-NEXT:    l32i.n a2, a1, 8
-; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    bge a2, a3, .LBB11_2
+; CHECK-NEXT:    bgez a2, .LBB11_2
 ; CHECK-NEXT:    j .LBB11_3
 ; CHECK-NEXT:  .LBB11_2: # %if.then
 ; CHECK-NEXT:    call0 func

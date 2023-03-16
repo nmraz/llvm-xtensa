@@ -991,8 +991,7 @@ body:             |
   ; CHECK-NEXT:   liveins: $a2
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
-  ; CHECK-NEXT:   [[MOVI:%[0-9]+]]:gpr = MOVI 0
-  ; CHECK-NEXT:   BGE [[COPY]], [[MOVI]], %bb.2
+  ; CHECK-NEXT:   BGEZ [[COPY]], %bb.2
   ; CHECK-NEXT:   J %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.if.then:
@@ -1279,8 +1278,7 @@ body:             |
   ; CHECK-NEXT:   liveins: $a2
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
-  ; CHECK-NEXT:   [[MOVI:%[0-9]+]]:gpr = MOVI -1
-  ; CHECK-NEXT:   BGE [[MOVI]], [[COPY]], %bb.2
+  ; CHECK-NEXT:   BLTZ [[COPY]], %bb.2
   ; CHECK-NEXT:   J %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.if.then:

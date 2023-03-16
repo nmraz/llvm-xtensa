@@ -1537,8 +1537,7 @@ body:             |
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
   ; CHECK-NEXT:   S32I [[COPY]], %stack.0.a.addr, 0 :: (store (s32) into %ir.a.addr)
   ; CHECK-NEXT:   [[L32I:%[0-9]+]]:gpr = L32I %stack.0.a.addr, 0 :: (dereferenceable load (s32) from %ir.a.addr)
-  ; CHECK-NEXT:   [[MOVI:%[0-9]+]]:gpr = MOVI 0
-  ; CHECK-NEXT:   BGE [[L32I]], [[MOVI]], %bb.1
+  ; CHECK-NEXT:   BGEZ [[L32I]], %bb.1
   ; CHECK-NEXT:   J %bb.2
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.if.then:
