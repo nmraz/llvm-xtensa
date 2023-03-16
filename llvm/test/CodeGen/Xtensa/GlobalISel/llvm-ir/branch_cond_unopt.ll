@@ -39,7 +39,6 @@ if.end:                                           ; preds = %if.then, %entry
 
 declare void @func(...)
 
-; Function Attrs: noinline nounwind optnone
 define void @branch_ne(i32 %a, i32 %b) {
 ; CHECK-LABEL: branch_ne:
 ; CHECK:       # %bb.1: # %entry
@@ -76,7 +75,6 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: noinline nounwind optnone
 define void @branch_eqz(i32 %a) {
 ; CHECK-LABEL: branch_eqz:
 ; CHECK:       # %bb.1: # %entry
@@ -108,7 +106,6 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: noinline nounwind optnone
 define void @branch_nez(i32 %a) {
 ; CHECK-LABEL: branch_nez:
 ; CHECK:       # %bb.1: # %entry
@@ -140,9 +137,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: noinline nounwind optnone
-define void @branch_lt(i32 %a, i32 %b) {
-; CHECK-LABEL: branch_lt:
+define void @branch_slt(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_slt:
 ; CHECK:       # %bb.1: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -177,9 +173,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: noinline nounwind optnone
-define void @branch_lte(i32 %a, i32 %b) {
-; CHECK-LABEL: branch_lte:
+define void @branch_sle(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_sle:
 ; CHECK:       # %bb.1: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -214,9 +209,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: noinline nounwind optnone
-define void @branch_gt(i32 %a, i32 %b) {
-; CHECK-LABEL: branch_gt:
+define void @branch_sgt(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_sgt:
 ; CHECK:       # %bb.1: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -251,9 +245,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: noinline nounwind optnone
-define void @branch_gte(i32 %a, i32 %b) {
-; CHECK-LABEL: branch_gte:
+define void @branch_sge(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_sge:
 ; CHECK:       # %bb.1: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -288,9 +281,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: noinline nounwind optnone
-define void @branch_ltz(i32 %a) {
-; CHECK-LABEL: branch_ltz:
+define void @branch_sltz(i32 %a) {
+; CHECK-LABEL: branch_sltz:
 ; CHECK:       # %bb.1: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -320,9 +312,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: noinline nounwind optnone
-define void @branch_ltez(i32 %a) {
-; CHECK-LABEL: branch_ltez:
+define void @branch_slez(i32 %a) {
+; CHECK-LABEL: branch_slez:
 ; CHECK:       # %bb.1: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -353,9 +344,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: noinline nounwind optnone
-define void @branch_gtz(i32 %a) {
-; CHECK-LABEL: branch_gtz:
+define void @branch_sgtz(i32 %a) {
+; CHECK-LABEL: branch_sgtz:
 ; CHECK:       # %bb.1: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -386,9 +376,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: noinline nounwind optnone
-define void @branch_gtez(i32 %a) {
-; CHECK-LABEL: branch_gtez:
+define void @branch_sgez(i32 %a) {
+; CHECK-LABEL: branch_sgez:
 ; CHECK:       # %bb.1: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -408,6 +397,150 @@ entry:
   store i32 %a, ptr %a.addr, align 4
   %0 = load i32, ptr %a.addr, align 4
   %cmp = icmp sge i32 %0, 0
+  br i1 %cmp, label %if.then, label %if.end
+
+if.then:                                          ; preds = %entry
+  call void @func()
+  br label %if.end
+
+if.end:                                           ; preds = %if.then, %entry
+  ret void
+}
+
+define void @branch_ult(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_ult:
+; CHECK:       # %bb.1: # %entry
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a2, a1, 8
+; CHECK-NEXT:    s32i.n a3, a1, 4
+; CHECK-NEXT:    l32i.n a2, a1, 8
+; CHECK-NEXT:    l32i.n a3, a1, 4
+; CHECK-NEXT:    bltu a2, a3, .LBB12_2
+; CHECK-NEXT:    j .LBB12_3
+; CHECK-NEXT:  .LBB12_2: # %if.then
+; CHECK-NEXT:    call0 func
+; CHECK-NEXT:    j .LBB12_3
+; CHECK-NEXT:  .LBB12_3: # %if.end
+; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    ret.n
+entry:
+  %a.addr = alloca i32, align 4
+  %b.addr = alloca i32, align 4
+  store i32 %a, ptr %a.addr, align 4
+  store i32 %b, ptr %b.addr, align 4
+  %0 = load i32, ptr %a.addr, align 4
+  %1 = load i32, ptr %b.addr, align 4
+  %cmp = icmp ult i32 %0, %1
+  br i1 %cmp, label %if.then, label %if.end
+
+if.then:                                          ; preds = %entry
+  call void @func()
+  br label %if.end
+
+if.end:                                           ; preds = %if.then, %entry
+  ret void
+}
+
+define void @branch_ule(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_ule:
+; CHECK:       # %bb.1: # %entry
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a2, a1, 8
+; CHECK-NEXT:    s32i.n a3, a1, 4
+; CHECK-NEXT:    l32i.n a3, a1, 8
+; CHECK-NEXT:    l32i.n a2, a1, 4
+; CHECK-NEXT:    bgeu a2, a3, .LBB13_2
+; CHECK-NEXT:    j .LBB13_3
+; CHECK-NEXT:  .LBB13_2: # %if.then
+; CHECK-NEXT:    call0 func
+; CHECK-NEXT:    j .LBB13_3
+; CHECK-NEXT:  .LBB13_3: # %if.end
+; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    ret.n
+entry:
+  %a.addr = alloca i32, align 4
+  %b.addr = alloca i32, align 4
+  store i32 %a, ptr %a.addr, align 4
+  store i32 %b, ptr %b.addr, align 4
+  %0 = load i32, ptr %a.addr, align 4
+  %1 = load i32, ptr %b.addr, align 4
+  %cmp = icmp ule i32 %0, %1
+  br i1 %cmp, label %if.then, label %if.end
+
+if.then:                                          ; preds = %entry
+  call void @func()
+  br label %if.end
+
+if.end:                                           ; preds = %if.then, %entry
+  ret void
+}
+
+define void @branch_ugt(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_ugt:
+; CHECK:       # %bb.1: # %entry
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a2, a1, 8
+; CHECK-NEXT:    s32i.n a3, a1, 4
+; CHECK-NEXT:    l32i.n a3, a1, 8
+; CHECK-NEXT:    l32i.n a2, a1, 4
+; CHECK-NEXT:    bltu a2, a3, .LBB14_2
+; CHECK-NEXT:    j .LBB14_3
+; CHECK-NEXT:  .LBB14_2: # %if.then
+; CHECK-NEXT:    call0 func
+; CHECK-NEXT:    j .LBB14_3
+; CHECK-NEXT:  .LBB14_3: # %if.end
+; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    ret.n
+entry:
+  %a.addr = alloca i32, align 4
+  %b.addr = alloca i32, align 4
+  store i32 %a, ptr %a.addr, align 4
+  store i32 %b, ptr %b.addr, align 4
+  %0 = load i32, ptr %a.addr, align 4
+  %1 = load i32, ptr %b.addr, align 4
+  %cmp = icmp ugt i32 %0, %1
+  br i1 %cmp, label %if.then, label %if.end
+
+if.then:                                          ; preds = %entry
+  call void @func()
+  br label %if.end
+
+if.end:                                           ; preds = %if.then, %entry
+  ret void
+}
+
+define void @branch_uge(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_uge:
+; CHECK:       # %bb.1: # %entry
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a2, a1, 8
+; CHECK-NEXT:    s32i.n a3, a1, 4
+; CHECK-NEXT:    l32i.n a2, a1, 8
+; CHECK-NEXT:    l32i.n a3, a1, 4
+; CHECK-NEXT:    bgeu a2, a3, .LBB15_2
+; CHECK-NEXT:    j .LBB15_3
+; CHECK-NEXT:  .LBB15_2: # %if.then
+; CHECK-NEXT:    call0 func
+; CHECK-NEXT:    j .LBB15_3
+; CHECK-NEXT:  .LBB15_3: # %if.end
+; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    ret.n
+entry:
+  %a.addr = alloca i32, align 4
+  %b.addr = alloca i32, align 4
+  store i32 %a, ptr %a.addr, align 4
+  store i32 %b, ptr %b.addr, align 4
+  %0 = load i32, ptr %a.addr, align 4
+  %1 = load i32, ptr %b.addr, align 4
+  %cmp = icmp uge i32 %0, %1
   br i1 %cmp, label %if.then, label %if.end
 
 if.then:                                          ; preds = %entry

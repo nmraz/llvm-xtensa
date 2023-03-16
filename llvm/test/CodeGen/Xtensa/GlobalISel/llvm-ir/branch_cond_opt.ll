@@ -27,7 +27,6 @@ if.end:                                           ; preds = %if.then, %entry
 
 declare void @func(...)
 
-; Function Attrs: nounwind
 define void @branch_ne(i32 %a, i32 %b) {
 ; CHECK-LABEL: branch_ne:
 ; CHECK:       # %bb.0: # %entry
@@ -52,7 +51,6 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: nounwind
 define void @branch_eqz(i32 %a) {
 ; CHECK-LABEL: branch_eqz:
 ; CHECK:       # %bb.0: # %entry
@@ -77,7 +75,6 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: nounwind
 define void @branch_nez(i32 %a) {
 ; CHECK-LABEL: branch_nez:
 ; CHECK:       # %bb.0: # %entry
@@ -102,9 +99,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: nounwind
-define void @branch_lt(i32 %a, i32 %b) {
-; CHECK-LABEL: branch_lt:
+define void @branch_slt(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_slt:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -127,9 +123,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: nounwind
-define void @branch_lte(i32 %a, i32 %b) {
-; CHECK-LABEL: branch_lte:
+define void @branch_sle(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_sle:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -152,9 +147,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: nounwind
-define void @branch_gt(i32 %a, i32 %b) {
-; CHECK-LABEL: branch_gt:
+define void @branch_sgt(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_sgt:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -177,9 +171,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: nounwind
-define void @branch_gte(i32 %a, i32 %b) {
-; CHECK-LABEL: branch_gte:
+define void @branch_sge(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_sge:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -202,9 +195,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: nounwind
-define void @branch_ltz(i32 %a) {
-; CHECK-LABEL: branch_ltz:
+define void @branch_sltz(i32 %a) {
+; CHECK-LABEL: branch_sltz:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -227,9 +219,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: nounwind
-define void @branch_ltez(i32 %a) {
-; CHECK-LABEL: branch_ltez:
+define void @branch_slez(i32 %a) {
+; CHECK-LABEL: branch_slez:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -253,9 +244,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: nounwind
-define void @branch_gtz(i32 %a) {
-; CHECK-LABEL: branch_gtz:
+define void @branch_sgtz(i32 %a) {
+; CHECK-LABEL: branch_sgtz:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -279,9 +269,8 @@ if.end:                                           ; preds = %if.then, %entry
   ret void
 }
 
-; Function Attrs: nounwind
-define void @branch_gtez(i32 %a) {
-; CHECK-LABEL: branch_gtez:
+define void @branch_sgez(i32 %a) {
+; CHECK-LABEL: branch_sgez:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
@@ -295,6 +284,102 @@ define void @branch_gtez(i32 %a) {
 entry:
   %cmp = icmp sgt i32 %a, -1
   br i1 %cmp, label %if.then, label %if.end
+
+if.then:                                          ; preds = %entry
+  tail call void @func()
+  br label %if.end
+
+if.end:                                           ; preds = %if.then, %entry
+  ret void
+}
+
+define void @branch_ult(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_ult:
+; CHECK:       # %bb.0: # %entry
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    bgeu a2, a3, .LBB12_2
+; CHECK-NEXT:  # %bb.1: # %if.then
+; CHECK-NEXT:    call0 func
+; CHECK-NEXT:  .LBB12_2: # %if.end
+; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    ret.n
+entry:
+  %cmp = icmp ult i32 %a, %b
+  br i1 %cmp, label %if.then, label %if.end
+
+if.then:                                          ; preds = %entry
+  tail call void @func()
+  br label %if.end
+
+if.end:                                           ; preds = %if.then, %entry
+  ret void
+}
+
+define void @branch_ule(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_ule:
+; CHECK:       # %bb.0: # %entry
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    bltu a3, a2, .LBB13_2
+; CHECK-NEXT:  # %bb.1: # %if.then
+; CHECK-NEXT:    call0 func
+; CHECK-NEXT:  .LBB13_2: # %if.end
+; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    ret.n
+entry:
+  %cmp.not = icmp ugt i32 %a, %b
+  br i1 %cmp.not, label %if.end, label %if.then
+
+if.then:                                          ; preds = %entry
+  tail call void @func()
+  br label %if.end
+
+if.end:                                           ; preds = %if.then, %entry
+  ret void
+}
+
+define void @branch_ugt(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_ugt:
+; CHECK:       # %bb.0: # %entry
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    bgeu a3, a2, .LBB14_2
+; CHECK-NEXT:  # %bb.1: # %if.then
+; CHECK-NEXT:    call0 func
+; CHECK-NEXT:  .LBB14_2: # %if.end
+; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    ret.n
+entry:
+  %cmp = icmp ugt i32 %a, %b
+  br i1 %cmp, label %if.then, label %if.end
+
+if.then:                                          ; preds = %entry
+  tail call void @func()
+  br label %if.end
+
+if.end:                                           ; preds = %if.then, %entry
+  ret void
+}
+
+define void @branch_uge(i32 %a, i32 %b) {
+; CHECK-LABEL: branch_uge:
+; CHECK:       # %bb.0: # %entry
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    bltu a2, a3, .LBB15_2
+; CHECK-NEXT:  # %bb.1: # %if.then
+; CHECK-NEXT:    call0 func
+; CHECK-NEXT:  .LBB15_2: # %if.end
+; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    ret.n
+entry:
+  %cmp.not = icmp ult i32 %a, %b
+  br i1 %cmp.not, label %if.end, label %if.then
 
 if.then:                                          ; preds = %entry
   tail call void @func()

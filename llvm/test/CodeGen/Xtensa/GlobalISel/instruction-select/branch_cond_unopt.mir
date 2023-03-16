@@ -78,7 +78,7 @@
     ret void
   }
 
-  define void @branch_lt(i32 %a, i32 %b) {
+  define void @branch_slt(i32 %a, i32 %b) {
   entry:
     %a.addr = alloca i32, align 4
     %b.addr = alloca i32, align 4
@@ -97,7 +97,7 @@
     ret void
   }
 
-  define void @branch_lte(i32 %a, i32 %b) {
+  define void @branch_sle(i32 %a, i32 %b) {
   entry:
     %a.addr = alloca i32, align 4
     %b.addr = alloca i32, align 4
@@ -116,7 +116,7 @@
     ret void
   }
 
-  define void @branch_gt(i32 %a, i32 %b) {
+  define void @branch_sgt(i32 %a, i32 %b) {
   entry:
     %a.addr = alloca i32, align 4
     %b.addr = alloca i32, align 4
@@ -135,7 +135,7 @@
     ret void
   }
 
-  define void @branch_gte(i32 %a, i32 %b) {
+  define void @branch_sge(i32 %a, i32 %b) {
   entry:
     %a.addr = alloca i32, align 4
     %b.addr = alloca i32, align 4
@@ -154,7 +154,7 @@
     ret void
   }
 
-  define void @branch_ltz(i32 %a) {
+  define void @branch_sltz(i32 %a) {
   entry:
     %a.addr = alloca i32, align 4
     store i32 %a, ptr %a.addr, align 4
@@ -170,7 +170,7 @@
     ret void
   }
 
-  define void @branch_ltez(i32 %a) {
+  define void @branch_slez(i32 %a) {
   entry:
     %a.addr = alloca i32, align 4
     store i32 %a, ptr %a.addr, align 4
@@ -186,7 +186,7 @@
     ret void
   }
 
-  define void @branch_gtz(i32 %a) {
+  define void @branch_sgtz(i32 %a) {
   entry:
     %a.addr = alloca i32, align 4
     store i32 %a, ptr %a.addr, align 4
@@ -202,12 +202,88 @@
     ret void
   }
 
-  define void @branch_gtez(i32 %a) {
+  define void @branch_sgez(i32 %a) {
   entry:
     %a.addr = alloca i32, align 4
     store i32 %a, ptr %a.addr, align 4
     %0 = load i32, ptr %a.addr, align 4
     %cmp = icmp sge i32 %0, 0
+    br i1 %cmp, label %if.then, label %if.end
+
+  if.then:                                          ; preds = %entry
+    call void @func()
+    br label %if.end
+
+  if.end:                                           ; preds = %if.then, %entry
+    ret void
+  }
+
+  define void @branch_ult(i32 %a, i32 %b) {
+  entry:
+    %a.addr = alloca i32, align 4
+    %b.addr = alloca i32, align 4
+    store i32 %a, ptr %a.addr, align 4
+    store i32 %b, ptr %b.addr, align 4
+    %0 = load i32, ptr %a.addr, align 4
+    %1 = load i32, ptr %b.addr, align 4
+    %cmp = icmp ult i32 %0, %1
+    br i1 %cmp, label %if.then, label %if.end
+
+  if.then:                                          ; preds = %entry
+    call void @func()
+    br label %if.end
+
+  if.end:                                           ; preds = %if.then, %entry
+    ret void
+  }
+
+  define void @branch_ule(i32 %a, i32 %b) {
+  entry:
+    %a.addr = alloca i32, align 4
+    %b.addr = alloca i32, align 4
+    store i32 %a, ptr %a.addr, align 4
+    store i32 %b, ptr %b.addr, align 4
+    %0 = load i32, ptr %a.addr, align 4
+    %1 = load i32, ptr %b.addr, align 4
+    %cmp = icmp ule i32 %0, %1
+    br i1 %cmp, label %if.then, label %if.end
+
+  if.then:                                          ; preds = %entry
+    call void @func()
+    br label %if.end
+
+  if.end:                                           ; preds = %if.then, %entry
+    ret void
+  }
+
+  define void @branch_ugt(i32 %a, i32 %b) {
+  entry:
+    %a.addr = alloca i32, align 4
+    %b.addr = alloca i32, align 4
+    store i32 %a, ptr %a.addr, align 4
+    store i32 %b, ptr %b.addr, align 4
+    %0 = load i32, ptr %a.addr, align 4
+    %1 = load i32, ptr %b.addr, align 4
+    %cmp = icmp ugt i32 %0, %1
+    br i1 %cmp, label %if.then, label %if.end
+
+  if.then:                                          ; preds = %entry
+    call void @func()
+    br label %if.end
+
+  if.end:                                           ; preds = %if.then, %entry
+    ret void
+  }
+
+  define void @branch_uge(i32 %a, i32 %b) {
+  entry:
+    %a.addr = alloca i32, align 4
+    %b.addr = alloca i32, align 4
+    store i32 %a, ptr %a.addr, align 4
+    store i32 %b, ptr %b.addr, align 4
+    %0 = load i32, ptr %a.addr, align 4
+    %1 = load i32, ptr %b.addr, align 4
+    %cmp = icmp uge i32 %0, %1
     br i1 %cmp, label %if.then, label %if.end
 
   if.then:                                          ; preds = %entry
@@ -672,7 +748,7 @@ body:             |
 
 ...
 ---
-name:            branch_lt
+name:            branch_slt
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -736,7 +812,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  ; CHECK-LABEL: name: branch_lt
+  ; CHECK-LABEL: name: branch_slt
   ; CHECK: bb.0.entry:
   ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
   ; CHECK-NEXT:   liveins: $a2, $a3
@@ -791,7 +867,7 @@ body:             |
 
 ...
 ---
-name:            branch_lte
+name:            branch_sle
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -855,7 +931,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  ; CHECK-LABEL: name: branch_lte
+  ; CHECK-LABEL: name: branch_sle
   ; CHECK: bb.0.entry:
   ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
   ; CHECK-NEXT:   liveins: $a2, $a3
@@ -910,7 +986,7 @@ body:             |
 
 ...
 ---
-name:            branch_gt
+name:            branch_sgt
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -974,7 +1050,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  ; CHECK-LABEL: name: branch_gt
+  ; CHECK-LABEL: name: branch_sgt
   ; CHECK: bb.0.entry:
   ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
   ; CHECK-NEXT:   liveins: $a2, $a3
@@ -1029,7 +1105,7 @@ body:             |
 
 ...
 ---
-name:            branch_gte
+name:            branch_sge
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -1093,7 +1169,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  ; CHECK-LABEL: name: branch_gte
+  ; CHECK-LABEL: name: branch_sge
   ; CHECK: bb.0.entry:
   ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
   ; CHECK-NEXT:   liveins: $a2, $a3
@@ -1148,7 +1224,7 @@ body:             |
 
 ...
 ---
-name:            branch_ltz
+name:            branch_sltz
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -1206,7 +1282,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  ; CHECK-LABEL: name: branch_ltz
+  ; CHECK-LABEL: name: branch_sltz
   ; CHECK: bb.0.entry:
   ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
   ; CHECK-NEXT:   liveins: $a2
@@ -1255,7 +1331,7 @@ body:             |
 
 ...
 ---
-name:            branch_ltez
+name:            branch_slez
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -1313,7 +1389,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  ; CHECK-LABEL: name: branch_ltez
+  ; CHECK-LABEL: name: branch_slez
   ; CHECK: bb.0.entry:
   ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
   ; CHECK-NEXT:   liveins: $a2
@@ -1363,7 +1439,7 @@ body:             |
 
 ...
 ---
-name:            branch_gtz
+name:            branch_sgtz
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -1421,7 +1497,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  ; CHECK-LABEL: name: branch_gtz
+  ; CHECK-LABEL: name: branch_sgtz
   ; CHECK: bb.0.entry:
   ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
   ; CHECK-NEXT:   liveins: $a2
@@ -1471,7 +1547,7 @@ body:             |
 
 ...
 ---
-name:            branch_gtez
+name:            branch_sgez
 alignment:       4
 exposesReturnsTwice: false
 legalized:       true
@@ -1529,7 +1605,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  ; CHECK-LABEL: name: branch_gtez
+  ; CHECK-LABEL: name: branch_sgez
   ; CHECK: bb.0.entry:
   ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
   ; CHECK-NEXT:   liveins: $a2
@@ -1563,6 +1639,482 @@ body:             |
     %7:gprb(s32) = G_CONSTANT i32 1
     %5:gprb(s32) = G_AND %6, %7
     G_BRCOND %5(s32), %bb.2
+    G_BR %bb.3
+
+  bb.2.if.then:
+    successors: %bb.3(0x80000000)
+
+    ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
+    CALL0 @func, csr_xtensa_call0, implicit-def $a0
+    ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+    G_BR %bb.3
+
+  bb.3.if.end:
+    RETN implicit $a0
+
+...
+---
+name:            branch_ult
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 1, class: gprb, preferred-register: '' }
+  - { id: 2, class: gprb, preferred-register: '' }
+  - { id: 3, class: gprb, preferred-register: '' }
+  - { id: 4, class: gprb, preferred-register: '' }
+  - { id: 5, class: gprb, preferred-register: '' }
+  - { id: 6, class: _, preferred-register: '' }
+  - { id: 7, class: gprb, preferred-register: '' }
+  - { id: 8, class: gprb, preferred-register: '' }
+  - { id: 9, class: gprb, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    4
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:
+  - { id: 0, name: a.addr, type: default, offset: 0, size: 4, alignment: 4,
+      stack-id: default, callee-saved-register: '', callee-saved-restored: true,
+      debug-info-variable: '', debug-info-expression: '', debug-info-location: '' }
+  - { id: 1, name: b.addr, type: default, offset: 0, size: 4, alignment: 4,
+      stack-id: default, callee-saved-register: '', callee-saved-restored: true,
+      debug-info-variable: '', debug-info-expression: '', debug-info-location: '' }
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  ; CHECK-LABEL: name: branch_ult
+  ; CHECK: bb.0.entry:
+  ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
+  ; CHECK-NEXT:   liveins: $a2, $a3
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gpr = COPY $a3
+  ; CHECK-NEXT:   S32I [[COPY]], %stack.0.a.addr, 0 :: (store (s32) into %ir.a.addr)
+  ; CHECK-NEXT:   S32I [[COPY1]], %stack.1.b.addr, 0 :: (store (s32) into %ir.b.addr)
+  ; CHECK-NEXT:   [[L32I:%[0-9]+]]:gpr = L32I %stack.0.a.addr, 0 :: (dereferenceable load (s32) from %ir.a.addr)
+  ; CHECK-NEXT:   [[L32I1:%[0-9]+]]:gpr = L32I %stack.1.b.addr, 0 :: (dereferenceable load (s32) from %ir.b.addr)
+  ; CHECK-NEXT:   BLTU [[L32I]], [[L32I1]], %bb.1
+  ; CHECK-NEXT:   J %bb.2
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT: bb.1.if.then:
+  ; CHECK-NEXT:   successors: %bb.2(0x80000000)
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   CALL0 @func, csr_xtensa_call0, implicit-def $a0
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   J %bb.2
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT: bb.2.if.end:
+  ; CHECK-NEXT:   RETN implicit $a0
+  bb.1.entry:
+    successors: %bb.2(0x40000000), %bb.3(0x40000000)
+    liveins: $a2, $a3
+
+    %0:gprb(s32) = COPY $a2
+    %1:gprb(s32) = COPY $a3
+    %2:gprb(p0) = G_FRAME_INDEX %stack.0.a.addr
+    G_STORE %0(s32), %2(p0) :: (store (s32) into %ir.a.addr)
+    %3:gprb(p0) = G_FRAME_INDEX %stack.1.b.addr
+    G_STORE %1(s32), %3(p0) :: (store (s32) into %ir.b.addr)
+    %4:gprb(s32) = G_LOAD %2(p0) :: (dereferenceable load (s32) from %ir.a.addr)
+    %5:gprb(s32) = G_LOAD %3(p0) :: (dereferenceable load (s32) from %ir.b.addr)
+    %8:gprb(s32) = G_ICMP intpred(ult), %4(s32), %5
+    %9:gprb(s32) = G_CONSTANT i32 1
+    %7:gprb(s32) = G_AND %8, %9
+    G_BRCOND %7(s32), %bb.2
+    G_BR %bb.3
+
+  bb.2.if.then:
+    successors: %bb.3(0x80000000)
+
+    ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
+    CALL0 @func, csr_xtensa_call0, implicit-def $a0
+    ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+    G_BR %bb.3
+
+  bb.3.if.end:
+    RETN implicit $a0
+
+...
+---
+name:            branch_ule
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 1, class: gprb, preferred-register: '' }
+  - { id: 2, class: gprb, preferred-register: '' }
+  - { id: 3, class: gprb, preferred-register: '' }
+  - { id: 4, class: gprb, preferred-register: '' }
+  - { id: 5, class: gprb, preferred-register: '' }
+  - { id: 6, class: _, preferred-register: '' }
+  - { id: 7, class: gprb, preferred-register: '' }
+  - { id: 8, class: gprb, preferred-register: '' }
+  - { id: 9, class: gprb, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    4
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:
+  - { id: 0, name: a.addr, type: default, offset: 0, size: 4, alignment: 4,
+      stack-id: default, callee-saved-register: '', callee-saved-restored: true,
+      debug-info-variable: '', debug-info-expression: '', debug-info-location: '' }
+  - { id: 1, name: b.addr, type: default, offset: 0, size: 4, alignment: 4,
+      stack-id: default, callee-saved-register: '', callee-saved-restored: true,
+      debug-info-variable: '', debug-info-expression: '', debug-info-location: '' }
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  ; CHECK-LABEL: name: branch_ule
+  ; CHECK: bb.0.entry:
+  ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
+  ; CHECK-NEXT:   liveins: $a2, $a3
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gpr = COPY $a3
+  ; CHECK-NEXT:   S32I [[COPY]], %stack.0.a.addr, 0 :: (store (s32) into %ir.a.addr)
+  ; CHECK-NEXT:   S32I [[COPY1]], %stack.1.b.addr, 0 :: (store (s32) into %ir.b.addr)
+  ; CHECK-NEXT:   [[L32I:%[0-9]+]]:gpr = L32I %stack.0.a.addr, 0 :: (dereferenceable load (s32) from %ir.a.addr)
+  ; CHECK-NEXT:   [[L32I1:%[0-9]+]]:gpr = L32I %stack.1.b.addr, 0 :: (dereferenceable load (s32) from %ir.b.addr)
+  ; CHECK-NEXT:   BGEU [[L32I1]], [[L32I]], %bb.1
+  ; CHECK-NEXT:   J %bb.2
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT: bb.1.if.then:
+  ; CHECK-NEXT:   successors: %bb.2(0x80000000)
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   CALL0 @func, csr_xtensa_call0, implicit-def $a0
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   J %bb.2
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT: bb.2.if.end:
+  ; CHECK-NEXT:   RETN implicit $a0
+  bb.1.entry:
+    successors: %bb.2(0x40000000), %bb.3(0x40000000)
+    liveins: $a2, $a3
+
+    %0:gprb(s32) = COPY $a2
+    %1:gprb(s32) = COPY $a3
+    %2:gprb(p0) = G_FRAME_INDEX %stack.0.a.addr
+    G_STORE %0(s32), %2(p0) :: (store (s32) into %ir.a.addr)
+    %3:gprb(p0) = G_FRAME_INDEX %stack.1.b.addr
+    G_STORE %1(s32), %3(p0) :: (store (s32) into %ir.b.addr)
+    %4:gprb(s32) = G_LOAD %2(p0) :: (dereferenceable load (s32) from %ir.a.addr)
+    %5:gprb(s32) = G_LOAD %3(p0) :: (dereferenceable load (s32) from %ir.b.addr)
+    %8:gprb(s32) = G_ICMP intpred(ule), %4(s32), %5
+    %9:gprb(s32) = G_CONSTANT i32 1
+    %7:gprb(s32) = G_AND %8, %9
+    G_BRCOND %7(s32), %bb.2
+    G_BR %bb.3
+
+  bb.2.if.then:
+    successors: %bb.3(0x80000000)
+
+    ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
+    CALL0 @func, csr_xtensa_call0, implicit-def $a0
+    ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+    G_BR %bb.3
+
+  bb.3.if.end:
+    RETN implicit $a0
+
+...
+---
+name:            branch_ugt
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 1, class: gprb, preferred-register: '' }
+  - { id: 2, class: gprb, preferred-register: '' }
+  - { id: 3, class: gprb, preferred-register: '' }
+  - { id: 4, class: gprb, preferred-register: '' }
+  - { id: 5, class: gprb, preferred-register: '' }
+  - { id: 6, class: _, preferred-register: '' }
+  - { id: 7, class: gprb, preferred-register: '' }
+  - { id: 8, class: gprb, preferred-register: '' }
+  - { id: 9, class: gprb, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    4
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:
+  - { id: 0, name: a.addr, type: default, offset: 0, size: 4, alignment: 4,
+      stack-id: default, callee-saved-register: '', callee-saved-restored: true,
+      debug-info-variable: '', debug-info-expression: '', debug-info-location: '' }
+  - { id: 1, name: b.addr, type: default, offset: 0, size: 4, alignment: 4,
+      stack-id: default, callee-saved-register: '', callee-saved-restored: true,
+      debug-info-variable: '', debug-info-expression: '', debug-info-location: '' }
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  ; CHECK-LABEL: name: branch_ugt
+  ; CHECK: bb.0.entry:
+  ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
+  ; CHECK-NEXT:   liveins: $a2, $a3
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gpr = COPY $a3
+  ; CHECK-NEXT:   S32I [[COPY]], %stack.0.a.addr, 0 :: (store (s32) into %ir.a.addr)
+  ; CHECK-NEXT:   S32I [[COPY1]], %stack.1.b.addr, 0 :: (store (s32) into %ir.b.addr)
+  ; CHECK-NEXT:   [[L32I:%[0-9]+]]:gpr = L32I %stack.0.a.addr, 0 :: (dereferenceable load (s32) from %ir.a.addr)
+  ; CHECK-NEXT:   [[L32I1:%[0-9]+]]:gpr = L32I %stack.1.b.addr, 0 :: (dereferenceable load (s32) from %ir.b.addr)
+  ; CHECK-NEXT:   BLTU [[L32I1]], [[L32I]], %bb.1
+  ; CHECK-NEXT:   J %bb.2
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT: bb.1.if.then:
+  ; CHECK-NEXT:   successors: %bb.2(0x80000000)
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   CALL0 @func, csr_xtensa_call0, implicit-def $a0
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   J %bb.2
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT: bb.2.if.end:
+  ; CHECK-NEXT:   RETN implicit $a0
+  bb.1.entry:
+    successors: %bb.2(0x40000000), %bb.3(0x40000000)
+    liveins: $a2, $a3
+
+    %0:gprb(s32) = COPY $a2
+    %1:gprb(s32) = COPY $a3
+    %2:gprb(p0) = G_FRAME_INDEX %stack.0.a.addr
+    G_STORE %0(s32), %2(p0) :: (store (s32) into %ir.a.addr)
+    %3:gprb(p0) = G_FRAME_INDEX %stack.1.b.addr
+    G_STORE %1(s32), %3(p0) :: (store (s32) into %ir.b.addr)
+    %4:gprb(s32) = G_LOAD %2(p0) :: (dereferenceable load (s32) from %ir.a.addr)
+    %5:gprb(s32) = G_LOAD %3(p0) :: (dereferenceable load (s32) from %ir.b.addr)
+    %8:gprb(s32) = G_ICMP intpred(ugt), %4(s32), %5
+    %9:gprb(s32) = G_CONSTANT i32 1
+    %7:gprb(s32) = G_AND %8, %9
+    G_BRCOND %7(s32), %bb.2
+    G_BR %bb.3
+
+  bb.2.if.then:
+    successors: %bb.3(0x80000000)
+
+    ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
+    CALL0 @func, csr_xtensa_call0, implicit-def $a0
+    ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+    G_BR %bb.3
+
+  bb.3.if.end:
+    RETN implicit $a0
+
+...
+---
+name:            branch_uge
+alignment:       4
+exposesReturnsTwice: false
+legalized:       true
+regBankSelected: true
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: gprb, preferred-register: '' }
+  - { id: 1, class: gprb, preferred-register: '' }
+  - { id: 2, class: gprb, preferred-register: '' }
+  - { id: 3, class: gprb, preferred-register: '' }
+  - { id: 4, class: gprb, preferred-register: '' }
+  - { id: 5, class: gprb, preferred-register: '' }
+  - { id: 6, class: _, preferred-register: '' }
+  - { id: 7, class: gprb, preferred-register: '' }
+  - { id: 8, class: gprb, preferred-register: '' }
+  - { id: 9, class: gprb, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    4
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:
+  - { id: 0, name: a.addr, type: default, offset: 0, size: 4, alignment: 4,
+      stack-id: default, callee-saved-register: '', callee-saved-restored: true,
+      debug-info-variable: '', debug-info-expression: '', debug-info-location: '' }
+  - { id: 1, name: b.addr, type: default, offset: 0, size: 4, alignment: 4,
+      stack-id: default, callee-saved-register: '', callee-saved-restored: true,
+      debug-info-variable: '', debug-info-expression: '', debug-info-location: '' }
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  ; CHECK-LABEL: name: branch_uge
+  ; CHECK: bb.0.entry:
+  ; CHECK-NEXT:   successors: %bb.1(0x40000000), %bb.2(0x40000000)
+  ; CHECK-NEXT:   liveins: $a2, $a3
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
+  ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gpr = COPY $a3
+  ; CHECK-NEXT:   S32I [[COPY]], %stack.0.a.addr, 0 :: (store (s32) into %ir.a.addr)
+  ; CHECK-NEXT:   S32I [[COPY1]], %stack.1.b.addr, 0 :: (store (s32) into %ir.b.addr)
+  ; CHECK-NEXT:   [[L32I:%[0-9]+]]:gpr = L32I %stack.0.a.addr, 0 :: (dereferenceable load (s32) from %ir.a.addr)
+  ; CHECK-NEXT:   [[L32I1:%[0-9]+]]:gpr = L32I %stack.1.b.addr, 0 :: (dereferenceable load (s32) from %ir.b.addr)
+  ; CHECK-NEXT:   BGEU [[L32I]], [[L32I1]], %bb.1
+  ; CHECK-NEXT:   J %bb.2
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT: bb.1.if.then:
+  ; CHECK-NEXT:   successors: %bb.2(0x80000000)
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT:   ADJCALLSTACKDOWN 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   CALL0 @func, csr_xtensa_call0, implicit-def $a0
+  ; CHECK-NEXT:   ADJCALLSTACKUP 0, 0, implicit-def $a1, implicit $a1
+  ; CHECK-NEXT:   J %bb.2
+  ; CHECK-NEXT: {{  $}}
+  ; CHECK-NEXT: bb.2.if.end:
+  ; CHECK-NEXT:   RETN implicit $a0
+  bb.1.entry:
+    successors: %bb.2(0x40000000), %bb.3(0x40000000)
+    liveins: $a2, $a3
+
+    %0:gprb(s32) = COPY $a2
+    %1:gprb(s32) = COPY $a3
+    %2:gprb(p0) = G_FRAME_INDEX %stack.0.a.addr
+    G_STORE %0(s32), %2(p0) :: (store (s32) into %ir.a.addr)
+    %3:gprb(p0) = G_FRAME_INDEX %stack.1.b.addr
+    G_STORE %1(s32), %3(p0) :: (store (s32) into %ir.b.addr)
+    %4:gprb(s32) = G_LOAD %2(p0) :: (dereferenceable load (s32) from %ir.a.addr)
+    %5:gprb(s32) = G_LOAD %3(p0) :: (dereferenceable load (s32) from %ir.b.addr)
+    %8:gprb(s32) = G_ICMP intpred(uge), %4(s32), %5
+    %9:gprb(s32) = G_CONSTANT i32 1
+    %7:gprb(s32) = G_AND %8, %9
+    G_BRCOND %7(s32), %bb.2
     G_BR %bb.3
 
   bb.2.if.then:
