@@ -494,7 +494,7 @@ let hasSideEffects = false, mayLoad = false, mayStore = false,
     isBranch = true, isTerminator = true in {
   class BranchRR8<bits<4> r, string name>
     : I_RRI8<0b0111, (outs), (ins GPR:$as, GPR:$at, brtarget8:$offset),
-              !strconcat(name, "\t$at, $as, $offset"), []>  {
+              !strconcat(name, "\t$as, $at, $offset"), []>  {
     bits<8> offset;
 
     let imm8 = offset;
