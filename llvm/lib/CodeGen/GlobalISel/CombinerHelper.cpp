@@ -4226,10 +4226,11 @@ bool CombinerHelper::matchICmpToLHSKnownBits(
   unsigned LHSSize = LHSTy.getSizeInBits();
   unsigned DstSize = DstTy.getSizeInBits();
   unsigned Op = TargetOpcode::COPY;
-  if (DstSize != LHSSize)
+  if (DstSize != LHSSize) {
     Op = DstSize < LHSSize ? TargetOpcode::G_TRUNC : TargetOpcode::G_ZEXT;
-  if (!isLegalOrBeforeLegalizer({Op, {DstTy, LHSTy}}))
-    return false;
+    if (!isLegalOrBeforeLegalizer({Op, {DstTy, LHSTy}}))
+      return false;
+  }
   MatchInfo = [=](MachineIRBuilder &B) { B.buildInstr(Op, {Dst}, {LHS}); };
   return true;
 }
