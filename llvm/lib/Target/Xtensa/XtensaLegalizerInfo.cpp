@@ -1,6 +1,7 @@
 #include "XtensaLegalizerInfo.h"
 #include "XtensaSubtarget.h"
 #include "llvm/CodeGen/GlobalISel/LegalizerHelper.h"
+#include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetOpcodes.h"
 #include "llvm/Support/LowLevelTypeImpl.h"
 #include <cassert>
@@ -19,9 +20,12 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   getActionDefinitionsBuilder(G_PHI).legalFor({S32, P0}).clampScalar(0, S32,
                                                                      S32);
 
-  getActionDefinitionsBuilder({G_CONSTANT, G_IMPLICIT_DEF, G_BRCOND})
-      .legalFor({S32})
+  getActionDefinitionsBuilder({G_CONSTANT, G_IMPLICIT_DEF})
+      .legalFor({S32, P0})
       .clampScalar(0, S32, S32);
+
+  getActionDefinitionsBuilder(G_BRCOND).legalFor({S32}).clampScalar(0, S32,
+                                                                    S32);
 
   getActionDefinitionsBuilder(G_SELECT)
       .legalFor({{S32, S32}})
@@ -61,7 +65,8 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   getActionDefinitionsBuilder({G_SDIVREM, G_UDIVREM}).lower();
 
   getActionDefinitionsBuilder(G_ICMP)
-      .legalFor({{S32, S32}, {S32, P0}})
+      .legalFor({{S32, S32}})
+      .customFor({{S32, P0}})
       .clampScalar(0, S32, S32)
       .clampScalar(1, S32, S32);
 
@@ -130,10 +135,35 @@ bool XtensaLegalizerInfo::legalizeCustom(LegalizerHelper &Helper,
   GISelChangeObserver &Observer = Helper.Observer;
 
   switch (MI.getOpcode()) {
+  case TargetOpcode::G_ICMP:
+    return legalizeIcmp(MI, MRI, MIRBuilder, Observer);
   case TargetOpcode::G_SELECT:
     return legalizeSelect(MI, MRI, MIRBuilder, Observer);
   }
   return false;
+}
+
+bool XtensaLegalizerInfo::legalizeIcmp(MachineInstr &MI,
+                                       MachineRegisterInfo &MRI,
+                                       MachineIRBuilder &MIRBuilder,
+                                       GISelChangeObserver &Observer) const {
+  Register LHS = MI.getOperand(2).getReg();
+  Register RHS = MI.getOperand(3).getReg();
+
+  LLT PtrTy = MRI.getType(LHS);
+  assert(PtrTy.isPointer() &&
+         "Custom legalization attempted for non-pointer icmp");
+  LLT IntPtrTy = LLT::scalar(PtrTy.getSizeInBits());
+
+  Register IntLHS = MIRBuilder.buildPtrToInt({IntPtrTy}, {LHS}).getReg(0);
+  Register IntRHS = MIRBuilder.buildPtrToInt({IntPtrTy}, {RHS}).getReg(0);
+
+  Observer.changedInstr(MI);
+  MI.getOperand(2).ChangeToRegister(IntLHS, false);
+  MI.getOperand(3).ChangeToRegister(IntRHS, false);
+  Observer.changedInstr(MI);
+
+  return true;
 }
 
 bool XtensaLegalizerInfo::legalizeSelect(MachineInstr &MI,

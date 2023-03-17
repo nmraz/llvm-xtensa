@@ -15,6 +15,9 @@ public:
   bool legalizeCustom(LegalizerHelper &Helper, MachineInstr &MI) const override;
 
 private:
+  bool legalizeIcmp(MachineInstr &MI, MachineRegisterInfo &MRI,
+                    MachineIRBuilder &MIRBuilder,
+                    GISelChangeObserver &Observer) const;
   bool legalizeSelect(MachineInstr &MI, MachineRegisterInfo &MRI,
                       MachineIRBuilder &MIRBuilder,
                       GISelChangeObserver &Observer) const;
