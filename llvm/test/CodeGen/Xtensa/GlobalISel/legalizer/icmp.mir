@@ -5788,9 +5788,10 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(p0) = COPY $a2
-    ; CHECK-NEXT: [[C:%[0-9]+]]:_(p0) = G_CONSTANT i32 0
+    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+    ; CHECK-NEXT: [[INTTOPTR:%[0-9]+]]:_(p0) = G_INTTOPTR [[C]](s32)
     ; CHECK-NEXT: [[PTRTOINT:%[0-9]+]]:_(s32) = G_PTRTOINT [[COPY]](p0)
-    ; CHECK-NEXT: [[PTRTOINT1:%[0-9]+]]:_(s32) = G_PTRTOINT [[C]](p0)
+    ; CHECK-NEXT: [[PTRTOINT1:%[0-9]+]]:_(s32) = G_PTRTOINT [[INTTOPTR]](p0)
     ; CHECK-NEXT: [[ICMP:%[0-9]+]]:_(s32) = G_ICMP intpred(eq), [[PTRTOINT]](s32), [[PTRTOINT1]]
     ; CHECK-NEXT: $a2 = COPY [[ICMP]](s32)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
@@ -5861,9 +5862,10 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(p0) = COPY $a2
-    ; CHECK-NEXT: [[C:%[0-9]+]]:_(p0) = G_CONSTANT i32 0
+    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
+    ; CHECK-NEXT: [[INTTOPTR:%[0-9]+]]:_(p0) = G_INTTOPTR [[C]](s32)
     ; CHECK-NEXT: [[PTRTOINT:%[0-9]+]]:_(s32) = G_PTRTOINT [[COPY]](p0)
-    ; CHECK-NEXT: [[PTRTOINT1:%[0-9]+]]:_(s32) = G_PTRTOINT [[C]](p0)
+    ; CHECK-NEXT: [[PTRTOINT1:%[0-9]+]]:_(s32) = G_PTRTOINT [[INTTOPTR]](p0)
     ; CHECK-NEXT: [[ICMP:%[0-9]+]]:_(s32) = G_ICMP intpred(ne), [[PTRTOINT]](s32), [[PTRTOINT1]]
     ; CHECK-NEXT: $a2 = COPY [[ICMP]](s32)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2

@@ -1,12 +1,33 @@
 #include "XtensaLegalizerInfo.h"
 #include "XtensaSubtarget.h"
 #include "llvm/CodeGen/GlobalISel/LegalizerHelper.h"
+#include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
+#include "llvm/CodeGen/MachineOperand.h"
+#include "llvm/CodeGen/MachineRegisterInfo.h"
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetOpcodes.h"
 #include "llvm/Support/LowLevelTypeImpl.h"
 #include <cassert>
 
 using namespace llvm;
+
+static void convertPtrSrc(MachineIRBuilder &MIRBuilder, MachineInstr &MI,
+                          unsigned OpIdx) {
+  MachineOperand &Src = MI.getOperand(OpIdx);
+  Register NewSrc =
+      MIRBuilder.buildPtrToInt({LLT::scalar(32)}, {Src}).getReg(0);
+  Src.setReg(NewSrc);
+}
+
+static void convertPtrDst(MachineRegisterInfo &MRI,
+                          MachineIRBuilder &MIRBuilder, MachineInstr &MI,
+                          unsigned OpIdx) {
+  MachineOperand &Dst = MI.getOperand(OpIdx);
+  Register NewDst = MRI.createGenericVirtualRegister(LLT::scalar(32));
+  MIRBuilder.setInsertPt(MIRBuilder.getMBB(), ++MIRBuilder.getInsertPt());
+  MIRBuilder.buildIntToPtr({Dst}, {NewDst});
+  Dst.setReg(NewDst);
+}
 
 XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   using namespace TargetOpcode;
@@ -20,7 +41,12 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   getActionDefinitionsBuilder(G_PHI).legalFor({S32, P0}).clampScalar(0, S32,
                                                                      S32);
 
-  getActionDefinitionsBuilder({G_CONSTANT, G_IMPLICIT_DEF})
+  getActionDefinitionsBuilder(G_CONSTANT)
+      .legalFor({S32})
+      .customFor({P0})
+      .clampScalar(0, S32, S32);
+
+  getActionDefinitionsBuilder(G_IMPLICIT_DEF)
       .legalFor({S32, P0})
       .clampScalar(0, S32, S32);
 
@@ -137,30 +163,39 @@ bool XtensaLegalizerInfo::legalizeCustom(LegalizerHelper &Helper,
   switch (MI.getOpcode()) {
   case TargetOpcode::G_ICMP:
     return legalizeIcmp(MI, MRI, MIRBuilder, Observer);
+  case TargetOpcode::G_CONSTANT:
+    return legalizeConstant(MI, MRI, MIRBuilder, Observer);
   case TargetOpcode::G_SELECT:
     return legalizeSelect(MI, MRI, MIRBuilder, Observer);
   }
   return false;
 }
 
+bool XtensaLegalizerInfo::legalizeConstant(
+    MachineInstr &MI, MachineRegisterInfo &MRI, MachineIRBuilder &MIRBuilder,
+    GISelChangeObserver &Observer) const {
+  LLT PtrTy = MRI.getType(MI.getOperand(0).getReg());
+  assert(PtrTy.isPointer() &&
+         "Custom legalization attempted for non-pointer constant");
+
+  Observer.changedInstr(MI);
+  convertPtrDst(MRI, MIRBuilder, MI, 0);
+  Observer.changedInstr(MI);
+
+  return true;
+}
+
 bool XtensaLegalizerInfo::legalizeIcmp(MachineInstr &MI,
                                        MachineRegisterInfo &MRI,
                                        MachineIRBuilder &MIRBuilder,
                                        GISelChangeObserver &Observer) const {
-  Register LHS = MI.getOperand(2).getReg();
-  Register RHS = MI.getOperand(3).getReg();
-
-  LLT PtrTy = MRI.getType(LHS);
+  LLT PtrTy = MRI.getType(MI.getOperand(2).getReg());
   assert(PtrTy.isPointer() &&
          "Custom legalization attempted for non-pointer icmp");
-  LLT IntPtrTy = LLT::scalar(PtrTy.getSizeInBits());
-
-  Register IntLHS = MIRBuilder.buildPtrToInt({IntPtrTy}, {LHS}).getReg(0);
-  Register IntRHS = MIRBuilder.buildPtrToInt({IntPtrTy}, {RHS}).getReg(0);
 
   Observer.changedInstr(MI);
-  MI.getOperand(2).ChangeToRegister(IntLHS, false);
-  MI.getOperand(3).ChangeToRegister(IntRHS, false);
+  convertPtrSrc(MIRBuilder, MI, 2);
+  convertPtrSrc(MIRBuilder, MI, 3);
   Observer.changedInstr(MI);
 
   return true;
@@ -170,29 +205,14 @@ bool XtensaLegalizerInfo::legalizeSelect(MachineInstr &MI,
                                          MachineRegisterInfo &MRI,
                                          MachineIRBuilder &MIRBuilder,
                                          GISelChangeObserver &Observer) const {
-  Register DstReg = MI.getOperand(0).getReg();
-  Register TrueReg = MI.getOperand(2).getReg();
-  Register FalseReg = MI.getOperand(3).getReg();
-
-  LLT PtrTy = MRI.getType(DstReg);
+  LLT PtrTy = MRI.getType(MI.getOperand(0).getReg());
   assert(PtrTy.isPointer() &&
          "Custom legalization attempted for non-pointer select");
-  LLT IntPtrTy = LLT::scalar(PtrTy.getSizeInBits());
-
-  Register DstIntReg = MRI.createGenericVirtualRegister(IntPtrTy);
-
-  Register TrueIntReg =
-      MIRBuilder.buildPtrToInt({IntPtrTy}, {TrueReg}).getReg(0);
-  Register FalseIntReg =
-      MIRBuilder.buildPtrToInt({IntPtrTy}, {FalseReg}).getReg(0);
-
-  MIRBuilder.setInsertPt(MIRBuilder.getMBB(), ++MIRBuilder.getInsertPt());
-  MIRBuilder.buildIntToPtr({DstReg}, {DstIntReg});
 
   Observer.changingInstr(MI);
-  MI.getOperand(0).setReg(DstIntReg);
-  MI.getOperand(2).setReg(TrueIntReg);
-  MI.getOperand(3).setReg(FalseIntReg);
+  convertPtrSrc(MIRBuilder, MI, 2);
+  convertPtrSrc(MIRBuilder, MI, 3);
+  convertPtrDst(MRI, MIRBuilder, MI, 0);
   Observer.changedInstr(MI);
 
   return true;

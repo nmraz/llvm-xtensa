@@ -885,11 +885,10 @@ entry:
 define i1 @icmp_eqz_ptr(ptr %a) {
 ; CHECK-LABEL: icmp_eqz_ptr:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    l32r a3, .LCPI66_0
-; CHECK-NEXT:    sub a3, a2, a3
 ; CHECK-NEXT:    movi.n a4, 1
-; CHECK-NEXT:    movi.n a2, 0
-; CHECK-NEXT:    moveqz a2, a4, a3
+; CHECK-NEXT:    movi.n a3, 0
+; CHECK-NEXT:    moveqz a3, a4, a2
+; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
 entry:
   %icmp = icmp eq ptr %a, null
@@ -899,11 +898,10 @@ entry:
 define i1 @icmp_nez_ptr(ptr %a) {
 ; CHECK-LABEL: icmp_nez_ptr:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    l32r a3, .LCPI67_0
-; CHECK-NEXT:    sub a3, a2, a3
 ; CHECK-NEXT:    movi.n a4, 0
-; CHECK-NEXT:    movi.n a2, 1
-; CHECK-NEXT:    moveqz a2, a4, a3
+; CHECK-NEXT:    movi.n a3, 1
+; CHECK-NEXT:    moveqz a3, a4, a2
+; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
 entry:
   %icmp = icmp ne ptr %a, null
