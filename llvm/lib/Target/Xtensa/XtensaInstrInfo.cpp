@@ -4,6 +4,8 @@
 #include "XtensaInstrUtils.h"
 #include "XtensaRegisterInfo.h"
 #include "llvm/ADT/APInt.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/ADT/SmallVector.h"
 #include "llvm/CodeGen/MachineConstantPool.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
@@ -44,6 +46,73 @@ static bool isStore(unsigned Opcode) {
     return true;
   default:
     return false;
+  }
+}
+
+static bool isUncondBranchOpcode(int Opcode) { return Opcode == Xtensa::J; }
+
+static bool isCondBranchOpcode(int Opcode) {
+  switch (Opcode) {
+  case Xtensa::BBC:
+  case Xtensa::BBCI:
+  case Xtensa::BBS:
+  case Xtensa::BBSI:
+  case Xtensa::BEQ:
+  case Xtensa::BEQI:
+  case Xtensa::BGE:
+  case Xtensa::BGEI:
+  case Xtensa::BGEU:
+  case Xtensa::BGEUI:
+  case Xtensa::BLT:
+  case Xtensa::BLTI:
+  case Xtensa::BLTU:
+  case Xtensa::BLTUI:
+  case Xtensa::BNE:
+  case Xtensa::BNEI:
+  case Xtensa::BEQZ:
+  case Xtensa::BGEZ:
+  case Xtensa::BLTZ:
+  case Xtensa::BNEZ:
+    return true;
+  }
+  return false;
+}
+
+static void parseCondBranch(const MachineInstr &MI, MachineBasicBlock *&Target,
+                            SmallVectorImpl<MachineOperand> &Cond) {
+  unsigned Opcode = MI.getOpcode();
+
+  switch (Opcode) {
+  case Xtensa::BBC:
+  case Xtensa::BBCI:
+  case Xtensa::BBS:
+  case Xtensa::BBSI:
+  case Xtensa::BEQ:
+  case Xtensa::BEQI:
+  case Xtensa::BGE:
+  case Xtensa::BGEI:
+  case Xtensa::BGEU:
+  case Xtensa::BGEUI:
+  case Xtensa::BLT:
+  case Xtensa::BLTI:
+  case Xtensa::BLTU:
+  case Xtensa::BLTUI:
+  case Xtensa::BNE:
+  case Xtensa::BNEI:
+    Cond.push_back(MachineOperand::CreateImm(Opcode));
+    Cond.push_back(MI.getOperand(0));
+    Cond.push_back(MI.getOperand(1));
+    Target = MI.getOperand(2).getMBB();
+    break;
+
+  case Xtensa::BEQZ:
+  case Xtensa::BGEZ:
+  case Xtensa::BLTZ:
+  case Xtensa::BNEZ:
+    Cond.push_back(MachineOperand::CreateImm(Opcode));
+    Cond.push_back(MI.getOperand(0));
+    Target = MI.getOperand(1).getMBB();
+    break;
   }
 }
 
@@ -198,52 +267,119 @@ bool XtensaInstrInfo::analyzeBranch(MachineBasicBlock &MBB,
                                     bool AllowModify) const {
   // If the block has no terminators, it just falls into the block after it.
   MachineBasicBlock::iterator I = MBB.getLastNonDebugInstr();
-  if (I == MBB.end())
-    return false;
-
-  if (!isUnpredicatedTerminator(*I))
+  if (I == MBB.end() || !isUnpredicatedTerminator(*I))
     return false;
 
   if (AllowModify) {
-    // If the BB ends with an unconditional branch to the fallthrough BB,
-    // we eliminate the branch instruction.
-    if (I->getOpcode() == Xtensa::J &&
+    // If the block ends with an unconditional branch to the fallthrough block,
+    // eliminate the branch instruction now. This is also handled by branch
+    // folding, but doing it here may reveal additional branches later.
+    if (isUncondBranchOpcode(I->getOpcode()) &&
         MBB.isLayoutSuccessor(I->getOperand(0).getMBB())) {
       I->eraseFromParent();
 
-      // We update iterator after deleting the last branch.
+      // Grab the newly-revealed terminator instruction
       I = MBB.getLastNonDebugInstr();
       if (I == MBB.end() || !isUnpredicatedTerminator(*I))
         return false;
     }
   }
 
-  return true;
+  MachineInstr &LastMI = *I;
+  if (I == MBB.begin() || !isUnpredicatedTerminator(*--I)) {
+    // The block has only one terminator, analyze it now.
+    unsigned Opcode = LastMI.getOpcode();
+
+    if (isUncondBranchOpcode(Opcode)) {
+      TBB = LastMI.getOperand(0).getMBB();
+      return false;
+    }
+
+    if (isCondBranchOpcode(Opcode)) {
+      parseCondBranch(LastMI, TBB, Cond);
+      return false;
+    }
+
+    return true;
+  }
+
+  MachineInstr &SecondLastMI = *I;
+
+  if (!isUncondBranchOpcode(LastMI.getOpcode())) {
+    return true;
+  }
+
+  MachineBasicBlock *UncondMBB = LastMI.getOperand(0).getMBB();
+
+  if (isCondBranchOpcode(SecondLastMI.getOpcode())) {
+    parseCondBranch(SecondLastMI, TBB, Cond);
+    FBB = UncondMBB;
+  } else {
+    TBB = UncondMBB;
+  }
+
+  return false;
 }
 
 unsigned XtensaInstrInfo::insertBranch(
     MachineBasicBlock &MBB, MachineBasicBlock *TBB, MachineBasicBlock *FBB,
     ArrayRef<MachineOperand> Cond, const DebugLoc &DL, int *BytesAdded) const {
-  assert(Cond.empty() && "Conditional branches are unimplemented");
-  BuildMI(&MBB, DL, get(Xtensa::J)).addMBB(TBB);
-  if (BytesAdded) {
-    *BytesAdded = 3;
+  unsigned InstrCount = 1;
+
+  if (Cond.empty()) {
+    assert(!FBB &&
+           "Unexpected FBB value when constructing unconditional branch");
+    BuildMI(&MBB, DL, get(Xtensa::J)).addMBB(TBB);
+  } else {
+    unsigned Opcode = Cond[0].getImm();
+
+    MachineInstrBuilder MIB = BuildMI(&MBB, DL, get(Opcode));
+    for (const MachineOperand &Op : drop_begin(Cond)) {
+      MIB.add(Op);
+    }
+    MIB.addMBB(TBB);
+
+    if (FBB) {
+      BuildMI(&MBB, DL, get(Xtensa::J)).addMBB(FBB);
+      InstrCount++;
+    }
   }
-  return 1;
+
+  if (BytesAdded) {
+    *BytesAdded = InstrCount * 3;
+  }
+
+  return InstrCount;
 }
 
 unsigned XtensaInstrInfo::removeBranch(MachineBasicBlock &MBB,
                                        int *BytesRemoved) const {
   MachineBasicBlock::iterator I = MBB.getLastNonDebugInstr();
-  if (I->getOpcode() != Xtensa::J) {
+  unsigned Opcode = I->getOpcode();
+  if (!isUncondBranchOpcode(Opcode) && !isCondBranchOpcode(Opcode)) {
     return 0;
   }
 
+  unsigned InstrCount = 1;
+
   I->eraseFromParent();
-  if (BytesRemoved) {
-    *BytesRemoved = 3;
+  // Note: we use `end` here to ensure symmetry with `analyzeBranch`, which
+  // doesn't skip intervening debug instructions.
+  I = MBB.end();
+
+  if (I != MBB.begin()) {
+    --I;
+    if (isCondBranchOpcode(I->getOpcode())) {
+      I->eraseFromParent();
+      InstrCount++;
+    }
   }
-  return 1;
+
+  if (BytesRemoved) {
+    *BytesRemoved = InstrCount * 3;
+  }
+
+  return InstrCount;
 }
 
 void XtensaInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
