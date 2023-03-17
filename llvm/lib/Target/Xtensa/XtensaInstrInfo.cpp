@@ -4,6 +4,7 @@
 #include "XtensaInstrUtils.h"
 #include "XtensaRegisterInfo.h"
 #include "llvm/ADT/APInt.h"
+#include "llvm/ADT/Optional.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/CodeGen/MachineConstantPool.h"
@@ -114,6 +115,21 @@ static void parseCondBranch(const MachineInstr &MI, MachineBasicBlock *&Target,
     Target = MI.getOperand(1).getMBB();
     break;
   }
+}
+
+static Optional<unsigned> reverseSimpleCondBranch(unsigned Opcode) {
+  switch (Opcode) {
+  case Xtensa::BNE:
+    return Xtensa::BEQ;
+  case Xtensa::BEQ:
+    return Xtensa::BNE;
+  case Xtensa::BEQZ:
+    return Xtensa::BNEZ;
+  case Xtensa::BNEZ:
+    return Xtensa::BEQZ;
+  }
+
+  return None;
 }
 
 XtensaInstrInfo::XtensaInstrInfo(XtensaSubtarget &ST)
@@ -380,6 +396,18 @@ unsigned XtensaInstrInfo::removeBranch(MachineBasicBlock &MBB,
   }
 
   return InstrCount;
+}
+
+bool XtensaInstrInfo::reverseBranchCondition(
+    SmallVectorImpl<MachineOperand> &Cond) const {
+  MachineOperand &OpcodeOp = Cond[0];
+
+  if (auto ReversedOpcode = reverseSimpleCondBranch(OpcodeOp.getImm())) {
+    OpcodeOp.setImm(*ReversedOpcode);
+    return false;
+  }
+
+  return true;
 }
 
 void XtensaInstrInfo::copyPhysReg(MachineBasicBlock &MBB,

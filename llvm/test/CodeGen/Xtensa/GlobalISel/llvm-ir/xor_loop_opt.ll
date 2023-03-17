@@ -4,8 +4,8 @@
 define void @xor_loop(ptr nocapture noundef %a, ptr nocapture noundef readonly %b, i32 noundef %n) {
 ; CHECK-LABEL: xor_loop:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    beqz a4, .LBB0_1
-; CHECK-NEXT:  .LBB0_2: # %for.body
+; CHECK-NEXT:    beqz a4, .LBB0_2
+; CHECK-NEXT:  .LBB0_1: # %for.body
 ; CHECK-NEXT:    # =>This Inner Loop Header: Depth=1
 ; CHECK-NEXT:    l8ui a5, a3, 0
 ; CHECK-NEXT:    l8ui a6, a2, 0
@@ -14,9 +14,8 @@ define void @xor_loop(ptr nocapture noundef %a, ptr nocapture noundef readonly %
 ; CHECK-NEXT:    addi a4, a4, -1
 ; CHECK-NEXT:    addi a2, a2, 1
 ; CHECK-NEXT:    addi a3, a3, 1
-; CHECK-NEXT:    beqz a4, .LBB0_1
-; CHECK-NEXT:    j .LBB0_2
-; CHECK-NEXT:  .LBB0_1: # %for.cond.cleanup
+; CHECK-NEXT:    bnez a4, .LBB0_1
+; CHECK-NEXT:  .LBB0_2: # %for.cond.cleanup
 ; CHECK-NEXT:    ret.n
 entry:
   %cmp8.not = icmp eq i32 %n, 0
