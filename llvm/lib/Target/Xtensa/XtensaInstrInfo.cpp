@@ -117,14 +117,46 @@ static void parseCondBranch(const MachineInstr &MI, MachineBasicBlock *&Target,
   }
 }
 
-static Optional<unsigned> reverseSimpleCondBranch(unsigned Opcode) {
+static Optional<unsigned> getReversedBranchOpcode(unsigned Opcode) {
   switch (Opcode) {
-  case Xtensa::BNE:
-    return Xtensa::BEQ;
+  case Xtensa::BBC:
+    return Xtensa::BBS;
+  case Xtensa::BBCI:
+    return Xtensa::BBSI;
+  case Xtensa::BBS:
+    return Xtensa::BBC;
+  case Xtensa::BBSI:
+    return Xtensa::BBCI;
   case Xtensa::BEQ:
     return Xtensa::BNE;
+  case Xtensa::BEQI:
+    return Xtensa::BNEI;
+  case Xtensa::BGE:
+    return Xtensa::BLT;
+  case Xtensa::BGEI:
+    return Xtensa::BLTI;
+  case Xtensa::BGEU:
+    return Xtensa::BLTU;
+  case Xtensa::BGEUI:
+    return Xtensa::BLTUI;
+  case Xtensa::BLT:
+    return Xtensa::BGE;
+  case Xtensa::BLTI:
+    return Xtensa::BGEI;
+  case Xtensa::BLTU:
+    return Xtensa::BGEU;
+  case Xtensa::BLTUI:
+    return Xtensa::BGEUI;
+  case Xtensa::BNE:
+    return Xtensa::BEQ;
+  case Xtensa::BNEI:
+    return Xtensa::BEQI;
   case Xtensa::BEQZ:
     return Xtensa::BNEZ;
+  case Xtensa::BGEZ:
+    return Xtensa::BLTZ;
+  case Xtensa::BLTZ:
+    return Xtensa::BGEZ;
   case Xtensa::BNEZ:
     return Xtensa::BEQZ;
   }
@@ -402,7 +434,7 @@ bool XtensaInstrInfo::reverseBranchCondition(
     SmallVectorImpl<MachineOperand> &Cond) const {
   MachineOperand &OpcodeOp = Cond[0];
 
-  if (auto ReversedOpcode = reverseSimpleCondBranch(OpcodeOp.getImm())) {
+  if (auto ReversedOpcode = getReversedBranchOpcode(OpcodeOp.getImm())) {
     OpcodeOp.setImm(*ReversedOpcode);
     return false;
   }
