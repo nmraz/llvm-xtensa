@@ -7,6 +7,7 @@
 #include "llvm/ADT/Optional.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/ADT/SmallVector.h"
+#include "llvm/CodeGen/MachineBasicBlock.h"
 #include "llvm/CodeGen/MachineConstantPool.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
@@ -334,7 +335,11 @@ bool XtensaInstrInfo::analyzeBranch(MachineBasicBlock &MBB,
   }
 
   MachineInstr &LastMI = *I;
-  if (I == MBB.begin() || !isUnpredicatedTerminator(*--I)) {
+  if (I != MBB.begin()) {
+    I = prev_nodbg(I, MBB.begin());
+  }
+
+  if (I == MBB.begin() || !isUnpredicatedTerminator(*I)) {
     // The block has only one terminator, analyze it now.
     unsigned Opcode = LastMI.getOpcode();
 
@@ -348,6 +353,12 @@ bool XtensaInstrInfo::analyzeBranch(MachineBasicBlock &MBB,
       return false;
     }
 
+    return true;
+  }
+
+  if (I != MBB.begin() && prev_nodbg(I, MBB.begin())->isTerminator()) {
+    // There are more terminators before us, we're not really sure what's going
+    // on in this block.
     return true;
   }
 
@@ -411,12 +422,8 @@ unsigned XtensaInstrInfo::removeBranch(MachineBasicBlock &MBB,
   unsigned InstrCount = 1;
 
   I->eraseFromParent();
-  // Note: we use `end` here to ensure symmetry with `analyzeBranch`, which
-  // doesn't skip intervening debug instructions.
-  I = MBB.end();
-
-  if (I != MBB.begin()) {
-    --I;
+  I = MBB.getLastNonDebugInstr();
+  if (I != MBB.end()) {
     if (isCondBranchOpcode(I->getOpcode())) {
       I->eraseFromParent();
       InstrCount++;
