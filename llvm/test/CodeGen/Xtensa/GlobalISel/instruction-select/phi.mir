@@ -150,8 +150,7 @@ body:             |
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gpr = COPY $a3
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gpr = COPY $a4
-  ; CHECK-NEXT:   [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 0, 1
-  ; CHECK-NEXT:   BNEZ [[EXTUI]], %bb.2
+  ; CHECK-NEXT:   BBSI [[COPY]], 0, %bb.2
   ; CHECK-NEXT:   J %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:
@@ -255,8 +254,7 @@ body:             |
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gpr = COPY $a3
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gpr = COPY $a4
-  ; CHECK-NEXT:   [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 0, 1
-  ; CHECK-NEXT:   BNEZ [[EXTUI]], %bb.2
+  ; CHECK-NEXT:   BBSI [[COPY]], 0, %bb.2
   ; CHECK-NEXT:   J %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:
@@ -360,8 +358,7 @@ body:             |
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gpr = COPY $a3
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gpr = COPY $a4
-  ; CHECK-NEXT:   [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 0, 1
-  ; CHECK-NEXT:   BNEZ [[EXTUI]], %bb.2
+  ; CHECK-NEXT:   BBSI [[COPY]], 0, %bb.2
   ; CHECK-NEXT:   J %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:
@@ -459,8 +456,7 @@ body:             |
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gpr = COPY $a3
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gpr = COPY $a4
-  ; CHECK-NEXT:   [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 0, 1
-  ; CHECK-NEXT:   BNEZ [[EXTUI]], %bb.2
+  ; CHECK-NEXT:   BBSI [[COPY]], 0, %bb.2
   ; CHECK-NEXT:   J %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:
@@ -574,8 +570,7 @@ body:             |
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gpr = COPY $a5
   ; CHECK-NEXT:   [[COPY3:%[0-9]+]]:gpr = COPY $a6
   ; CHECK-NEXT:   [[COPY4:%[0-9]+]]:gpr = COPY $a7
-  ; CHECK-NEXT:   [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 0, 1
-  ; CHECK-NEXT:   BNEZ [[EXTUI]], %bb.2
+  ; CHECK-NEXT:   BBSI [[COPY]], 0, %bb.2
   ; CHECK-NEXT:   J %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:
@@ -679,8 +674,7 @@ body:             |
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $a2
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:gpr = COPY $a3
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:gpr = COPY $a4
-  ; CHECK-NEXT:   [[EXTUI:%[0-9]+]]:gpr = EXTUI [[COPY]], 0, 1
-  ; CHECK-NEXT:   BNEZ [[EXTUI]], %bb.2
+  ; CHECK-NEXT:   BBSI [[COPY]], 0, %bb.2
   ; CHECK-NEXT:   J %bb.1
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT: bb.1.cond.false:

@@ -7,8 +7,7 @@ define i1 @phi_i1(i1 %cnd, i1 %a, i1 %b) {
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    mov.n a5, a2
 ; OPT-NEXT:    mov.n a2, a3
-; OPT-NEXT:    extui a3, a5, 0, 1
-; OPT-NEXT:    bnez a3, .LBB0_2
+; OPT-NEXT:    bbsi a5, 0, .LBB0_2
 ; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:  .LBB0_2: # %cond.end
@@ -19,8 +18,7 @@ define i1 @phi_i1(i1 %cnd, i1 %a, i1 %b) {
 ; UNOPT-NEXT:    addi a1, a1, -12
 ; UNOPT-NEXT:    s32i.n a3, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    s32i.n a4, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    extui a2, a2, 0, 1
-; UNOPT-NEXT:    bnez a2, .LBB0_2
+; UNOPT-NEXT:    bbsi a2, 0, .LBB0_2
 ; UNOPT-NEXT:    j .LBB0_3
 ; UNOPT-NEXT:  .LBB0_2: # %cond.true
 ; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
@@ -53,8 +51,7 @@ define i8 @phi_i8(i1 %cnd, i8 %a, i8 %b) {
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    mov.n a5, a2
 ; OPT-NEXT:    mov.n a2, a3
-; OPT-NEXT:    extui a3, a5, 0, 1
-; OPT-NEXT:    bnez a3, .LBB1_2
+; OPT-NEXT:    bbsi a5, 0, .LBB1_2
 ; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:  .LBB1_2: # %cond.end
@@ -65,8 +62,7 @@ define i8 @phi_i8(i1 %cnd, i8 %a, i8 %b) {
 ; UNOPT-NEXT:    addi a1, a1, -12
 ; UNOPT-NEXT:    s32i.n a3, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    s32i.n a4, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    extui a2, a2, 0, 1
-; UNOPT-NEXT:    bnez a2, .LBB1_2
+; UNOPT-NEXT:    bbsi a2, 0, .LBB1_2
 ; UNOPT-NEXT:    j .LBB1_3
 ; UNOPT-NEXT:  .LBB1_2: # %cond.true
 ; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
@@ -99,8 +95,7 @@ define i16 @phi_i16(i1 %cnd, i16 %a, i16 %b) {
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    mov.n a5, a2
 ; OPT-NEXT:    mov.n a2, a3
-; OPT-NEXT:    extui a3, a5, 0, 1
-; OPT-NEXT:    bnez a3, .LBB2_2
+; OPT-NEXT:    bbsi a5, 0, .LBB2_2
 ; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:  .LBB2_2: # %cond.end
@@ -111,8 +106,7 @@ define i16 @phi_i16(i1 %cnd, i16 %a, i16 %b) {
 ; UNOPT-NEXT:    addi a1, a1, -12
 ; UNOPT-NEXT:    s32i.n a3, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    s32i.n a4, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    extui a2, a2, 0, 1
-; UNOPT-NEXT:    bnez a2, .LBB2_2
+; UNOPT-NEXT:    bbsi a2, 0, .LBB2_2
 ; UNOPT-NEXT:    j .LBB2_3
 ; UNOPT-NEXT:  .LBB2_2: # %cond.true
 ; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
@@ -145,8 +139,7 @@ define i32 @phi_i32(i1 %cnd, i32 %a, i32 %b) {
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    mov.n a5, a2
 ; OPT-NEXT:    mov.n a2, a3
-; OPT-NEXT:    extui a3, a5, 0, 1
-; OPT-NEXT:    bnez a3, .LBB3_2
+; OPT-NEXT:    bbsi a5, 0, .LBB3_2
 ; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:  .LBB3_2: # %cond.end
@@ -157,8 +150,7 @@ define i32 @phi_i32(i1 %cnd, i32 %a, i32 %b) {
 ; UNOPT-NEXT:    addi a1, a1, -12
 ; UNOPT-NEXT:    s32i.n a3, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    s32i.n a4, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    extui a2, a2, 0, 1
-; UNOPT-NEXT:    bnez a2, .LBB3_2
+; UNOPT-NEXT:    bbsi a2, 0, .LBB3_2
 ; UNOPT-NEXT:    j .LBB3_3
 ; UNOPT-NEXT:  .LBB3_2: # %cond.true
 ; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
@@ -192,8 +184,7 @@ define i64 @phi_i64(i1 %cnd, i64 %a, i64 %b) {
 ; OPT-NEXT:    mov.n a8, a2
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    mov.n a3, a5
-; OPT-NEXT:    extui a4, a8, 0, 1
-; OPT-NEXT:    bnez a4, .LBB4_2
+; OPT-NEXT:    bbsi a8, 0, .LBB4_2
 ; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a6
 ; OPT-NEXT:    mov.n a3, a7
@@ -207,8 +198,7 @@ define i64 @phi_i64(i1 %cnd, i64 %a, i64 %b) {
 ; UNOPT-NEXT:    s32i.n a5, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    s32i.n a6, a1, 16 # 4-byte Spill
 ; UNOPT-NEXT:    s32i.n a7, a1, 20 # 4-byte Spill
-; UNOPT-NEXT:    extui a2, a2, 0, 1
-; UNOPT-NEXT:    bnez a2, .LBB4_2
+; UNOPT-NEXT:    bbsi a2, 0, .LBB4_2
 ; UNOPT-NEXT:    j .LBB4_3
 ; UNOPT-NEXT:  .LBB4_2: # %cond.true
 ; UNOPT-NEXT:    l32i.n a2, a1, 12 # 4-byte Reload
@@ -246,8 +236,7 @@ define ptr @phi_ptr(i1 %cnd, ptr %a, ptr %b) {
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    mov.n a5, a2
 ; OPT-NEXT:    mov.n a2, a3
-; OPT-NEXT:    extui a3, a5, 0, 1
-; OPT-NEXT:    bnez a3, .LBB5_2
+; OPT-NEXT:    bbsi a5, 0, .LBB5_2
 ; OPT-NEXT:  # %bb.1: # %cond.false
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:  .LBB5_2: # %cond.end
@@ -258,8 +247,7 @@ define ptr @phi_ptr(i1 %cnd, ptr %a, ptr %b) {
 ; UNOPT-NEXT:    addi a1, a1, -12
 ; UNOPT-NEXT:    s32i.n a3, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    s32i.n a4, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    extui a2, a2, 0, 1
-; UNOPT-NEXT:    bnez a2, .LBB5_2
+; UNOPT-NEXT:    bbsi a2, 0, .LBB5_2
 ; UNOPT-NEXT:    j .LBB5_3
 ; UNOPT-NEXT:  .LBB5_2: # %cond.true
 ; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
