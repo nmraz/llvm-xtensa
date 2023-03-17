@@ -7,6 +7,7 @@
 #include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/TargetFrameLowering.h"
 #include "llvm/IR/DebugLoc.h"
+#include "llvm/Support/Alignment.h"
 #include "llvm/Support/Debug.h"
 #include <cassert>
 #include <cstdint>
@@ -24,7 +25,7 @@ static void adjustStackPointer(const XtensaInstrInfo &TII, MachineInstr &I,
 }
 
 XtensaFrameLowering::XtensaFrameLowering(const XtensaSubtarget &STI)
-    : TargetFrameLowering(StackGrowsDown, Align(16), 0), STI(STI) {}
+    : TargetFrameLowering(StackGrowsDown, Align(16), 0, Align(16)), STI(STI) {}
 
 void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
                                        MachineBasicBlock &MBB) const {

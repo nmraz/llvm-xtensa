@@ -5,18 +5,18 @@
 define i8 @alloca_i8(i8 %val) {
 ; OPT-LABEL: alloca_i8:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    addi a1, a1, -1
-; OPT-NEXT:    s8i a2, a1, 0
-; OPT-NEXT:    l8ui a2, a1, 0
-; OPT-NEXT:    addi a1, a1, 1
+; OPT-NEXT:    addi a1, a1, -16
+; OPT-NEXT:    s8i a2, a1, 15
+; OPT-NEXT:    l8ui a2, a1, 15
+; OPT-NEXT:    addi a1, a1, 16
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: alloca_i8:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addi a1, a1, -1
-; UNOPT-NEXT:    s8i a2, a1, 0
-; UNOPT-NEXT:    l8ui a2, a1, 0
-; UNOPT-NEXT:    addi a1, a1, 1
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s8i a2, a1, 15
+; UNOPT-NEXT:    l8ui a2, a1, 15
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
   %p = alloca i8
   store i8 %val, ptr %p
@@ -27,18 +27,18 @@ define i8 @alloca_i8(i8 %val) {
 define i16 @alloca_i16(i16 %val) {
 ; OPT-LABEL: alloca_i16:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    addi a1, a1, -2
-; OPT-NEXT:    s16i a2, a1, 0
-; OPT-NEXT:    l16ui a2, a1, 0
-; OPT-NEXT:    addi a1, a1, 2
+; OPT-NEXT:    addi a1, a1, -16
+; OPT-NEXT:    s16i a2, a1, 14
+; OPT-NEXT:    l16ui a2, a1, 14
+; OPT-NEXT:    addi a1, a1, 16
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: alloca_i16:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addi a1, a1, -2
-; UNOPT-NEXT:    s16i a2, a1, 0
-; UNOPT-NEXT:    l16ui a2, a1, 0
-; UNOPT-NEXT:    addi a1, a1, 2
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s16i a2, a1, 14
+; UNOPT-NEXT:    l16ui a2, a1, 14
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
   %p = alloca i16
   store i16 %val, ptr %p
@@ -49,18 +49,18 @@ define i16 @alloca_i16(i16 %val) {
 define i32 @alloca_i32(i32 %val) {
 ; OPT-LABEL: alloca_i32:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    addi a1, a1, -4
-; OPT-NEXT:    s32i.n a2, a1, 0
-; OPT-NEXT:    l32i.n a2, a1, 0
-; OPT-NEXT:    addi a1, a1, 4
+; OPT-NEXT:    addi a1, a1, -16
+; OPT-NEXT:    s32i.n a2, a1, 12
+; OPT-NEXT:    l32i.n a2, a1, 12
+; OPT-NEXT:    addi a1, a1, 16
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: alloca_i32:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i.n a2, a1, 0
-; UNOPT-NEXT:    l32i.n a2, a1, 0
-; UNOPT-NEXT:    addi a1, a1, 4
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 12
+; UNOPT-NEXT:    l32i.n a2, a1, 12
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
   %p = alloca i32
   store i32 %val, ptr %p
@@ -71,22 +71,22 @@ define i32 @alloca_i32(i32 %val) {
 define i64 @alloca_i64(i64 %val) {
 ; OPT-LABEL: alloca_i64:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    addi a1, a1, -8
-; OPT-NEXT:    s32i.n a2, a1, 0
-; OPT-NEXT:    s32i.n a3, a1, 4
-; OPT-NEXT:    l32i.n a2, a1, 0
-; OPT-NEXT:    l32i.n a3, a1, 4
-; OPT-NEXT:    addi a1, a1, 8
+; OPT-NEXT:    addi a1, a1, -16
+; OPT-NEXT:    s32i.n a2, a1, 8
+; OPT-NEXT:    s32i.n a3, a1, 12
+; OPT-NEXT:    l32i.n a2, a1, 8
+; OPT-NEXT:    l32i.n a3, a1, 12
+; OPT-NEXT:    addi a1, a1, 16
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: alloca_i64:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addi a1, a1, -8
-; UNOPT-NEXT:    s32i.n a2, a1, 0
-; UNOPT-NEXT:    s32i.n a3, a1, 4
-; UNOPT-NEXT:    l32i.n a2, a1, 0
-; UNOPT-NEXT:    l32i.n a3, a1, 4
-; UNOPT-NEXT:    addi a1, a1, 8
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 8
+; UNOPT-NEXT:    s32i.n a3, a1, 12
+; UNOPT-NEXT:    l32i.n a2, a1, 8
+; UNOPT-NEXT:    l32i.n a3, a1, 12
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
   %p = alloca i64
   store i64 %val, ptr %p

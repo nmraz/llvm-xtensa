@@ -15,22 +15,22 @@ define i1 @phi_i1(i1 %cnd, i1 %a, i1 %b) {
 ;
 ; UNOPT-LABEL: phi_i1:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -12
-; UNOPT-NEXT:    s32i.n a3, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a4, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a4, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    bbsi a2, 0, .LBB0_2
 ; UNOPT-NEXT:    j .LBB0_3
 ; UNOPT-NEXT:  .LBB0_2: # %cond.true
-; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    l32i.n a2, a1, 8 # 4-byte Reload
+; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    j .LBB0_4
 ; UNOPT-NEXT:  .LBB0_3: # %cond.false
-; UNOPT-NEXT:    l32i.n a2, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    l32i.n a2, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    j .LBB0_4
 ; UNOPT-NEXT:  .LBB0_4: # %cond.end
-; UNOPT-NEXT:    l32i.n a2, a1, 0 # 4-byte Reload
-; UNOPT-NEXT:    addi a1, a1, 12
+; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 entry:
   br i1 %cnd, label %cond.true, label %cond.false
@@ -59,22 +59,22 @@ define i8 @phi_i8(i1 %cnd, i8 %a, i8 %b) {
 ;
 ; UNOPT-LABEL: phi_i8:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -12
-; UNOPT-NEXT:    s32i.n a3, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a4, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a4, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    bbsi a2, 0, .LBB1_2
 ; UNOPT-NEXT:    j .LBB1_3
 ; UNOPT-NEXT:  .LBB1_2: # %cond.true
-; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    l32i.n a2, a1, 8 # 4-byte Reload
+; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    j .LBB1_4
 ; UNOPT-NEXT:  .LBB1_3: # %cond.false
-; UNOPT-NEXT:    l32i.n a2, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    l32i.n a2, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    j .LBB1_4
 ; UNOPT-NEXT:  .LBB1_4: # %cond.end
-; UNOPT-NEXT:    l32i.n a2, a1, 0 # 4-byte Reload
-; UNOPT-NEXT:    addi a1, a1, 12
+; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 entry:
   br i1 %cnd, label %cond.true, label %cond.false
@@ -103,22 +103,22 @@ define i16 @phi_i16(i1 %cnd, i16 %a, i16 %b) {
 ;
 ; UNOPT-LABEL: phi_i16:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -12
-; UNOPT-NEXT:    s32i.n a3, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a4, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a4, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    bbsi a2, 0, .LBB2_2
 ; UNOPT-NEXT:    j .LBB2_3
 ; UNOPT-NEXT:  .LBB2_2: # %cond.true
-; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    l32i.n a2, a1, 8 # 4-byte Reload
+; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    j .LBB2_4
 ; UNOPT-NEXT:  .LBB2_3: # %cond.false
-; UNOPT-NEXT:    l32i.n a2, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    l32i.n a2, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    j .LBB2_4
 ; UNOPT-NEXT:  .LBB2_4: # %cond.end
-; UNOPT-NEXT:    l32i.n a2, a1, 0 # 4-byte Reload
-; UNOPT-NEXT:    addi a1, a1, 12
+; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 entry:
   br i1 %cnd, label %cond.true, label %cond.false
@@ -147,22 +147,22 @@ define i32 @phi_i32(i1 %cnd, i32 %a, i32 %b) {
 ;
 ; UNOPT-LABEL: phi_i32:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -12
-; UNOPT-NEXT:    s32i.n a3, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a4, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a4, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    bbsi a2, 0, .LBB3_2
 ; UNOPT-NEXT:    j .LBB3_3
 ; UNOPT-NEXT:  .LBB3_2: # %cond.true
-; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    l32i.n a2, a1, 8 # 4-byte Reload
+; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    j .LBB3_4
 ; UNOPT-NEXT:  .LBB3_3: # %cond.false
-; UNOPT-NEXT:    l32i.n a2, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    l32i.n a2, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    j .LBB3_4
 ; UNOPT-NEXT:  .LBB3_4: # %cond.end
-; UNOPT-NEXT:    l32i.n a2, a1, 0 # 4-byte Reload
-; UNOPT-NEXT:    addi a1, a1, 12
+; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 entry:
   br i1 %cnd, label %cond.true, label %cond.false
@@ -193,29 +193,29 @@ define i64 @phi_i64(i1 %cnd, i64 %a, i64 %b) {
 ;
 ; UNOPT-LABEL: phi_i64:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -24
-; UNOPT-NEXT:    s32i.n a4, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a5, a1, 12 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a6, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a7, a1, 20 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -32
+; UNOPT-NEXT:    s32i.n a4, a1, 16 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a5, a1, 20 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a6, a1, 24 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a7, a1, 28 # 4-byte Spill
 ; UNOPT-NEXT:    bbsi a2, 0, .LBB4_2
 ; UNOPT-NEXT:    j .LBB4_3
 ; UNOPT-NEXT:  .LBB4_2: # %cond.true
-; UNOPT-NEXT:    l32i.n a2, a1, 12 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a3, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a3, a1, 0 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    j .LBB4_4
-; UNOPT-NEXT:  .LBB4_3: # %cond.false
 ; UNOPT-NEXT:    l32i.n a2, a1, 20 # 4-byte Reload
 ; UNOPT-NEXT:    l32i.n a3, a1, 16 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a3, a1, 0 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
+; UNOPT-NEXT:    j .LBB4_4
+; UNOPT-NEXT:  .LBB4_3: # %cond.false
+; UNOPT-NEXT:    l32i.n a2, a1, 28 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 24 # 4-byte Reload
+; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    j .LBB4_4
 ; UNOPT-NEXT:  .LBB4_4: # %cond.end
-; UNOPT-NEXT:    l32i.n a2, a1, 0 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a3, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    addi a1, a1, 24
+; UNOPT-NEXT:    l32i.n a2, a1, 8 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    addi a1, a1, 32
 ; UNOPT-NEXT:    ret.n
 entry:
   br i1 %cnd, label %cond.true, label %cond.false
@@ -244,22 +244,22 @@ define ptr @phi_ptr(i1 %cnd, ptr %a, ptr %b) {
 ;
 ; UNOPT-LABEL: phi_ptr:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -12
-; UNOPT-NEXT:    s32i.n a3, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a4, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a4, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    bbsi a2, 0, .LBB5_2
 ; UNOPT-NEXT:    j .LBB5_3
 ; UNOPT-NEXT:  .LBB5_2: # %cond.true
-; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    l32i.n a2, a1, 8 # 4-byte Reload
+; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    j .LBB5_4
 ; UNOPT-NEXT:  .LBB5_3: # %cond.false
-; UNOPT-NEXT:    l32i.n a2, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    l32i.n a2, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    j .LBB5_4
 ; UNOPT-NEXT:  .LBB5_4: # %cond.end
-; UNOPT-NEXT:    l32i.n a2, a1, 0 # 4-byte Reload
-; UNOPT-NEXT:    addi a1, a1, 12
+; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 entry:
   br i1 %cnd, label %cond.true, label %cond.false

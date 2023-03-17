@@ -43,15 +43,15 @@ define void @store_i16_unaligned_1(ptr %p, i16 %val) {
 ;
 ; UNOPT-LABEL: store_i16_unaligned_1:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a4, a3
-; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
 ; UNOPT-NEXT:    extui a2, a4, 0, 16
 ; UNOPT-NEXT:    srli a2, a2, 8
 ; UNOPT-NEXT:    s8i a4, a3, 0
 ; UNOPT-NEXT:    s8i a2, a3, 1
-; UNOPT-NEXT:    addi a1, a1, 4
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 entry:
   store i16 %val, ptr %p, align 1
@@ -116,14 +116,14 @@ define void @store_i32_unaligned_2(ptr %p, i32 %val) {
 ;
 ; UNOPT-LABEL: store_i32_unaligned_2:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a4, a3
-; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
 ; UNOPT-NEXT:    extui a2, a4, 16, 16
 ; UNOPT-NEXT:    s16i a4, a3, 0
 ; UNOPT-NEXT:    s16i a2, a3, 2
-; UNOPT-NEXT:    addi a1, a1, 4
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 entry:
   store i32 %val, ptr %p, align 2
@@ -213,10 +213,10 @@ define void @store_i64_unaligned_2(ptr %p, i64 %val) {
 ;
 ; UNOPT-LABEL: store_i64_unaligned_2:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a3, a4
-; UNOPT-NEXT:    l32i.n a4, a1, 0 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a4, a1, 12 # 4-byte Reload
 ; UNOPT-NEXT:    extui a2, a3, 16, 16
 ; UNOPT-NEXT:    s16i a3, a4, 0
 ; UNOPT-NEXT:    s16i a2, a4, 2
@@ -224,7 +224,7 @@ define void @store_i64_unaligned_2(ptr %p, i64 %val) {
 ; UNOPT-NEXT:    extui a2, a5, 16, 16
 ; UNOPT-NEXT:    s16i a5, a4, 4
 ; UNOPT-NEXT:    s16i a2, a3, 2
-; UNOPT-NEXT:    addi a1, a1, 4
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 entry:
   store i64 %val, ptr %p, align 2
@@ -306,14 +306,14 @@ define void @store_ptr_unaligned_2(ptr %p, ptr %val) {
 ;
 ; UNOPT-LABEL: store_ptr_unaligned_2:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -4
-; UNOPT-NEXT:    s32i.n a2, a1, 0 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a4, a3
-; UNOPT-NEXT:    l32i.n a3, a1, 0 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
 ; UNOPT-NEXT:    extui a2, a4, 16, 16
 ; UNOPT-NEXT:    s16i a4, a3, 0
 ; UNOPT-NEXT:    s16i a2, a3, 2
-; UNOPT-NEXT:    addi a1, a1, 4
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 entry:
   store ptr %val, ptr %p, align 2
