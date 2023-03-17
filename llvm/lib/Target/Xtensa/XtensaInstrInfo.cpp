@@ -165,6 +165,11 @@ static Optional<unsigned> getReversedBranchOpcode(unsigned Opcode) {
   return None;
 }
 
+static bool isPrecededByTerminator(MachineBasicBlock::iterator I,
+                                   MachineBasicBlock::iterator Begin) {
+  return I != Begin && prev_nodbg(I, Begin)->isTerminator();
+}
+
 XtensaInstrInfo::XtensaInstrInfo(XtensaSubtarget &ST)
     : XtensaGenInstrInfo(Xtensa::ADJCALLSTACKDOWN, Xtensa::ADJCALLSTACKUP),
       Subtarget(ST) {}
@@ -337,9 +342,16 @@ bool XtensaInstrInfo::analyzeBranch(MachineBasicBlock &MBB,
   MachineInstr &LastMI = *I;
   if (I != MBB.begin()) {
     I = prev_nodbg(I, MBB.begin());
+
+    // If `I` is still not pointing to the last terminator in the block, we
+    // don't really know what's going on.
+    if (isPrecededByTerminator(I, MBB.begin())) {
+      return true;
+    }
   }
 
-  if (I == MBB.begin() || !isUnpredicatedTerminator(*I)) {
+  MachineInstr &SecondLastMI = *I;
+  if (I == MBB.begin() || !isUnpredicatedTerminator(SecondLastMI)) {
     // The block has only one terminator, analyze it now.
     unsigned Opcode = LastMI.getOpcode();
 
@@ -355,14 +367,6 @@ bool XtensaInstrInfo::analyzeBranch(MachineBasicBlock &MBB,
 
     return true;
   }
-
-  if (I != MBB.begin() && prev_nodbg(I, MBB.begin())->isTerminator()) {
-    // There are more terminators before us, we're not really sure what's going
-    // on in this block.
-    return true;
-  }
-
-  MachineInstr &SecondLastMI = *I;
 
   if (!isUncondBranchOpcode(LastMI.getOpcode())) {
     return true;
