@@ -106,10 +106,6 @@ registers:
   - { id: 6, class: gprb, preferred-register: '' }
   - { id: 7, class: gprb, preferred-register: '' }
   - { id: 8, class: gprb, preferred-register: '' }
-  - { id: 9, class: gprb, preferred-register: '' }
-  - { id: 10, class: gprb, preferred-register: '' }
-  - { id: 11, class: gprb, preferred-register: '' }
-  - { id: 12, class: gprb, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
   - { reg: '$a3', virtual-reg: '' }
@@ -141,7 +137,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: sdiv_i8
@@ -158,12 +154,8 @@ body:             |
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:gprb(s32) = COPY $a2
     %3:gprb(s32) = COPY $a3
-    %10:gprb(s32) = G_CONSTANT i32 24
-    %9:gprb(s32) = G_SHL %2, %10(s32)
-    %6:gprb(s32) = G_ASHR %9, %10(s32)
-    %12:gprb(s32) = G_CONSTANT i32 24
-    %11:gprb(s32) = G_SHL %3, %12(s32)
-    %7:gprb(s32) = G_ASHR %11, %12(s32)
+    %6:gprb(s32) = G_SEXT_INREG %2, 8
+    %7:gprb(s32) = G_SEXT_INREG %3, 8
     %8:gprb(s32) = G_SDIV %6, %7
     $a2 = COPY %8(s32)
     RETN implicit $a0, implicit $a2
@@ -229,7 +221,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: udiv_i8
@@ -280,10 +272,6 @@ registers:
   - { id: 6, class: gprb, preferred-register: '' }
   - { id: 7, class: gprb, preferred-register: '' }
   - { id: 8, class: gprb, preferred-register: '' }
-  - { id: 9, class: gprb, preferred-register: '' }
-  - { id: 10, class: gprb, preferred-register: '' }
-  - { id: 11, class: gprb, preferred-register: '' }
-  - { id: 12, class: gprb, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
   - { reg: '$a3', virtual-reg: '' }
@@ -315,7 +303,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: srem_i8
@@ -332,12 +320,8 @@ body:             |
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:gprb(s32) = COPY $a2
     %3:gprb(s32) = COPY $a3
-    %10:gprb(s32) = G_CONSTANT i32 24
-    %9:gprb(s32) = G_SHL %2, %10(s32)
-    %6:gprb(s32) = G_ASHR %9, %10(s32)
-    %12:gprb(s32) = G_CONSTANT i32 24
-    %11:gprb(s32) = G_SHL %3, %12(s32)
-    %7:gprb(s32) = G_ASHR %11, %12(s32)
+    %6:gprb(s32) = G_SEXT_INREG %2, 8
+    %7:gprb(s32) = G_SEXT_INREG %3, 8
     %8:gprb(s32) = G_SREM %6, %7
     $a2 = COPY %8(s32)
     RETN implicit $a0, implicit $a2
@@ -403,7 +387,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: urem_i8
@@ -454,10 +438,6 @@ registers:
   - { id: 6, class: gprb, preferred-register: '' }
   - { id: 7, class: gprb, preferred-register: '' }
   - { id: 8, class: gprb, preferred-register: '' }
-  - { id: 9, class: gprb, preferred-register: '' }
-  - { id: 10, class: gprb, preferred-register: '' }
-  - { id: 11, class: gprb, preferred-register: '' }
-  - { id: 12, class: gprb, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
   - { reg: '$a3', virtual-reg: '' }
@@ -489,7 +469,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: sdiv_i16
@@ -506,12 +486,8 @@ body:             |
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:gprb(s32) = COPY $a2
     %3:gprb(s32) = COPY $a3
-    %10:gprb(s32) = G_CONSTANT i32 16
-    %9:gprb(s32) = G_SHL %2, %10(s32)
-    %6:gprb(s32) = G_ASHR %9, %10(s32)
-    %12:gprb(s32) = G_CONSTANT i32 16
-    %11:gprb(s32) = G_SHL %3, %12(s32)
-    %7:gprb(s32) = G_ASHR %11, %12(s32)
+    %6:gprb(s32) = G_SEXT_INREG %2, 16
+    %7:gprb(s32) = G_SEXT_INREG %3, 16
     %8:gprb(s32) = G_SDIV %6, %7
     $a2 = COPY %8(s32)
     RETN implicit $a0, implicit $a2
@@ -577,7 +553,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: udiv_i16
@@ -628,10 +604,6 @@ registers:
   - { id: 6, class: gprb, preferred-register: '' }
   - { id: 7, class: gprb, preferred-register: '' }
   - { id: 8, class: gprb, preferred-register: '' }
-  - { id: 9, class: gprb, preferred-register: '' }
-  - { id: 10, class: gprb, preferred-register: '' }
-  - { id: 11, class: gprb, preferred-register: '' }
-  - { id: 12, class: gprb, preferred-register: '' }
 liveins:
   - { reg: '$a2', virtual-reg: '' }
   - { reg: '$a3', virtual-reg: '' }
@@ -663,7 +635,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: srem_i16
@@ -680,12 +652,8 @@ body:             |
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:gprb(s32) = COPY $a2
     %3:gprb(s32) = COPY $a3
-    %10:gprb(s32) = G_CONSTANT i32 16
-    %9:gprb(s32) = G_SHL %2, %10(s32)
-    %6:gprb(s32) = G_ASHR %9, %10(s32)
-    %12:gprb(s32) = G_CONSTANT i32 16
-    %11:gprb(s32) = G_SHL %3, %12(s32)
-    %7:gprb(s32) = G_ASHR %11, %12(s32)
+    %6:gprb(s32) = G_SEXT_INREG %2, 16
+    %7:gprb(s32) = G_SEXT_INREG %3, 16
     %8:gprb(s32) = G_SREM %6, %7
     $a2 = COPY %8(s32)
     RETN implicit $a0, implicit $a2
@@ -751,7 +719,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: urem_i16
@@ -827,7 +795,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: sdiv_i32
@@ -897,7 +865,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: udiv_i32
@@ -967,7 +935,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: srem_i32
@@ -1037,7 +1005,7 @@ debugValueSubstitutions: []
 constants:       []
 machineFunctionInfo: {}
 body:             |
-  bb.0.entry:
+  bb.1.entry:
     liveins: $a2, $a3
 
     ; CHECK-LABEL: name: urem_i32

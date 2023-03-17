@@ -107,6 +107,7 @@ private:
                               int64_t Offset);
 
   bool selectLate(MachineInstr &I);
+  bool selectSextInreg(MachineInstr &I);
   bool selectLoadStore(MachineInstr &I);
 
   const XtensaInstrInfo &TII;
@@ -629,6 +630,8 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
     I.eraseFromParent();
     return true;
   }
+  case Xtensa::G_SEXT_INREG:
+    return selectSextInreg(I);
   case Xtensa::G_LOAD:
   case Xtensa::G_SEXTLOAD:
   case Xtensa::G_ZEXTLOAD:
@@ -649,6 +652,29 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
   }
 
   return false;
+}
+
+bool XtensaInstructionSelector::selectSextInreg(MachineInstr &I) {
+  unsigned ShiftAmount = 32 - I.getOperand(2).getImm();
+  Register TempReg = createVirtualGPR();
+
+  MachineInstr *SLLI = emitInstrFor(I, Xtensa::SLLI)
+                           .addDef(TempReg)
+                           .add(I.getOperand(1))
+                           .addImm(ShiftAmount);
+  if (!constrainSelectedInstRegOperands(*SLLI, TII, TRI, RBI)) {
+    return false;
+  }
+  MachineInstr *SRAI = emitInstrFor(I, Xtensa::SRAI)
+                           .add(I.getOperand(0))
+                           .addReg(TempReg)
+                           .addImm(ShiftAmount);
+  if (!constrainSelectedInstRegOperands(*SRAI, TII, TRI, RBI)) {
+    return false;
+  }
+
+  I.eraseFromParent();
+  return true;
 }
 
 bool XtensaInstructionSelector::selectLoadStore(MachineInstr &I) {

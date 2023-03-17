@@ -96,9 +96,7 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .clampScalar(0, S32, S32)
       .clampScalar(1, S32, S32);
 
-  // TODO: there is a `sext` instruction in the miscellaneous instruction option
-  // that does exactly this.
-  getActionDefinitionsBuilder(G_SEXT_INREG).lower();
+  getActionDefinitionsBuilder(G_SEXT_INREG).legalFor({S32}).lower();
 
   getActionDefinitionsBuilder({G_LOAD, G_ZEXTLOAD})
       .legalForTypesWithMemDesc({

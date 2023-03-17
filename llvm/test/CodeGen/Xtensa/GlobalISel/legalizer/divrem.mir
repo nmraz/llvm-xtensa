@@ -166,13 +166,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(s32) = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
-    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 24
-    ; CHECK-NEXT: [[SHL:%[0-9]+]]:_(s32) = G_SHL [[COPY]], [[C]](s32)
-    ; CHECK-NEXT: [[ASHR:%[0-9]+]]:_(s32) = G_ASHR [[SHL]], [[C]](s32)
-    ; CHECK-NEXT: [[C1:%[0-9]+]]:_(s32) = G_CONSTANT i32 24
-    ; CHECK-NEXT: [[SHL1:%[0-9]+]]:_(s32) = G_SHL [[COPY1]], [[C1]](s32)
-    ; CHECK-NEXT: [[ASHR1:%[0-9]+]]:_(s32) = G_ASHR [[SHL1]], [[C1]](s32)
-    ; CHECK-NEXT: [[SDIV:%[0-9]+]]:_(s32) = G_SDIV [[ASHR]], [[ASHR1]]
+    ; CHECK-NEXT: [[SEXT_INREG:%[0-9]+]]:_(s32) = G_SEXT_INREG [[COPY]], 8
+    ; CHECK-NEXT: [[SEXT_INREG1:%[0-9]+]]:_(s32) = G_SEXT_INREG [[COPY1]], 8
+    ; CHECK-NEXT: [[SDIV:%[0-9]+]]:_(s32) = G_SDIV [[SEXT_INREG]], [[SEXT_INREG1]]
     ; CHECK-NEXT: $a2 = COPY [[SDIV]](s32)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:_(s32) = COPY $a2
@@ -328,13 +324,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(s32) = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
-    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 24
-    ; CHECK-NEXT: [[SHL:%[0-9]+]]:_(s32) = G_SHL [[COPY]], [[C]](s32)
-    ; CHECK-NEXT: [[ASHR:%[0-9]+]]:_(s32) = G_ASHR [[SHL]], [[C]](s32)
-    ; CHECK-NEXT: [[C1:%[0-9]+]]:_(s32) = G_CONSTANT i32 24
-    ; CHECK-NEXT: [[SHL1:%[0-9]+]]:_(s32) = G_SHL [[COPY1]], [[C1]](s32)
-    ; CHECK-NEXT: [[ASHR1:%[0-9]+]]:_(s32) = G_ASHR [[SHL1]], [[C1]](s32)
-    ; CHECK-NEXT: [[SREM:%[0-9]+]]:_(s32) = G_SREM [[ASHR]], [[ASHR1]]
+    ; CHECK-NEXT: [[SEXT_INREG:%[0-9]+]]:_(s32) = G_SEXT_INREG [[COPY]], 8
+    ; CHECK-NEXT: [[SEXT_INREG1:%[0-9]+]]:_(s32) = G_SEXT_INREG [[COPY1]], 8
+    ; CHECK-NEXT: [[SREM:%[0-9]+]]:_(s32) = G_SREM [[SEXT_INREG]], [[SEXT_INREG1]]
     ; CHECK-NEXT: $a2 = COPY [[SREM]](s32)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:_(s32) = COPY $a2
@@ -490,13 +482,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(s32) = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
-    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 16
-    ; CHECK-NEXT: [[SHL:%[0-9]+]]:_(s32) = G_SHL [[COPY]], [[C]](s32)
-    ; CHECK-NEXT: [[ASHR:%[0-9]+]]:_(s32) = G_ASHR [[SHL]], [[C]](s32)
-    ; CHECK-NEXT: [[C1:%[0-9]+]]:_(s32) = G_CONSTANT i32 16
-    ; CHECK-NEXT: [[SHL1:%[0-9]+]]:_(s32) = G_SHL [[COPY1]], [[C1]](s32)
-    ; CHECK-NEXT: [[ASHR1:%[0-9]+]]:_(s32) = G_ASHR [[SHL1]], [[C1]](s32)
-    ; CHECK-NEXT: [[SDIV:%[0-9]+]]:_(s32) = G_SDIV [[ASHR]], [[ASHR1]]
+    ; CHECK-NEXT: [[SEXT_INREG:%[0-9]+]]:_(s32) = G_SEXT_INREG [[COPY]], 16
+    ; CHECK-NEXT: [[SEXT_INREG1:%[0-9]+]]:_(s32) = G_SEXT_INREG [[COPY1]], 16
+    ; CHECK-NEXT: [[SDIV:%[0-9]+]]:_(s32) = G_SDIV [[SEXT_INREG]], [[SEXT_INREG1]]
     ; CHECK-NEXT: $a2 = COPY [[SDIV]](s32)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:_(s32) = COPY $a2
@@ -652,13 +640,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(s32) = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
-    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 16
-    ; CHECK-NEXT: [[SHL:%[0-9]+]]:_(s32) = G_SHL [[COPY]], [[C]](s32)
-    ; CHECK-NEXT: [[ASHR:%[0-9]+]]:_(s32) = G_ASHR [[SHL]], [[C]](s32)
-    ; CHECK-NEXT: [[C1:%[0-9]+]]:_(s32) = G_CONSTANT i32 16
-    ; CHECK-NEXT: [[SHL1:%[0-9]+]]:_(s32) = G_SHL [[COPY1]], [[C1]](s32)
-    ; CHECK-NEXT: [[ASHR1:%[0-9]+]]:_(s32) = G_ASHR [[SHL1]], [[C1]](s32)
-    ; CHECK-NEXT: [[SREM:%[0-9]+]]:_(s32) = G_SREM [[ASHR]], [[ASHR1]]
+    ; CHECK-NEXT: [[SEXT_INREG:%[0-9]+]]:_(s32) = G_SEXT_INREG [[COPY]], 16
+    ; CHECK-NEXT: [[SEXT_INREG1:%[0-9]+]]:_(s32) = G_SEXT_INREG [[COPY1]], 16
+    ; CHECK-NEXT: [[SREM:%[0-9]+]]:_(s32) = G_SREM [[SEXT_INREG]], [[SEXT_INREG1]]
     ; CHECK-NEXT: $a2 = COPY [[SREM]](s32)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:_(s32) = COPY $a2
