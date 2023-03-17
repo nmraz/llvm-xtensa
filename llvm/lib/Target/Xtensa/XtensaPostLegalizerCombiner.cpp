@@ -67,7 +67,7 @@ public:
   XtensaPostLegalizerCombiner();
 
   StringRef getPassName() const override {
-    return "XtensaPostLegalizerCombiner";
+    return "Xtensa Post-Legalizer Combiner";
   }
 
   bool runOnMachineFunction(MachineFunction &MF) override;

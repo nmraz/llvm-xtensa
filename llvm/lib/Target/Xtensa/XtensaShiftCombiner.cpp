@@ -291,7 +291,7 @@ public:
 
   XtensaShiftCombiner();
 
-  StringRef getPassName() const override { return "XtensaShiftCombiner"; }
+  StringRef getPassName() const override { return "Xtensa Shift Combiner"; }
 
   bool runOnMachineFunction(MachineFunction &MF) override;
   void getAnalysisUsage(AnalysisUsage &AU) const override;

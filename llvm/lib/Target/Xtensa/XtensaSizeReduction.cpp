@@ -19,7 +19,7 @@ public:
   static char ID;
 
   XtensaSizeReduction();
-  StringRef getPassName() const override { return "XtensaSizeReduction"; }
+  StringRef getPassName() const override { return "Xtensa Size Reduction"; }
 
   bool runOnMachineFunction(MachineFunction &MF) override;
 };

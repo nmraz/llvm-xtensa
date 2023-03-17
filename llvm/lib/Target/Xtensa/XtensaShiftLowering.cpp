@@ -28,7 +28,7 @@ public:
 
   XtensaShiftLowering();
 
-  StringRef getPassName() const override { return "XtensaShiftLowering"; }
+  StringRef getPassName() const override { return "Xtensa Shift Lowering"; }
 
   bool lower(MachineInstr &MI);
 
