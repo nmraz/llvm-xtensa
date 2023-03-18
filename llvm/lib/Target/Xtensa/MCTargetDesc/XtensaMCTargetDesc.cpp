@@ -78,6 +78,11 @@ createXtensaAsmTargetStreamer(MCStreamer &S, formatted_raw_ostream &OS,
   return new XtensaTargetAsmStreamer(S, OS);
 }
 
+static MCTargetStreamer *
+createXtensaELFTargetStreamer(MCStreamer &S, const MCSubtargetInfo &STI) {
+  return new XtensaTargetELFStreamer(S);
+}
+
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaTargetMC() {
   Target &T = getTheXtensaTarget();
 
@@ -90,8 +95,9 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaTargetMC() {
   TargetRegistry::RegisterMCAsmBackend(T, createXtensaAsmBackend);
   TargetRegistry::RegisterMCInstPrinter(T, createXtensaInstPrinter);
   TargetRegistry::RegisterAsmTargetStreamer(T, createXtensaAsmTargetStreamer);
+  TargetRegistry::RegisterObjectTargetStreamer(T,
+                                               createXtensaELFTargetStreamer);
 
   // TODO: Register these:
   // * MCInstrAnalysis
-  // * ELF streamer
 }
