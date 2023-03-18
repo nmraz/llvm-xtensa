@@ -462,6 +462,8 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
     return forceConstrainInstrRegisters(I);
   case Xtensa::G_AND:
     return selectAndAsExtui(I);
+  case Xtensa::G_SEXT_INREG:
+    return selectSextInreg(I);
   case Xtensa::G_ADD:
   case Xtensa::G_SUB:
     return selectAddSubConst(I);
@@ -663,8 +665,6 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
     I.eraseFromParent();
     return true;
   }
-  case Xtensa::G_SEXT_INREG:
-    return selectSextInreg(I);
   case Xtensa::G_LOAD:
   case Xtensa::G_SEXTLOAD:
   case Xtensa::G_ZEXTLOAD:
