@@ -352,6 +352,13 @@ def : FrameIndexOffStorePat<store, S32I>;
 def SALT : ArithRRR<0b0010, 0b0111, "salt", []>;
 def SALTU : ArithRRR<0b0010, 0b0110, "saltu", []>;
 
+def SEXT
+   : ArithBaseRRR<0b0011, 0b0010, (outs GPR:$ar), (ins GPR:$as, uimm4_plus7:$imm),
+                  "sext $ar, $as, $imm", []> {
+  bits<4> imm;
+  let at = imm;
+}
+
 let Uses = [SAR] in {
   def SLL : ArithRRrs<0b0001, 0b1010, 0b0000, "sll", []>;
   def SRA : ArithRRrt<0b0001, 0b1011, 0b0000, "sra", []>;

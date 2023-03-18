@@ -152,6 +152,7 @@ public:
   }
 
   bool isUImm4Plus1() const;
+  bool isUImm4Plus7() const;
   bool isMoviNImm7() const;
   bool isB4Const() const;
   bool isB4ConstU() const;
@@ -166,6 +167,11 @@ bool XtensaOperand::isUImm4Plus1() const {
   uint64_t Val = getConstImm();
   // Note: this behaves correctly even in the face of underflow
   return isUInt<4>(Val - 1);
+}
+
+bool XtensaOperand::isUImm4Plus7() const {
+  uint64_t Val = getConstImm();
+  return Val >= 7 && Val <= 22;
 }
 
 bool XtensaOperand::isMoviNImm7() const {

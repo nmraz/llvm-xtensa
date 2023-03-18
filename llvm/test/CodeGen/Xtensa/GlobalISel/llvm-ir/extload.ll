@@ -15,8 +15,7 @@ define i32 @sextload_i8(ptr %p) {
 ; CHECK-LABEL: sextload_i8:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    l8ui a2, a2, 0
-; CHECK-NEXT:    slli a2, a2, 24
-; CHECK-NEXT:    srai a2, a2, 24
+; CHECK-NEXT:    sext a2, a2, 7
 ; CHECK-NEXT:    ret.n
   %val = load i8, ptr %p
   %sext = sext i8 %val to i32

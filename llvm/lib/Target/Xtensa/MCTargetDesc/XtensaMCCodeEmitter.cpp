@@ -69,6 +69,15 @@ XtensaMCCodeEmitter::getUImm4Plus1OpValue(const MCInst &MI, unsigned int OpIdx,
 }
 
 unsigned
+XtensaMCCodeEmitter::getUImm4Plus7OpValue(const MCInst &MI, unsigned int OpIdx,
+                                          SmallVectorImpl<MCFixup> &Fixups,
+                                          const MCSubtargetInfo &STI) const {
+  uint64_t Val = MI.getOperand(OpIdx).getImm();
+  assert(Val >= 7 && Val <= 22 && "Invalid uimm4p7 value");
+  return Val - 7;
+}
+
+unsigned
 XtensaMCCodeEmitter::getUImm5Sub32OpValue(const MCInst &MI, unsigned int OpIdx,
                                           SmallVectorImpl<MCFixup> &Fixups,
                                           const MCSubtargetInfo &STI) const {

@@ -145,11 +145,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[COPY]], 24
-    ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[SLLI]], 24
-    ; CHECK-NEXT: [[SLLI1:%[0-9]+]]:gpr = SLLI [[COPY1]], 24
-    ; CHECK-NEXT: [[SRAI1:%[0-9]+]]:gpr = SRAI [[SLLI1]], 24
-    ; CHECK-NEXT: [[QUOS:%[0-9]+]]:gpr = QUOS [[SRAI]], [[SRAI1]]
+    ; CHECK-NEXT: [[SEXT:%[0-9]+]]:gpr = SEXT [[COPY]], 7
+    ; CHECK-NEXT: [[SEXT1:%[0-9]+]]:gpr = SEXT [[COPY1]], 7
+    ; CHECK-NEXT: [[QUOS:%[0-9]+]]:gpr = QUOS [[SEXT]], [[SEXT1]]
     ; CHECK-NEXT: $a2 = COPY [[QUOS]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:gprb(s32) = COPY $a2
@@ -311,11 +309,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[COPY]], 24
-    ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[SLLI]], 24
-    ; CHECK-NEXT: [[SLLI1:%[0-9]+]]:gpr = SLLI [[COPY1]], 24
-    ; CHECK-NEXT: [[SRAI1:%[0-9]+]]:gpr = SRAI [[SLLI1]], 24
-    ; CHECK-NEXT: [[REMS:%[0-9]+]]:gpr = REMS [[SRAI]], [[SRAI1]]
+    ; CHECK-NEXT: [[SEXT:%[0-9]+]]:gpr = SEXT [[COPY]], 7
+    ; CHECK-NEXT: [[SEXT1:%[0-9]+]]:gpr = SEXT [[COPY1]], 7
+    ; CHECK-NEXT: [[REMS:%[0-9]+]]:gpr = REMS [[SEXT]], [[SEXT1]]
     ; CHECK-NEXT: $a2 = COPY [[REMS]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:gprb(s32) = COPY $a2
@@ -477,11 +473,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[COPY]], 16
-    ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[SLLI]], 16
-    ; CHECK-NEXT: [[SLLI1:%[0-9]+]]:gpr = SLLI [[COPY1]], 16
-    ; CHECK-NEXT: [[SRAI1:%[0-9]+]]:gpr = SRAI [[SLLI1]], 16
-    ; CHECK-NEXT: [[QUOS:%[0-9]+]]:gpr = QUOS [[SRAI]], [[SRAI1]]
+    ; CHECK-NEXT: [[SEXT:%[0-9]+]]:gpr = SEXT [[COPY]], 15
+    ; CHECK-NEXT: [[SEXT1:%[0-9]+]]:gpr = SEXT [[COPY1]], 15
+    ; CHECK-NEXT: [[QUOS:%[0-9]+]]:gpr = QUOS [[SEXT]], [[SEXT1]]
     ; CHECK-NEXT: $a2 = COPY [[QUOS]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:gprb(s32) = COPY $a2
@@ -643,11 +637,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: [[SLLI:%[0-9]+]]:gpr = SLLI [[COPY]], 16
-    ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[SLLI]], 16
-    ; CHECK-NEXT: [[SLLI1:%[0-9]+]]:gpr = SLLI [[COPY1]], 16
-    ; CHECK-NEXT: [[SRAI1:%[0-9]+]]:gpr = SRAI [[SLLI1]], 16
-    ; CHECK-NEXT: [[REMS:%[0-9]+]]:gpr = REMS [[SRAI]], [[SRAI1]]
+    ; CHECK-NEXT: [[SEXT:%[0-9]+]]:gpr = SEXT [[COPY]], 15
+    ; CHECK-NEXT: [[SEXT1:%[0-9]+]]:gpr = SEXT [[COPY1]], 15
+    ; CHECK-NEXT: [[REMS:%[0-9]+]]:gpr = REMS [[SEXT]], [[SEXT1]]
     ; CHECK-NEXT: $a2 = COPY [[REMS]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %2:gprb(s32) = COPY $a2

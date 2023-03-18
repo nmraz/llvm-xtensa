@@ -115,8 +115,7 @@ entry:
 define i8 @ashr_i8(i8 %val, i8 %shamt) {
 ; OPT-LABEL: ashr_i8:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    slli a2, a2, 24
-; OPT-NEXT:    srai a2, a2, 24
+; OPT-NEXT:    sext a2, a2, 7
 ; OPT-NEXT:    ssr a3
 ; OPT-NEXT:    sra a2, a2
 ; OPT-NEXT:    ret.n
@@ -124,8 +123,7 @@ define i8 @ashr_i8(i8 %val, i8 %shamt) {
 ; UNOPT-LABEL: ashr_i8:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    extui a3, a3, 0, 8
-; UNOPT-NEXT:    slli a2, a2, 24
-; UNOPT-NEXT:    srai a2, a2, 24
+; UNOPT-NEXT:    sext a2, a2, 7
 ; UNOPT-NEXT:    ssr a3
 ; UNOPT-NEXT:    sra a2, a2
 ; UNOPT-NEXT:    ret.n
@@ -137,8 +135,7 @@ entry:
 define i16 @ashr_i16(i16 %val, i16 %shamt) {
 ; OPT-LABEL: ashr_i16:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    slli a2, a2, 16
-; OPT-NEXT:    srai a2, a2, 16
+; OPT-NEXT:    sext a2, a2, 15
 ; OPT-NEXT:    ssr a3
 ; OPT-NEXT:    sra a2, a2
 ; OPT-NEXT:    ret.n
@@ -146,8 +143,7 @@ define i16 @ashr_i16(i16 %val, i16 %shamt) {
 ; UNOPT-LABEL: ashr_i16:
 ; UNOPT:       # %bb.1: # %entry
 ; UNOPT-NEXT:    extui a3, a3, 0, 16
-; UNOPT-NEXT:    slli a2, a2, 16
-; UNOPT-NEXT:    srai a2, a2, 16
+; UNOPT-NEXT:    sext a2, a2, 15
 ; UNOPT-NEXT:    ssr a3
 ; UNOPT-NEXT:    sra a2, a2
 ; UNOPT-NEXT:    ret.n

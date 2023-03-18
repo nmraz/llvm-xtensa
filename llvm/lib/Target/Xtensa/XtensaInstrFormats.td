@@ -112,10 +112,16 @@ def b4constu : ImmOperand<i32, "B4ConstU">, ImmLeaf<i32, [{ return encodeB4Const
   let EncoderMethod = "getB4ConstUOpValue";
 }
 
-// 4-bit immediate incremented by 1 (used only in `extui`)
+// 4-bit immediate incremented by 1; used only in `extui` instruction
 def UImm4Plus1OperandClass : ConstantImmOperandClass<"UImm4Plus1", "expected a constant in the range [1, 16]">;
 def uimm4_plus1 : ImmOperand<i32, "UImm4Plus1"> {
   let EncoderMethod = "getUImm4Plus1OpValue";
+}
+
+// 4-bit immediate incremented by 7; used only in `sext` instruction
+def UImm4Plus7OperandClass : ConstantImmOperandClass<"UImm4Plus7", "expected a constant in the range [7, 22]">;
+def uimm4_plus7 : ImmOperand<i32, "UImm4Plus7">, ImmLeaf<i32, [{ return Imm >= 7 && Imm <= 22; }]> {
+  let EncoderMethod = "getUImm4Plus7OpValue";
 }
 
 // 5-bit immediate subtracted from 32; used only in `slli` instruction

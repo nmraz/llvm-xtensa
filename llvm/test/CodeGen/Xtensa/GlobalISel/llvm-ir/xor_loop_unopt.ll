@@ -23,14 +23,12 @@ define void @xor_loop(ptr noundef %a, ptr noundef %b, i32 noundef %n) {
 ; CHECK-NEXT:    l32i.n a3, a1, 0
 ; CHECK-NEXT:    add.n a2, a2, a3
 ; CHECK-NEXT:    l8ui a2, a2, 0
-; CHECK-NEXT:    slli a2, a2, 24
-; CHECK-NEXT:    srai a4, a2, 24
+; CHECK-NEXT:    sext a4, a2, 7
 ; CHECK-NEXT:    l32i.n a2, a1, 12
 ; CHECK-NEXT:    l32i.n a3, a1, 0
 ; CHECK-NEXT:    add.n a3, a2, a3
 ; CHECK-NEXT:    l8ui a2, a3, 0
-; CHECK-NEXT:    slli a2, a2, 24
-; CHECK-NEXT:    srai a2, a2, 24
+; CHECK-NEXT:    sext a2, a2, 7
 ; CHECK-NEXT:    xor a2, a2, a4
 ; CHECK-NEXT:    s8i a2, a3, 0
 ; CHECK-NEXT:    j .LBB0_4

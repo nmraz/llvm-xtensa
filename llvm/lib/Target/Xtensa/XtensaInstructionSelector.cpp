@@ -102,12 +102,12 @@ private:
   void tryFoldShrIntoExtui(const MachineInstr &InputMI,
                            const MachineRegisterInfo &MRI, uint32_t MaskWidth,
                            Register &NewInputReg, uint32_t &ShiftWidth) const;
+  bool selectSextInreg(MachineInstr &I);
   bool selectAddSubConst(MachineInstr &I);
   bool selectFrameIndexOffset(MachineInstr &I, MachineInstr &OperandMI,
                               int64_t Offset);
 
   bool selectLate(MachineInstr &I);
-  bool selectSextInreg(MachineInstr &I);
   bool selectLoadStore(MachineInstr &I);
 
   const XtensaInstrInfo &TII;
@@ -539,6 +539,39 @@ void XtensaInstructionSelector::tryFoldShrIntoExtui(
   ShiftWidth = static_cast<uint32_t>(ShiftImm);
 }
 
+bool XtensaInstructionSelector::selectSextInreg(MachineInstr &I) {
+  unsigned OrigWidth = I.getOperand(2).getImm();
+
+  // Note: `sext` wants the position of the sign bit, not the original bit
+  // width.
+  if (OrigWidth >= 8 && OrigWidth <= 23) {
+    I.setDesc(TII.get(Xtensa::SEXT));
+    I.getOperand(2).setImm(OrigWidth - 1);
+    return constrainSelectedInstRegOperands(I, TII, TRI, RBI);
+  }
+
+  unsigned ShiftAmount = 32 - OrigWidth;
+  Register TempReg = createVirtualGPR();
+
+  MachineInstr *SLLI = emitInstrFor(I, Xtensa::SLLI)
+                           .addDef(TempReg)
+                           .add(I.getOperand(1))
+                           .addImm(ShiftAmount);
+  if (!constrainSelectedInstRegOperands(*SLLI, TII, TRI, RBI)) {
+    return false;
+  }
+  MachineInstr *SRAI = emitInstrFor(I, Xtensa::SRAI)
+                           .add(I.getOperand(0))
+                           .addReg(TempReg)
+                           .addImm(ShiftAmount);
+  if (!constrainSelectedInstRegOperands(*SRAI, TII, TRI, RBI)) {
+    return false;
+  }
+
+  I.eraseFromParent();
+  return true;
+}
+
 bool XtensaInstructionSelector::selectAddSubConst(MachineInstr &I) {
   MachineRegisterInfo &MRI = MF->getRegInfo();
 
@@ -652,29 +685,6 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
   }
 
   return false;
-}
-
-bool XtensaInstructionSelector::selectSextInreg(MachineInstr &I) {
-  unsigned ShiftAmount = 32 - I.getOperand(2).getImm();
-  Register TempReg = createVirtualGPR();
-
-  MachineInstr *SLLI = emitInstrFor(I, Xtensa::SLLI)
-                           .addDef(TempReg)
-                           .add(I.getOperand(1))
-                           .addImm(ShiftAmount);
-  if (!constrainSelectedInstRegOperands(*SLLI, TII, TRI, RBI)) {
-    return false;
-  }
-  MachineInstr *SRAI = emitInstrFor(I, Xtensa::SRAI)
-                           .add(I.getOperand(0))
-                           .addReg(TempReg)
-                           .addImm(ShiftAmount);
-  if (!constrainSelectedInstRegOperands(*SRAI, TII, TRI, RBI)) {
-    return false;
-  }
-
-  I.eraseFromParent();
-  return true;
 }
 
 bool XtensaInstructionSelector::selectLoadStore(MachineInstr &I) {

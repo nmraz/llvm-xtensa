@@ -60,10 +60,8 @@ entry:
 define i1 @icmp_slt_i8(i8 %a, i8 %b) {
 ; CHECK-LABEL: icmp_slt_i8:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 24
-; CHECK-NEXT:    srai a2, a2, 24
-; CHECK-NEXT:    slli a3, a3, 24
-; CHECK-NEXT:    srai a3, a3, 24
+; CHECK-NEXT:    sext a2, a2, 7
+; CHECK-NEXT:    sext a3, a3, 7
 ; CHECK-NEXT:    salt a2, a2, a3
 ; CHECK-NEXT:    ret.n
 entry:
@@ -74,10 +72,8 @@ entry:
 define i1 @icmp_sle_i8(i8 %a, i8 %b) {
 ; CHECK-LABEL: icmp_sle_i8:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 24
-; CHECK-NEXT:    srai a2, a2, 24
-; CHECK-NEXT:    slli a3, a3, 24
-; CHECK-NEXT:    srai a3, a3, 24
+; CHECK-NEXT:    sext a2, a2, 7
+; CHECK-NEXT:    sext a3, a3, 7
 ; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    salt a2, a3, a2
 ; CHECK-NEXT:    xor a2, a2, a4
@@ -90,10 +86,8 @@ entry:
 define i1 @icmp_sgt_i8(i8 %a, i8 %b) {
 ; CHECK-LABEL: icmp_sgt_i8:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 24
-; CHECK-NEXT:    srai a2, a2, 24
-; CHECK-NEXT:    slli a3, a3, 24
-; CHECK-NEXT:    srai a3, a3, 24
+; CHECK-NEXT:    sext a2, a2, 7
+; CHECK-NEXT:    sext a3, a3, 7
 ; CHECK-NEXT:    salt a2, a3, a2
 ; CHECK-NEXT:    ret.n
 entry:
@@ -104,10 +98,8 @@ entry:
 define i1 @icmp_sge_i8(i8 %a, i8 %b) {
 ; CHECK-LABEL: icmp_sge_i8:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 24
-; CHECK-NEXT:    srai a2, a2, 24
-; CHECK-NEXT:    slli a3, a3, 24
-; CHECK-NEXT:    srai a3, a3, 24
+; CHECK-NEXT:    sext a2, a2, 7
+; CHECK-NEXT:    sext a3, a3, 7
 ; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    salt a2, a2, a3
 ; CHECK-NEXT:    xor a2, a2, a4
@@ -120,8 +112,7 @@ entry:
 define i1 @icmp_sltz_i8(i8 %a, i8 %b) {
 ; CHECK-LABEL: icmp_sltz_i8:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 24
-; CHECK-NEXT:    srai a2, a2, 24
+; CHECK-NEXT:    sext a2, a2, 7
 ; CHECK-NEXT:    extui a2, a2, 31, 1
 ; CHECK-NEXT:    ret.n
 entry:
@@ -132,8 +123,7 @@ entry:
 define i1 @icmp_slez_i8(i8 %a, i8 %b) {
 ; CHECK-LABEL: icmp_slez_i8:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 24
-; CHECK-NEXT:    srai a2, a2, 24
+; CHECK-NEXT:    sext a2, a2, 7
 ; CHECK-NEXT:    movi.n a3, 1
 ; CHECK-NEXT:    salt a2, a2, a3
 ; CHECK-NEXT:    ret.n
@@ -145,8 +135,7 @@ entry:
 define i1 @icmp_sgtz_i8(i8 %a, i8 %b) {
 ; CHECK-LABEL: icmp_sgtz_i8:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 24
-; CHECK-NEXT:    srai a2, a2, 24
+; CHECK-NEXT:    sext a2, a2, 7
 ; CHECK-NEXT:    movi.n a3, 0
 ; CHECK-NEXT:    salt a2, a3, a2
 ; CHECK-NEXT:    ret.n
@@ -158,8 +147,7 @@ entry:
 define i1 @icmp_sgez_i8(i8 %a, i8 %b) {
 ; CHECK-LABEL: icmp_sgez_i8:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 24
-; CHECK-NEXT:    srai a2, a2, 24
+; CHECK-NEXT:    sext a2, a2, 7
 ; CHECK-NEXT:    movi.n a3, -1
 ; CHECK-NEXT:    salt a2, a3, a2
 ; CHECK-NEXT:    ret.n
@@ -279,10 +267,8 @@ entry:
 define i1 @icmp_slt_i16(i16 %a, i16 %b) {
 ; CHECK-LABEL: icmp_slt_i16:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 16
-; CHECK-NEXT:    srai a2, a2, 16
-; CHECK-NEXT:    slli a3, a3, 16
-; CHECK-NEXT:    srai a3, a3, 16
+; CHECK-NEXT:    sext a2, a2, 15
+; CHECK-NEXT:    sext a3, a3, 15
 ; CHECK-NEXT:    salt a2, a2, a3
 ; CHECK-NEXT:    ret.n
 entry:
@@ -293,10 +279,8 @@ entry:
 define i1 @icmp_sle_i16(i16 %a, i16 %b) {
 ; CHECK-LABEL: icmp_sle_i16:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 16
-; CHECK-NEXT:    srai a2, a2, 16
-; CHECK-NEXT:    slli a3, a3, 16
-; CHECK-NEXT:    srai a3, a3, 16
+; CHECK-NEXT:    sext a2, a2, 15
+; CHECK-NEXT:    sext a3, a3, 15
 ; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    salt a2, a3, a2
 ; CHECK-NEXT:    xor a2, a2, a4
@@ -309,10 +293,8 @@ entry:
 define i1 @icmp_sgt_i16(i16 %a, i16 %b) {
 ; CHECK-LABEL: icmp_sgt_i16:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 16
-; CHECK-NEXT:    srai a2, a2, 16
-; CHECK-NEXT:    slli a3, a3, 16
-; CHECK-NEXT:    srai a3, a3, 16
+; CHECK-NEXT:    sext a2, a2, 15
+; CHECK-NEXT:    sext a3, a3, 15
 ; CHECK-NEXT:    salt a2, a3, a2
 ; CHECK-NEXT:    ret.n
 entry:
@@ -323,10 +305,8 @@ entry:
 define i1 @icmp_sge_i16(i16 %a, i16 %b) {
 ; CHECK-LABEL: icmp_sge_i16:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 16
-; CHECK-NEXT:    srai a2, a2, 16
-; CHECK-NEXT:    slli a3, a3, 16
-; CHECK-NEXT:    srai a3, a3, 16
+; CHECK-NEXT:    sext a2, a2, 15
+; CHECK-NEXT:    sext a3, a3, 15
 ; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    salt a2, a2, a3
 ; CHECK-NEXT:    xor a2, a2, a4
@@ -339,8 +319,7 @@ entry:
 define i1 @icmp_sltz_i16(i16 %a, i16 %b) {
 ; CHECK-LABEL: icmp_sltz_i16:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 16
-; CHECK-NEXT:    srai a2, a2, 16
+; CHECK-NEXT:    sext a2, a2, 15
 ; CHECK-NEXT:    extui a2, a2, 31, 1
 ; CHECK-NEXT:    ret.n
 entry:
@@ -351,8 +330,7 @@ entry:
 define i1 @icmp_slez_i16(i16 %a, i16 %b) {
 ; CHECK-LABEL: icmp_slez_i16:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 16
-; CHECK-NEXT:    srai a2, a2, 16
+; CHECK-NEXT:    sext a2, a2, 15
 ; CHECK-NEXT:    movi.n a3, 1
 ; CHECK-NEXT:    salt a2, a2, a3
 ; CHECK-NEXT:    ret.n
@@ -364,8 +342,7 @@ entry:
 define i1 @icmp_sgtz_i16(i16 %a, i16 %b) {
 ; CHECK-LABEL: icmp_sgtz_i16:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 16
-; CHECK-NEXT:    srai a2, a2, 16
+; CHECK-NEXT:    sext a2, a2, 15
 ; CHECK-NEXT:    movi.n a3, 0
 ; CHECK-NEXT:    salt a2, a3, a2
 ; CHECK-NEXT:    ret.n
@@ -377,8 +354,7 @@ entry:
 define i1 @icmp_sgez_i16(i16 %a, i16 %b) {
 ; CHECK-LABEL: icmp_sgez_i16:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    slli a2, a2, 16
-; CHECK-NEXT:    srai a2, a2, 16
+; CHECK-NEXT:    sext a2, a2, 15
 ; CHECK-NEXT:    movi.n a3, -1
 ; CHECK-NEXT:    salt a2, a3, a2
 ; CHECK-NEXT:    ret.n

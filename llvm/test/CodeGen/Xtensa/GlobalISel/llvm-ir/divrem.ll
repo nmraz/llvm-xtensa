@@ -5,19 +5,15 @@
 define i8 @sdiv_i8(i8 %a, i8 %b) {
 ; OPT-LABEL: sdiv_i8:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    slli a2, a2, 24
-; OPT-NEXT:    srai a2, a2, 24
-; OPT-NEXT:    slli a3, a3, 24
-; OPT-NEXT:    srai a3, a3, 24
+; OPT-NEXT:    sext a2, a2, 7
+; OPT-NEXT:    sext a3, a3, 7
 ; OPT-NEXT:    quos a2, a2, a3
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: sdiv_i8:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    slli a2, a2, 24
-; UNOPT-NEXT:    srai a2, a2, 24
-; UNOPT-NEXT:    slli a3, a3, 24
-; UNOPT-NEXT:    srai a3, a3, 24
+; UNOPT-NEXT:    sext a2, a2, 7
+; UNOPT-NEXT:    sext a3, a3, 7
 ; UNOPT-NEXT:    quos a2, a2, a3
 ; UNOPT-NEXT:    ret.n
   %sdiv = sdiv i8 %a, %b
@@ -45,19 +41,15 @@ define i8 @udiv_i8(i8 %a, i8 %b) {
 define i8 @srem_i8(i8 %a, i8 %b) {
 ; OPT-LABEL: srem_i8:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    slli a2, a2, 24
-; OPT-NEXT:    srai a2, a2, 24
-; OPT-NEXT:    slli a3, a3, 24
-; OPT-NEXT:    srai a3, a3, 24
+; OPT-NEXT:    sext a2, a2, 7
+; OPT-NEXT:    sext a3, a3, 7
 ; OPT-NEXT:    rems a2, a2, a3
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: srem_i8:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    slli a2, a2, 24
-; UNOPT-NEXT:    srai a2, a2, 24
-; UNOPT-NEXT:    slli a3, a3, 24
-; UNOPT-NEXT:    srai a3, a3, 24
+; UNOPT-NEXT:    sext a2, a2, 7
+; UNOPT-NEXT:    sext a3, a3, 7
 ; UNOPT-NEXT:    rems a2, a2, a3
 ; UNOPT-NEXT:    ret.n
   %srem = srem i8 %a, %b
@@ -85,19 +77,15 @@ define i8 @urem_i8(i8 %a, i8 %b) {
 define i16 @sdiv_i16(i16 %a, i16 %b) {
 ; OPT-LABEL: sdiv_i16:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    slli a2, a2, 16
-; OPT-NEXT:    srai a2, a2, 16
-; OPT-NEXT:    slli a3, a3, 16
-; OPT-NEXT:    srai a3, a3, 16
+; OPT-NEXT:    sext a2, a2, 15
+; OPT-NEXT:    sext a3, a3, 15
 ; OPT-NEXT:    quos a2, a2, a3
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: sdiv_i16:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    slli a2, a2, 16
-; UNOPT-NEXT:    srai a2, a2, 16
-; UNOPT-NEXT:    slli a3, a3, 16
-; UNOPT-NEXT:    srai a3, a3, 16
+; UNOPT-NEXT:    sext a2, a2, 15
+; UNOPT-NEXT:    sext a3, a3, 15
 ; UNOPT-NEXT:    quos a2, a2, a3
 ; UNOPT-NEXT:    ret.n
   %sdiv = sdiv i16 %a, %b
@@ -125,19 +113,15 @@ define i16 @udiv_i16(i16 %a, i16 %b) {
 define i16 @srem_i16(i16 %a, i16 %b) {
 ; OPT-LABEL: srem_i16:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    slli a2, a2, 16
-; OPT-NEXT:    srai a2, a2, 16
-; OPT-NEXT:    slli a3, a3, 16
-; OPT-NEXT:    srai a3, a3, 16
+; OPT-NEXT:    sext a2, a2, 15
+; OPT-NEXT:    sext a3, a3, 15
 ; OPT-NEXT:    rems a2, a2, a3
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: srem_i16:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    slli a2, a2, 16
-; UNOPT-NEXT:    srai a2, a2, 16
-; UNOPT-NEXT:    slli a3, a3, 16
-; UNOPT-NEXT:    srai a3, a3, 16
+; UNOPT-NEXT:    sext a2, a2, 15
+; UNOPT-NEXT:    sext a3, a3, 15
 ; UNOPT-NEXT:    rems a2, a2, a3
 ; UNOPT-NEXT:    ret.n
   %srem = srem i16 %a, %b
