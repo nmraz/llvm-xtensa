@@ -2,6 +2,7 @@
 #include "TargetInfo/XtensaTargetInfo.h"
 #include "XtensaInstPrinter.h"
 #include "XtensaMCAsmInfo.h"
+#include "XtensaTargetStreamer.h"
 #include "llvm/ADT/Triple.h"
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCInstPrinter.h"
@@ -9,6 +10,7 @@
 #include "llvm/MC/MCInstrInfo.h"
 #include "llvm/MC/MCRegisterInfo.h"
 #include "llvm/MC/MCSchedule.h"
+#include "llvm/MC/MCStreamer.h"
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/MC/SubtargetFeature.h"
 #include "llvm/MC/TargetRegistry.h"
@@ -70,6 +72,12 @@ static MCInstPrinter *createXtensaInstPrinter(const Triple &T,
   return new XtensaInstPrinter(MAI, MII, MRI);
 }
 
+static MCTargetStreamer *
+createXtensaAsmTargetStreamer(MCStreamer &S, formatted_raw_ostream &OS,
+                              MCInstPrinter *InstPrint, bool IsVerboseAsm) {
+  return new XtensaTargetAsmStreamer(S, OS);
+}
+
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaTargetMC() {
   Target &T = getTheXtensaTarget();
 
@@ -81,8 +89,9 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaTargetMC() {
   TargetRegistry::RegisterMCCodeEmitter(T, createXtensaMCCodeEmitter);
   TargetRegistry::RegisterMCAsmBackend(T, createXtensaAsmBackend);
   TargetRegistry::RegisterMCInstPrinter(T, createXtensaInstPrinter);
+  TargetRegistry::RegisterAsmTargetStreamer(T, createXtensaAsmTargetStreamer);
 
   // TODO: Register these:
   // * MCInstrAnalysis
-  // * Streamers
+  // * ELF streamer
 }
