@@ -120,7 +120,7 @@ def uimm4_plus1 : ImmOperand<i32, "UImm4Plus1"> {
 
 // 4-bit immediate incremented by 7; used only in `sext` instruction
 def UImm4Plus7OperandClass : ConstantImmOperandClass<"UImm4Plus7", "expected a constant in the range [7, 22]">;
-def uimm4_plus7 : ImmOperand<i32, "UImm4Plus7">, ImmLeaf<i32, [{ return Imm >= 7 && Imm <= 22; }]> {
+def uimm4_plus7 : ImmOperand<i32, "UImm4Plus7"> {
   let EncoderMethod = "getUImm4Plus7OpValue";
 }
 
