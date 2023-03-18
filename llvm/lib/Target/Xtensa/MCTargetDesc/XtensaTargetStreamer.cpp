@@ -16,7 +16,7 @@ XtensaTargetAsmStreamer::XtensaTargetAsmStreamer(MCStreamer &S,
 void XtensaTargetAsmStreamer::emitLiteral(const MCSymbol *Name,
                                           const MCExpr *Value) {
   const MCAsmInfo *MAI = getStreamer().getContext().getAsmInfo();
-  OS << ".literal ";
+  OS << "\t.literal\t";
   Name->print(OS, MAI);
   OS << ", ";
   Value->print(OS, MAI);
