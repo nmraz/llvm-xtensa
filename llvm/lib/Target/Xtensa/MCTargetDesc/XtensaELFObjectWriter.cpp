@@ -24,7 +24,7 @@ public:
 };
 
 XtensaELFObjectWriter::XtensaELFObjectWriter(uint8_t OSABI)
-    : MCELFObjectTargetWriter(false, OSABI, ELF::EM_XTENSA, false) {}
+    : MCELFObjectTargetWriter(false, OSABI, ELF::EM_XTENSA, true) {}
 
 unsigned XtensaELFObjectWriter::getRelocType(MCContext &Ctx,
                                              const MCValue &Target,
