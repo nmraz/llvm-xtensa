@@ -17,6 +17,7 @@
 #include "clang/Driver/Driver.h"
 #include "clang/Driver/DriverDiagnostic.h"
 #include "clang/Driver/Options.h"
+#include "llvm/ADT/Triple.h"
 #include "llvm/Option/ArgList.h"
 #include "llvm/Support/Path.h"
 #include "llvm/Support/VirtualFileSystem.h"
@@ -92,7 +93,7 @@ static bool findRISCVMultilibs(const Driver &D,
 }
 
 BareMetal::BareMetal(const Driver &D, const llvm::Triple &Triple,
-                           const ArgList &Args)
+                     const ArgList &Args)
     : ToolChain(D, Triple, Args) {
   getProgramPaths().push_back(getDriver().getInstalledDir());
   if (getDriver().getInstalledDir() != getDriver().Dir)
@@ -166,7 +167,7 @@ void BareMetal::findMultilibs(const Driver &D, const llvm::Triple &Triple,
 
 bool BareMetal::handlesTarget(const llvm::Triple &Triple) {
   return isARMBareMetal(Triple) || isAArch64BareMetal(Triple) ||
-         isRISCVBareMetal(Triple);
+         isRISCVBareMetal(Triple) || Triple.getArch() == llvm::Triple::xtensa;
 }
 
 Tool *BareMetal::buildLinker() const {
@@ -226,8 +227,8 @@ void BareMetal::addClangTargetOptions(const ArgList &DriverArgs,
   CC1Args.push_back("-nostdsysteminc");
 }
 
-void BareMetal::AddClangCXXStdlibIncludeArgs(
-    const ArgList &DriverArgs, ArgStringList &CC1Args) const {
+void BareMetal::AddClangCXXStdlibIncludeArgs(const ArgList &DriverArgs,
+                                             ArgStringList &CC1Args) const {
   if (DriverArgs.hasArg(options::OPT_nostdinc) ||
       DriverArgs.hasArg(options::OPT_nostdlibinc) ||
       DriverArgs.hasArg(options::OPT_nostdincxx))
@@ -310,7 +311,7 @@ void baremetal::Linker::ConstructJob(Compilation &C, const JobAction &JA,
                                      const char *LinkingOutput) const {
   ArgStringList CmdArgs;
 
-  auto &TC = static_cast<const toolchains::BareMetal&>(getToolChain());
+  auto &TC = static_cast<const toolchains::BareMetal &>(getToolChain());
 
   AddLinkerInputs(TC, Inputs, Args, CmdArgs, JA);
 
