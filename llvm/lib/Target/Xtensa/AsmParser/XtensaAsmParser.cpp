@@ -71,6 +71,7 @@ public:
                                bool MatchingInlineAsm) override;
 
   bool ParseDirective(AsmToken DirectiveID) override;
+  void parseLiteralPositionDirective();
   void parseLiteralDirective();
 };
 
@@ -421,12 +422,26 @@ bool XtensaAsmParser::MatchAndEmitInstruction(SMLoc IDLoc, unsigned int &Opcode,
 }
 
 bool XtensaAsmParser::ParseDirective(AsmToken DirectiveID) {
+  if (DirectiveID.getIdentifier() == ".literal_position") {
+    parseLiteralPositionDirective();
+    return false;
+  }
+
   if (DirectiveID.getIdentifier() == ".literal") {
     parseLiteralDirective();
     return false;
   }
 
   return true;
+}
+
+void XtensaAsmParser::parseLiteralPositionDirective() {
+  if (getLexer().isNot(AsmToken::EndOfStatement)) {
+    Error(getLexer().getLoc(), "expected end of statement");
+    return;
+  }
+
+  getTargetStreamer().emitLiteralPosition();
 }
 
 void XtensaAsmParser::parseLiteralDirective() {

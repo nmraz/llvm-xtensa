@@ -17,6 +17,10 @@ XtensaTargetAsmStreamer::XtensaTargetAsmStreamer(MCStreamer &S,
                                                  formatted_raw_ostream &OS)
     : XtensaTargetStreamer(S), OS(OS) {}
 
+void XtensaTargetAsmStreamer::emitLiteralPosition() {
+  OS << "\t.literal_position\n";
+}
+
 void XtensaTargetAsmStreamer::emitLiteral(MCSymbol *Name, const MCExpr *Value) {
   const MCAsmInfo *MAI = getStreamer().getContext().getAsmInfo();
   OS << "\t.literal\t";
@@ -28,6 +32,10 @@ void XtensaTargetAsmStreamer::emitLiteral(MCSymbol *Name, const MCExpr *Value) {
 
 XtensaTargetELFStreamer::XtensaTargetELFStreamer(MCStreamer &S)
     : XtensaTargetStreamer(S) {}
+
+void XtensaTargetELFStreamer::emitLiteralPosition() {
+  // Nothing to do until we implement text-section-literals
+}
 
 void XtensaTargetELFStreamer::emitLiteral(MCSymbol *Name, const MCExpr *Value) {
   MCStreamer &S = getStreamer();

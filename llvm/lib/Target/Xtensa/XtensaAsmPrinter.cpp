@@ -55,6 +55,9 @@ void XtensaAsmPrinter::emitConstantPool() {
     return;
   }
 
+  XtensaTargetStreamer &Streamer = getTargetStreamer();
+  Streamer.emitLiteralPosition();
+
   for (unsigned I = 0; I < Constants.size(); I++) {
     const MachineConstantPoolEntry &CPE = Constants[I];
 
@@ -67,7 +70,7 @@ void XtensaAsmPrinter::emitConstantPool() {
     assert(getDataLayout().getTypeStoreSize(C->getType()) == 4 &&
            "Invalid constant pool entry size");
 
-    getTargetStreamer().emitLiteral(GetCPISymbol(I), lowerConstant(C));
+    Streamer.emitLiteral(GetCPISymbol(I), lowerConstant(C));
   }
 }
 

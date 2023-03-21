@@ -12,6 +12,7 @@ namespace llvm {
 class XtensaTargetStreamer : public MCTargetStreamer {
 public:
   XtensaTargetStreamer(MCStreamer &S);
+  virtual void emitLiteralPosition() = 0;
   virtual void emitLiteral(MCSymbol *Name, const MCExpr *Value) = 0;
 };
 
@@ -20,12 +21,14 @@ class XtensaTargetAsmStreamer : public XtensaTargetStreamer {
 
 public:
   XtensaTargetAsmStreamer(MCStreamer &S, formatted_raw_ostream &OS);
+  void emitLiteralPosition() override;
   void emitLiteral(MCSymbol *Name, const MCExpr *Value) override;
 };
 
 class XtensaTargetELFStreamer : public XtensaTargetStreamer {
 public:
   XtensaTargetELFStreamer(MCStreamer &S);
+  void emitLiteralPosition() override;
   void emitLiteral(MCSymbol *Name, const MCExpr *Value) override;
 };
 
