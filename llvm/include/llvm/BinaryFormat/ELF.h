@@ -905,6 +905,11 @@ enum {
 #include "ELFRelocs/LoongArch.def"
 };
 
+// ELF Relocation types for Xtensa
+enum {
+#include "ELFRelocs/Xtensa.def"
+};
+
 #undef ELF_RELOC
 
 // Section header.
