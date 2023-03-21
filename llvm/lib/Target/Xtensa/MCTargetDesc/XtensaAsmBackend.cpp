@@ -37,9 +37,15 @@ static unsigned adjustPCRelFixupValue(const MCFixup &Fixup, int64_t Value,
 }
 
 static unsigned adjustFixupValue(const MCFixup &Fixup, int64_t Value,
-                                 MCContext &Ctx) {
-  unsigned Kind = Fixup.getKind();
+                                 bool IsResolved, MCContext &Ctx) {
+  if (!IsResolved) {
+    // Avoid having the 0 value we use for unresolved fixups get tripped up in
+    // the checks below (especially with `l32r`, for which 0 is actually
+    // illegal).
+    return 0;
+  }
 
+  unsigned Kind = Fixup.getKind();
   switch (Kind) {
   case Xtensa::fixup_xtensa_brtarget8:
     return adjustPCRelFixupValue<8>(Fixup, Value, Ctx, "brtarget8");
@@ -104,7 +110,12 @@ void XtensaAsmBackend::applyFixup(const MCAssembler &Asm, const MCFixup &Fixup,
                                   MutableArrayRef<char> Data, uint64_t Value,
                                   bool IsResolved,
                                   const MCSubtargetInfo *STI) const {
-  Value = adjustFixupValue(Fixup, Value, Asm.getContext());
+  unsigned Kind = Fixup.getKind();
+  if (Kind >= FirstLiteralRelocationKind) {
+    return;
+  }
+
+  Value = adjustFixupValue(Fixup, Value, IsResolved, Asm.getContext());
   if (!Value) {
     return;
   }
