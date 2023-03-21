@@ -1,19 +1,24 @@
 #include "MCTargetDesc/XtensaBaseInfo.h"
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
+#include "MCTargetDesc/XtensaTargetStreamer.h"
 #include "TargetInfo/XtensaTargetInfo.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/MC/MCAsmMacro.h"
+#include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCExpr.h"
 #include "llvm/MC/MCInst.h"
 #include "llvm/MC/MCInstrInfo.h"
 #include "llvm/MC/MCParser/MCAsmLexer.h"
+#include "llvm/MC/MCParser/MCAsmParser.h"
 #include "llvm/MC/MCParser/MCTargetAsmParser.h"
 #include "llvm/MC/MCStreamer.h"
 #include "llvm/MC/MCSubtargetInfo.h"
+#include "llvm/MC/MCSymbolELF.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/Compiler.h"
 #include "llvm/Support/Debug.h"
+#include "llvm/Support/Error.h"
 #include "llvm/Support/MathExtras.h"
 #include "llvm/Support/SMLoc.h"
 #include "llvm/Support/raw_ostream.h"
@@ -42,6 +47,11 @@ public:
                   const MCInstrInfo &MII, const MCTargetOptions &Options)
       : MCTargetAsmParser(Options, STI, MII) {}
 
+  XtensaTargetStreamer &getTargetStreamer() {
+    return static_cast<XtensaTargetStreamer &>(
+        *getParser().getStreamer().getTargetStreamer());
+  }
+
   bool ParseRegister(unsigned &RegNo, SMLoc &StartLoc, SMLoc &EndLoc) override;
 
   OperandMatchResultTy tryParseRegister(unsigned &RegNo, SMLoc &StartLoc,
@@ -55,12 +65,13 @@ public:
   bool ParseInstruction(ParseInstructionInfo &Info, StringRef Name,
                         SMLoc NameLoc, OperandVector &Operands) override;
 
-  bool ParseDirective(AsmToken DirectiveID) override;
-
   bool MatchAndEmitInstruction(SMLoc IDLoc, unsigned int &Opcode,
                                OperandVector &Operands, MCStreamer &Out,
                                uint64_t &ErrorInfo,
                                bool MatchingInlineAsm) override;
+
+  bool ParseDirective(AsmToken DirectiveID) override;
+  void parseLiteralDirective();
 };
 
 class XtensaOperand : public MCParsedAsmOperand {
@@ -354,11 +365,6 @@ bool XtensaAsmParser::ParseInstruction(ParseInstructionInfo &Info,
   return false;
 }
 
-bool XtensaAsmParser::ParseDirective(AsmToken DirectiveID) {
-  // We have no custom directives for now
-  return true;
-}
-
 static SMLoc refineErrorLoc(const SMLoc Loc, const OperandVector &Operands,
                             uint64_t ErrorInfo) {
   if (ErrorInfo != ~0ULL && ErrorInfo < Operands.size()) {
@@ -412,6 +418,45 @@ bool XtensaAsmParser::MatchAndEmitInstruction(SMLoc IDLoc, unsigned int &Opcode,
   }
 
   llvm_unreachable("Implement any new match types added!");
+}
+
+bool XtensaAsmParser::ParseDirective(AsmToken DirectiveID) {
+  if (DirectiveID.getIdentifier() == ".literal") {
+    parseLiteralDirective();
+    return false;
+  }
+
+  return true;
+}
+
+void XtensaAsmParser::parseLiteralDirective() {
+  MCAsmParser &Parser = getParser();
+  MCAsmLexer &Lexer = getLexer();
+
+  StringRef SymbolName;
+  if (Parser.parseIdentifier(SymbolName)) {
+    Error(Lexer.getLoc(), "expected an identifier after .literal");
+    return;
+  }
+
+  if (Lexer.isNot(AsmToken::Comma)) {
+    Error(Lexer.getLoc(), "expected a comma");
+    return;
+  }
+  Lex();
+
+  const MCExpr *Value;
+  if (Parser.parseExpression(Value)) {
+    return;
+  }
+
+  if (Lexer.isNot(AsmToken::EndOfStatement)) {
+    Error(Lexer.getLoc(), "expected end of statement");
+    return;
+  }
+
+  getTargetStreamer().emitLiteral(getContext().getOrCreateSymbol(SymbolName),
+                                  Value);
 }
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaAsmParser() {
