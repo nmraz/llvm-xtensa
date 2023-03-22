@@ -37,3 +37,8 @@ ill.n
 # CHECK-INST: ret
 # CHECK: encoding: [0x80,0x00,0x00]
 ret
+
+# Instruction format RRRN
+# CHECK-INST: ret.n
+# CHECK: encoding: [0x0d,0xf0]
+ret.n
