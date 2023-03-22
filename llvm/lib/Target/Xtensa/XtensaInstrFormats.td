@@ -125,7 +125,8 @@ def uimm4_plus7 : ImmOperand<i32, "UImm4Plus7"> {
 }
 
 // 5-bit immediate subtracted from 32; used only in `slli` instruction
-def uimm5_sub32 : ImmOperand<i32, "UImm5">, ImmLeaf<i32, [{ return Imm >= 1 && Imm <= 31; }]> {
+def UImm5Sub32OperandClass : ConstantImmOperandClass<"UImm5Sub32", "expected a constant in the range [1, 31]">;
+def uimm5_sub32 : ImmOperand<i32, "UImm5Sub32">, ImmLeaf<i32, [{ return Imm >= 1 && Imm <= 31; }]> {
   let EncoderMethod = "getUImm5Sub32OpValue";
 }
 
