@@ -5,6 +5,16 @@
 LBL0:
 
 # Instruction format RRR
+# CHECK-INST: or a2, a3, a3
+# CHECK: encoding: [0x30,0x23,0x20]
+mov a2, a3
+
+# Instruction format RRRN
+# CHECK-INST: mov.n a2, a5
+# CHECK: encoding: [0x2d,0x05]
+mov.n a2, a5
+
+# Instruction format RRR
 # CHECK-INST: moveqz a2, a3, a4
 # CHECK: encoding: [0x40,0x23,0x83]
 moveqz a2, a3, a4
@@ -23,8 +33,3 @@ movltz a7, a8, a9
 # CHECK-INST: movnez a10, a11, a12
 # CHECK: encoding: [0xc0,0xab,0x93]
 movnez a10, a11, a12
-
-# Instruction format RRRN
-# CHECK-INST: mov.n a2, a5
-# CHECK: encoding: [0x2d,0x05]
-mov.n a2, a5
