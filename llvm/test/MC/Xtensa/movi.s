@@ -1,7 +1,4 @@
-# RUN: llvm-mc %s -triple=xtensa -show-encoding | FileCheck -check-prefixes=CHECK,CHECK-INST,CHECK-FIXUP %s
-
-.LCPI0_0:
-.long 1234567
+# RUN: llvm-mc %s -triple=xtensa -show-encoding | FileCheck -check-prefixes=CHECK,CHECK-INST %s
 
 # Instruction format RRI8
 # CHECK-INST: movi a1, -2048
@@ -22,8 +19,3 @@ movi a7, 5
 # CHECK-INST: movi.n a2, 3
 # CHECK: encoding: [0x0c,0x32]
 movi.n a2, 3
-
-# CHECK-INST: l32r a2, .LCPI0_0
-# CHECK: encoding: [0x21,A,A]
-# CHECK-FIXUP: fixup A - offset: 0, value: .LCPI0_0, kind: fixup_xtensa_l32rtarget16
-l32r a2, .LCPI0_0
