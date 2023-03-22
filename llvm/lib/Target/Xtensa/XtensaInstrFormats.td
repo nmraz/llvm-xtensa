@@ -468,8 +468,8 @@ let hasSideEffects = false, mayLoad = true, mayStore = false in {
 // Store instruction classes
 let mayLoad = false, mayStore = true in {
   class StoreRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
-    : ArithBaseRRI8<op0, r, (outs), (ins GPR:$at, GPR:$as, Imm:$offset),
-                    !strconcat(name, "\t$at, $as, $offset"), pattern>;
+    : ArithBaseRRI8<op0, r, (outs), (ins GPR:$at, GPR:$as, Imm:$imm8),
+                    !strconcat(name, "\t$at, $as, $imm8"), pattern>;
 
   class StoreRRRN<bits<4> op0, Operand Imm, string name, list<dag> pattern>
     : ArithBaseRRRN<op0, (outs), (ins GPR:$at, GPR:$as, Imm:$offset),
