@@ -336,7 +336,7 @@ def RSYNC : I_Fixed24<0x002010, "rsync", []>;
 
 def S8I : StoreRRI8<0b0010, 0b0100, uimm8, "s8i", []>;
 def S16I : StoreRRI8<0b0010, 0b0101, uimm8_sl1, "s16i", []>;
-def S32I : StoreRRI8<0b0010, 0b0101, uimm8_sl2, "s32i", []>;
+def S32I : StoreRRI8<0b0010, 0b0110, uimm8_sl2, "s32i", []>;
 def S32IN : StoreRRRN<0b1001, uimm4_sl2, "s32i.n", []>;
 
 class FrameIndexOffStorePat<SDPatternOperator storeop, Instruction storeinst>
