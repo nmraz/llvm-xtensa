@@ -82,7 +82,7 @@ XtensaMCCodeEmitter::getUImm5Sub32OpValue(const MCInst &MI, unsigned int OpIdx,
                                           SmallVectorImpl<MCFixup> &Fixups,
                                           const MCSubtargetInfo &STI) const {
   uint64_t Val = MI.getOperand(OpIdx).getImm();
-  assert(Val < 32 && "Invalid uimm5s32 value");
+  assert(Val >= 1 && Val <= 31 && "Invalid uimm5s32 value");
   return 32 - Val;
 }
 
