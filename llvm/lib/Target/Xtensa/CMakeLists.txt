@@ -6,6 +6,7 @@ tablegen(LLVM XtensaGenInstrInfo.inc -gen-instr-info)
 tablegen(LLVM XtensaGenRegisterInfo.inc -gen-register-info)
 tablegen(LLVM XtensaGenRegisterBank.inc -gen-register-bank)
 tablegen(LLVM XtensaGenMCCodeEmitter.inc -gen-emitter)
+tablegen(LLVM XtensaGenDisassemblerTables.inc -gen-disassembler)
 tablegen(LLVM XtensaGenAsmWriter.inc -gen-asm-writer)
 tablegen(LLVM XtensaGenSubtargetInfo.inc -gen-subtarget)
 tablegen(LLVM XtensaGenAsmMatcher.inc -gen-asm-matcher)
@@ -16,9 +17,6 @@ tablegen(LLVM XtensaGenPostLegalizeGICombiner.inc -gen-global-isel-combiner
 tablegen(LLVM XtensaGenShiftGICombiner.inc -gen-global-isel-combiner
               -combiners="XtensaShiftCombinerHelper")
 
-# tablegen(LLVM XtensaGenDAGISel.inc -gen-dag-isel)
-# tablegen(LLVM XtensaGenDisassemblerTables.inc -gen-disassembler)
-# tablegen(LLVM XtensaGenFastISel.inc -gen-fast-isel)
 # tablegen(LLVM XtensaGenMCPseudoLowering.inc -gen-pseudo-lowering)
 # tablegen(LLVM XtensaGenExegesis.inc -gen-exegesis)
 
@@ -62,3 +60,4 @@ add_llvm_target(XtensaCodeGen
 add_subdirectory(MCTargetDesc)
 add_subdirectory(TargetInfo)
 add_subdirectory(AsmParser)
+add_subdirectory(Disassembler)

@@ -58,6 +58,38 @@ inline Optional<uint64_t> encodeB4Const(int64_t Value) {
   }
 }
 
+inline Optional<int32_t> decodeB4Const(uint32_t Value) {
+  switch (Value) {
+  case 0:
+    return -1;
+  case 1:
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+  case 6:
+  case 7:
+  case 8:
+    return Value;
+  case 9:
+    return 10;
+  case 10:
+    return 12;
+  case 11:
+    return 16;
+  case 12:
+    return 32;
+  case 13:
+    return 64;
+  case 14:
+    return 128;
+  case 15:
+    return 256;
+  default:
+    return None;
+  }
+}
+
 inline Optional<uint64_t> encodeB4ConstU(uint64_t Value) {
   switch (Value) {
   case 32768:
@@ -86,6 +118,39 @@ inline Optional<uint64_t> encodeB4ConstU(uint64_t Value) {
     return 14;
   case 256:
     return 15;
+  default:
+    return None;
+  }
+}
+
+inline Optional<uint32_t> decodeB4ConstU(uint32_t Value) {
+  switch (Value) {
+  case 0:
+    return 32768;
+  case 1:
+    return 65536;
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+  case 6:
+  case 7:
+  case 8:
+    return Value;
+  case 9:
+    return 10;
+  case 10:
+    return 12;
+  case 11:
+    return 16;
+  case 12:
+    return 32;
+  case 13:
+    return 64;
+  case 14:
+    return 128;
+  case 15:
+    return 256;
   default:
     return None;
   }

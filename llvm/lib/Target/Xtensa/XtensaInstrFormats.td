@@ -42,16 +42,20 @@ class UImmPatLeaf<ValueType ty, int width, int shift> : ImmLeaf<ty, "return isSh
 class SImmPatLeaf<ValueType ty, int width, int shift> : ImmLeaf<ty, "return isShiftedInt<" # width # ", " # shift # ">(Imm);">;
 
 class UImmOperand<ValueType ty, int width> : ImmOperand<ty, "UImm" # width>, UImmPatLeaf<ty, width, 0>;
-class SImmOperand<ValueType ty, int width> : ImmOperand<ty, "SImm" # width>, SImmPatLeaf<ty, width, 0>;
+class SImmOperand<ValueType ty, int width> : ImmOperand<ty, "SImm" # width>, SImmPatLeaf<ty, width, 0> {
+  let DecoderMethod = "decodeShiftedSImm<" # width # ", 0>";
+}
 
 class ShiftedUImmOperand<ValueType ty, int width, int shift>
    : ImmOperand<ty, "UImm" # width # "Sl" # shift>, UImmPatLeaf<ty, width, shift> {
   let EncoderMethod = "getShiftedImmOpValue<" # shift # ">";
+  let DecoderMethod = "decodeShiftedUImm<" # shift # ">";
 }
 
 class ShiftedSImmOperand<ValueType ty, int width, int shift>
    : ImmOperand<ty, "SImm" # width # "Sl" # shift>, SImmPatLeaf<ty, width, shift> {
   let EncoderMethod = "getShiftedImmOpValue<" # shift # ">";
+  let DecoderMethod = "decodeShiftedSImm<" # width # ", " # shift # ">";
 }
 
 
@@ -104,36 +108,43 @@ def uimm12_sl3 : ShiftedUImmOperand<i32, 12, 3>;
 def B4ConstOperandClass : ConstantImmOperandClass<"B4Const", "invalid b4const operand">;
 def b4const : ImmOperand<i32, "B4Const">, ImmLeaf<i32, [{ return encodeB4Const(Imm).has_value(); }]> {
   let EncoderMethod = "getB4ConstOpValue";
+  let DecoderMethod = "decodeB4Const";
 }
 
 // 4-bit encoded immediate for unsigned branch comparisons
 def B4ConstUOperandClass : ConstantImmOperandClass<"B4ConstU", "invalid b4constu operand">;
 def b4constu : ImmOperand<i32, "B4ConstU">, ImmLeaf<i32, [{ return encodeB4ConstU(Imm).has_value(); }]> {
   let EncoderMethod = "getB4ConstUOpValue";
+  let DecoderMethod = "decodeB4ConstU";
 }
 
 // 4-bit immediate incremented by 1; used only in `extui` instruction
 def UImm4Plus1OperandClass : ConstantImmOperandClass<"UImm4Plus1", "expected a constant in the range [1, 16]">;
 def uimm4_plus1 : ImmOperand<i32, "UImm4Plus1"> {
   let EncoderMethod = "getUImm4Plus1OpValue";
+  let DecoderMethod = "decodeUImm4Plus1";
 }
 
 // 4-bit immediate incremented by 7; used only in `sext` instruction
 def UImm4Plus7OperandClass : ConstantImmOperandClass<"UImm4Plus7", "expected a constant in the range [7, 22]">;
 def uimm4_plus7 : ImmOperand<i32, "UImm4Plus7"> {
   let EncoderMethod = "getUImm4Plus7OpValue";
+  let DecoderMethod = "decodeUImm4Plus7";
 }
 
 // 5-bit immediate subtracted from 32; used only in `slli` instruction
 def UImm5Sub32OperandClass : ConstantImmOperandClass<"UImm5Sub32", "expected a constant in the range [1, 31]">;
 def uimm5_sub32 : ImmOperand<i32, "UImm5Sub32">, ImmLeaf<i32, [{ return Imm >= 1 && Imm <= 31; }]> {
   let EncoderMethod = "getUImm5Sub32OpValue";
+  let DecoderMethod = "decodeUImm5Sub32";
 }
 
 // 7-bit immediate, extended to 32 bits by the bitwise AND of its top 2 bits
 // (bits 5 and 6); used only in narrow `movi` instruction
 def MoviNImm7OperandClass : ConstantImmOperandClass<"MoviNImm7", "expected a constant in the range [-32, 95]">;
-def movin_imm7 : ImmOperand<i32, "MoviNImm7">;
+def movin_imm7 : ImmOperand<i32, "MoviNImm7"> {
+  let DecoderMethod = "decodeMoviNImm7";
+}
 
 
 // PC-relative operands (branches and loads)
