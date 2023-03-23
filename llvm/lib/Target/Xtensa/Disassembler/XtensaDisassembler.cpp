@@ -32,6 +32,13 @@ public:
 
 } // namespace
 
+static bool tryAddingSymbolicOperand(const MCDisassembler *Decoder,
+                                     MCInst &Inst, int64_t Value,
+                                     uint64_t Address, bool IsBranch) {
+  return Decoder->tryAddingSymbolicOperand(Inst, Value, Address, IsBranch, 0, 0,
+                                           3);
+}
+
 static DecodeStatus DecodeGPRRegisterClass(MCInst &MI, uint32_t Imm,
                                            uint64_t Address,
                                            const MCDisassembler *Decoder) {
@@ -105,7 +112,36 @@ static DecodeStatus decodeMoviNImm7(MCInst &MI, uint32_t Imm, uint64_t Address,
 template <unsigned N>
 static DecodeStatus decodeBrTarget(MCInst &MI, uint32_t Imm, uint64_t Address,
                                    const MCDisassembler *Decoder) {
-  MI.addOperand(MCOperand::createImm(SignExtend32<N>(Imm)));
+  int32_t Value = SignExtend32<N>(Imm);
+  if (!tryAddingSymbolicOperand(Decoder, MI,
+                                Xtensa_MC::evaluateBranchTarget(Address, Value),
+                                Address, true)) {
+    MI.addOperand(MCOperand::createImm(Value));
+  }
+  return DecodeStatus::Success;
+}
+
+static DecodeStatus decodeL32RTarget16(MCInst &MI, uint32_t Imm,
+                                       uint64_t Address,
+                                       const MCDisassembler *Decoder) {
+  int32_t Value = (0xffff0000 | Imm) << 2;
+  if (!tryAddingSymbolicOperand(Decoder, MI,
+                                Xtensa_MC::evaluateL32RTarget(Address, Value),
+                                Address, false)) {
+    MI.addOperand(MCOperand::createImm(Value));
+  }
+  return DecodeStatus::Success;
+}
+
+static DecodeStatus decodeCallTarget18(MCInst &MI, uint32_t Imm,
+                                       uint64_t Address,
+                                       const MCDisassembler *Decoder) {
+  int32_t Value = Imm << 2;
+  if (!tryAddingSymbolicOperand(Decoder, MI,
+                                Xtensa_MC::evaluateCallTarget(Address, Value),
+                                Address, false)) {
+    MI.addOperand(MCOperand::createImm(Value));
+  }
   return DecodeStatus::Success;
 }
 

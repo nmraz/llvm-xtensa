@@ -167,6 +167,7 @@ def brtarget12 : PCRelOperand<OtherVT> {
 // and added to AlignUp(PC, 4)
 def l32rtarget16 : PCRelOperand<i32> {
   let EncoderMethod = "getL32RTarget16OpValue";
+  let DecoderMethod = "decodeL32RTarget16";
   let PrintMethod = "printL32ROperand";
 }
 
@@ -181,6 +182,7 @@ def jmptarget18 : PCRelOperand<OtherVT> {
 // AlignDown(PC, 4) + 4
 def calltarget18 : PCRelOperand<OtherVT> {
   let EncoderMethod = "getCallTarget18OpValue";
+  let DecoderMethod = "decodeCallTarget18";
   let PrintMethod = "printCallOperand";
 }
 
