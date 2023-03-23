@@ -102,6 +102,13 @@ static DecodeStatus decodeMoviNImm7(MCInst &MI, uint32_t Imm, uint64_t Address,
   return DecodeStatus::Success;
 }
 
+template <unsigned N>
+static DecodeStatus decodeBrTarget(MCInst &MI, uint32_t Imm, uint64_t Address,
+                                   const MCDisassembler *Decoder) {
+  MI.addOperand(MCOperand::createImm(SignExtend32<N>(Imm)));
+  return DecodeStatus::Success;
+}
+
 #include "XtensaGenDisassemblerTables.inc"
 
 DecodeStatus XtensaDisassembler::getInstruction(MCInst &Instr, uint64_t &Size,

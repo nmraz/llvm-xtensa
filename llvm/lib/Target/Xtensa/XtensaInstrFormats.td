@@ -152,12 +152,14 @@ def movin_imm7 : ImmOperand<i32, "MoviNImm7"> {
 // 8-bit immediate, sign-extended to 32 bits and added to PC+4
 def brtarget8 : PCRelOperand<OtherVT> {
   let EncoderMethod = "getBrTarget8OpValue";
+  let DecoderMethod = "decodeBrTarget<8>";
   let PrintMethod = "printBranchOperand";
 }
 
 // 12-bit immediate, sign-extended to 32 bits and added to PC+4
 def brtarget12 : PCRelOperand<OtherVT> {
   let EncoderMethod = "getBrTarget12OpValue";
+  let DecoderMethod = "decodeBrTarget<12>";
   let PrintMethod = "printBranchOperand";
 }
 
@@ -171,6 +173,7 @@ def l32rtarget16 : PCRelOperand<i32> {
 // 18-bit immediate, sign extended to 32 bits and added to PC+4
 def jmptarget18 : PCRelOperand<OtherVT> {
   let EncoderMethod = "getJmpTarget18OpValue";
+  let DecoderMethod = "decodeBrTarget<18>";
   let PrintMethod = "printBranchOperand";
 }
 
