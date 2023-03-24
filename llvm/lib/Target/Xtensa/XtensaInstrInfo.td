@@ -457,20 +457,5 @@ def : Pat<(setuge i32:$a, i32:$b),
 def : Pat<(setule i32:$a, i32:$b),
           (XOR (SALTU i32:$b, i32:$a), (MOVIN 1))>;
 
-
-// Conditional moves
-
-// Once more, we leave generalized comparisons to be selected through the
-// patterns above and the generic fallback below. This is assisted by the fact
-// that instcombine favors strong comparisons, ensuring there are no redundant
-// XOR's.
-def : Pat<(select (i32 (setlt i32:$val, 0)), i32:$true, i32:$false),
-          (MOVGEZ i32:$true, i32:$false, i32:$val)>;
-def : Pat<(select (i32 (setlt i32:$val, 1)), i32:$true, i32:$false),
-          (MOVGEZ i32:$false, i32:$true, (NEG i32:$val))>;
-def : Pat<(select (i32 (setgt i32:$val, 0)), i32:$true, i32:$false),
-          (MOVGEZ i32:$true, i32:$false, (NEG i32:$val))>;
-
-// Generic fallback
 def : Pat<(select i32:$cond, i32:$true, i32:$false),
           (MOVEQZ i32:$true, i32:$false, i32:$cond)>;

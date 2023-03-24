@@ -42,12 +42,15 @@
 #include "llvm/IR/InstrTypes.h"
 #include "llvm/IR/Value.h"
 #include "llvm/Support/Alignment.h"
+#include "llvm/Support/Compiler.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/LowLevelTypeImpl.h"
 #include "llvm/Support/MathExtras.h"
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <iterator>
 #include <utility>
 
 #define DEBUG_TYPE "xtensa-isel"
@@ -202,6 +205,32 @@ static Optional<unsigned> getLoadStoreOpcode(unsigned Opcode,
   return None;
 }
 
+struct ICmpInfo {
+  CmpInst::Predicate Pred;
+  unsigned Opcode;
+  bool InvertCmp;
+  bool InvertSelect;
+};
+
+static Optional<ICmpInfo> getICmpInfo(CmpInst::Predicate Pred) {
+  ICmpInfo Info[] = {
+      {CmpInst::ICMP_EQ, Xtensa::MOVEQZ, false, false},
+      {CmpInst::ICMP_NE, Xtensa::MOVEQZ, false, true},
+      {CmpInst::ICMP_SGT, Xtensa::MOVGEZ, true, true},
+      {CmpInst::ICMP_SGE, Xtensa::MOVGEZ, false, false},
+      {CmpInst::ICMP_SLT, Xtensa::MOVGEZ, false, true},
+      {CmpInst::ICMP_SLE, Xtensa::MOVGEZ, true, false},
+  };
+
+  auto *It = std::find_if(std::begin(Info), std::end(Info),
+                          [&](const auto &Info) { return Info.Pred == Pred; });
+  if (It == std::end(Info)) {
+    return None;
+  }
+
+  return *It;
+}
+
 bool XtensaInstructionSelector::select(MachineInstr &I) {
   if (I.getOpcode() == Xtensa::COPY) {
     return forceConstrainInstrRegisters(I);
@@ -327,14 +356,19 @@ bool XtensaInstructionSelector::emitICmpSelect(MachineInstr &I,
                                                Register CmpLHS, Register CmpRHS,
                                                Register TrueVal,
                                                Register FalseVal) {
-  if (Pred != CmpInst::ICMP_EQ && Pred != CmpInst::ICMP_NE) {
-    // Should have been handled earlier.
+  auto MaybeInfo = getICmpInfo(Pred);
+  if (!MaybeInfo) {
     return false;
   }
+  ICmpInfo Info = *MaybeInfo;
 
   MachineRegisterInfo &MRI = MF->getRegInfo();
 
-  if (Pred == CmpInst::ICMP_NE) {
+  if (Info.InvertCmp) {
+    std::swap(CmpLHS, CmpRHS);
+  }
+
+  if (Info.InvertSelect) {
     std::swap(TrueVal, FalseVal);
   }
 
@@ -348,7 +382,7 @@ bool XtensaInstructionSelector::emitICmpSelect(MachineInstr &I,
     }
   }
 
-  MachineInstr *MovMI = emitInstrFor(I, Xtensa::MOVEQZ)
+  MachineInstr *MovMI = emitInstrFor(I, Info.Opcode)
                             .add(I.getOperand(0))
                             .addReg(FalseVal)
                             .addReg(TrueVal)

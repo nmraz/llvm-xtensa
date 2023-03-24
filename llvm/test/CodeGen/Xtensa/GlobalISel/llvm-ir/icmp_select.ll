@@ -29,8 +29,8 @@ entry:
 define i32 @select_icmp_lt_i32(i32 %a, i32 %b, i32 %c, i32 %d) {
 ; CHECK-LABEL: select_icmp_lt_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    salt a2, a2, a3
-; CHECK-NEXT:    moveqz a4, a5, a2
+; CHECK-NEXT:    sub a2, a2, a3
+; CHECK-NEXT:    movgez a4, a5, a2
 ; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 entry:
@@ -42,8 +42,8 @@ entry:
 define i32 @select_icmp_lte_i32(i32 %a, i32 %b, i32 %c, i32 %d) {
 ; CHECK-LABEL: select_icmp_lte_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    salt a2, a3, a2
-; CHECK-NEXT:    moveqz a5, a4, a2
+; CHECK-NEXT:    sub a2, a3, a2
+; CHECK-NEXT:    movgez a5, a4, a2
 ; CHECK-NEXT:    mov.n a2, a5
 ; CHECK-NEXT:    ret.n
 entry:
@@ -55,8 +55,8 @@ entry:
 define i32 @select_icmp_gt_i32(i32 %a, i32 %b, i32 %c, i32 %d) {
 ; CHECK-LABEL: select_icmp_gt_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    salt a2, a3, a2
-; CHECK-NEXT:    moveqz a4, a5, a2
+; CHECK-NEXT:    sub a2, a3, a2
+; CHECK-NEXT:    movgez a4, a5, a2
 ; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 entry:
@@ -68,8 +68,8 @@ entry:
 define i32 @select_icmp_gte_i32(i32 %a, i32 %b, i32 %c, i32 %d) {
 ; CHECK-LABEL: select_icmp_gte_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    salt a2, a2, a3
-; CHECK-NEXT:    moveqz a5, a4, a2
+; CHECK-NEXT:    sub a2, a2, a3
+; CHECK-NEXT:    movgez a5, a4, a2
 ; CHECK-NEXT:    mov.n a2, a5
 ; CHECK-NEXT:    ret.n
 entry:
@@ -93,9 +93,9 @@ entry:
 define i32 @select_icmp_ltez_i32(i32 %a, i32 %c, i32 %d) {
 ; CHECK-LABEL: select_icmp_ltez_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    neg a2, a2
-; CHECK-NEXT:    movgez a4, a3, a2
-; CHECK-NEXT:    mov.n a2, a4
+; CHECK-NEXT:    addi a2, a2, -1
+; CHECK-NEXT:    movgez a3, a4, a2
+; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
 entry:
   %cmp = icmp slt i32 %a, 1

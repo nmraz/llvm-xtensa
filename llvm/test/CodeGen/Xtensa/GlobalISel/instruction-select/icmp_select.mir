@@ -343,9 +343,9 @@ body:             |
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a4
     ; CHECK-NEXT: [[COPY3:%[0-9]+]]:gpr = COPY $a5
-    ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[COPY]], [[COPY1]]
-    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[COPY2]], [[COPY3]], [[SALT]]
-    ; CHECK-NEXT: $a2 = COPY [[MOVEQZ]]
+    ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[COPY]], [[COPY1]]
+    ; CHECK-NEXT: [[MOVGEZ:%[0-9]+]]:gpr = MOVGEZ [[COPY2]], [[COPY3]], [[SUB]]
+    ; CHECK-NEXT: $a2 = COPY [[MOVGEZ]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = COPY $a3
@@ -427,9 +427,9 @@ body:             |
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a4
     ; CHECK-NEXT: [[COPY3:%[0-9]+]]:gpr = COPY $a5
-    ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[COPY1]], [[COPY]]
-    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[COPY3]], [[COPY2]], [[SALT]]
-    ; CHECK-NEXT: $a2 = COPY [[MOVEQZ]]
+    ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[COPY1]], [[COPY]]
+    ; CHECK-NEXT: [[MOVGEZ:%[0-9]+]]:gpr = MOVGEZ [[COPY3]], [[COPY2]], [[SUB]]
+    ; CHECK-NEXT: $a2 = COPY [[MOVGEZ]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = COPY $a3
@@ -511,9 +511,9 @@ body:             |
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a4
     ; CHECK-NEXT: [[COPY3:%[0-9]+]]:gpr = COPY $a5
-    ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[COPY1]], [[COPY]]
-    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[COPY2]], [[COPY3]], [[SALT]]
-    ; CHECK-NEXT: $a2 = COPY [[MOVEQZ]]
+    ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[COPY1]], [[COPY]]
+    ; CHECK-NEXT: [[MOVGEZ:%[0-9]+]]:gpr = MOVGEZ [[COPY2]], [[COPY3]], [[SUB]]
+    ; CHECK-NEXT: $a2 = COPY [[MOVGEZ]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = COPY $a3
@@ -595,9 +595,9 @@ body:             |
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a4
     ; CHECK-NEXT: [[COPY3:%[0-9]+]]:gpr = COPY $a5
-    ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[COPY]], [[COPY1]]
-    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[COPY3]], [[COPY2]], [[SALT]]
-    ; CHECK-NEXT: $a2 = COPY [[MOVEQZ]]
+    ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[COPY]], [[COPY1]]
+    ; CHECK-NEXT: [[MOVGEZ:%[0-9]+]]:gpr = MOVGEZ [[COPY3]], [[COPY2]], [[SUB]]
+    ; CHECK-NEXT: $a2 = COPY [[MOVGEZ]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
     %1:gprb(s32) = COPY $a3
@@ -758,8 +758,8 @@ body:             |
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a4
-    ; CHECK-NEXT: [[NEG:%[0-9]+]]:gpr = NEG [[COPY]]
-    ; CHECK-NEXT: [[MOVGEZ:%[0-9]+]]:gpr = MOVGEZ [[COPY2]], [[COPY1]], [[NEG]]
+    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], -1
+    ; CHECK-NEXT: [[MOVGEZ:%[0-9]+]]:gpr = MOVGEZ [[COPY1]], [[COPY2]], [[ADDI]]
     ; CHECK-NEXT: $a2 = COPY [[MOVGEZ]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
