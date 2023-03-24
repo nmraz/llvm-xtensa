@@ -47,6 +47,7 @@
 #include "llvm/Support/MathExtras.h"
 #include <cassert>
 #include <cstdint>
+#include <utility>
 
 #define DEBUG_TYPE "xtensa-isel"
 
@@ -83,6 +84,8 @@ private:
   bool emitL32R(MachineInstr &I, Register Dest, const Constant *Value);
   void emitAddParts(MachineInstr &I, Register Dest, Register Operand,
                     const AddConstParts &Parts);
+  bool emitICmpSelect(MachineInstr &I, CmpInst::Predicate Pred, Register CmpLHS,
+                      Register CmpRHS, Register TrueVal, Register FalseVal);
 
   bool preISelLower(MachineInstr &I);
   bool convertPtrAddToAdd(MachineInstr &I);
@@ -111,6 +114,7 @@ private:
                               int64_t Offset);
 
   bool selectLate(MachineInstr &I);
+  bool selectSelect(MachineInstr &I);
   bool selectICmp(MachineInstr &I);
   bool selectLoadStore(MachineInstr &I);
 
@@ -315,6 +319,41 @@ void XtensaInstructionSelector::emitAddParts(MachineInstr &I, Register Dest,
                              .addImm(Parts.Low);
     constrainInstrRegisters(*Addi);
   }
+}
+
+bool XtensaInstructionSelector::emitICmpSelect(MachineInstr &I,
+                                               CmpInst::Predicate Pred,
+                                               Register CmpLHS, Register CmpRHS,
+                                               Register TrueVal,
+                                               Register FalseVal) {
+  if (Pred != CmpInst::ICMP_EQ && Pred != CmpInst::ICMP_NE) {
+    // Should have been handled earlier.
+    return false;
+  }
+
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+
+  if (Pred == CmpInst::ICMP_NE) {
+    std::swap(TrueVal, FalseVal);
+  }
+
+  Register Selector = CmpLHS;
+  if (!mi_match(CmpRHS, MRI, m_SpecificICst(0))) {
+    // Convert the comparison to a subtraction followed by a comparison with 0.
+    Selector = createVirtualGPR();
+    MachineIRBuilder Builder(I);
+    if (!select(*Builder.buildSub(Selector, CmpLHS, CmpRHS))) {
+      return false;
+    }
+  }
+
+  MachineInstr *MovMI = emitInstrFor(I, Xtensa::MOVEQZ)
+                            .add(I.getOperand(0))
+                            .addReg(FalseVal)
+                            .addReg(TrueVal)
+                            .addReg(Selector);
+  constrainInstrRegisters(*MovMI);
+  return true;
 }
 
 bool XtensaInstructionSelector::preISelLower(MachineInstr &I) {
@@ -702,38 +741,17 @@ bool XtensaInstructionSelector::selectICmp(MachineInstr &I) {
     return false;
   }
 
-  MachineRegisterInfo &MRI = MF->getRegInfo();
-
-  bool InvertOperands = Pred == CmpInst::ICMP_NE;
-
   Register Zero = createVirtualGPR();
   Register One = createVirtualGPR();
   constrainInstrRegisters(
       *emitInstrFor(I, Xtensa::MOVI).addDef(Zero).addImm(0));
   constrainInstrRegisters(*emitInstrFor(I, Xtensa::MOVI).addDef(One).addImm(1));
 
-  Register TrueVal = InvertOperands ? Zero : One;
-  Register FalseVal = InvertOperands ? One : Zero;
-
-  Register LHS = I.getOperand(2).getReg();
-  Register RHS = I.getOperand(3).getReg();
-
-  Register Selector = LHS;
-  if (!mi_match(RHS, MRI, m_SpecificICst(0))) {
-    // Convert the comparison to a subtraction followed by a comparison with 0.
-    Selector = createVirtualGPR();
-    MachineIRBuilder Builder(I);
-    if (!select(*Builder.buildSub(Selector, LHS, RHS))) {
-      return false;
-    }
+  if (!emitICmpSelect(I, Pred, I.getOperand(2).getReg(),
+                      I.getOperand(3).getReg(), One, Zero)) {
+    return false;
   }
 
-  MachineInstr *MovMI = emitInstrFor(I, Xtensa::MOVEQZ)
-                            .add(I.getOperand(0))
-                            .addReg(FalseVal)
-                            .addReg(TrueVal)
-                            .addReg(Selector);
-  constrainInstrRegisters(*MovMI);
   I.eraseFromParent();
   return true;
 }
