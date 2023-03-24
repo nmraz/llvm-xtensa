@@ -160,7 +160,7 @@ bool XtensaLegalizerInfo::legalizeCustom(LegalizerHelper &Helper,
 
   switch (MI.getOpcode()) {
   case TargetOpcode::G_ICMP:
-    return legalizeIcmp(MI, MRI, MIRBuilder, Observer);
+    return legalizeICmp(MI, MRI, MIRBuilder, Observer);
   case TargetOpcode::G_CONSTANT:
     return legalizeConstant(MI, MRI, MIRBuilder, Observer);
   case TargetOpcode::G_SELECT:
@@ -183,7 +183,7 @@ bool XtensaLegalizerInfo::legalizeConstant(
   return true;
 }
 
-bool XtensaLegalizerInfo::legalizeIcmp(MachineInstr &MI,
+bool XtensaLegalizerInfo::legalizeICmp(MachineInstr &MI,
                                        MachineRegisterInfo &MRI,
                                        MachineIRBuilder &MIRBuilder,
                                        GISelChangeObserver &Observer) const {

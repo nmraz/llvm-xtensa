@@ -18,7 +18,7 @@ private:
   bool legalizeConstant(MachineInstr &MI, MachineRegisterInfo &MRI,
                         MachineIRBuilder &MIRBuilder,
                         GISelChangeObserver &Observer) const;
-  bool legalizeIcmp(MachineInstr &MI, MachineRegisterInfo &MRI,
+  bool legalizeICmp(MachineInstr &MI, MachineRegisterInfo &MRI,
                     MachineIRBuilder &MIRBuilder,
                     GISelChangeObserver &Observer) const;
   bool legalizeSelect(MachineInstr &MI, MachineRegisterInfo &MRI,
