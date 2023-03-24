@@ -20,6 +20,7 @@
 #include "XtensaTargetMachine.h"
 #include "llvm/ADT/None.h"
 #include "llvm/ADT/Optional.h"
+#include "llvm/CodeGen/GlobalISel/GenericMachineInstrs.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelector.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelectorImpl.h"
 #include "llvm/CodeGen/GlobalISel/MIPatternMatch.h"
@@ -108,13 +109,13 @@ private:
   void tryFoldShrIntoExtui(const MachineInstr &InputMI,
                            const MachineRegisterInfo &MRI, uint32_t MaskWidth,
                            Register &NewInputReg, uint32_t &ShiftWidth) const;
+  bool selectSelectFedByICmp(MachineInstr &I);
   bool selectSextInreg(MachineInstr &I);
   bool selectAddSubConst(MachineInstr &I);
   bool selectFrameIndexOffset(MachineInstr &I, MachineInstr &OperandMI,
                               int64_t Offset);
 
   bool selectLate(MachineInstr &I);
-  bool selectSelect(MachineInstr &I);
   bool selectICmp(MachineInstr &I);
   bool selectLoadStore(MachineInstr &I);
 
@@ -511,6 +512,8 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
     return forceConstrainInstrRegisters(I);
   case Xtensa::G_AND:
     return selectAndAsExtui(I);
+  case Xtensa::G_SELECT:
+    return selectSelectFedByICmp(I);
   case Xtensa::G_SEXT_INREG:
     return selectSextInreg(I);
   case Xtensa::G_ADD:
@@ -586,6 +589,24 @@ void XtensaInstructionSelector::tryFoldShrIntoExtui(
 
   NewInputReg = InputMI.getOperand(1).getReg();
   ShiftWidth = static_cast<uint32_t>(ShiftImm);
+}
+
+bool XtensaInstructionSelector::selectSelectFedByICmp(MachineInstr &I) {
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+  auto *ICmp = getOpcodeDef<GICmp>(I.getOperand(1).getReg(), MRI);
+  if (!ICmp) {
+    return false;
+  }
+
+  auto Pred =
+      static_cast<CmpInst::Predicate>(ICmp->getOperand(1).getPredicate());
+  if (!emitICmpSelect(I, Pred, ICmp->getLHSReg(), ICmp->getRHSReg(),
+                      I.getOperand(2).getReg(), I.getOperand(3).getReg())) {
+    return false;
+  }
+
+  I.removeFromParent();
+  return true;
 }
 
 bool XtensaInstructionSelector::selectSextInreg(MachineInstr &I) {

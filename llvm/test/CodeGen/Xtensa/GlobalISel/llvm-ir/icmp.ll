@@ -761,11 +761,11 @@ entry:
 define i1 @icmp_sgez_i64(i64 %a, i64 %b) {
 ; CHECK-LABEL: icmp_sgez_i64:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a4, -1
-; CHECK-NEXT:    salt a2, a4, a3
-; CHECK-NEXT:    movi.n a5, 0
-; CHECK-NEXT:    sub a3, a3, a4
-; CHECK-NEXT:    moveqz a2, a5, a3
+; CHECK-NEXT:    movi.n a2, -1
+; CHECK-NEXT:    salt a2, a2, a3
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    addi a3, a3, 1
+; CHECK-NEXT:    moveqz a2, a4, a3
 ; CHECK-NEXT:    ret.n
 entry:
   %icmp = icmp sgt i64 %a, -1
