@@ -5,6 +5,7 @@
 #include "XtensaISelLowering.h"
 #include "XtensaInstrInfo.h"
 #include "XtensaRegisterInfo.h"
+#include "llvm/ADT/StringRef.h"
 #include "llvm/CodeGen/GlobalISel/CallLowering.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelector.h"
 #include "llvm/CodeGen/GlobalISel/LegalizerInfo.h"
@@ -41,6 +42,8 @@ public:
                   const XtensaTargetMachine &TM);
 
   void ParseSubtargetFeatures(StringRef CPU, StringRef TuneCPU, StringRef FS);
+
+  XtensaSubtarget &initializeSubtargetDependencies(StringRef CPU, StringRef FS);
 
   const XtensaInstrInfo *getInstrInfo() const override { return &InstrInfo; }
 

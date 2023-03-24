@@ -19,10 +19,21 @@ using namespace llvm;
 #define GET_SUBTARGETINFO_CTOR
 #include "XtensaGenSubtargetInfo.inc"
 
+XtensaSubtarget &
+XtensaSubtarget::initializeSubtargetDependencies(StringRef CPU, StringRef FS) {
+  if (CPU.empty()) {
+    CPU = "generic";
+  }
+
+  ParseSubtargetFeatures(CPU, CPU, FS);
+  return *this;
+}
+
 XtensaSubtarget::XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
                                  const XtensaTargetMachine &TM)
-    : XtensaGenSubtargetInfo(TT, CPU, CPU, FS), FrameLowering(*this),
-      InstrInfo(*this), TLInfo(TM, *this) {
+    : XtensaGenSubtargetInfo(TT, CPU, CPU, FS),
+      FrameLowering(initializeSubtargetDependencies(CPU, FS)), InstrInfo(*this),
+      TLInfo(TM, *this) {
   CallLoweringInfo.reset(new XtensaCallLowering(TLInfo));
   auto *RBI = new XtensaRegisterBankInfo(*getRegisterInfo());
   RegBankInfo.reset(RBI);
