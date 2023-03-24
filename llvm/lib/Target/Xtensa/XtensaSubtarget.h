@@ -34,6 +34,8 @@ private:
   std::unique_ptr<LegalizerInfo> Legalizer;
   std::unique_ptr<InstructionSelector> InstSelector;
 
+  bool HasSalt;
+
 public:
   XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
                   const XtensaTargetMachine &TM);
@@ -51,6 +53,8 @@ public:
   }
 
   const TargetLowering *getTargetLowering() const override { return &TLInfo; }
+
+  bool hasSalt() const { return HasSalt; }
 
   // GlobalISel
 

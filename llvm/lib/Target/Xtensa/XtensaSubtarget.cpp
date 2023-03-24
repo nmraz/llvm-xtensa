@@ -1,4 +1,5 @@
 #include "XtensaSubtarget.h"
+#include "MCTargetDesc/XtensaMCTargetDesc.h"
 #include "Xtensa.h"
 #include "XtensaCallLowering.h"
 #include "XtensaFrameLowering.h"
