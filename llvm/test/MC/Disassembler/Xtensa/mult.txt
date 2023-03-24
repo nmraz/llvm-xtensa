@@ -1,0 +1,6 @@
+# RUN: llvm-mc %s -triple=xtensa -disassemble | FileCheck %s
+
+# CHECK: .text
+[0x60,0x45,0x82] # CHECK: mull a4, a5, a6
+[0x60,0x45,0xa2] # CHECK: muluh a4, a5, a6
+[0x60,0x45,0xb2] # CHECK: mulsh a4, a5, a6

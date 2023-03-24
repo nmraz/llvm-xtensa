@@ -1,0 +1,5 @@
+# RUN: llvm-mc %s -triple=xtensa -disassemble | FileCheck %s
+
+# CHECK: .text
+[0x00,0x23,0x23] # CHECK: sext a2, a3, 7
+[0x80,0x23,0x23] # CHECK: sext a2, a3, 15

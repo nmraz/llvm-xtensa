@@ -1,0 +1,7 @@
+# RUN: llvm-mc %s -triple=xtensa -disassemble | FileCheck %s
+
+# CHECK: .text
+[0x60,0x45,0xc2] # CHECK: quou a4, a5, a6
+[0x60,0x45,0xd2] # CHECK: quos a4, a5, a6
+[0x60,0x45,0xe2] # CHECK: remu a4, a5, a6
+[0x60,0x45,0xf2] # CHECK: rems a4, a5, a6
