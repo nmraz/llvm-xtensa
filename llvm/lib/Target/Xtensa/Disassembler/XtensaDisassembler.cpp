@@ -105,7 +105,7 @@ static DecodeStatus decodeMoviNImm7(MCInst &MI, uint32_t Imm, uint64_t Address,
                                     const MCDisassembler *Decoder) {
   // Extend from 7 to 32 bits using the AND of bits 5 and 6 in the immediate.
   int32_t Extension = SignExtend32<7>(Imm & (Imm << 1) & (1 << 6));
-  MI.addOperand(MCOperand::createImm(Imm | Extension));
+  MI.addOperand(MCOperand::createImm(static_cast<int32_t>(Imm | Extension)));
   return DecodeStatus::Success;
 }
 
