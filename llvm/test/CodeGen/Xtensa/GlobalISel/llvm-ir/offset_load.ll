@@ -111,10 +111,8 @@ define i16 @offset_load_i16_unaligned(ptr %base) {
 ;
 ; UNOPT-LABEL: offset_load_i16_unaligned:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    mov.n a3, a2
-; UNOPT-NEXT:    addi a2, a3, 10
-; UNOPT-NEXT:    l8ui a3, a3, 10
-; UNOPT-NEXT:    l8ui a2, a2, 1
+; UNOPT-NEXT:    l8ui a3, a2, 10
+; UNOPT-NEXT:    l8ui a2, a2, 11
 ; UNOPT-NEXT:    slli a2, a2, 8
 ; UNOPT-NEXT:    or a2, a2, a3
 ; UNOPT-NEXT:    ret.n
@@ -236,14 +234,12 @@ define i32 @offset_load_i32_unaligned(ptr %base) {
 ;
 ; UNOPT-LABEL: offset_load_i32_unaligned:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addi a4, a2, 20
-; UNOPT-NEXT:    l8ui a3, a2, 20
-; UNOPT-NEXT:    l8ui a2, a4, 1
-; UNOPT-NEXT:    slli a2, a2, 8
-; UNOPT-NEXT:    or a3, a2, a3
-; UNOPT-NEXT:    addi a2, a4, 2
-; UNOPT-NEXT:    l8ui a4, a4, 2
-; UNOPT-NEXT:    l8ui a2, a2, 1
+; UNOPT-NEXT:    l8ui a4, a2, 20
+; UNOPT-NEXT:    l8ui a3, a2, 21
+; UNOPT-NEXT:    slli a3, a3, 8
+; UNOPT-NEXT:    or a3, a3, a4
+; UNOPT-NEXT:    l8ui a4, a2, 22
+; UNOPT-NEXT:    l8ui a2, a2, 23
 ; UNOPT-NEXT:    slli a2, a2, 8
 ; UNOPT-NEXT:    or a2, a2, a4
 ; UNOPT-NEXT:    slli a2, a2, 16
@@ -264,9 +260,9 @@ define i64 @offset_load_i64(ptr %base) {
 ;
 ; UNOPT-LABEL: offset_load_i64:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addi a3, a2, 40
-; UNOPT-NEXT:    l32i.n a2, a2, 40
-; UNOPT-NEXT:    l32i.n a3, a3, 4
+; UNOPT-NEXT:    mov.n a3, a2
+; UNOPT-NEXT:    l32i.n a2, a3, 40
+; UNOPT-NEXT:    l32i.n a3, a3, 44
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i64, ptr %base, i32 5
   %load = load i64, ptr %p
@@ -283,9 +279,9 @@ define i64 @offset_load_i64_unaligned_off4(ptr %base) {
 ;
 ; UNOPT-LABEL: offset_load_i64_unaligned_off4:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addi a3, a2, 20
-; UNOPT-NEXT:    l32i.n a2, a2, 20
-; UNOPT-NEXT:    l32i.n a3, a3, 4
+; UNOPT-NEXT:    mov.n a3, a2
+; UNOPT-NEXT:    l32i.n a2, a3, 20
+; UNOPT-NEXT:    l32i.n a3, a3, 24
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 5
   %load = load i64, ptr %p
@@ -304,10 +300,11 @@ define i64 @offset_load_i64_unaligned_off(ptr %base) {
 ;
 ; UNOPT-LABEL: offset_load_i64_unaligned_off:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addi a3, a2, 21
-; UNOPT-NEXT:    addi a2, a2, 21
+; UNOPT-NEXT:    mov.n a3, a2
+; UNOPT-NEXT:    addi a2, a3, 21
 ; UNOPT-NEXT:    l32i.n a2, a2, 0
-; UNOPT-NEXT:    l32i.n a3, a3, 4
+; UNOPT-NEXT:    addi a3, a3, 25
+; UNOPT-NEXT:    l32i.n a3, a3, 0
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i8, ptr %base, i32 21
   %load = load i64, ptr %p
@@ -342,26 +339,23 @@ define i64 @offset_load_i64_unaligned(ptr %base) {
 ;
 ; UNOPT-LABEL: offset_load_i64_unaligned:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addi a3, a2, 40
-; UNOPT-NEXT:    l8ui a4, a2, 40
-; UNOPT-NEXT:    l8ui a2, a3, 1
+; UNOPT-NEXT:    mov.n a3, a2
+; UNOPT-NEXT:    l8ui a4, a3, 40
+; UNOPT-NEXT:    l8ui a2, a3, 41
 ; UNOPT-NEXT:    slli a2, a2, 8
 ; UNOPT-NEXT:    or a4, a2, a4
-; UNOPT-NEXT:    addi a2, a3, 2
-; UNOPT-NEXT:    l8ui a5, a3, 2
-; UNOPT-NEXT:    l8ui a2, a2, 1
+; UNOPT-NEXT:    l8ui a5, a3, 42
+; UNOPT-NEXT:    l8ui a2, a3, 43
 ; UNOPT-NEXT:    slli a2, a2, 8
 ; UNOPT-NEXT:    or a2, a2, a5
 ; UNOPT-NEXT:    slli a2, a2, 16
 ; UNOPT-NEXT:    or a2, a2, a4
-; UNOPT-NEXT:    addi a5, a3, 4
-; UNOPT-NEXT:    l8ui a4, a3, 4
-; UNOPT-NEXT:    l8ui a3, a5, 1
-; UNOPT-NEXT:    slli a3, a3, 8
-; UNOPT-NEXT:    or a4, a3, a4
-; UNOPT-NEXT:    addi a3, a5, 2
-; UNOPT-NEXT:    l8ui a5, a5, 2
-; UNOPT-NEXT:    l8ui a3, a3, 1
+; UNOPT-NEXT:    l8ui a5, a3, 44
+; UNOPT-NEXT:    l8ui a4, a3, 45
+; UNOPT-NEXT:    slli a4, a4, 8
+; UNOPT-NEXT:    or a4, a4, a5
+; UNOPT-NEXT:    l8ui a5, a3, 46
+; UNOPT-NEXT:    l8ui a3, a3, 47
 ; UNOPT-NEXT:    slli a3, a3, 8
 ; UNOPT-NEXT:    or a3, a3, a5
 ; UNOPT-NEXT:    slli a3, a3, 16

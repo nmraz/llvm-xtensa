@@ -65,6 +65,12 @@ def XtensaPostLegalizerCombinerHelper : GICombinerHelper<
   let DisableRuleOption = "xtensapostlegalizercombiner-disable-rule";
 }
 
+def XtensaO0PostLegalizerCombinerHelper : GICombinerHelper<
+  "XtensaGenO0PostLegalizerCombinerHelper",
+  [optnone_combines]> {
+  let DisableRuleOption = "xtensao0postlegalizercombiner-disable-rule";
+}
+
 def XtensaShiftCombinerHelper : GICombinerHelper<
   "XtensaGenShiftCombinerHelper",
   [lower_set_sar_inrange, set_sar_masked_redundant_and, invert_set_sar_masked,

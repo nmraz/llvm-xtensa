@@ -87,6 +87,8 @@ void XtensaPassConfig::addPreRegBankSelect() {
   bool EnableOpt = getOptLevel() != CodeGenOpt::None;
   if (EnableOpt) {
     addPass(createXtensaPostLegalizerCombiner());
+  } else {
+    addPass(createXtensaO0PostLegalizerCombiner());
   }
   addPass(createXtensaShiftLowering());
   if (EnableOpt) {

@@ -111,13 +111,15 @@ define void @offset_store_i16_unaligned(ptr %base, i16 %val) {
 ;
 ; UNOPT-LABEL: offset_store_i16_unaligned:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    mov.n a5, a2
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a4, a3
-; UNOPT-NEXT:    addi a3, a5, 10
+; UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
 ; UNOPT-NEXT:    extui a2, a4, 0, 16
 ; UNOPT-NEXT:    srli a2, a2, 8
-; UNOPT-NEXT:    s8i a4, a5, 10
-; UNOPT-NEXT:    s8i a2, a3, 1
+; UNOPT-NEXT:    s8i a4, a3, 10
+; UNOPT-NEXT:    s8i a2, a3, 11
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i16, ptr %base, i32 5
   store i16 %val, ptr %p, align 1
@@ -235,19 +237,20 @@ define void @offset_store_i32_unaligned(ptr %base, i32 %val) {
 ;
 ; UNOPT-LABEL: offset_store_i32_unaligned:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    mov.n a7, a2
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a2, a3
-; UNOPT-NEXT:    addi a5, a7, 20
+; UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
 ; UNOPT-NEXT:    extui a4, a2, 16, 16
-; UNOPT-NEXT:    addi a3, a5, 2
-; UNOPT-NEXT:    extui a6, a2, 0, 16
-; UNOPT-NEXT:    srli a6, a6, 8
-; UNOPT-NEXT:    s8i a2, a7, 20
-; UNOPT-NEXT:    s8i a6, a5, 1
+; UNOPT-NEXT:    extui a5, a2, 0, 16
+; UNOPT-NEXT:    srli a5, a5, 8
+; UNOPT-NEXT:    s8i a2, a3, 20
+; UNOPT-NEXT:    s8i a5, a3, 21
 ; UNOPT-NEXT:    extui a2, a2, 16, 16
 ; UNOPT-NEXT:    srli a2, a2, 8
-; UNOPT-NEXT:    s8i a4, a5, 2
-; UNOPT-NEXT:    s8i a2, a3, 1
+; UNOPT-NEXT:    s8i a4, a3, 22
+; UNOPT-NEXT:    s8i a2, a3, 23
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 5
   store i32 %val, ptr %p, align 1
@@ -263,10 +266,8 @@ define void @offset_store_i64(ptr %base, i64 %val) {
 ;
 ; UNOPT-LABEL: offset_store_i64:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    mov.n a3, a2
-; UNOPT-NEXT:    addi a2, a3, 40
-; UNOPT-NEXT:    s32i.n a4, a3, 40
-; UNOPT-NEXT:    s32i.n a5, a2, 4
+; UNOPT-NEXT:    s32i.n a4, a2, 40
+; UNOPT-NEXT:    s32i.n a5, a2, 44
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i64, ptr %base, i32 5
   store i64 %val, ptr %p
@@ -282,10 +283,8 @@ define void @offset_store_i64_unaligned_off4(ptr %base, i64 %val) {
 ;
 ; UNOPT-LABEL: offset_store_i64_unaligned_off4:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    mov.n a3, a2
-; UNOPT-NEXT:    addi a2, a3, 20
-; UNOPT-NEXT:    s32i.n a4, a3, 20
-; UNOPT-NEXT:    s32i.n a5, a2, 4
+; UNOPT-NEXT:    s32i.n a4, a2, 20
+; UNOPT-NEXT:    s32i.n a5, a2, 24
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 5
   store i64 %val, ptr %p
@@ -303,11 +302,10 @@ define void @offset_store_i64_unaligned_off(ptr %base, i64 %val) {
 ;
 ; UNOPT-LABEL: offset_store_i64_unaligned_off:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    mov.n a3, a2
-; UNOPT-NEXT:    addi a2, a3, 21
-; UNOPT-NEXT:    addi a3, a3, 21
+; UNOPT-NEXT:    addi a3, a2, 21
 ; UNOPT-NEXT:    s32i.n a4, a3, 0
-; UNOPT-NEXT:    s32i.n a5, a2, 4
+; UNOPT-NEXT:    addi a2, a2, 25
+; UNOPT-NEXT:    s32i.n a5, a2, 0
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i8, ptr %base, i32 21
   store i64 %val, ptr %p
@@ -337,31 +335,26 @@ define void @offset_store_i64_unaligned(ptr %base, i64 %val) {
 ;
 ; UNOPT-LABEL: offset_store_i64_unaligned:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    mov.n a8, a2
-; UNOPT-NEXT:    mov.n a3, a4
-; UNOPT-NEXT:    mov.n a2, a5
-; UNOPT-NEXT:    addi a7, a8, 40
-; UNOPT-NEXT:    extui a5, a3, 16, 16
-; UNOPT-NEXT:    addi a4, a7, 2
-; UNOPT-NEXT:    extui a6, a3, 0, 16
-; UNOPT-NEXT:    srli a6, a6, 8
-; UNOPT-NEXT:    s8i a3, a8, 40
-; UNOPT-NEXT:    s8i a6, a7, 1
-; UNOPT-NEXT:    extui a3, a3, 16, 16
-; UNOPT-NEXT:    srli a3, a3, 8
-; UNOPT-NEXT:    s8i a5, a7, 2
-; UNOPT-NEXT:    s8i a3, a4, 1
-; UNOPT-NEXT:    addi a5, a7, 4
+; UNOPT-NEXT:    mov.n a3, a2
+; UNOPT-NEXT:    mov.n a2, a4
 ; UNOPT-NEXT:    extui a4, a2, 16, 16
-; UNOPT-NEXT:    addi a3, a5, 2
 ; UNOPT-NEXT:    extui a6, a2, 0, 16
 ; UNOPT-NEXT:    srli a6, a6, 8
-; UNOPT-NEXT:    s8i a2, a7, 4
-; UNOPT-NEXT:    s8i a6, a5, 1
+; UNOPT-NEXT:    s8i a2, a3, 40
+; UNOPT-NEXT:    s8i a6, a3, 41
 ; UNOPT-NEXT:    extui a2, a2, 16, 16
 ; UNOPT-NEXT:    srli a2, a2, 8
-; UNOPT-NEXT:    s8i a4, a5, 2
-; UNOPT-NEXT:    s8i a2, a3, 1
+; UNOPT-NEXT:    s8i a4, a3, 42
+; UNOPT-NEXT:    s8i a2, a3, 43
+; UNOPT-NEXT:    extui a4, a5, 16, 16
+; UNOPT-NEXT:    extui a2, a5, 0, 16
+; UNOPT-NEXT:    srli a2, a2, 8
+; UNOPT-NEXT:    s8i a5, a3, 44
+; UNOPT-NEXT:    s8i a2, a3, 45
+; UNOPT-NEXT:    extui a2, a5, 16, 16
+; UNOPT-NEXT:    srli a2, a2, 8
+; UNOPT-NEXT:    s8i a4, a3, 46
+; UNOPT-NEXT:    s8i a2, a3, 47
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i64, ptr %base, i32 5
   store i64 %val, ptr %p, align 1
