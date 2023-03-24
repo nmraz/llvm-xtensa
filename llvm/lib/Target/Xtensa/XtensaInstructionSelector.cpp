@@ -90,6 +90,9 @@ private:
                     const AddConstParts &Parts);
   bool emitICmpSelect(MachineInstr &I, CmpInst::Predicate Pred, Register CmpLHS,
                       Register CmpRHS, Register TrueVal, Register FalseVal);
+  bool emitICmpSelectAroundZero(MachineInstr &I, CmpInst::Predicate Pred,
+                                Register CmpLHS, Register CmpRHS,
+                                Register TrueVal, Register FalseVal);
 
   bool preISelLower(MachineInstr &I);
   bool convertPtrAddToAdd(MachineInstr &I);
@@ -211,7 +214,7 @@ struct ICmpInfo {
   bool InvertSelect;
 };
 
-static Optional<ICmpInfo> getICmpZeroConversionInfo(CmpInst::Predicate Pred) {
+static Optional<ICmpInfo> getICmpAroundZeroInfo(CmpInst::Predicate Pred) {
   struct {
     CmpInst::Predicate Pred;
     ICmpInfo Info;
@@ -358,7 +361,17 @@ bool XtensaInstructionSelector::emitICmpSelect(MachineInstr &I,
                                                Register CmpLHS, Register CmpRHS,
                                                Register TrueVal,
                                                Register FalseVal) {
-  auto MaybeInfo = getICmpZeroConversionInfo(Pred);
+  if (emitICmpSelectAroundZero(I, Pred, CmpLHS, CmpRHS, TrueVal, FalseVal)) {
+    return true;
+  }
+
+  return false;
+}
+
+bool XtensaInstructionSelector::emitICmpSelectAroundZero(
+    MachineInstr &I, CmpInst::Predicate Pred, Register CmpLHS, Register CmpRHS,
+    Register TrueVal, Register FalseVal) {
+  auto MaybeInfo = getICmpAroundZeroInfo(Pred);
   if (!MaybeInfo) {
     return false;
   }
@@ -793,10 +806,6 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
 
 bool XtensaInstructionSelector::selectICmp(MachineInstr &I) {
   auto Pred = static_cast<CmpInst::Predicate>(I.getOperand(1).getPredicate());
-  if (Pred != CmpInst::ICMP_EQ && Pred != CmpInst::ICMP_NE) {
-    // Should have been handled earlier.
-    return false;
-  }
 
   Register Zero = createVirtualGPR();
   Register One = createVirtualGPR();
