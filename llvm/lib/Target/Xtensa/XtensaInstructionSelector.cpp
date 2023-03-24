@@ -23,6 +23,7 @@
 #include "llvm/CodeGen/GlobalISel/InstructionSelector.h"
 #include "llvm/CodeGen/GlobalISel/InstructionSelectorImpl.h"
 #include "llvm/CodeGen/GlobalISel/MIPatternMatch.h"
+#include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
 #include "llvm/CodeGen/GlobalISel/Utils.h"
 #include "llvm/CodeGen/MachineBasicBlock.h"
 #include "llvm/CodeGen/MachineConstantPool.h"
@@ -110,6 +111,7 @@ private:
                               int64_t Offset);
 
   bool selectLate(MachineInstr &I);
+  bool selectICmp(MachineInstr &I);
   bool selectLoadStore(MachineInstr &I);
 
   const XtensaInstrInfo &TII;
@@ -667,6 +669,8 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
     I.eraseFromParent();
     return true;
   }
+  case Xtensa::G_ICMP:
+    return selectICmp(I);
   case Xtensa::G_LOAD:
   case Xtensa::G_SEXTLOAD:
   case Xtensa::G_ZEXTLOAD:
@@ -689,6 +693,49 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
   }
 
   return false;
+}
+
+bool XtensaInstructionSelector::selectICmp(MachineInstr &I) {
+  auto Pred = static_cast<CmpInst::Predicate>(I.getOperand(1).getPredicate());
+  if (Pred != CmpInst::ICMP_EQ && Pred != CmpInst::ICMP_NE) {
+    // Should have been handled earlier.
+    return false;
+  }
+
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+
+  bool InvertOperands = Pred == CmpInst::ICMP_NE;
+
+  Register Zero = createVirtualGPR();
+  Register One = createVirtualGPR();
+  constrainInstrRegisters(
+      *emitInstrFor(I, Xtensa::MOVI).addDef(Zero).addImm(0));
+  constrainInstrRegisters(*emitInstrFor(I, Xtensa::MOVI).addDef(One).addImm(1));
+
+  Register TrueVal = InvertOperands ? Zero : One;
+  Register FalseVal = InvertOperands ? One : Zero;
+
+  Register LHS = I.getOperand(2).getReg();
+  Register RHS = I.getOperand(3).getReg();
+
+  Register Selector = LHS;
+  if (!mi_match(RHS, MRI, m_SpecificICst(0))) {
+    // Convert the comparison to a subtraction followed by a comparison with 0.
+    Selector = createVirtualGPR();
+    MachineIRBuilder Builder(I);
+    if (!select(*Builder.buildSub(Selector, LHS, RHS))) {
+      return false;
+    }
+  }
+
+  MachineInstr *MovMI = emitInstrFor(I, Xtensa::MOVEQZ)
+                            .add(I.getOperand(0))
+                            .addReg(FalseVal)
+                            .addReg(TrueVal)
+                            .addReg(Selector);
+  constrainInstrRegisters(*MovMI);
+  I.eraseFromParent();
+  return true;
 }
 
 bool XtensaInstructionSelector::selectLoadStore(MachineInstr &I) {

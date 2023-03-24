@@ -4,12 +4,12 @@
 define i1 @icmp_eq_i8(i8 %a, i8 %b) {
 ; CHECK-LABEL: icmp_eq_i8:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    extui a2, a2, 0, 8
+; CHECK-NEXT:    extui a4, a2, 0, 8
 ; CHECK-NEXT:    extui a3, a3, 0, 8
-; CHECK-NEXT:    sub a3, a2, a3
-; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    movi.n a2, 0
-; CHECK-NEXT:    moveqz a2, a4, a3
+; CHECK-NEXT:    movi.n a5, 1
+; CHECK-NEXT:    sub a3, a4, a3
+; CHECK-NEXT:    moveqz a2, a5, a3
 ; CHECK-NEXT:    ret.n
 entry:
   %icmp = icmp eq i8 %a, %b
@@ -19,12 +19,12 @@ entry:
 define i1 @icmp_ne_i8(i8 %a, i8 %b) {
 ; CHECK-LABEL: icmp_ne_i8:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    extui a2, a2, 0, 8
+; CHECK-NEXT:    extui a4, a2, 0, 8
 ; CHECK-NEXT:    extui a3, a3, 0, 8
-; CHECK-NEXT:    sub a3, a2, a3
-; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a5, 0
 ; CHECK-NEXT:    movi.n a2, 1
-; CHECK-NEXT:    moveqz a2, a4, a3
+; CHECK-NEXT:    sub a3, a4, a3
+; CHECK-NEXT:    moveqz a2, a5, a3
 ; CHECK-NEXT:    ret.n
 entry:
   %icmp = icmp ne i8 %a, %b
@@ -35,8 +35,8 @@ define i1 @icmp_eqz_i8(i8 %a) {
 ; CHECK-LABEL: icmp_eqz_i8:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    extui a3, a2, 0, 8
-; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    moveqz a2, a4, a3
 ; CHECK-NEXT:    ret.n
 entry:
@@ -211,12 +211,12 @@ entry:
 define i1 @icmp_eq_i16(i16 %a, i16 %b) {
 ; CHECK-LABEL: icmp_eq_i16:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    extui a2, a2, 0, 16
+; CHECK-NEXT:    extui a4, a2, 0, 16
 ; CHECK-NEXT:    extui a3, a3, 0, 16
-; CHECK-NEXT:    sub a3, a2, a3
-; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    movi.n a2, 0
-; CHECK-NEXT:    moveqz a2, a4, a3
+; CHECK-NEXT:    movi.n a5, 1
+; CHECK-NEXT:    sub a3, a4, a3
+; CHECK-NEXT:    moveqz a2, a5, a3
 ; CHECK-NEXT:    ret.n
 entry:
   %icmp = icmp eq i16 %a, %b
@@ -226,12 +226,12 @@ entry:
 define i1 @icmp_ne_i16(i16 %a, i16 %b) {
 ; CHECK-LABEL: icmp_ne_i16:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    extui a2, a2, 0, 16
+; CHECK-NEXT:    extui a4, a2, 0, 16
 ; CHECK-NEXT:    extui a3, a3, 0, 16
-; CHECK-NEXT:    sub a3, a2, a3
-; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a5, 0
 ; CHECK-NEXT:    movi.n a2, 1
-; CHECK-NEXT:    moveqz a2, a4, a3
+; CHECK-NEXT:    sub a3, a4, a3
+; CHECK-NEXT:    moveqz a2, a5, a3
 ; CHECK-NEXT:    ret.n
 entry:
   %icmp = icmp ne i16 %a, %b
@@ -242,8 +242,8 @@ define i1 @icmp_eqz_i16(i16 %a) {
 ; CHECK-LABEL: icmp_eqz_i16:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    extui a3, a2, 0, 16
-; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    moveqz a2, a4, a3
 ; CHECK-NEXT:    ret.n
 entry:
@@ -418,10 +418,11 @@ entry:
 define i1 @icmp_eq_i32(i32 %a, i32 %b) {
 ; CHECK-LABEL: icmp_eq_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    sub a3, a2, a3
-; CHECK-NEXT:    movi.n a4, 1
-; CHECK-NEXT:    movi.n a2, 0
-; CHECK-NEXT:    moveqz a2, a4, a3
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a5, 1
+; CHECK-NEXT:    sub a2, a2, a3
+; CHECK-NEXT:    moveqz a4, a5, a2
+; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 entry:
   %icmp = icmp eq i32 %a, %b
@@ -431,10 +432,11 @@ entry:
 define i1 @icmp_ne_i32(i32 %a, i32 %b) {
 ; CHECK-LABEL: icmp_ne_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    sub a3, a2, a3
-; CHECK-NEXT:    movi.n a4, 0
-; CHECK-NEXT:    movi.n a2, 1
-; CHECK-NEXT:    moveqz a2, a4, a3
+; CHECK-NEXT:    movi.n a5, 0
+; CHECK-NEXT:    movi.n a4, 1
+; CHECK-NEXT:    sub a2, a2, a3
+; CHECK-NEXT:    moveqz a4, a5, a2
+; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 entry:
   %icmp = icmp ne i32 %a, %b
@@ -444,8 +446,8 @@ entry:
 define i1 @icmp_eqz_i32(i32 %a) {
 ; CHECK-LABEL: icmp_eqz_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    movi.n a3, 0
+; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    moveqz a3, a4, a2
 ; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
@@ -604,8 +606,8 @@ define i1 @icmp_eq_i64(i64 %a, i64 %b) {
 ; CHECK-NEXT:    xor a2, a2, a4
 ; CHECK-NEXT:    xor a3, a3, a5
 ; CHECK-NEXT:    or a3, a2, a3
-; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    moveqz a2, a4, a3
 ; CHECK-NEXT:    ret.n
 entry:
@@ -632,8 +634,8 @@ define i1 @icmp_eqz_i64(i64 %a) {
 ; CHECK-LABEL: icmp_eqz_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    or a3, a2, a3
-; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    moveqz a2, a4, a3
 ; CHECK-NEXT:    ret.n
 entry:
@@ -835,10 +837,11 @@ entry:
 define i1 @icmp_eq_ptr(ptr %a, ptr %b) {
 ; CHECK-LABEL: icmp_eq_ptr:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    sub a3, a2, a3
-; CHECK-NEXT:    movi.n a4, 1
-; CHECK-NEXT:    movi.n a2, 0
-; CHECK-NEXT:    moveqz a2, a4, a3
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a5, 1
+; CHECK-NEXT:    sub a2, a2, a3
+; CHECK-NEXT:    moveqz a4, a5, a2
+; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 entry:
   %icmp = icmp eq ptr %a, %b
@@ -848,10 +851,11 @@ entry:
 define i1 @icmp_ne_ptr(ptr %a, ptr %b) {
 ; CHECK-LABEL: icmp_ne_ptr:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    sub a3, a2, a3
-; CHECK-NEXT:    movi.n a4, 0
-; CHECK-NEXT:    movi.n a2, 1
-; CHECK-NEXT:    moveqz a2, a4, a3
+; CHECK-NEXT:    movi.n a5, 0
+; CHECK-NEXT:    movi.n a4, 1
+; CHECK-NEXT:    sub a2, a2, a3
+; CHECK-NEXT:    moveqz a4, a5, a2
+; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 entry:
   %icmp = icmp ne ptr %a, %b
@@ -861,8 +865,8 @@ entry:
 define i1 @icmp_eqz_ptr(ptr %a) {
 ; CHECK-LABEL: icmp_eqz_ptr:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    movi.n a3, 0
+; CHECK-NEXT:    movi.n a4, 1
 ; CHECK-NEXT:    moveqz a3, a4, a2
 ; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n

@@ -165,10 +165,10 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 0
+    ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[COPY]], [[COPY1]]
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 1
-    ; CHECK-NEXT: [[MOVIN1:%[0-9]+]]:gpr = MOVIN 0
-    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVIN1]], [[MOVIN]], [[SUB]]
+    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVI]], [[MOVI1]], [[SUB]]
     ; CHECK-NEXT: $a2 = COPY [[MOVEQZ]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -240,10 +240,10 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 0
+    ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[COPY]], [[COPY1]]
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 0
-    ; CHECK-NEXT: [[MOVIN1:%[0-9]+]]:gpr = MOVIN 1
-    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVIN1]], [[MOVIN]], [[SUB]]
+    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVI1]], [[MOVI]], [[SUB]]
     ; CHECK-NEXT: $a2 = COPY [[MOVEQZ]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -313,9 +313,9 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 1
-    ; CHECK-NEXT: [[MOVIN1:%[0-9]+]]:gpr = MOVIN 0
-    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVIN1]], [[MOVIN]], [[COPY]]
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 0
+    ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 1
+    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVI]], [[MOVI1]], [[COPY]]
     ; CHECK-NEXT: $a2 = COPY [[MOVEQZ]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -385,9 +385,9 @@ body:             |
     ; CHECK: liveins: $a2
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 0
-    ; CHECK-NEXT: [[MOVIN1:%[0-9]+]]:gpr = MOVIN 1
-    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVIN1]], [[MOVIN]], [[COPY]]
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 0
+    ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 1
+    ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVI1]], [[MOVI]], [[COPY]]
     ; CHECK-NEXT: $a2 = COPY [[MOVEQZ]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2

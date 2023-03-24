@@ -32,8 +32,8 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; UNOPT-NEXT:    addi a8, a9, -32
 ; UNOPT-NEXT:    sub a4, a2, a9
 ; UNOPT-NEXT:    saltu a7, a9, a2
-; UNOPT-NEXT:    movi.n a2, 1
 ; UNOPT-NEXT:    movi.n a5, 0
+; UNOPT-NEXT:    movi.n a2, 1
 ; UNOPT-NEXT:    moveqz a5, a2, a9
 ; UNOPT-NEXT:    ssl a9
 ; UNOPT-NEXT:    sll a2, a6
@@ -87,8 +87,8 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; UNOPT-NEXT:    addi a8, a9, -32
 ; UNOPT-NEXT:    sub a4, a2, a9
 ; UNOPT-NEXT:    saltu a7, a9, a2
-; UNOPT-NEXT:    movi.n a2, 1
 ; UNOPT-NEXT:    movi.n a5, 0
+; UNOPT-NEXT:    movi.n a2, 1
 ; UNOPT-NEXT:    moveqz a5, a2, a9
 ; UNOPT-NEXT:    ssl a9
 ; UNOPT-NEXT:    sll a2, a6
@@ -144,8 +144,8 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; UNOPT-NEXT:    addi a8, a5, -32
 ; UNOPT-NEXT:    sub a9, a3, a5
 ; UNOPT-NEXT:    saltu a4, a5, a3
-; UNOPT-NEXT:    movi.n a3, 1
 ; UNOPT-NEXT:    movi.n a6, 0
+; UNOPT-NEXT:    movi.n a3, 1
 ; UNOPT-NEXT:    moveqz a6, a3, a5
 ; UNOPT-NEXT:    ssr a5
 ; UNOPT-NEXT:    srl a3, a7
@@ -199,8 +199,8 @@ define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; UNOPT-NEXT:    addi a8, a5, -32
 ; UNOPT-NEXT:    sub a9, a3, a5
 ; UNOPT-NEXT:    saltu a4, a5, a3
-; UNOPT-NEXT:    movi.n a3, 1
 ; UNOPT-NEXT:    movi.n a6, 0
+; UNOPT-NEXT:    movi.n a3, 1
 ; UNOPT-NEXT:    moveqz a6, a3, a5
 ; UNOPT-NEXT:    ssr a5
 ; UNOPT-NEXT:    srl a3, a7
@@ -266,8 +266,8 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; UNOPT-NEXT:    addi a9, a4, -32
 ; UNOPT-NEXT:    sub a6, a3, a4
 ; UNOPT-NEXT:    saltu a5, a4, a3
-; UNOPT-NEXT:    movi.n a3, 1
 ; UNOPT-NEXT:    movi.n a7, 0
+; UNOPT-NEXT:    movi.n a3, 1
 ; UNOPT-NEXT:    moveqz a7, a3, a4
 ; UNOPT-NEXT:    ssr a4
 ; UNOPT-NEXT:    sra a3, a8
@@ -320,8 +320,8 @@ define i64 @ashr_i64(i64 %val, i64 %shamt) {
 ; UNOPT-NEXT:    addi a9, a4, -32
 ; UNOPT-NEXT:    sub a6, a3, a4
 ; UNOPT-NEXT:    saltu a5, a4, a3
-; UNOPT-NEXT:    movi.n a3, 1
 ; UNOPT-NEXT:    movi.n a7, 0
+; UNOPT-NEXT:    movi.n a3, 1
 ; UNOPT-NEXT:    moveqz a7, a3, a4
 ; UNOPT-NEXT:    ssr a4
 ; UNOPT-NEXT:    sra a3, a8
