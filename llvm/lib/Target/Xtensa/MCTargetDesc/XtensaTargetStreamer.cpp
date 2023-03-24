@@ -40,9 +40,8 @@ void XtensaTargetELFStreamer::emitLiteralPosition() {
 void XtensaTargetELFStreamer::emitLiteral(MCSymbol *Name, const MCExpr *Value) {
   MCStreamer &S = getStreamer();
   MCContext &Context = S.getContext();
-  // TODO: gcc marks the section as AX?
-  MCSectionELF *LiteralSection =
-      Context.getELFSection(".literal", ELF::SHT_PROGBITS, ELF::SHF_ALLOC);
+  MCSectionELF *LiteralSection = Context.getELFSection(
+      ".literal", ELF::SHT_PROGBITS, ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
 
   S.pushSection();
   S.switchSection(LiteralSection, nullptr);
