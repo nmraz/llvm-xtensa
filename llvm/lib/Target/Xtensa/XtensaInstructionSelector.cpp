@@ -212,7 +212,7 @@ struct ICmpInfo {
   bool InvertSelect;
 };
 
-static Optional<ICmpInfo> getICmpInfo(CmpInst::Predicate Pred) {
+static Optional<ICmpInfo> getICmpZeroConversionInfo(CmpInst::Predicate Pred) {
   ICmpInfo Info[] = {
       {CmpInst::ICMP_EQ, Xtensa::MOVEQZ, false, false},
       {CmpInst::ICMP_NE, Xtensa::MOVEQZ, false, true},
@@ -356,19 +356,19 @@ bool XtensaInstructionSelector::emitICmpSelect(MachineInstr &I,
                                                Register CmpLHS, Register CmpRHS,
                                                Register TrueVal,
                                                Register FalseVal) {
-  auto MaybeInfo = getICmpInfo(Pred);
+  auto MaybeInfo = getICmpZeroConversionInfo(Pred);
   if (!MaybeInfo) {
     return false;
   }
-  ICmpInfo Info = *MaybeInfo;
+  ICmpInfo ZeroConversionInfo = *MaybeInfo;
 
   MachineRegisterInfo &MRI = MF->getRegInfo();
 
-  if (Info.InvertCmp) {
+  if (ZeroConversionInfo.InvertCmp) {
     std::swap(CmpLHS, CmpRHS);
   }
 
-  if (Info.InvertSelect) {
+  if (ZeroConversionInfo.InvertSelect) {
     std::swap(TrueVal, FalseVal);
   }
 
@@ -382,7 +382,7 @@ bool XtensaInstructionSelector::emitICmpSelect(MachineInstr &I,
     }
   }
 
-  MachineInstr *MovMI = emitInstrFor(I, Info.Opcode)
+  MachineInstr *MovMI = emitInstrFor(I, ZeroConversionInfo.Opcode)
                             .add(I.getOperand(0))
                             .addReg(FalseVal)
                             .addReg(TrueVal)
