@@ -117,20 +117,15 @@ def BNEI : BranchRI8<0b01, "bnei">;
 def BNEZ : BranchRZ12<0b01, "bnez">;
 def BNONE : BranchRR8<0b0000, "bnone">;
 
-multiclass BoolBranchPats<dag cond, dag instr> {
-  def : Pat<(brcond (i32 cond), bb:$offset), instr>;
-  // This crops up often enough in unoptimized code (and may cause
-  // large penalizations introducing additional branches) that it is worth
-  // matching specially.
-  def : Pat<(brcond (i32 (and cond, 1)), bb:$offset), instr>;
-}
+class CondBranchPat<dag cond, dag instr>
+  : Pat<(brcond (i32 cond), bb:$offset), instr>;
 
 // Bit testing branches
 
-defm : BoolBranchPats<(seteq (and i32:$a, bittest_mask:$mask), 0),
-                      (BBCI i32:$a, bittest_mask:$mask, bb:$offset)>;
-defm : BoolBranchPats<(setne (and i32:$a, bittest_mask:$mask), 0),
-                      (BBSI i32:$a, bittest_mask:$mask, bb:$offset)>;
+def : CondBranchPat<(seteq (and i32:$a, bittest_mask:$mask), 0),
+                    (BBCI i32:$a, bittest_mask:$mask, bb:$offset)>;
+def : CondBranchPat<(setne (and i32:$a, bittest_mask:$mask), 0),
+                    (BBSI i32:$a, bittest_mask:$mask, bb:$offset)>;
 
 // These forms can be created by combiners or when booleans are narrowed
 def : Pat<(brcond (i32 (and i32:$a, 1)), bb:$offset),
@@ -140,47 +135,47 @@ def : Pat<(brcond (i32 (xor (and i32:$a, 1), 1)), bb:$offset),
 
 // Arithmetic comparison branches
 
-defm : BoolBranchPats<(seteq i32:$a, 0), (BEQZ i32:$a, bb:$offset)>;
-defm : BoolBranchPats<(seteq i32:$a, i32:$b), (BEQ i32:$a, i32:$b, bb:$offset)>;
-defm : BoolBranchPats<(setne i32:$a, 0), (BNEZ i32:$a, bb:$offset)>;
-defm : BoolBranchPats<(setne i32:$a, i32:$b), (BNE i32:$a, i32:$b, bb:$offset)>;
+def : CondBranchPat<(seteq i32:$a, 0), (BEQZ i32:$a, bb:$offset)>;
+def : CondBranchPat<(seteq i32:$a, i32:$b), (BEQ i32:$a, i32:$b, bb:$offset)>;
+def : CondBranchPat<(setne i32:$a, 0), (BNEZ i32:$a, bb:$offset)>;
+def : CondBranchPat<(setne i32:$a, i32:$b), (BNE i32:$a, i32:$b, bb:$offset)>;
 
-defm : BoolBranchPats<(setgt i32:$a, -1), (BGEZ i32:$a, bb:$offset)>;
-defm : BoolBranchPats<(setge i32:$a, 0), (BGEZ i32:$a, bb:$offset)>;
-defm : BoolBranchPats<(setge i32:$a, i32:$b), (BGE i32:$a, i32:$b, bb:$offset)>;
-defm : BoolBranchPats<(setgt i32:$a, i32:$b), (BLT i32:$b, i32:$a, bb:$offset)>;
+def : CondBranchPat<(setgt i32:$a, -1), (BGEZ i32:$a, bb:$offset)>;
+def : CondBranchPat<(setge i32:$a, 0), (BGEZ i32:$a, bb:$offset)>;
+def : CondBranchPat<(setge i32:$a, i32:$b), (BGE i32:$a, i32:$b, bb:$offset)>;
+def : CondBranchPat<(setgt i32:$a, i32:$b), (BLT i32:$b, i32:$a, bb:$offset)>;
 
-defm : BoolBranchPats<(setle i32:$a, i32:$b), (BGE i32:$b, i32:$a, bb:$offset)>;
-defm : BoolBranchPats<(setle i32:$a, -1), (BLTZ i32:$a, bb:$offset)>;
-defm : BoolBranchPats<(setlt i32:$a, 0), (BLTZ i32:$a, bb:$offset)>;
-defm : BoolBranchPats<(setlt i32:$a, i32:$b), (BLT i32:$a, i32:$b, bb:$offset)>;
+def : CondBranchPat<(setle i32:$a, i32:$b), (BGE i32:$b, i32:$a, bb:$offset)>;
+def : CondBranchPat<(setle i32:$a, -1), (BLTZ i32:$a, bb:$offset)>;
+def : CondBranchPat<(setlt i32:$a, 0), (BLTZ i32:$a, bb:$offset)>;
+def : CondBranchPat<(setlt i32:$a, i32:$b), (BLT i32:$a, i32:$b, bb:$offset)>;
 
-defm : BoolBranchPats<(setuge i32:$a, i32:$b), (BGEU i32:$a, i32:$b, bb:$offset)>;
-defm : BoolBranchPats<(setugt i32:$a, i32:$b), (BLTU i32:$b, i32:$a, bb:$offset)>;
+def : CondBranchPat<(setuge i32:$a, i32:$b), (BGEU i32:$a, i32:$b, bb:$offset)>;
+def : CondBranchPat<(setugt i32:$a, i32:$b), (BLTU i32:$b, i32:$a, bb:$offset)>;
 
-defm : BoolBranchPats<(setule i32:$a, i32:$b), (BGEU i32:$b, i32:$a, bb:$offset)>;
-defm : BoolBranchPats<(setult i32:$a, i32:$b), (BLTU i32:$a, i32:$b, bb:$offset)>;
+def : CondBranchPat<(setule i32:$a, i32:$b), (BGEU i32:$b, i32:$a, bb:$offset)>;
+def : CondBranchPat<(setult i32:$a, i32:$b), (BLTU i32:$a, i32:$b, bb:$offset)>;
 
 // Arithmetic constant comparison branches
 
-defm : BoolBranchPats<(seteq i32:$a, b4const:$imm), (BEQI i32:$a, b4const:$imm, bb:$offset)>;
-defm : BoolBranchPats<(setne i32:$a, b4const:$imm), (BNEI i32:$a, b4const:$imm, bb:$offset)>;
+def : CondBranchPat<(seteq i32:$a, b4const:$imm), (BEQI i32:$a, b4const:$imm, bb:$offset)>;
+def : CondBranchPat<(setne i32:$a, b4const:$imm), (BNEI i32:$a, b4const:$imm, bb:$offset)>;
 
-defm : BoolBranchPats<(setge i32:$a, b4const:$imm), (BGEI i32:$a, b4const:$imm, bb:$offset)>;
-defm : BoolBranchPats<(setgt i32:$a, b4const_minus1:$imm),
-                      (BGEI i32:$a, b4const_minus1:$imm, bb:$offset)>;
+def : CondBranchPat<(setge i32:$a, b4const:$imm), (BGEI i32:$a, b4const:$imm, bb:$offset)>;
+def : CondBranchPat<(setgt i32:$a, b4const_minus1:$imm),
+                    (BGEI i32:$a, b4const_minus1:$imm, bb:$offset)>;
 
-defm : BoolBranchPats<(setlt i32:$a, b4const:$imm), (BLTI i32:$a, b4const:$imm, bb:$offset)>;
-defm : BoolBranchPats<(setle i32:$a, b4const_minus1:$imm),
-                      (BLTI i32:$a, b4const_minus1:$imm, bb:$offset)>;
+def : CondBranchPat<(setlt i32:$a, b4const:$imm), (BLTI i32:$a, b4const:$imm, bb:$offset)>;
+def : CondBranchPat<(setle i32:$a, b4const_minus1:$imm),
+                    (BLTI i32:$a, b4const_minus1:$imm, bb:$offset)>;
 
-defm : BoolBranchPats<(setuge i32:$a, b4constu:$imm), (BGEUI i32:$a, b4constu:$imm, bb:$offset)>;
-defm : BoolBranchPats<(setugt i32:$a, b4constu_minus1:$imm),
-                      (BGEUI i32:$a, b4constu_minus1:$imm, bb:$offset)>;
+def : CondBranchPat<(setuge i32:$a, b4constu:$imm), (BGEUI i32:$a, b4constu:$imm, bb:$offset)>;
+def : CondBranchPat<(setugt i32:$a, b4constu_minus1:$imm),
+                    (BGEUI i32:$a, b4constu_minus1:$imm, bb:$offset)>;
 
-defm : BoolBranchPats<(setult i32:$a, b4constu:$imm), (BLTUI i32:$a, b4constu:$imm, bb:$offset)>;
-defm : BoolBranchPats<(setule i32:$a, b4constu_minus1:$imm),
-                      (BLTUI i32:$a, b4constu_minus1:$imm, bb:$offset)>;
+def : CondBranchPat<(setult i32:$a, b4constu:$imm), (BLTUI i32:$a, b4constu:$imm, bb:$offset)>;
+def : CondBranchPat<(setule i32:$a, b4constu_minus1:$imm),
+                    (BLTUI i32:$a, b4constu_minus1:$imm, bb:$offset)>;
 
 // Fallback branch pattern
 
