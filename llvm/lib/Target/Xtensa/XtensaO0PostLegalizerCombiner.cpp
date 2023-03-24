@@ -4,9 +4,14 @@
 #include "llvm/CodeGen/GlobalISel/CombinerHelper.h"
 #include "llvm/CodeGen/GlobalISel/CombinerInfo.h"
 #include "llvm/CodeGen/GlobalISel/GISelKnownBits.h"
+#include "llvm/CodeGen/GlobalISel/GenericMachineInstrs.h"
 #include "llvm/CodeGen/GlobalISel/LegalizerInfo.h"
 #include "llvm/CodeGen/GlobalISel/MIPatternMatch.h"
+#include "llvm/CodeGen/GlobalISel/Utils.h"
 #include "llvm/CodeGen/MachineDominators.h"
+#include "llvm/CodeGen/MachineInstr.h"
+#include "llvm/CodeGen/MachineRegisterInfo.h"
+#include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
 #include "llvm/Target/TargetMachine.h"
 
@@ -14,6 +19,26 @@
 
 using namespace llvm;
 using namespace MIPatternMatch;
+
+static bool matchICmpAndOne(const MachineRegisterInfo &MRI, MachineInstr &MI,
+                            Register &ICmpResult) {
+  Register Operand;
+  if (!mi_match(MI, MRI, m_GAnd(m_Reg(Operand), m_SpecificICst(1)))) {
+    return false;
+  }
+  if (!getOpcodeDef<GICmp>(Operand, MRI)) {
+    return false;
+  }
+
+  ICmpResult = Operand;
+  return true;
+}
+
+static void applyICmpAndOne(CombinerHelper &Helper, MachineRegisterInfo &MRI,
+                            MachineInstr &MI, Register ICmpResult) {
+  Helper.replaceRegWith(MRI, MI.getOperand(0).getReg(), ICmpResult);
+  MI.eraseFromParent();
+}
 
 #define XTENSAO0POSTLEGALIZERCOMBINERHELPER_GENCOMBINERHELPER_DEPS
 #include "XtensaGenO0PostLegalizeGICombiner.inc"

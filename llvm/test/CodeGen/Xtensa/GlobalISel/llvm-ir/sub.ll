@@ -78,7 +78,6 @@ define i33 @sub_i33(i33 %a, i33 %b) {
 ; UNOPT-NEXT:    sub a2, a4, a6
 ; UNOPT-NEXT:    saltu a4, a4, a6
 ; UNOPT-NEXT:    sub a3, a5, a3
-; UNOPT-NEXT:    extui a4, a4, 0, 1
 ; UNOPT-NEXT:    sub a3, a3, a4
 ; UNOPT-NEXT:    ret.n
 entry:
@@ -102,7 +101,6 @@ define i64 @sub_i64(i64 %a, i64 %b) {
 ; UNOPT-NEXT:    sub a2, a4, a6
 ; UNOPT-NEXT:    saltu a4, a4, a6
 ; UNOPT-NEXT:    sub a3, a5, a3
-; UNOPT-NEXT:    extui a4, a4, 0, 1
 ; UNOPT-NEXT:    sub a3, a3, a4
 ; UNOPT-NEXT:    ret.n
 entry:
