@@ -531,9 +531,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 1
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[COPY1]], [[COPY]]
-    ; CHECK-NEXT: [[XOR:%[0-9]+]]:gpr = XOR [[SALT]], [[MOVIN]]
+    ; CHECK-NEXT: [[XOR:%[0-9]+]]:gpr = XOR [[SALT]], [[MOVI]]
     ; CHECK-NEXT: $a2 = COPY [[XOR]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -677,9 +677,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 1
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[SALT:%[0-9]+]]:gpr = SALT [[COPY]], [[COPY1]]
-    ; CHECK-NEXT: [[XOR:%[0-9]+]]:gpr = XOR [[SALT]], [[MOVIN]]
+    ; CHECK-NEXT: [[XOR:%[0-9]+]]:gpr = XOR [[SALT]], [[MOVI]]
     ; CHECK-NEXT: $a2 = COPY [[XOR]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -1118,9 +1118,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 1
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[SALTU:%[0-9]+]]:gpr = SALTU [[COPY1]], [[COPY]]
-    ; CHECK-NEXT: [[XOR:%[0-9]+]]:gpr = XOR [[SALTU]], [[MOVIN]]
+    ; CHECK-NEXT: [[XOR:%[0-9]+]]:gpr = XOR [[SALTU]], [[MOVI]]
     ; CHECK-NEXT: $a2 = COPY [[XOR]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2
@@ -1264,9 +1264,9 @@ body:             |
     ; CHECK-NEXT: {{  $}}
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
-    ; CHECK-NEXT: [[MOVIN:%[0-9]+]]:gpr = MOVIN 1
+    ; CHECK-NEXT: [[MOVI:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[SALTU:%[0-9]+]]:gpr = SALTU [[COPY]], [[COPY1]]
-    ; CHECK-NEXT: [[XOR:%[0-9]+]]:gpr = XOR [[SALTU]], [[MOVIN]]
+    ; CHECK-NEXT: [[XOR:%[0-9]+]]:gpr = XOR [[SALTU]], [[MOVI]]
     ; CHECK-NEXT: $a2 = COPY [[XOR]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2

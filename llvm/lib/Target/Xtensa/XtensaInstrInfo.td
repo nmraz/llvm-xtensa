@@ -451,13 +451,13 @@ let Predicates = [HasSalt] in {
 
   // These patterns generally only show up in unoptimized code
   def : Pat<(setge i32:$a, i32:$b),
-            (XOR (SALT i32:$a, i32:$b), (MOVIN 1))>;
+            (XOR (SALT i32:$a, i32:$b), (MOVI 1))>;
   def : Pat<(setle i32:$a, i32:$b),
-            (XOR (SALT i32:$b, i32:$a), (MOVIN 1))>;
+            (XOR (SALT i32:$b, i32:$a), (MOVI 1))>;
   def : Pat<(setuge i32:$a, i32:$b),
-            (XOR (SALTU i32:$a, i32:$b), (MOVIN 1))>;
+            (XOR (SALTU i32:$a, i32:$b), (MOVI 1))>;
   def : Pat<(setule i32:$a, i32:$b),
-            (XOR (SALTU i32:$b, i32:$a), (MOVIN 1))>;
+            (XOR (SALTU i32:$b, i32:$a), (MOVI 1))>;
 }
 
 def : Pat<(select i32:$cond, i32:$true, i32:$false),
