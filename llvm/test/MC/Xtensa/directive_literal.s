@@ -1,6 +1,4 @@
-# RUN: llvm-mc -triple xtensa-esp-elf -filetype obj -o - %s \
-# RUN:   | llvm-readobj -S --sd - \
-# RUN:   | FileCheck %s
+# RUN: llvm-mc -triple xtensa -filetype obj -o - %s | llvm-readobj -S --sd - | FileCheck %s
 
 	.text
 	.literal_position
@@ -15,6 +13,11 @@ test_literal:
 
 # CHECK: Section {
 # CHECK:   Name: .literal
+# CHECK:   Type: SHT_PROGBITS
+# CHECK:   Flags [
+# CHECK:     SHF_ALLOC
+# CHECK:     SHF_EXECINSTR
+# CHECK:   ]
 # CHECK:   AddressAlignment: 4
 # CHECK:   SectionData (
 # CHECK:     0000: 78563412
