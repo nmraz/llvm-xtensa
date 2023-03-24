@@ -231,6 +231,9 @@ def EXTUI
 def : Pat<(srl i32:$at, (extui_lshrimm i32:$lshrimm, i32:$maskimm)),
           (EXTUI i32:$at, i32:$lshrimm, i32:$maskimm)>;
 
+def : Pat<(setlt i32:$a, 0),
+          (EXTUI i32:$a, 31, 1)>;
+
 def EXTW : I_Fixed24<0x0020d0, "extw", []>;
 
 let isTrap = true in {
@@ -280,6 +283,9 @@ let isSelect = true in {
   def MOVLTZ : MovRRR<0b1010, "movltz", []>;
   def MOVGEZ : MovRRR<0b1011, "movgez", []>;
 }
+
+def : Pat<(select i32:$cond, i32:$true, i32:$false),
+          (MOVEQZ i32:$true, i32:$false, i32:$cond)>;
 
 let isAsCheapAsAMove = true, isReMaterializable = true in {
   def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", []>;
@@ -430,15 +436,6 @@ def SUBX8 : ArithRRR<0b0000, 0b1111, "subx8", [
 
 def XOR : ArithRRR<0b0000, 0b0011, "xor", [(set i32:$ar, (xor i32:$as, i32:$at))]>;
 
-// def XSR
-
-// Integer comparison
-
-// Most patterns are selected in handwritten code, but this one is easy and
-// always profitable.
-def : Pat<(setlt i32:$a, 0),
-          (EXTUI i32:$a, 31, 1)>;
-
 let Predicates = [HasSalt] in {
   def : Pat<(setlt i32:$a, i32:$b),
             (SALT i32:$a, i32:$b)>;
@@ -460,5 +457,4 @@ let Predicates = [HasSalt] in {
             (XOR (SALTU i32:$b, i32:$a), (MOVI 1))>;
 }
 
-def : Pat<(select i32:$cond, i32:$true, i32:$false),
-          (MOVEQZ i32:$true, i32:$false, i32:$cond)>;
+// def XSR
