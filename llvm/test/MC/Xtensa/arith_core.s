@@ -1,6 +1,11 @@
 # RUN: llvm-mc %s -triple=xtensa -show-encoding | FileCheck -check-prefixes=CHECK,CHECK-INST %s
 
 # Instruction format RRR
+# CHECK-INST: abs a5, a6
+# CHECK: encoding: [0x60,0x51,0x60]
+abs a5, a6
+
+# Instruction format RRR
 # CHECK-INST: add a3, a9, a4
 # CHECK: encoding: [0x40,0x39,0x80]
 add a3, a9, a4
