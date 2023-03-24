@@ -52,6 +52,10 @@ def gi_bittest_mask : GICustomOperandRenderer<"renderBittestMask">,
 def bittest_mask : ImmLeaf<i32, [{ return isPowerOf2_32(Imm); }],
                            bittest_mask_xform>;
 
+// Codegen predicates
+
+def HasSalt : Predicate<"Subtarget->hasSalt()">;
+
 // Pseudo-instructions for codegen/lowering
 
 let Uses = [A1], Defs = [A1] in {
@@ -344,8 +348,10 @@ def : FrameIndexOffStorePat<store, S32I>;
 
 // def S32NB
 
-def SALT : ArithRRR<0b0010, 0b0111, "salt", []>;
-def SALTU : ArithRRR<0b0010, 0b0110, "saltu", []>;
+let Predicates = [HasSalt] in {
+  def SALT : ArithRRR<0b0010, 0b0111, "salt", []>;
+  def SALTU : ArithRRR<0b0010, 0b0110, "saltu", []>;
+}
 
 def SEXT
    : ArithBaseRRR<0b0011, 0b0010, (outs GPR:$ar), (ins GPR:$as, uimm4_plus7:$imm),
@@ -433,24 +439,26 @@ def XOR : ArithRRR<0b0000, 0b0011, "xor", [(set i32:$ar, (xor i32:$as, i32:$at))
 def : Pat<(setlt i32:$a, 0),
           (EXTUI i32:$a, 31, 1)>;
 
-def : Pat<(setlt i32:$a, i32:$b),
-          (SALT i32:$a, i32:$b)>;
-def : Pat<(setgt i32:$a, i32:$b),
-          (SALT i32:$b, i32:$a)>;
-def : Pat<(setult i32:$a, i32:$b),
-          (SALTU i32:$a, i32:$b)>;
-def : Pat<(setugt i32:$a, i32:$b),
-          (SALTU i32:$b, i32:$a)>;
+let Predicates = [HasSalt] in {
+  def : Pat<(setlt i32:$a, i32:$b),
+            (SALT i32:$a, i32:$b)>;
+  def : Pat<(setgt i32:$a, i32:$b),
+            (SALT i32:$b, i32:$a)>;
+  def : Pat<(setult i32:$a, i32:$b),
+            (SALTU i32:$a, i32:$b)>;
+  def : Pat<(setugt i32:$a, i32:$b),
+            (SALTU i32:$b, i32:$a)>;
 
-// These patterns generally only show up in unoptimized code
-def : Pat<(setge i32:$a, i32:$b),
-          (XOR (SALT i32:$a, i32:$b), (MOVIN 1))>;
-def : Pat<(setle i32:$a, i32:$b),
-          (XOR (SALT i32:$b, i32:$a), (MOVIN 1))>;
-def : Pat<(setuge i32:$a, i32:$b),
-          (XOR (SALTU i32:$a, i32:$b), (MOVIN 1))>;
-def : Pat<(setule i32:$a, i32:$b),
-          (XOR (SALTU i32:$b, i32:$a), (MOVIN 1))>;
+  // These patterns generally only show up in unoptimized code
+  def : Pat<(setge i32:$a, i32:$b),
+            (XOR (SALT i32:$a, i32:$b), (MOVIN 1))>;
+  def : Pat<(setle i32:$a, i32:$b),
+            (XOR (SALT i32:$b, i32:$a), (MOVIN 1))>;
+  def : Pat<(setuge i32:$a, i32:$b),
+            (XOR (SALTU i32:$a, i32:$b), (MOVIN 1))>;
+  def : Pat<(setule i32:$a, i32:$b),
+            (XOR (SALTU i32:$b, i32:$a), (MOVIN 1))>;
+}
 
 def : Pat<(select i32:$cond, i32:$true, i32:$false),
           (MOVEQZ i32:$true, i32:$false, i32:$cond)>;
