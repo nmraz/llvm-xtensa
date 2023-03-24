@@ -37,6 +37,7 @@
 #include "llvm/CodeGen/TargetOpcodes.h"
 #include "llvm/CodeGen/TargetRegisterInfo.h"
 #include "llvm/IR/Constants.h"
+#include "llvm/IR/InstrTypes.h"
 #include "llvm/IR/Value.h"
 #include "llvm/Support/Alignment.h"
 #include "llvm/Support/Debug.h"
@@ -71,6 +72,7 @@ public:
 private:
   const TargetRegisterClass &
   getRegisterClassForReg(Register Reg, const MachineRegisterInfo &MRI) const;
+  void constrainInstrRegisters(MachineInstr &MI) const;
   bool forceConstrainInstrRegisters(MachineInstr &MI);
 
   Register createVirtualGPR() const;
@@ -223,6 +225,11 @@ const TargetRegisterClass &XtensaInstructionSelector::getRegisterClassForReg(
   return Xtensa::GPRRegClass;
 }
 
+void XtensaInstructionSelector::constrainInstrRegisters(
+    MachineInstr &MI) const {
+  constrainSelectedInstRegOperands(MI, TII, TRI, RBI);
+}
+
 bool XtensaInstructionSelector::forceConstrainInstrRegisters(MachineInstr &MI) {
   MachineRegisterInfo &MRI = MF->getRegInfo();
 
@@ -268,7 +275,8 @@ bool XtensaInstructionSelector::emitL32R(MachineInstr &I, Register Dest,
                                          const Constant *Value) {
   MachineInstr *L32 =
       TII.loadConstWithL32R(*I.getParent(), I, I.getDebugLoc(), Dest, Value);
-  return constrainSelectedInstRegOperands(*L32, TII, TRI, RBI);
+  constrainInstrRegisters(*L32);
+  return true;
 }
 
 void XtensaInstructionSelector::emitAddParts(MachineInstr &I, Register Dest,
@@ -295,7 +303,7 @@ void XtensaInstructionSelector::emitAddParts(MachineInstr &I, Register Dest,
                               .addDef(AddmiDest)
                               .addReg(Operand)
                               .addImm(Parts.Middle);
-    constrainSelectedInstRegOperands(*AddMi, TII, TRI, RBI);
+    constrainInstrRegisters(*AddMi);
   }
 
   if (Parts.Low) {
@@ -303,7 +311,7 @@ void XtensaInstructionSelector::emitAddParts(MachineInstr &I, Register Dest,
                              .addDef(Dest)
                              .addReg(AddiSrc)
                              .addImm(Parts.Low);
-    constrainSelectedInstRegOperands(*Addi, TII, TRI, RBI);
+    constrainInstrRegisters(*Addi);
   }
 }
 
@@ -474,7 +482,8 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
   case Xtensa::G_FRAME_INDEX:
     I.setDesc(TII.get(Xtensa::ADDI));
     I.addOperand(MachineOperand::CreateImm(0));
-    return constrainSelectedInstRegOperands(I, TII, TRI, RBI);
+    constrainInstrRegisters(I);
+    return true;
   case Xtensa::G_GLOBAL_VALUE:
     if (!emitL32R(I, I.getOperand(0).getReg(), I.getOperand(1).getGlobal())) {
       return false;
@@ -510,10 +519,7 @@ bool XtensaInstructionSelector::selectAndAsExtui(MachineInstr &I) const {
                             .addReg(InputReg)
                             .addImm(ShiftWidth)
                             .addImm(MaskWidth);
-  if (!constrainSelectedInstRegOperands(*Extui, TII, TRI, RBI)) {
-    return false;
-  }
-
+  constrainInstrRegisters(*Extui);
   I.removeFromParent();
   return true;
 }
@@ -549,7 +555,8 @@ bool XtensaInstructionSelector::selectSextInreg(MachineInstr &I) {
   if (OrigWidth >= 8 && OrigWidth <= 23) {
     I.setDesc(TII.get(Xtensa::SEXT));
     I.getOperand(2).setImm(OrigWidth - 1);
-    return constrainSelectedInstRegOperands(I, TII, TRI, RBI);
+    constrainInstrRegisters(I);
+    return true;
   }
 
   unsigned ShiftAmount = 32 - OrigWidth;
@@ -559,16 +566,13 @@ bool XtensaInstructionSelector::selectSextInreg(MachineInstr &I) {
                            .addDef(TempReg)
                            .add(I.getOperand(1))
                            .addImm(ShiftAmount);
-  if (!constrainSelectedInstRegOperands(*SLLI, TII, TRI, RBI)) {
-    return false;
-  }
+  constrainInstrRegisters(*SLLI);
+
   MachineInstr *SRAI = emitInstrFor(I, Xtensa::SRAI)
                            .add(I.getOperand(0))
                            .addReg(TempReg)
                            .addImm(ShiftAmount);
-  if (!constrainSelectedInstRegOperands(*SRAI, TII, TRI, RBI)) {
-    return false;
-  }
+  constrainInstrRegisters(*SRAI);
 
   I.eraseFromParent();
   return true;
@@ -642,9 +646,7 @@ bool XtensaInstructionSelector::selectFrameIndexOffset(MachineInstr &I,
                            .add(I.getOperand(0))
                            .add(OperandMI.getOperand(1))
                            .addImm(Offset);
-  if (!constrainSelectedInstRegOperands(*Addi, TII, TRI, RBI)) {
-    return false;
-  }
+  constrainInstrRegisters(*Addi);
 
   I.eraseFromParent();
   return true;
@@ -677,11 +679,13 @@ bool XtensaInstructionSelector::selectLate(MachineInstr &I) {
     // source instruction into account, and so always manually adds an extra
     // `SAR` def.
     I.setDesc(TII.get(Xtensa::SSR));
-    return constrainSelectedInstRegOperands(I, TII, TRI, RBI);
+    constrainInstrRegisters(I);
+    return true;
   case Xtensa::G_XTENSA_SSL_MASKED:
   case Xtensa::G_XTENSA_SSL_INRANGE:
     I.setDesc(TII.get(Xtensa::SSL));
-    return constrainSelectedInstRegOperands(I, TII, TRI, RBI);
+    constrainInstrRegisters(I);
+    return true;
   }
 
   return false;
