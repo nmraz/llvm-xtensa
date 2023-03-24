@@ -206,20 +206,22 @@ static Optional<unsigned> getLoadStoreOpcode(unsigned Opcode,
 }
 
 struct ICmpInfo {
-  CmpInst::Predicate Pred;
   unsigned Opcode;
   bool InvertCmp;
   bool InvertSelect;
 };
 
 static Optional<ICmpInfo> getICmpZeroConversionInfo(CmpInst::Predicate Pred) {
-  ICmpInfo Info[] = {
-      {CmpInst::ICMP_EQ, Xtensa::MOVEQZ, false, false},
-      {CmpInst::ICMP_NE, Xtensa::MOVEQZ, false, true},
-      {CmpInst::ICMP_SGT, Xtensa::MOVGEZ, true, true},
-      {CmpInst::ICMP_SGE, Xtensa::MOVGEZ, false, false},
-      {CmpInst::ICMP_SLT, Xtensa::MOVGEZ, false, true},
-      {CmpInst::ICMP_SLE, Xtensa::MOVGEZ, true, false},
+  struct {
+    CmpInst::Predicate Pred;
+    ICmpInfo Info;
+  } Info[] = {
+      {CmpInst::ICMP_EQ, {Xtensa::MOVEQZ, false, false}},
+      {CmpInst::ICMP_NE, {Xtensa::MOVEQZ, false, true}},
+      {CmpInst::ICMP_SGT, {Xtensa::MOVGEZ, true, true}},
+      {CmpInst::ICMP_SGE, {Xtensa::MOVGEZ, false, false}},
+      {CmpInst::ICMP_SLT, {Xtensa::MOVGEZ, false, true}},
+      {CmpInst::ICMP_SLE, {Xtensa::MOVGEZ, true, false}},
   };
 
   auto *It = std::find_if(std::begin(Info), std::end(Info),
@@ -228,7 +230,7 @@ static Optional<ICmpInfo> getICmpZeroConversionInfo(CmpInst::Predicate Pred) {
     return None;
   }
 
-  return *It;
+  return It->Info;
 }
 
 bool XtensaInstructionSelector::select(MachineInstr &I) {
