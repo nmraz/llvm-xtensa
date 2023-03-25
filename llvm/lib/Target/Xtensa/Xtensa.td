@@ -9,12 +9,17 @@ include "XtensaCombine.td"
 def FeatureSalt : SubtargetFeature<"salt", "HasSalt", "true", "Enable salt and "
                                    "saltu instructions">;
 
+def FeatureLX7 : SubtargetFeature<"lx7", "HasLX7", "true",
+                                  "Support LX7 core instructions",
+                                  [FeatureSalt]>;
+
 def XtensaInstrInfo : InstrInfo;
 
 class Proc<string Name, list<SubtargetFeature> Features>
    : ProcessorModel<Name, NoSchedModel, Features>;
 
-def : Proc<"generic", [FeatureSalt]>;
+def : Proc<"generic", []>;
+def : Proc<"lx7", [FeatureLX7]>;
 
 def XtensaAsmParser : AsmParser {
   let ShouldEmitMatchRegisterAltName = true;

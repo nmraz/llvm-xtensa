@@ -36,6 +36,7 @@ private:
   std::unique_ptr<InstructionSelector> InstSelector;
 
   bool HasSalt;
+  bool HasLX7;
 
 public:
   XtensaSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
