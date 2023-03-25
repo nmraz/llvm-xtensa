@@ -72,6 +72,17 @@ let Uses = [A1], Defs = [A1] in {
   def ADJCALLSTACKUP : XtensaPseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), []>;
 }
 
+// Pseudos expanded to conditional branches when the `saltu` instruction is not
+// supported.
+class XtensaSelectCCPseudo<DAGOperand CmpRHS>
+   : XtensaPseudo<(outs GPR:$res),
+                  (ins GPR:$lhs, CmpRHS:$rhs, GPR:$trueval, GPR:$falseval),
+                  []> {
+  let usesCustomInserter = true;
+}
+
+def SELECT_LTU : XtensaSelectCCPseudo<GPR>;
+
 
 // Real instructions
 

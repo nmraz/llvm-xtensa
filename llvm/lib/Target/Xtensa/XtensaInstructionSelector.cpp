@@ -93,6 +93,9 @@ private:
   bool emitICmpSelectAroundZero(MachineInstr &I, CmpInst::Predicate Pred,
                                 Register CmpLHS, Register CmpRHS,
                                 Register TrueVal, Register FalseVal);
+  bool emitUnsignedICmpSelect(MachineInstr &I, CmpInst::Predicate Pred,
+                              Register CmpLHS, Register CmpRHS,
+                              Register TrueVal, Register FalseVal);
 
   bool preISelLower(MachineInstr &I);
   bool convertPtrAddToAdd(MachineInstr &I);
@@ -125,6 +128,7 @@ private:
   bool selectICmp(MachineInstr &I);
   bool selectLoadStore(MachineInstr &I);
 
+  const XtensaSubtarget &STI;
   const XtensaInstrInfo &TII;
   const XtensaRegisterInfo &TRI;
   const XtensaRegisterBankInfo &RBI;
@@ -147,7 +151,7 @@ private:
 XtensaInstructionSelector::XtensaInstructionSelector(
     const XtensaTargetMachine &TM, const XtensaSubtarget &STI,
     const XtensaRegisterBankInfo &RBI)
-    : TII(*STI.getInstrInfo()), TRI(*STI.getRegisterInfo()), RBI(RBI),
+    : STI(STI), TII(*STI.getInstrInfo()), TRI(*STI.getRegisterInfo()), RBI(RBI),
 #define GET_GLOBALISEL_PREDICATES_INIT
 #include "XtensaGenGlobalISel.inc"
 #undef GET_GLOBALISEL_PREDICATES_INIT
@@ -234,6 +238,21 @@ static Optional<ICmpInfo> getICmpAroundZeroInfo(CmpInst::Predicate Pred) {
   }
 
   return It->Info;
+}
+
+static Optional<ICmpInfo> getUnsignedICmpInfo(CmpInst::Predicate Pred) {
+  switch (Pred) {
+  case CmpInst::ICMP_UGT:
+    return {{Xtensa::SELECT_LTU, true, false}};
+  case CmpInst::ICMP_UGE:
+    return {{Xtensa::SELECT_LTU, false, true}};
+  case CmpInst::ICMP_ULT:
+    return {{Xtensa::SELECT_LTU, false, false}};
+  case CmpInst::ICMP_ULE:
+    return {{Xtensa::SELECT_LTU, true, true}};
+  default:
+    return None;
+  }
 }
 
 bool XtensaInstructionSelector::select(MachineInstr &I) {
@@ -365,6 +384,11 @@ bool XtensaInstructionSelector::emitICmpSelect(MachineInstr &I,
     return true;
   }
 
+  // Avoid introducing branches if we can get by without them.
+  if (!STI.hasSalt()) {
+    return emitUnsignedICmpSelect(I, Pred, CmpLHS, CmpRHS, TrueVal, FalseVal);
+  }
+
   return false;
 }
 
@@ -403,6 +427,33 @@ bool XtensaInstructionSelector::emitICmpSelectAroundZero(
                             .addReg(TrueVal)
                             .addReg(Selector);
   constrainInstrRegisters(*MovMI);
+  return true;
+}
+
+bool XtensaInstructionSelector::emitUnsignedICmpSelect(
+    MachineInstr &I, CmpInst::Predicate Pred, Register CmpLHS, Register CmpRHS,
+    Register TrueVal, Register FalseVal) {
+  auto MaybeInfo = getUnsignedICmpInfo(Pred);
+  if (!MaybeInfo) {
+    return false;
+  }
+  ICmpInfo Info = *MaybeInfo;
+
+  if (Info.InvertCmp) {
+    std::swap(CmpLHS, CmpRHS);
+  }
+
+  if (Info.InvertSelect) {
+    std::swap(TrueVal, FalseVal);
+  }
+
+  MachineInstr *SelectMI = emitInstrFor(I, Info.Opcode)
+                               .add(I.getOperand(0))
+                               .addReg(CmpLHS)
+                               .addReg(CmpRHS)
+                               .addReg(TrueVal)
+                               .addReg(FalseVal);
+  constrainInstrRegisters(*SelectMI);
   return true;
 }
 
