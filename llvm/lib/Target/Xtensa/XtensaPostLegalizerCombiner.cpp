@@ -1,3 +1,4 @@
+#include "XtensaInstrInfo.h"
 #include "XtensaSubtarget.h"
 #include "llvm/CodeGen/GlobalISel/CSEInfo.h"
 #include "llvm/CodeGen/GlobalISel/Combiner.h"
@@ -23,7 +24,7 @@
 using namespace llvm;
 using namespace MIPatternMatch;
 
-static bool isFoldableExpensiveICmp(const XtensaSubtarget &STI,
+static bool isFoldableExpensiveICmp(const XtensaInstrInfo &TII,
                                     const MachineRegisterInfo &MRI,
                                     Register Reg) {
   if (!MRI.hasOneNonDBGUse(Reg)) {
@@ -37,18 +38,7 @@ static bool isFoldableExpensiveICmp(const XtensaSubtarget &STI,
     return false;
   }
 
-  if (!STI.hasSalt()) {
-    // We don't have any dedicated comparison instructions.
-    return true;
-  }
-
-  switch (ICmp->getCond()) {
-  case CmpInst::ICMP_EQ:
-  case CmpInst::ICMP_NE:
-    return true;
-  default:
-    return false;
-  }
+  return TII.intCmpRequiresSelect(ICmp->getCond());
 }
 
 static bool shouldCheckICmpRHS(unsigned Opcode) { return true; }
@@ -69,6 +59,7 @@ static bool matchExpensiveICmpOp(MachineRegisterInfo &MRI, MachineInstr &MI,
                                  BuildFnTy &BuildFn) {
   const XtensaSubtarget &STI =
       MI.getParent()->getParent()->getSubtarget<XtensaSubtarget>();
+  const XtensaInstrInfo &TII = *STI.getInstrInfo();
 
   unsigned Opcode = MI.getOpcode();
   Register Dest = MI.getOperand(0).getReg();
@@ -77,11 +68,11 @@ static bool matchExpensiveICmpOp(MachineRegisterInfo &MRI, MachineInstr &MI,
 
   Register ICmpReg;
   unsigned ICmpIdx = 0;
-  if (shouldCheckICmpRHS(Opcode) && isFoldableExpensiveICmp(STI, MRI, RHS)) {
+  if (shouldCheckICmpRHS(Opcode) && isFoldableExpensiveICmp(TII, MRI, RHS)) {
     ICmpReg = RHS;
     ICmpIdx = 1;
   } else if (shouldCheckICmpLHS(Opcode) &&
-             isFoldableExpensiveICmp(STI, MRI, LHS)) {
+             isFoldableExpensiveICmp(TII, MRI, LHS)) {
     ICmpReg = LHS;
     ICmpIdx = 0;
   } else {

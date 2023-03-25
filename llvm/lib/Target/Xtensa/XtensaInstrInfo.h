@@ -19,6 +19,7 @@
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetInstrInfo.h"
 #include "llvm/IR/DebugLoc.h"
+#include "llvm/IR/InstrTypes.h"
 #include <cstdint>
 
 #define GET_INSTRINFO_HEADER
@@ -37,6 +38,9 @@ public:
   explicit XtensaInstrInfo(XtensaSubtarget &ST);
 
   const XtensaRegisterInfo &getRegisterInfo() const { return RI; }
+
+  bool intCmpRequiresSelect(CmpInst::Predicate Pred) const;
+  bool intCmpRequiresBranch(CmpInst::Predicate Pred) const;
 
   MachineInstr *loadConstWithL32R(MachineBasicBlock &MBB,
                                   MachineBasicBlock::iterator I,

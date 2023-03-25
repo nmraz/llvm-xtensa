@@ -3,6 +3,7 @@
 #include "XtensaFrameLowering.h"
 #include "XtensaInstrUtils.h"
 #include "XtensaRegisterInfo.h"
+#include "XtensaSubtarget.h"
 #include "llvm/ADT/APInt.h"
 #include "llvm/ADT/Optional.h"
 #include "llvm/ADT/STLExtras.h"
@@ -173,6 +174,44 @@ static bool isPrecededByTerminator(MachineBasicBlock::iterator I,
 XtensaInstrInfo::XtensaInstrInfo(XtensaSubtarget &ST)
     : XtensaGenInstrInfo(Xtensa::ADJCALLSTACKDOWN, Xtensa::ADJCALLSTACKUP),
       Subtarget(ST) {}
+
+bool XtensaInstrInfo::intCmpRequiresSelect(CmpInst::Predicate Pred) const {
+  switch (Pred) {
+  case CmpInst::ICMP_EQ:
+  case CmpInst::ICMP_NE:
+    return true;
+  case CmpInst::ICMP_UGT:
+  case CmpInst::ICMP_UGE:
+  case CmpInst::ICMP_ULT:
+  case CmpInst::ICMP_ULE:
+  case CmpInst::ICMP_SGT:
+  case CmpInst::ICMP_SGE:
+  case CmpInst::ICMP_SLT:
+  case CmpInst::ICMP_SLE:
+    return !Subtarget.hasSalt();
+  default:
+    llvm_unreachable("Should only be called with integer comparisons");
+  }
+}
+
+bool XtensaInstrInfo::intCmpRequiresBranch(CmpInst::Predicate Pred) const {
+  switch (Pred) {
+  case CmpInst::ICMP_EQ:
+  case CmpInst::ICMP_NE:
+  case CmpInst::ICMP_SGT:
+  case CmpInst::ICMP_SGE:
+  case CmpInst::ICMP_SLT:
+  case CmpInst::ICMP_SLE:
+    return false;
+  case CmpInst::ICMP_UGT:
+  case CmpInst::ICMP_UGE:
+  case CmpInst::ICMP_ULT:
+  case CmpInst::ICMP_ULE:
+    return !Subtarget.hasSalt();
+  default:
+    llvm_unreachable("Should only be called with integer comparisons");
+  }
+}
 
 MachineInstr *XtensaInstrInfo::loadConstWithL32R(MachineBasicBlock &MBB,
                                                  MachineBasicBlock::iterator I,
