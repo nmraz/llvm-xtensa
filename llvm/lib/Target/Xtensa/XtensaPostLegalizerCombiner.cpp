@@ -4,16 +4,120 @@
 #include "llvm/CodeGen/GlobalISel/CombinerHelper.h"
 #include "llvm/CodeGen/GlobalISel/CombinerInfo.h"
 #include "llvm/CodeGen/GlobalISel/GISelKnownBits.h"
+#include "llvm/CodeGen/GlobalISel/GenericMachineInstrs.h"
 #include "llvm/CodeGen/GlobalISel/LegalizerInfo.h"
 #include "llvm/CodeGen/GlobalISel/MIPatternMatch.h"
+#include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
+#include "llvm/CodeGen/GlobalISel/Utils.h"
 #include "llvm/CodeGen/MachineDominators.h"
+#include "llvm/CodeGen/MachineOperand.h"
+#include "llvm/CodeGen/MachineRegisterInfo.h"
+#include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
+#include "llvm/Support/Compiler.h"
+#include "llvm/Support/Debug.h"
 #include "llvm/Target/TargetMachine.h"
 
 #define DEBUG_TYPE "xtensa-postlegalizer-combiner"
 
 using namespace llvm;
 using namespace MIPatternMatch;
+
+static bool isFoldableExpensiveICmp(const XtensaSubtarget &STI,
+                                    const MachineRegisterInfo &MRI,
+                                    Register Reg) {
+  if (!MRI.hasOneNonDBGUse(Reg)) {
+    // If there are multiple uses, this is going to get messy anyway. Let's not
+    // cause more trouble by increasing code size.
+    return false;
+  }
+
+  GICmp *ICmp = getOpcodeDef<GICmp>(Reg, MRI);
+  if (!ICmp) {
+    return false;
+  }
+
+  if (!STI.hasSalt()) {
+    // We don't have any dedicated comparison instructions.
+    return true;
+  }
+
+  switch (ICmp->getCond()) {
+  case CmpInst::ICMP_EQ:
+  case CmpInst::ICMP_NE:
+    return true;
+  default:
+    return false;
+  }
+}
+
+static bool shouldCheckICmpRHS(unsigned Opcode) { return true; }
+static bool shouldCheckICmpLHS(unsigned Opcode) {
+  switch (Opcode) {
+  case TargetOpcode::G_ADD:
+  case TargetOpcode::G_AND:
+  case TargetOpcode::G_MUL:
+  case TargetOpcode::G_OR:
+  case TargetOpcode::G_XOR:
+    return true;
+  default:
+    return false;
+  }
+}
+
+static bool matchExpensiveICmpOp(MachineRegisterInfo &MRI, MachineInstr &MI,
+                                 BuildFnTy &BuildFn) {
+  const XtensaSubtarget &STI =
+      MI.getParent()->getParent()->getSubtarget<XtensaSubtarget>();
+
+  unsigned Opcode = MI.getOpcode();
+  Register Dest = MI.getOperand(0).getReg();
+  Register LHS = MI.getOperand(1).getReg();
+  Register RHS = MI.getOperand(2).getReg();
+
+  Register ICmpReg;
+  unsigned ICmpIdx = 0;
+  if (shouldCheckICmpRHS(Opcode) && isFoldableExpensiveICmp(STI, MRI, RHS)) {
+    ICmpReg = RHS;
+    ICmpIdx = 1;
+  } else if (shouldCheckICmpLHS(Opcode) &&
+             isFoldableExpensiveICmp(STI, MRI, LHS)) {
+    ICmpReg = LHS;
+    ICmpIdx = 0;
+  } else {
+    return false;
+  }
+
+  LLVM_DEBUG(dbgs() << "Found expensive ICmp on use " << ICmpIdx << " of:");
+  LLVM_DEBUG(MI.dump());
+  LLVM_DEBUG(dbgs() << "\tICmp:");
+  LLVM_DEBUG(MRI.getVRegDef(ICmpReg)->dump());
+
+  BuildFn = [=](MachineIRBuilder &Builder) {
+    LLT S32 = LLT::scalar(32);
+    auto Zero = Builder.buildConstant({S32}, 0);
+    auto One = Builder.buildConstant({S32}, 1);
+
+    SrcOp ZeroOps[] = {LHS, RHS};
+    ZeroOps[ICmpIdx] = Zero;
+    auto ZeroVal = Builder.buildInstr(Opcode, {S32}, ZeroOps);
+    LLVM_DEBUG(dbgs() << "\tBuilt zero val:");
+    LLVM_DEBUG(ZeroVal->dump());
+
+    SrcOp OneOps[] = {LHS, RHS};
+    OneOps[ICmpIdx] = One;
+    auto OneVal = Builder.buildInstr(Opcode, {S32}, OneOps);
+    LLVM_DEBUG(dbgs() << "\tBuilt one val:");
+    LLVM_DEBUG(OneVal->dump());
+
+    LLVM_ATTRIBUTE_UNUSED auto Select =
+        Builder.buildSelect(Dest, ICmpReg, OneVal, ZeroVal);
+    LLVM_DEBUG(dbgs() << "\tBuilt select:");
+    LLVM_DEBUG(Select->dump());
+  };
+
+  return true;
+}
 
 #define XTENSAPOSTLEGALIZERCOMBINERHELPER_GENCOMBINERHELPER_DEPS
 #include "XtensaGenPostLegalizeGICombiner.inc"

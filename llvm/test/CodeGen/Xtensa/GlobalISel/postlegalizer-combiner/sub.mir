@@ -434,9 +434,11 @@ body:             |
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:_(s32) = G_SUB [[COPY2]], [[COPY]]
     ; CHECK-NEXT: [[ICMP:%[0-9]+]]:_(s32) = G_ICMP intpred(ult), [[COPY2]](s32), [[COPY]]
     ; CHECK-NEXT: [[SUB1:%[0-9]+]]:_(s32) = G_SUB [[COPY3]], [[COPY1]]
-    ; CHECK-NEXT: [[SUB2:%[0-9]+]]:_(s32) = G_SUB [[SUB1]], [[ICMP]]
+    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
+    ; CHECK-NEXT: [[SUB2:%[0-9]+]]:_(s32) = G_SUB [[SUB1]], [[C]]
+    ; CHECK-NEXT: [[SELECT:%[0-9]+]]:_(s32) = G_SELECT [[ICMP]](s32), [[SUB2]], [[SUB1]]
     ; CHECK-NEXT: $a2 = COPY [[SUB]](s32)
-    ; CHECK-NEXT: $a3 = COPY [[SUB2]](s32)
+    ; CHECK-NEXT: $a3 = COPY [[SELECT]](s32)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
     %2:_(s32) = COPY $a2
     %3:_(s32) = COPY $a3
@@ -540,9 +542,11 @@ body:             |
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:_(s32) = G_SUB [[COPY2]], [[COPY]]
     ; CHECK-NEXT: [[ICMP:%[0-9]+]]:_(s32) = G_ICMP intpred(ult), [[COPY2]](s32), [[COPY]]
     ; CHECK-NEXT: [[SUB1:%[0-9]+]]:_(s32) = G_SUB [[COPY3]], [[COPY1]]
-    ; CHECK-NEXT: [[SUB2:%[0-9]+]]:_(s32) = G_SUB [[SUB1]], [[ICMP]]
+    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 1
+    ; CHECK-NEXT: [[SUB2:%[0-9]+]]:_(s32) = G_SUB [[SUB1]], [[C]]
+    ; CHECK-NEXT: [[SELECT:%[0-9]+]]:_(s32) = G_SELECT [[ICMP]](s32), [[SUB2]], [[SUB1]]
     ; CHECK-NEXT: $a2 = COPY [[SUB]](s32)
-    ; CHECK-NEXT: $a3 = COPY [[SUB2]](s32)
+    ; CHECK-NEXT: $a3 = COPY [[SELECT]](s32)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2, implicit $a3
     %2:_(s32) = COPY $a2
     %3:_(s32) = COPY $a3

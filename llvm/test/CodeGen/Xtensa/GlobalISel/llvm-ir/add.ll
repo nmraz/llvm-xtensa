@@ -109,13 +109,11 @@ define i33 @add_i33(i33 %a, i33 %b) {
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    mov.n a6, a2
 ; OPT-NEXT:    add.n a2, a4, a2
-; OPT-NEXT:    movi.n a4, 1
-; OPT-NEXT:    bltu a2, a6, .LBB4_2
-; OPT-NEXT:  # %bb.1: # %entry
-; OPT-NEXT:    movi.n a4, 0
-; OPT-NEXT:  .LBB4_2: # %entry
 ; OPT-NEXT:    add.n a3, a5, a3
-; OPT-NEXT:    add.n a3, a3, a4
+; OPT-NEXT:    bgeu a2, a6, .LBB4_2
+; OPT-NEXT:  # %bb.1:
+; OPT-NEXT:    addi a3, a3, 1
+; OPT-NEXT:  .LBB4_2: # %entry
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: add_i33:
@@ -177,13 +175,11 @@ define i64 @add_i64(i64 %a, i64 %b) {
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    mov.n a6, a2
 ; OPT-NEXT:    add.n a2, a4, a2
-; OPT-NEXT:    movi.n a4, 1
-; OPT-NEXT:    bltu a2, a6, .LBB5_2
-; OPT-NEXT:  # %bb.1: # %entry
-; OPT-NEXT:    movi.n a4, 0
-; OPT-NEXT:  .LBB5_2: # %entry
 ; OPT-NEXT:    add.n a3, a5, a3
-; OPT-NEXT:    add.n a3, a3, a4
+; OPT-NEXT:    bgeu a2, a6, .LBB5_2
+; OPT-NEXT:  # %bb.1:
+; OPT-NEXT:    addi a3, a3, 1
+; OPT-NEXT:  .LBB5_2: # %entry
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: add_i64:
