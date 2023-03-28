@@ -693,13 +693,28 @@ void XtensaInstructionSelector::tryFoldShrIntoExtui(
 
 bool XtensaInstructionSelector::selectSelectFedByICmp(MachineInstr &I) {
   MachineRegisterInfo &MRI = MF->getRegInfo();
-  auto *ICmp = getOpcodeDef<GICmp>(I.getOperand(1).getReg(), MRI);
+  Register TestReg = I.getOperand(1).getReg();
+  auto *ICmp = getOpcodeDef<GICmp>(TestReg, MRI);
   if (!ICmp) {
     return false;
   }
 
   auto Pred =
       static_cast<CmpInst::Predicate>(ICmp->getOperand(1).getPredicate());
+
+  if (!MRI.hasOneNonDBGUse(TestReg) &&
+      (!TII.intCmpRequiresSelect(Pred) || TII.intCmpRequiresBranch(Pred))) {
+    // Avoid inlining the compare if it is used in several places in two cases:
+    // 1. If it will require a branch anyway, we don't want to create the
+    //    branches in several places.
+    // 2. If the comparison can be performed in a single instruction,
+    //    there is no benefit to folding it in if we're not sure where else it
+    //    will be used.
+    // Other cases (notably integer equality) should always be folded in, as
+    // they effectively turn into a select later.
+    return false;
+  }
+
   if (!emitICmpSelect(I, Pred, ICmp->getLHSReg(), ICmp->getRHSReg(),
                       I.getOperand(2).getReg(), I.getOperand(3).getReg())) {
     return false;
