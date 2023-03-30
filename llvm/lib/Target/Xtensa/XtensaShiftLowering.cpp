@@ -6,12 +6,16 @@
 #include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
 #include "llvm/CodeGen/GlobalISel/Utils.h"
 #include "llvm/CodeGen/MachineFunction.h"
+#include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineMemOperand.h"
 #include "llvm/CodeGen/MachineOperand.h"
+#include "llvm/CodeGen/MachineRegisterInfo.h"
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/RegisterBankInfo.h"
+#include "llvm/CodeGen/TargetInstrInfo.h"
 #include "llvm/CodeGen/TargetRegisterInfo.h"
+#include "llvm/CodeGen/TargetSubtargetInfo.h"
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Target/TargetMachine.h"
 #include <cassert>
@@ -26,11 +30,17 @@ class XtensaShiftLowering : public MachineFunctionPass {
 public:
   static char ID;
 
+  const MachineRegisterInfo *MRI;
+  const TargetInstrInfo *TII;
+  const TargetRegisterInfo *TRI;
+  const RegisterBankInfo *RBI;
+
   XtensaShiftLowering();
 
   StringRef getPassName() const override { return "Xtensa Shift Lowering"; }
 
   bool lower(MachineInstr &MI);
+  bool lowerStandardShift(MachineInstr &MI);
 
   bool runOnMachineFunction(MachineFunction &MF) override;
   void getAnalysisUsage(AnalysisUsage &AU) const override;
@@ -64,24 +74,22 @@ static unsigned getXtensaShiftOpcode(unsigned GenericOpcode) {
 }
 
 bool XtensaShiftLowering::lower(MachineInstr &MI) {
-  unsigned Opcode = MI.getOpcode();
-  if (Opcode != Xtensa::G_SHL && Opcode != Xtensa::G_LSHR &&
-      Opcode != Xtensa::G_ASHR) {
+  switch (MI.getOpcode()) {
+  case Xtensa::G_SHL:
+  case Xtensa::G_LSHR:
+  case Xtensa::G_ASHR:
+    return lowerStandardShift(MI);
+  default:
     return false;
   }
+}
 
+bool XtensaShiftLowering::lowerStandardShift(MachineInstr &MI) {
+  unsigned Opcode = MI.getOpcode();
   MachineBasicBlock &MBB = *MI.getParent();
-  MachineFunction &MF = *MBB.getParent();
-  MachineRegisterInfo &MRI = MF.getRegInfo();
-
-  const TargetSubtargetInfo &ST = MF.getSubtarget();
-  const TargetInstrInfo &TII = *ST.getInstrInfo();
-  const RegisterBankInfo &RBI = *ST.getRegBankInfo();
-  const TargetRegisterInfo &TRI = *ST.getRegisterInfo();
-
   Register ShiftAmount = MI.getOperand(2).getReg();
 
-  Optional<int64_t> ShiftConst = getIConstantVRegSExtVal(ShiftAmount, MRI);
+  Optional<int64_t> ShiftConst = getIConstantVRegSExtVal(ShiftAmount, *MRI);
   if (ShiftConst && isLegalConstantShift(Opcode, *ShiftConst)) {
     // Can be selected directly later
     return false;
@@ -93,21 +101,28 @@ bool XtensaShiftLowering::lower(MachineInstr &MI) {
   // produce poison when the shift amount is greater than or equal to the bit
   // width.
   BuildMI(MBB, MI, MI.getDebugLoc(),
-          TII.get(IsLeftShift ? Xtensa::G_XTENSA_SSL_INRANGE
-                              : Xtensa::G_XTENSA_SSR_INRANGE))
+          TII->get(IsLeftShift ? Xtensa::G_XTENSA_SSL_INRANGE
+                               : Xtensa::G_XTENSA_SSR_INRANGE))
       .addReg(ShiftAmount);
 
   MachineInstr *ShiftMI =
-      BuildMI(MBB, MI, MI.getDebugLoc(), TII.get(getXtensaShiftOpcode(Opcode)))
+      BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(getXtensaShiftOpcode(Opcode)))
           .add(MI.getOperand(0))
           .add(MI.getOperand(1));
-  constrainSelectedInstRegOperands(*ShiftMI, TII, TRI, RBI);
+  constrainSelectedInstRegOperands(*ShiftMI, *TII, *TRI, *RBI);
 
   MI.removeFromParent();
   return true;
 }
 
 bool XtensaShiftLowering::runOnMachineFunction(MachineFunction &MF) {
+  const TargetSubtargetInfo &STI = MF.getSubtarget();
+
+  MRI = &MF.getRegInfo();
+  TII = STI.getInstrInfo();
+  TRI = STI.getRegisterInfo();
+  RBI = STI.getRegBankInfo();
+
   bool Changed = false;
 
   for (auto &MBB : MF) {
