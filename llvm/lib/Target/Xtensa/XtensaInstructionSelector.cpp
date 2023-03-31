@@ -218,8 +218,8 @@ static Optional<unsigned> getLoadStoreOpcode(unsigned Opcode,
 
 struct ICmpInfo {
   unsigned Opcode;
-  bool InvertCmp;
-  bool InvertSelect;
+  bool SwapCmp;
+  bool SwapSelect;
 };
 
 static Optional<ICmpInfo> getICmpAroundZeroInfo(CmpInst::Predicate Pred) {
@@ -392,11 +392,11 @@ bool XtensaInstructionSelector::emitICmpSelectAroundZero(
 
   MachineRegisterInfo &MRI = MF->getRegInfo();
 
-  if (ZeroConversionInfo.InvertCmp) {
+  if (ZeroConversionInfo.SwapCmp) {
     std::swap(CmpLHS, CmpRHS);
   }
 
-  if (ZeroConversionInfo.InvertSelect) {
+  if (ZeroConversionInfo.SwapSelect) {
     std::swap(TrueVal, FalseVal);
   }
 
