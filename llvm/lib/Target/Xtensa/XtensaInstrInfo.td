@@ -46,12 +46,6 @@ def b4constu_minus1 : ImmLeaf<i32, [{
   return encodeB4ConstU(Imm + 1).has_value();
 }], imm_plus1_xform>;
 
-def bittest_mask_xform : SDNodeXForm<imm, [{ unimplemented }]>;
-def gi_bittest_mask : GICustomOperandRenderer<"renderBittestMask">,
-                      GISDNodeXFormEquiv<bittest_mask_xform>;
-def bittest_mask : ImmLeaf<i32, [{ return isPowerOf2_32(Imm); }],
-                           bittest_mask_xform>;
-
 // Codegen predicates
 
 def HasSalt : Predicate<"Subtarget->hasSalt()">;
@@ -138,16 +132,19 @@ class CondBranchPat<dag cond, dag instr>
 
 // Bit testing branches
 
-def : CondBranchPat<(seteq (and i32:$a, bittest_mask:$mask), 0),
-                    (BBCI i32:$a, bittest_mask:$mask, bb:$offset)>;
-def : CondBranchPat<(setne (and i32:$a, bittest_mask:$mask), 0),
-                    (BBSI i32:$a, bittest_mask:$mask, bb:$offset)>;
-
-// These forms can be created by combiners or when booleans are narrowed
 def : Pat<(brcond (i32 (and i32:$a, 1)), bb:$offset),
           (BBSI i32:$a, 0, bb:$offset)>;
+def : Pat<(brcond (srl i32:$a, (i32 31)), bb:$offset),
+          (BBSI i32:$a, 31, bb:$offset)>;
+def : Pat<(brcond (i32 (and (srl i32:$a, uimm5:$bit), 1)), bb:$offset),
+          (BBSI i32:$a, uimm5:$bit, bb:$offset)>;
+
 def : Pat<(brcond (i32 (xor (and i32:$a, 1), 1)), bb:$offset),
           (BBCI i32:$a, 0, bb:$offset)>;
+def : Pat<(brcond (xor (srl i32:$a, (i32 31)), 1), bb:$offset),
+          (BBCI i32:$a, 31, bb:$offset)>;
+def : Pat<(brcond (i32 (xor (and (srl i32:$a, uimm5:$bit), 1), 1)), bb:$offset),
+          (BBCI i32:$a, uimm5:$bit, bb:$offset)>;
 
 // Arithmetic comparison branches
 

@@ -1,5 +1,7 @@
 #include "XtensaInstrInfo.h"
 #include "XtensaSubtarget.h"
+#include "llvm/ADT/None.h"
+#include "llvm/ADT/Optional.h"
 #include "llvm/CodeGen/GlobalISel/CSEInfo.h"
 #include "llvm/CodeGen/GlobalISel/Combiner.h"
 #include "llvm/CodeGen/GlobalISel/CombinerHelper.h"
@@ -64,6 +66,34 @@ static bool matchICmpPow2Mask(const MachineRegisterInfo &MRI, MachineInstr &MI,
   };
 
   return true;
+}
+
+static bool matchRepeatedXorConst(const CombinerHelper &Helper,
+                                  const MachineRegisterInfo &MRI,
+                                  MachineInstr &MI, Register &OrigReg) {
+  int64_t C1 = 0;
+  int64_t C2 = 0;
+
+  Register Value;
+
+  if (!mi_match(MI, MRI,
+                m_GXor(m_GXor(m_Reg(Value), m_ICst(C1)), m_ICst(C2)))) {
+    return false;
+  }
+
+  if (C1 != C2) {
+    return false;
+  }
+
+  OrigReg = Value;
+  return true;
+}
+
+static void applyRepeatedXorConst(CombinerHelper &Helper,
+                                  MachineRegisterInfo &MRI, MachineInstr &MI,
+                                  Register Value) {
+  Helper.replaceRegWith(MRI, MI.getOperand(0).getReg(), Value);
+  MI.eraseFromParent();
 }
 
 static bool isFoldableExpensiveICmp(const XtensaInstrInfo &TII,

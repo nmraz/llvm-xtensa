@@ -114,8 +114,6 @@ private:
 
   void renderImmPlus1(MachineInstrBuilder &MIB, const MachineInstr &I,
                       int OpIdx = -1) const;
-  void renderBittestMask(MachineInstrBuilder &MIB, const MachineInstr &I,
-                         int OpIdx = -1) const;
 
   bool selectEarly(MachineInstr &I);
   bool selectAndAsExtui(MachineInstr &I) const;
@@ -655,14 +653,6 @@ void XtensaInstructionSelector::renderImmPlus1(MachineInstrBuilder &MIB,
   assert(I.getOpcode() == TargetOpcode::G_CONSTANT && OpIdx == -1 &&
          "Expected G_CONSTANT");
   MIB.addImm(I.getOperand(1).getCImm()->getSExtValue() + 1);
-}
-
-void XtensaInstructionSelector::renderBittestMask(MachineInstrBuilder &MIB,
-                                                  const MachineInstr &I,
-                                                  int OpIdx) const {
-  assert(I.getOpcode() == TargetOpcode::G_CONSTANT && OpIdx == -1 &&
-         "Expected G_CONSTANT");
-  MIB.addImm(countTrailingZeros(I.getOperand(1).getCImm()->getZExtValue()));
 }
 
 bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
