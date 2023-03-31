@@ -33,7 +33,11 @@ define void @branch_clear_0(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    bbsi a2, 0, .LBB1_2
+; CHECK-NEXT:    movi.n a3, 1
+; CHECK-NEXT:    extui a2, a2, 0, 1
+; CHECK-NEXT:    xor a2, a2, a3
+; CHECK-NEXT:    xor a2, a2, a3
+; CHECK-NEXT:    bnez a2, .LBB1_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB1_2: # %if.end
@@ -58,7 +62,8 @@ define void @branch_set_5(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    bbci a2, 5, .LBB2_2
+; CHECK-NEXT:    srli a2, a2, 5
+; CHECK-NEXT:    bbci a2, 0, .LBB2_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB2_2: # %if.end
@@ -83,7 +88,11 @@ define void @branch_clear_5(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    bbsi a2, 5, .LBB3_2
+; CHECK-NEXT:    movi.n a3, 1
+; CHECK-NEXT:    extui a2, a2, 5, 1
+; CHECK-NEXT:    xor a2, a2, a3
+; CHECK-NEXT:    xor a2, a2, a3
+; CHECK-NEXT:    bnez a2, .LBB3_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB3_2: # %if.end
@@ -108,7 +117,10 @@ define void @branch_set_31(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    bbci a2, 31, .LBB4_2
+; CHECK-NEXT:    extui a2, a2, 31, 1
+; CHECK-NEXT:    movi.n a3, 1
+; CHECK-NEXT:    xor a2, a2, a3
+; CHECK-NEXT:    bnez a2, .LBB4_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB4_2: # %if.end
@@ -133,7 +145,11 @@ define void @branch_clear_31(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    bbsi a2, 31, .LBB5_2
+; CHECK-NEXT:    extui a2, a2, 31, 1
+; CHECK-NEXT:    movi.n a3, 1
+; CHECK-NEXT:    xor a2, a2, a3
+; CHECK-NEXT:    xor a2, a2, a3
+; CHECK-NEXT:    bnez a2, .LBB5_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB5_2: # %if.end

@@ -8,6 +8,13 @@ def left_identity_zero : GICombineRule<
   (apply [{ return Helper.replaceSingleDefInstWithOperand(*${root}, 2); }])
 >;
 
+def icmp_pow2_mask : GICombineRule<
+  (defs root:$root, build_fn_matchinfo:$matchinfo),
+  (match (wip_match_opcode G_ICMP):$root,
+    [{ return matchICmpPow2Mask(MRI, *${root}, ${matchinfo}); }]),
+  (apply [{ Helper.applyBuildFn(*${root}, ${matchinfo}); }])
+>;
+
 def fold_expensive_icmp : GICombineRule<
   (defs root:$root, build_fn_matchinfo:$matchinfo),
   (match (wip_match_opcode G_ADD, G_AND, G_MUL, G_OR, G_SUB, G_XOR):$root,
@@ -80,9 +87,32 @@ def ssl_masked_const : GICombineRule<
   (apply [{ applySSLMaskedConst(Helper, MRI, B, *${root}, ${matchinfo}); }])
 >;
 
+// Based on `all_combines`, with irrelevant (vector/floating-point) combines
+// removed. Also removed is `xor_of_and_with_same_reg`, since xtensa does not
+// have a dedicated `not` instruction, making the original version less
+// expensive.
+def xtensa_generic_combines : GICombineGroup<[trivial_combines,
+    combines_for_extload,
+    undef_combines, identity_combines, phi_combines,
+    simplify_add_to_sub, hoist_logic_op_with_same_opcode_hands,
+    reassocs, ptr_add_immed_chain,
+    shl_ashr_to_sext_inreg, sext_inreg_of_load,
+    select_combines,
+    known_bits_simplifications, ext_ext_fold,
+    not_cmp_fold, opt_brcond_by_inverting_cond,
+    const_combines, ptr_add_with_zero,
+    shift_immed_chain, shift_of_shifted_logic_chain, load_or_combine,
+    truncstore_merge, funnel_shift_combines,
+    constant_fold,
+    intdiv_combines, mulh_combines,
+    and_or_disjoint_mask]>;
+
 def XtensaPostLegalizerCombinerHelper : GICombinerHelper<
   "XtensaGenPostLegalizerCombinerHelper",
-  [all_combines, left_identity_zero, fold_expensive_icmp]> {
+  [xtensa_generic_combines,
+   // Xtensa-specific
+   fold_binop_into_select, left_identity_zero, icmp_pow2_mask,
+   fold_expensive_icmp]> {
   let DisableRuleOption = "xtensapostlegalizercombiner-disable-rule";
 }
 

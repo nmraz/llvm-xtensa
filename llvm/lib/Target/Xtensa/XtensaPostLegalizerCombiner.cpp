@@ -11,18 +11,60 @@
 #include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
 #include "llvm/CodeGen/GlobalISel/Utils.h"
 #include "llvm/CodeGen/MachineDominators.h"
+#include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
+#include "llvm/IR/InstrTypes.h"
 #include "llvm/Support/Compiler.h"
 #include "llvm/Support/Debug.h"
+#include "llvm/Support/MathExtras.h"
 #include "llvm/Target/TargetMachine.h"
+#include <cstdint>
 
 #define DEBUG_TYPE "xtensa-postlegalizer-combiner"
 
 using namespace llvm;
 using namespace MIPatternMatch;
+
+static bool matchICmpPow2Mask(const MachineRegisterInfo &MRI, MachineInstr &MI,
+                              BuildFnTy &BuildFn) {
+  Register TestValue;
+  int64_t Mask;
+  CmpInst::Predicate Pred;
+  if (!mi_match(MI, MRI,
+                m_GICmp(m_Pred(Pred), m_GAnd(m_Reg(TestValue), m_ICst(Mask)),
+                        m_SpecificICst(0)))) {
+    return false;
+  }
+
+  if (Pred != CmpInst::ICMP_EQ && Pred != CmpInst::ICMP_NE) {
+    return false;
+  }
+
+  if (!isPowerOf2_32(Mask)) {
+    return false;
+  }
+
+  Register Dest = MI.getOperand(0).getReg();
+  uint32_t BitPos = countTrailingZeros(static_cast<uint32_t>(Mask));
+  BuildFn = [=](MachineIRBuilder &Builder) {
+    LLT S32 = LLT::scalar(32);
+
+    auto One = Builder.buildConstant({S32}, 1);
+    auto BitPosConst = Builder.buildConstant({S32}, BitPos);
+    auto Shr = Builder.buildLShr({S32}, TestValue, BitPosConst);
+    if (Pred == CmpInst::ICMP_NE) {
+      Builder.buildAnd(Dest, Shr, One);
+    } else {
+      auto And = Builder.buildAnd({S32}, Shr, One);
+      Builder.buildXor(Dest, And, One);
+    }
+  };
+
+  return true;
+}
 
 static bool isFoldableExpensiveICmp(const XtensaInstrInfo &TII,
                                     const MachineRegisterInfo &MRI,
