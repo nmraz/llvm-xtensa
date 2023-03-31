@@ -7,6 +7,7 @@
 namespace llvm {
 
 class XtensaSubtarget;
+class LegalizerHelper;
 
 class XtensaLegalizerInfo : public LegalizerInfo {
 public:
@@ -21,6 +22,9 @@ private:
   bool legalizeICmp(MachineInstr &MI, MachineRegisterInfo &MRI,
                     MachineIRBuilder &MIRBuilder,
                     GISelChangeObserver &Observer) const;
+  bool legalizeShift(MachineInstr &MI, LegalizerHelper &Helper,
+                     MachineRegisterInfo &MRI, MachineIRBuilder &MIRBuilder,
+                     GISelChangeObserver &Observer) const;
   bool legalizeSelect(MachineInstr &MI, MachineRegisterInfo &MRI,
                       MachineIRBuilder &MIRBuilder,
                       GISelChangeObserver &Observer) const;

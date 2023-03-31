@@ -7,103 +7,65 @@
 define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; OPT-LABEL: shl_i33:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a6, 0
-; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltui a4, 32, .LBB0_2
-; OPT-NEXT:  # %bb.1: # %entry
-; OPT-NEXT:    movi.n a7, 0
-; OPT-NEXT:  .LBB0_2: # %entry
+; OPT-NEXT:    extui a5, a4, 5, 1
 ; OPT-NEXT:    ssl a4
-; OPT-NEXT:    sll a8, a2
-; OPT-NEXT:    src a5, a2, a3
-; OPT-NEXT:    mov.n a2, a8
-; OPT-NEXT:    moveqz a2, a6, a7
-; OPT-NEXT:    moveqz a5, a8, a7
-; OPT-NEXT:    moveqz a5, a3, a4
-; OPT-NEXT:    mov.n a3, a5
+; OPT-NEXT:    src a4, a2, a3
+; OPT-NEXT:    sll a6, a2
+; OPT-NEXT:    mov.n a3, a6
+; OPT-NEXT:    moveqz a3, a4, a5
+; OPT-NEXT:    movi.n a2, 0
+; OPT-NEXT:    moveqz a2, a6, a5
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: shl_i33:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -32
-; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a4, a1, 12 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 32
-; UNOPT-NEXT:    addi a3, a4, -32
-; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a2, a2, a4
-; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
+; UNOPT-NEXT:    mov.n a2, a3
+; UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    mov.n a6, a4
+; UNOPT-NEXT:    extui a5, a6, 5, 1
+; UNOPT-NEXT:    extui a4, a6, 0, 5
+; UNOPT-NEXT:    ssl a6
+; UNOPT-NEXT:    src a2, a3, a2
+; UNOPT-NEXT:    ssl a4
+; UNOPT-NEXT:    sll a4, a3
+; UNOPT-NEXT:    mov.n a3, a4
+; UNOPT-NEXT:    moveqz a3, a2, a5
 ; UNOPT-NEXT:    movi.n a2, 0
-; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 1
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltui a4, 32, .LBB0_3
-; UNOPT-NEXT:  # %bb.2: # %entry
-; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:  .LBB0_3: # %entry
-; UNOPT-NEXT:    l32i.n a4, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a5, a1, 12 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a6, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a8, a1, 16 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a3, a1, 20 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a7, a1, 28 # 4-byte Reload
-; UNOPT-NEXT:    ssl a5
-; UNOPT-NEXT:    sll a2, a6
-; UNOPT-NEXT:    ssr a3
-; UNOPT-NEXT:    srl a3, a6
-; UNOPT-NEXT:    ssl a5
-; UNOPT-NEXT:    sll a9, a4
-; UNOPT-NEXT:    or a3, a3, a9
-; UNOPT-NEXT:    ssl a8
-; UNOPT-NEXT:    sll a6, a6
-; UNOPT-NEXT:    movi.n a8, 0
-; UNOPT-NEXT:    moveqz a2, a8, a7
-; UNOPT-NEXT:    moveqz a3, a6, a7
-; UNOPT-NEXT:    moveqz a3, a4, a5
-; UNOPT-NEXT:    addi a1, a1, 32
+; UNOPT-NEXT:    moveqz a2, a4, a5
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 ;
 ; LX7-OPT-LABEL: shl_i33:
 ; LX7-OPT:       # %bb.0: # %entry
-; LX7-OPT-NEXT:    movi.n a5, 32
-; LX7-OPT-NEXT:    saltu a6, a4, a5
+; LX7-OPT-NEXT:    extui a5, a4, 5, 1
 ; LX7-OPT-NEXT:    ssl a4
-; LX7-OPT-NEXT:    sll a7, a2
-; LX7-OPT-NEXT:    src a5, a2, a3
-; LX7-OPT-NEXT:    movi.n a8, 0
-; LX7-OPT-NEXT:    mov.n a2, a7
-; LX7-OPT-NEXT:    moveqz a2, a8, a6
-; LX7-OPT-NEXT:    moveqz a5, a7, a6
-; LX7-OPT-NEXT:    moveqz a5, a3, a4
-; LX7-OPT-NEXT:    mov.n a3, a5
+; LX7-OPT-NEXT:    src a4, a2, a3
+; LX7-OPT-NEXT:    sll a6, a2
+; LX7-OPT-NEXT:    mov.n a3, a6
+; LX7-OPT-NEXT:    moveqz a3, a4, a5
+; LX7-OPT-NEXT:    movi.n a2, 0
+; LX7-OPT-NEXT:    moveqz a2, a6, a5
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: shl_i33:
 ; LX7-UNOPT:       # %bb.1: # %entry
 ; LX7-UNOPT-NEXT:    addi a1, a1, -16
-; LX7-UNOPT-NEXT:    mov.n a6, a2
-; LX7-UNOPT-NEXT:    s32i.n a3, a1, 12 # 4-byte Spill
-; LX7-UNOPT-NEXT:    mov.n a5, a4
-; LX7-UNOPT-NEXT:    l32i.n a4, a1, 12 # 4-byte Reload
-; LX7-UNOPT-NEXT:    movi.n a2, 32
-; LX7-UNOPT-NEXT:    addi a8, a5, -32
-; LX7-UNOPT-NEXT:    sub a3, a2, a5
-; LX7-UNOPT-NEXT:    saltu a7, a5, a2
-; LX7-UNOPT-NEXT:    ssl a5
-; LX7-UNOPT-NEXT:    sll a2, a6
-; LX7-UNOPT-NEXT:    ssr a3
-; LX7-UNOPT-NEXT:    srl a3, a6
-; LX7-UNOPT-NEXT:    ssl a5
-; LX7-UNOPT-NEXT:    sll a9, a4
-; LX7-UNOPT-NEXT:    or a3, a3, a9
-; LX7-UNOPT-NEXT:    ssl a8
-; LX7-UNOPT-NEXT:    sll a6, a6
-; LX7-UNOPT-NEXT:    movi.n a8, 0
-; LX7-UNOPT-NEXT:    moveqz a2, a8, a7
-; LX7-UNOPT-NEXT:    moveqz a3, a6, a7
-; LX7-UNOPT-NEXT:    moveqz a3, a4, a5
+; LX7-UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
+; LX7-UNOPT-NEXT:    mov.n a2, a3
+; LX7-UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
+; LX7-UNOPT-NEXT:    mov.n a6, a4
+; LX7-UNOPT-NEXT:    extui a5, a6, 5, 1
+; LX7-UNOPT-NEXT:    extui a4, a6, 0, 5
+; LX7-UNOPT-NEXT:    ssl a6
+; LX7-UNOPT-NEXT:    src a2, a3, a2
+; LX7-UNOPT-NEXT:    ssl a4
+; LX7-UNOPT-NEXT:    sll a4, a3
+; LX7-UNOPT-NEXT:    mov.n a3, a4
+; LX7-UNOPT-NEXT:    moveqz a3, a2, a5
+; LX7-UNOPT-NEXT:    movi.n a2, 0
+; LX7-UNOPT-NEXT:    moveqz a2, a4, a5
 ; LX7-UNOPT-NEXT:    addi a1, a1, 16
 ; LX7-UNOPT-NEXT:    ret.n
 entry:
@@ -114,103 +76,65 @@ entry:
 define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; OPT-LABEL: shl_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a6, 0
-; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltui a4, 32, .LBB1_2
-; OPT-NEXT:  # %bb.1: # %entry
-; OPT-NEXT:    movi.n a7, 0
-; OPT-NEXT:  .LBB1_2: # %entry
+; OPT-NEXT:    extui a5, a4, 5, 1
 ; OPT-NEXT:    ssl a4
-; OPT-NEXT:    sll a8, a2
-; OPT-NEXT:    src a5, a2, a3
-; OPT-NEXT:    mov.n a2, a8
-; OPT-NEXT:    moveqz a2, a6, a7
-; OPT-NEXT:    moveqz a5, a8, a7
-; OPT-NEXT:    moveqz a5, a3, a4
-; OPT-NEXT:    mov.n a3, a5
+; OPT-NEXT:    src a4, a2, a3
+; OPT-NEXT:    sll a6, a2
+; OPT-NEXT:    mov.n a3, a6
+; OPT-NEXT:    moveqz a3, a4, a5
+; OPT-NEXT:    movi.n a2, 0
+; OPT-NEXT:    moveqz a2, a6, a5
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: shl_i64:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -32
-; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a4, a1, 12 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 32
-; UNOPT-NEXT:    addi a3, a4, -32
-; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a2, a2, a4
-; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
+; UNOPT-NEXT:    mov.n a2, a3
+; UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    mov.n a6, a4
+; UNOPT-NEXT:    extui a5, a6, 5, 1
+; UNOPT-NEXT:    extui a4, a6, 0, 5
+; UNOPT-NEXT:    ssl a6
+; UNOPT-NEXT:    src a2, a3, a2
+; UNOPT-NEXT:    ssl a4
+; UNOPT-NEXT:    sll a4, a3
+; UNOPT-NEXT:    mov.n a3, a4
+; UNOPT-NEXT:    moveqz a3, a2, a5
 ; UNOPT-NEXT:    movi.n a2, 0
-; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 1
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltui a4, 32, .LBB1_3
-; UNOPT-NEXT:  # %bb.2: # %entry
-; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:  .LBB1_3: # %entry
-; UNOPT-NEXT:    l32i.n a4, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a5, a1, 12 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a6, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a8, a1, 16 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a3, a1, 20 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a7, a1, 28 # 4-byte Reload
-; UNOPT-NEXT:    ssl a5
-; UNOPT-NEXT:    sll a2, a6
-; UNOPT-NEXT:    ssr a3
-; UNOPT-NEXT:    srl a3, a6
-; UNOPT-NEXT:    ssl a5
-; UNOPT-NEXT:    sll a9, a4
-; UNOPT-NEXT:    or a3, a3, a9
-; UNOPT-NEXT:    ssl a8
-; UNOPT-NEXT:    sll a6, a6
-; UNOPT-NEXT:    movi.n a8, 0
-; UNOPT-NEXT:    moveqz a2, a8, a7
-; UNOPT-NEXT:    moveqz a3, a6, a7
-; UNOPT-NEXT:    moveqz a3, a4, a5
-; UNOPT-NEXT:    addi a1, a1, 32
+; UNOPT-NEXT:    moveqz a2, a4, a5
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 ;
 ; LX7-OPT-LABEL: shl_i64:
 ; LX7-OPT:       # %bb.0: # %entry
-; LX7-OPT-NEXT:    movi.n a5, 32
-; LX7-OPT-NEXT:    saltu a6, a4, a5
+; LX7-OPT-NEXT:    extui a5, a4, 5, 1
 ; LX7-OPT-NEXT:    ssl a4
-; LX7-OPT-NEXT:    sll a7, a2
-; LX7-OPT-NEXT:    src a5, a2, a3
-; LX7-OPT-NEXT:    movi.n a8, 0
-; LX7-OPT-NEXT:    mov.n a2, a7
-; LX7-OPT-NEXT:    moveqz a2, a8, a6
-; LX7-OPT-NEXT:    moveqz a5, a7, a6
-; LX7-OPT-NEXT:    moveqz a5, a3, a4
-; LX7-OPT-NEXT:    mov.n a3, a5
+; LX7-OPT-NEXT:    src a4, a2, a3
+; LX7-OPT-NEXT:    sll a6, a2
+; LX7-OPT-NEXT:    mov.n a3, a6
+; LX7-OPT-NEXT:    moveqz a3, a4, a5
+; LX7-OPT-NEXT:    movi.n a2, 0
+; LX7-OPT-NEXT:    moveqz a2, a6, a5
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: shl_i64:
 ; LX7-UNOPT:       # %bb.1: # %entry
 ; LX7-UNOPT-NEXT:    addi a1, a1, -16
-; LX7-UNOPT-NEXT:    mov.n a6, a2
-; LX7-UNOPT-NEXT:    s32i.n a3, a1, 12 # 4-byte Spill
-; LX7-UNOPT-NEXT:    mov.n a5, a4
-; LX7-UNOPT-NEXT:    l32i.n a4, a1, 12 # 4-byte Reload
-; LX7-UNOPT-NEXT:    movi.n a2, 32
-; LX7-UNOPT-NEXT:    addi a8, a5, -32
-; LX7-UNOPT-NEXT:    sub a3, a2, a5
-; LX7-UNOPT-NEXT:    saltu a7, a5, a2
-; LX7-UNOPT-NEXT:    ssl a5
-; LX7-UNOPT-NEXT:    sll a2, a6
-; LX7-UNOPT-NEXT:    ssr a3
-; LX7-UNOPT-NEXT:    srl a3, a6
-; LX7-UNOPT-NEXT:    ssl a5
-; LX7-UNOPT-NEXT:    sll a9, a4
-; LX7-UNOPT-NEXT:    or a3, a3, a9
-; LX7-UNOPT-NEXT:    ssl a8
-; LX7-UNOPT-NEXT:    sll a6, a6
-; LX7-UNOPT-NEXT:    movi.n a8, 0
-; LX7-UNOPT-NEXT:    moveqz a2, a8, a7
-; LX7-UNOPT-NEXT:    moveqz a3, a6, a7
-; LX7-UNOPT-NEXT:    moveqz a3, a4, a5
+; LX7-UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
+; LX7-UNOPT-NEXT:    mov.n a2, a3
+; LX7-UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
+; LX7-UNOPT-NEXT:    mov.n a6, a4
+; LX7-UNOPT-NEXT:    extui a5, a6, 5, 1
+; LX7-UNOPT-NEXT:    extui a4, a6, 0, 5
+; LX7-UNOPT-NEXT:    ssl a6
+; LX7-UNOPT-NEXT:    src a2, a3, a2
+; LX7-UNOPT-NEXT:    ssl a4
+; LX7-UNOPT-NEXT:    sll a4, a3
+; LX7-UNOPT-NEXT:    mov.n a3, a4
+; LX7-UNOPT-NEXT:    moveqz a3, a2, a5
+; LX7-UNOPT-NEXT:    movi.n a2, 0
+; LX7-UNOPT-NEXT:    moveqz a2, a4, a5
 ; LX7-UNOPT-NEXT:    addi a1, a1, 16
 ; LX7-UNOPT-NEXT:    ret.n
 entry:
@@ -221,105 +145,74 @@ entry:
 define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; OPT-LABEL: lshr_i33:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    extui a5, a3, 0, 1
-; OPT-NEXT:    movi.n a6, 0
-; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltui a4, 32, .LBB2_2
-; OPT-NEXT:  # %bb.1: # %entry
-; OPT-NEXT:    movi.n a7, 0
-; OPT-NEXT:  .LBB2_2: # %entry
+; OPT-NEXT:    extui a3, a3, 0, 1
+; OPT-NEXT:    extui a5, a4, 5, 1
 ; OPT-NEXT:    ssr a4
-; OPT-NEXT:    srl a3, a5
-; OPT-NEXT:    src a5, a5, a2
-; OPT-NEXT:    moveqz a5, a3, a7
-; OPT-NEXT:    moveqz a5, a2, a4
-; OPT-NEXT:    moveqz a3, a6, a7
-; OPT-NEXT:    mov.n a2, a5
+; OPT-NEXT:    src a4, a3, a2
+; OPT-NEXT:    srl a6, a3
+; OPT-NEXT:    mov.n a2, a6
+; OPT-NEXT:    moveqz a2, a4, a5
+; OPT-NEXT:    movi.n a3, 0
+; OPT-NEXT:    moveqz a3, a6, a5
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: lshr_i33:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -32
-; UNOPT-NEXT:    s32i.n a4, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a5, -1
-; UNOPT-NEXT:    and a2, a2, a5
-; UNOPT-NEXT:    s32i.n a2, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    extui a2, a3, 0, 1
+; UNOPT-NEXT:    addi a1, a1, -16
 ; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 32
-; UNOPT-NEXT:    addi a3, a4, -32
-; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a2, a2, a4
-; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 0
-; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 1
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltui a4, 32, .LBB2_3
-; UNOPT-NEXT:  # %bb.2: # %entry
-; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:  .LBB2_3: # %entry
-; UNOPT-NEXT:    l32i.n a4, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a6, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a7, a1, 12 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a8, a1, 16 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a9, a1, 20 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a5, a1, 28 # 4-byte Reload
+; UNOPT-NEXT:    mov.n a2, a3
+; UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    mov.n a6, a4
+; UNOPT-NEXT:    movi.n a4, -1
+; UNOPT-NEXT:    and a3, a3, a4
+; UNOPT-NEXT:    extui a2, a2, 0, 1
+; UNOPT-NEXT:    extui a5, a6, 5, 1
+; UNOPT-NEXT:    extui a4, a6, 0, 5
 ; UNOPT-NEXT:    ssr a6
-; UNOPT-NEXT:    srl a3, a7
-; UNOPT-NEXT:    ssr a6
-; UNOPT-NEXT:    srl a2, a4
-; UNOPT-NEXT:    ssl a9
-; UNOPT-NEXT:    sll a9, a7
-; UNOPT-NEXT:    or a2, a2, a9
-; UNOPT-NEXT:    ssr a8
-; UNOPT-NEXT:    srl a7, a7
-; UNOPT-NEXT:    moveqz a2, a7, a5
-; UNOPT-NEXT:    moveqz a2, a4, a6
-; UNOPT-NEXT:    movi.n a4, 0
+; UNOPT-NEXT:    src a3, a2, a3
+; UNOPT-NEXT:    ssr a4
+; UNOPT-NEXT:    srl a4, a2
+; UNOPT-NEXT:    mov.n a2, a4
+; UNOPT-NEXT:    moveqz a2, a3, a5
+; UNOPT-NEXT:    movi.n a3, 0
 ; UNOPT-NEXT:    moveqz a3, a4, a5
-; UNOPT-NEXT:    addi a1, a1, 32
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 ;
 ; LX7-OPT-LABEL: lshr_i33:
 ; LX7-OPT:       # %bb.0: # %entry
-; LX7-OPT-NEXT:    extui a5, a3, 0, 1
-; LX7-OPT-NEXT:    movi.n a3, 32
-; LX7-OPT-NEXT:    saltu a6, a4, a3
+; LX7-OPT-NEXT:    extui a3, a3, 0, 1
+; LX7-OPT-NEXT:    extui a5, a4, 5, 1
 ; LX7-OPT-NEXT:    ssr a4
-; LX7-OPT-NEXT:    srl a3, a5
-; LX7-OPT-NEXT:    src a5, a5, a2
-; LX7-OPT-NEXT:    moveqz a5, a3, a6
-; LX7-OPT-NEXT:    moveqz a5, a2, a4
-; LX7-OPT-NEXT:    movi.n a2, 0
-; LX7-OPT-NEXT:    moveqz a3, a2, a6
-; LX7-OPT-NEXT:    mov.n a2, a5
+; LX7-OPT-NEXT:    src a4, a3, a2
+; LX7-OPT-NEXT:    srl a6, a3
+; LX7-OPT-NEXT:    mov.n a2, a6
+; LX7-OPT-NEXT:    moveqz a2, a4, a5
+; LX7-OPT-NEXT:    movi.n a3, 0
+; LX7-OPT-NEXT:    moveqz a3, a6, a5
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: lshr_i33:
 ; LX7-UNOPT:       # %bb.1: # %entry
+; LX7-UNOPT-NEXT:    addi a1, a1, -16
+; LX7-UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
+; LX7-UNOPT-NEXT:    mov.n a2, a3
+; LX7-UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
 ; LX7-UNOPT-NEXT:    mov.n a6, a4
 ; LX7-UNOPT-NEXT:    movi.n a4, -1
-; LX7-UNOPT-NEXT:    and a4, a2, a4
-; LX7-UNOPT-NEXT:    extui a7, a3, 0, 1
-; LX7-UNOPT-NEXT:    movi.n a2, 32
-; LX7-UNOPT-NEXT:    addi a8, a6, -32
-; LX7-UNOPT-NEXT:    sub a9, a2, a6
-; LX7-UNOPT-NEXT:    saltu a5, a6, a2
+; LX7-UNOPT-NEXT:    and a3, a3, a4
+; LX7-UNOPT-NEXT:    extui a2, a2, 0, 1
+; LX7-UNOPT-NEXT:    extui a5, a6, 5, 1
+; LX7-UNOPT-NEXT:    extui a4, a6, 0, 5
 ; LX7-UNOPT-NEXT:    ssr a6
-; LX7-UNOPT-NEXT:    srl a3, a7
-; LX7-UNOPT-NEXT:    ssr a6
-; LX7-UNOPT-NEXT:    srl a2, a4
-; LX7-UNOPT-NEXT:    ssl a9
-; LX7-UNOPT-NEXT:    sll a9, a7
-; LX7-UNOPT-NEXT:    or a2, a2, a9
-; LX7-UNOPT-NEXT:    ssr a8
-; LX7-UNOPT-NEXT:    srl a7, a7
-; LX7-UNOPT-NEXT:    moveqz a2, a7, a5
-; LX7-UNOPT-NEXT:    moveqz a2, a4, a6
-; LX7-UNOPT-NEXT:    movi.n a4, 0
+; LX7-UNOPT-NEXT:    src a3, a2, a3
+; LX7-UNOPT-NEXT:    ssr a4
+; LX7-UNOPT-NEXT:    srl a4, a2
+; LX7-UNOPT-NEXT:    mov.n a2, a4
+; LX7-UNOPT-NEXT:    moveqz a2, a3, a5
+; LX7-UNOPT-NEXT:    movi.n a3, 0
 ; LX7-UNOPT-NEXT:    moveqz a3, a4, a5
+; LX7-UNOPT-NEXT:    addi a1, a1, 16
 ; LX7-UNOPT-NEXT:    ret.n
 entry:
   %lshr = lshr i33 %val, %shamt
@@ -329,102 +222,64 @@ entry:
 define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; OPT-LABEL: lshr_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a6, 0
-; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltui a4, 32, .LBB3_2
-; OPT-NEXT:  # %bb.1: # %entry
-; OPT-NEXT:    movi.n a7, 0
-; OPT-NEXT:  .LBB3_2: # %entry
+; OPT-NEXT:    extui a5, a4, 5, 1
 ; OPT-NEXT:    ssr a4
-; OPT-NEXT:    srl a5, a3
-; OPT-NEXT:    src a3, a3, a2
-; OPT-NEXT:    moveqz a3, a5, a7
-; OPT-NEXT:    moveqz a3, a2, a4
-; OPT-NEXT:    moveqz a5, a6, a7
-; OPT-NEXT:    mov.n a2, a3
-; OPT-NEXT:    mov.n a3, a5
+; OPT-NEXT:    src a4, a3, a2
+; OPT-NEXT:    srl a6, a3
+; OPT-NEXT:    mov.n a2, a6
+; OPT-NEXT:    moveqz a2, a4, a5
+; OPT-NEXT:    movi.n a3, 0
+; OPT-NEXT:    moveqz a3, a6, a5
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: lshr_i64:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -32
-; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a4, a1, 12 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 32
-; UNOPT-NEXT:    addi a3, a4, -32
-; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a2, a2, a4
-; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 0
-; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 1
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltui a4, 32, .LBB3_3
-; UNOPT-NEXT:  # %bb.2: # %entry
-; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:  .LBB3_3: # %entry
-; UNOPT-NEXT:    l32i.n a4, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a6, a1, 12 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a7, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a8, a1, 16 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a9, a1, 20 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a5, a1, 28 # 4-byte Reload
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
+; UNOPT-NEXT:    mov.n a2, a3
+; UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    mov.n a6, a4
+; UNOPT-NEXT:    extui a5, a6, 5, 1
+; UNOPT-NEXT:    extui a4, a6, 0, 5
 ; UNOPT-NEXT:    ssr a6
-; UNOPT-NEXT:    srl a3, a7
-; UNOPT-NEXT:    ssr a6
-; UNOPT-NEXT:    srl a2, a4
-; UNOPT-NEXT:    ssl a9
-; UNOPT-NEXT:    sll a9, a7
-; UNOPT-NEXT:    or a2, a2, a9
-; UNOPT-NEXT:    ssr a8
-; UNOPT-NEXT:    srl a7, a7
-; UNOPT-NEXT:    moveqz a2, a7, a5
-; UNOPT-NEXT:    moveqz a2, a4, a6
-; UNOPT-NEXT:    movi.n a4, 0
+; UNOPT-NEXT:    src a3, a2, a3
+; UNOPT-NEXT:    ssr a4
+; UNOPT-NEXT:    srl a4, a2
+; UNOPT-NEXT:    mov.n a2, a4
+; UNOPT-NEXT:    moveqz a2, a3, a5
+; UNOPT-NEXT:    movi.n a3, 0
 ; UNOPT-NEXT:    moveqz a3, a4, a5
-; UNOPT-NEXT:    addi a1, a1, 32
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 ;
 ; LX7-OPT-LABEL: lshr_i64:
 ; LX7-OPT:       # %bb.0: # %entry
-; LX7-OPT-NEXT:    movi.n a5, 32
-; LX7-OPT-NEXT:    saltu a6, a4, a5
+; LX7-OPT-NEXT:    extui a5, a4, 5, 1
 ; LX7-OPT-NEXT:    ssr a4
-; LX7-OPT-NEXT:    srl a5, a3
-; LX7-OPT-NEXT:    src a3, a3, a2
-; LX7-OPT-NEXT:    moveqz a3, a5, a6
-; LX7-OPT-NEXT:    moveqz a3, a2, a4
-; LX7-OPT-NEXT:    movi.n a2, 0
-; LX7-OPT-NEXT:    moveqz a5, a2, a6
-; LX7-OPT-NEXT:    mov.n a2, a3
-; LX7-OPT-NEXT:    mov.n a3, a5
+; LX7-OPT-NEXT:    src a4, a3, a2
+; LX7-OPT-NEXT:    srl a6, a3
+; LX7-OPT-NEXT:    mov.n a2, a6
+; LX7-OPT-NEXT:    moveqz a2, a4, a5
+; LX7-OPT-NEXT:    movi.n a3, 0
+; LX7-OPT-NEXT:    moveqz a3, a6, a5
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: lshr_i64:
 ; LX7-UNOPT:       # %bb.1: # %entry
 ; LX7-UNOPT-NEXT:    addi a1, a1, -16
 ; LX7-UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
-; LX7-UNOPT-NEXT:    mov.n a7, a3
+; LX7-UNOPT-NEXT:    mov.n a2, a3
+; LX7-UNOPT-NEXT:    l32i.n a3, a1, 12 # 4-byte Reload
 ; LX7-UNOPT-NEXT:    mov.n a6, a4
-; LX7-UNOPT-NEXT:    l32i.n a4, a1, 12 # 4-byte Reload
-; LX7-UNOPT-NEXT:    movi.n a2, 32
-; LX7-UNOPT-NEXT:    addi a8, a6, -32
-; LX7-UNOPT-NEXT:    sub a9, a2, a6
-; LX7-UNOPT-NEXT:    saltu a5, a6, a2
+; LX7-UNOPT-NEXT:    extui a5, a6, 5, 1
+; LX7-UNOPT-NEXT:    extui a4, a6, 0, 5
 ; LX7-UNOPT-NEXT:    ssr a6
-; LX7-UNOPT-NEXT:    srl a3, a7
-; LX7-UNOPT-NEXT:    ssr a6
-; LX7-UNOPT-NEXT:    srl a2, a4
-; LX7-UNOPT-NEXT:    ssl a9
-; LX7-UNOPT-NEXT:    sll a9, a7
-; LX7-UNOPT-NEXT:    or a2, a2, a9
-; LX7-UNOPT-NEXT:    ssr a8
-; LX7-UNOPT-NEXT:    srl a7, a7
-; LX7-UNOPT-NEXT:    moveqz a2, a7, a5
-; LX7-UNOPT-NEXT:    moveqz a2, a4, a6
-; LX7-UNOPT-NEXT:    movi.n a4, 0
+; LX7-UNOPT-NEXT:    src a3, a2, a3
+; LX7-UNOPT-NEXT:    ssr a4
+; LX7-UNOPT-NEXT:    srl a4, a2
+; LX7-UNOPT-NEXT:    mov.n a2, a4
+; LX7-UNOPT-NEXT:    moveqz a2, a3, a5
+; LX7-UNOPT-NEXT:    movi.n a3, 0
 ; LX7-UNOPT-NEXT:    moveqz a3, a4, a5
 ; LX7-UNOPT-NEXT:    addi a1, a1, 16
 ; LX7-UNOPT-NEXT:    ret.n
@@ -440,71 +295,43 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; OPT-NEXT:    ssai 1
 ; OPT-NEXT:    src a2, a3, a2
 ; OPT-NEXT:    ssai 31
-; OPT-NEXT:    src a6, a2, a5
-; OPT-NEXT:    srai a5, a2, 31
-; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltui a4, 32, .LBB4_2
-; OPT-NEXT:  # %bb.1: # %entry
-; OPT-NEXT:    movi.n a7, 0
-; OPT-NEXT:  .LBB4_2: # %entry
+; OPT-NEXT:    src a5, a2, a5
+; OPT-NEXT:    srai a3, a2, 31
+; OPT-NEXT:    extui a6, a4, 5, 1
 ; OPT-NEXT:    ssr a4
-; OPT-NEXT:    sra a3, a5
-; OPT-NEXT:    src a2, a5, a6
-; OPT-NEXT:    moveqz a2, a3, a7
-; OPT-NEXT:    moveqz a2, a6, a4
-; OPT-NEXT:    moveqz a3, a5, a7
+; OPT-NEXT:    src a4, a3, a5
+; OPT-NEXT:    sra a5, a3
+; OPT-NEXT:    mov.n a2, a5
+; OPT-NEXT:    moveqz a2, a4, a6
+; OPT-NEXT:    moveqz a3, a5, a6
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: ashr_i33:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -32
-; UNOPT-NEXT:    mov.n a5, a2
-; UNOPT-NEXT:    mov.n a2, a3
-; UNOPT-NEXT:    s32i.n a4, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    slli a3, a5, 31
-; UNOPT-NEXT:    slli a2, a2, 31
-; UNOPT-NEXT:    srli a5, a5, 1
-; UNOPT-NEXT:    or a2, a2, a5
-; UNOPT-NEXT:    extui a3, a3, 31, 1
-; UNOPT-NEXT:    slli a5, a2, 1
-; UNOPT-NEXT:    or a3, a3, a5
-; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    srai a2, a2, 31
+; UNOPT-NEXT:    addi a1, a1, -16
 ; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 32
-; UNOPT-NEXT:    addi a3, a4, -32
-; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a2, a2, a4
-; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 0
-; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 1
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltui a4, 32, .LBB4_3
-; UNOPT-NEXT:  # %bb.2: # %entry
-; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:  .LBB4_3: # %entry
-; UNOPT-NEXT:    l32i.n a6, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a7, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a8, a1, 12 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a9, a1, 16 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a4, a1, 20 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a5, a1, 28 # 4-byte Reload
-; UNOPT-NEXT:    ssr a7
-; UNOPT-NEXT:    sra a3, a8
-; UNOPT-NEXT:    ssr a7
-; UNOPT-NEXT:    srl a2, a6
-; UNOPT-NEXT:    ssl a4
-; UNOPT-NEXT:    sll a4, a8
+; UNOPT-NEXT:    mov.n a2, a3
+; UNOPT-NEXT:    mov.n a7, a4
+; UNOPT-NEXT:    l32i.n a4, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    slli a3, a4, 31
+; UNOPT-NEXT:    slli a2, a2, 31
+; UNOPT-NEXT:    srli a4, a4, 1
 ; UNOPT-NEXT:    or a2, a2, a4
-; UNOPT-NEXT:    srai a4, a8, 31
-; UNOPT-NEXT:    ssr a9
-; UNOPT-NEXT:    sra a8, a8
-; UNOPT-NEXT:    moveqz a2, a8, a5
-; UNOPT-NEXT:    moveqz a2, a6, a7
+; UNOPT-NEXT:    extui a3, a3, 31, 1
+; UNOPT-NEXT:    slli a4, a2, 1
+; UNOPT-NEXT:    or a6, a3, a4
+; UNOPT-NEXT:    srai a2, a2, 31
+; UNOPT-NEXT:    extui a5, a7, 5, 1
+; UNOPT-NEXT:    extui a4, a7, 0, 5
+; UNOPT-NEXT:    srai a3, a2, 31
+; UNOPT-NEXT:    ssr a7
+; UNOPT-NEXT:    src a6, a2, a6
+; UNOPT-NEXT:    ssr a4
+; UNOPT-NEXT:    sra a4, a2
+; UNOPT-NEXT:    mov.n a2, a4
+; UNOPT-NEXT:    moveqz a2, a6, a5
 ; UNOPT-NEXT:    moveqz a3, a4, a5
-; UNOPT-NEXT:    addi a1, a1, 32
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 ;
 ; LX7-OPT-LABEL: ashr_i33:
@@ -514,15 +341,14 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; LX7-OPT-NEXT:    src a2, a3, a2
 ; LX7-OPT-NEXT:    ssai 31
 ; LX7-OPT-NEXT:    src a5, a2, a5
-; LX7-OPT-NEXT:    srai a6, a2, 31
-; LX7-OPT-NEXT:    movi.n a2, 32
-; LX7-OPT-NEXT:    saltu a7, a4, a2
+; LX7-OPT-NEXT:    srai a3, a2, 31
+; LX7-OPT-NEXT:    extui a6, a4, 5, 1
 ; LX7-OPT-NEXT:    ssr a4
-; LX7-OPT-NEXT:    sra a3, a6
-; LX7-OPT-NEXT:    src a2, a6, a5
-; LX7-OPT-NEXT:    moveqz a2, a3, a7
-; LX7-OPT-NEXT:    moveqz a2, a5, a4
-; LX7-OPT-NEXT:    moveqz a3, a6, a7
+; LX7-OPT-NEXT:    src a4, a3, a5
+; LX7-OPT-NEXT:    sra a5, a3
+; LX7-OPT-NEXT:    mov.n a2, a5
+; LX7-OPT-NEXT:    moveqz a2, a4, a6
+; LX7-OPT-NEXT:    moveqz a3, a5, a6
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: ashr_i33:
@@ -539,23 +365,16 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; LX7-UNOPT-NEXT:    extui a3, a3, 31, 1
 ; LX7-UNOPT-NEXT:    slli a4, a2, 1
 ; LX7-UNOPT-NEXT:    or a6, a3, a4
-; LX7-UNOPT-NEXT:    srai a8, a2, 31
-; LX7-UNOPT-NEXT:    movi.n a2, 32
-; LX7-UNOPT-NEXT:    addi a9, a7, -32
-; LX7-UNOPT-NEXT:    sub a4, a2, a7
-; LX7-UNOPT-NEXT:    saltu a5, a7, a2
+; LX7-UNOPT-NEXT:    srai a2, a2, 31
+; LX7-UNOPT-NEXT:    extui a5, a7, 5, 1
+; LX7-UNOPT-NEXT:    extui a4, a7, 0, 5
+; LX7-UNOPT-NEXT:    srai a3, a2, 31
 ; LX7-UNOPT-NEXT:    ssr a7
-; LX7-UNOPT-NEXT:    sra a3, a8
-; LX7-UNOPT-NEXT:    ssr a7
-; LX7-UNOPT-NEXT:    srl a2, a6
-; LX7-UNOPT-NEXT:    ssl a4
-; LX7-UNOPT-NEXT:    sll a4, a8
-; LX7-UNOPT-NEXT:    or a2, a2, a4
-; LX7-UNOPT-NEXT:    srai a4, a8, 31
-; LX7-UNOPT-NEXT:    ssr a9
-; LX7-UNOPT-NEXT:    sra a8, a8
-; LX7-UNOPT-NEXT:    moveqz a2, a8, a5
-; LX7-UNOPT-NEXT:    moveqz a2, a6, a7
+; LX7-UNOPT-NEXT:    src a6, a2, a6
+; LX7-UNOPT-NEXT:    ssr a4
+; LX7-UNOPT-NEXT:    sra a4, a2
+; LX7-UNOPT-NEXT:    mov.n a2, a4
+; LX7-UNOPT-NEXT:    moveqz a2, a6, a5
 ; LX7-UNOPT-NEXT:    moveqz a3, a4, a5
 ; LX7-UNOPT-NEXT:    addi a1, a1, 16
 ; LX7-UNOPT-NEXT:    ret.n
@@ -567,100 +386,61 @@ entry:
 define i64 @ashr_i64(i64 %val, i64 %shamt) {
 ; OPT-LABEL: ashr_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltui a4, 32, .LBB5_2
-; OPT-NEXT:  # %bb.1: # %entry
-; OPT-NEXT:    movi.n a7, 0
-; OPT-NEXT:  .LBB5_2: # %entry
+; OPT-NEXT:    extui a6, a4, 5, 1
+; OPT-NEXT:    srai a5, a3, 31
 ; OPT-NEXT:    ssr a4
-; OPT-NEXT:    sra a5, a3
-; OPT-NEXT:    src a6, a3, a2
-; OPT-NEXT:    srai a3, a3, 31
-; OPT-NEXT:    moveqz a6, a5, a7
-; OPT-NEXT:    moveqz a6, a2, a4
-; OPT-NEXT:    moveqz a5, a3, a7
-; OPT-NEXT:    mov.n a2, a6
+; OPT-NEXT:    src a4, a3, a2
+; OPT-NEXT:    sra a3, a3
+; OPT-NEXT:    mov.n a2, a3
+; OPT-NEXT:    moveqz a2, a4, a6
+; OPT-NEXT:    moveqz a5, a3, a6
 ; OPT-NEXT:    mov.n a3, a5
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: ashr_i64:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -32
-; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
-; UNOPT-NEXT:    s32i.n a4, a1, 12 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 32
-; UNOPT-NEXT:    addi a3, a4, -32
-; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a2, a2, a4
-; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 0
-; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a2, 1
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltui a4, 32, .LBB5_3
-; UNOPT-NEXT:  # %bb.2: # %entry
-; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
-; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:  .LBB5_3: # %entry
-; UNOPT-NEXT:    l32i.n a6, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a7, a1, 12 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a8, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a9, a1, 16 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a4, a1, 20 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a5, a1, 28 # 4-byte Reload
+; UNOPT-NEXT:    mov.n a6, a2
+; UNOPT-NEXT:    mov.n a2, a3
+; UNOPT-NEXT:    mov.n a7, a4
+; UNOPT-NEXT:    extui a5, a7, 5, 1
+; UNOPT-NEXT:    extui a4, a7, 0, 5
+; UNOPT-NEXT:    srai a3, a2, 31
 ; UNOPT-NEXT:    ssr a7
-; UNOPT-NEXT:    sra a3, a8
-; UNOPT-NEXT:    ssr a7
-; UNOPT-NEXT:    srl a2, a6
-; UNOPT-NEXT:    ssl a4
-; UNOPT-NEXT:    sll a4, a8
-; UNOPT-NEXT:    or a2, a2, a4
-; UNOPT-NEXT:    srai a4, a8, 31
-; UNOPT-NEXT:    ssr a9
-; UNOPT-NEXT:    sra a8, a8
-; UNOPT-NEXT:    moveqz a2, a8, a5
-; UNOPT-NEXT:    moveqz a2, a6, a7
+; UNOPT-NEXT:    src a6, a2, a6
+; UNOPT-NEXT:    ssr a4
+; UNOPT-NEXT:    sra a4, a2
+; UNOPT-NEXT:    mov.n a2, a4
+; UNOPT-NEXT:    moveqz a2, a6, a5
 ; UNOPT-NEXT:    moveqz a3, a4, a5
-; UNOPT-NEXT:    addi a1, a1, 32
 ; UNOPT-NEXT:    ret.n
 ;
 ; LX7-OPT-LABEL: ashr_i64:
 ; LX7-OPT:       # %bb.0: # %entry
-; LX7-OPT-NEXT:    movi.n a5, 32
-; LX7-OPT-NEXT:    saltu a7, a4, a5
+; LX7-OPT-NEXT:    extui a6, a4, 5, 1
+; LX7-OPT-NEXT:    srai a5, a3, 31
 ; LX7-OPT-NEXT:    ssr a4
-; LX7-OPT-NEXT:    sra a5, a3
-; LX7-OPT-NEXT:    src a6, a3, a2
-; LX7-OPT-NEXT:    srai a3, a3, 31
-; LX7-OPT-NEXT:    moveqz a6, a5, a7
-; LX7-OPT-NEXT:    moveqz a6, a2, a4
-; LX7-OPT-NEXT:    moveqz a5, a3, a7
-; LX7-OPT-NEXT:    mov.n a2, a6
+; LX7-OPT-NEXT:    src a4, a3, a2
+; LX7-OPT-NEXT:    sra a3, a3
+; LX7-OPT-NEXT:    mov.n a2, a3
+; LX7-OPT-NEXT:    moveqz a2, a4, a6
+; LX7-OPT-NEXT:    moveqz a5, a3, a6
 ; LX7-OPT-NEXT:    mov.n a3, a5
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: ashr_i64:
 ; LX7-UNOPT:       # %bb.1: # %entry
 ; LX7-UNOPT-NEXT:    mov.n a6, a2
-; LX7-UNOPT-NEXT:    mov.n a8, a3
+; LX7-UNOPT-NEXT:    mov.n a2, a3
 ; LX7-UNOPT-NEXT:    mov.n a7, a4
-; LX7-UNOPT-NEXT:    movi.n a2, 32
-; LX7-UNOPT-NEXT:    addi a9, a7, -32
-; LX7-UNOPT-NEXT:    sub a4, a2, a7
-; LX7-UNOPT-NEXT:    saltu a5, a7, a2
+; LX7-UNOPT-NEXT:    extui a5, a7, 5, 1
+; LX7-UNOPT-NEXT:    extui a4, a7, 0, 5
+; LX7-UNOPT-NEXT:    srai a3, a2, 31
 ; LX7-UNOPT-NEXT:    ssr a7
-; LX7-UNOPT-NEXT:    sra a3, a8
-; LX7-UNOPT-NEXT:    ssr a7
-; LX7-UNOPT-NEXT:    srl a2, a6
-; LX7-UNOPT-NEXT:    ssl a4
-; LX7-UNOPT-NEXT:    sll a4, a8
-; LX7-UNOPT-NEXT:    or a2, a2, a4
-; LX7-UNOPT-NEXT:    srai a4, a8, 31
-; LX7-UNOPT-NEXT:    ssr a9
-; LX7-UNOPT-NEXT:    sra a8, a8
-; LX7-UNOPT-NEXT:    moveqz a2, a8, a5
-; LX7-UNOPT-NEXT:    moveqz a2, a6, a7
+; LX7-UNOPT-NEXT:    src a6, a2, a6
+; LX7-UNOPT-NEXT:    ssr a4
+; LX7-UNOPT-NEXT:    sra a4, a2
+; LX7-UNOPT-NEXT:    mov.n a2, a4
+; LX7-UNOPT-NEXT:    moveqz a2, a6, a5
 ; LX7-UNOPT-NEXT:    moveqz a3, a4, a5
 ; LX7-UNOPT-NEXT:    ret.n
 entry:

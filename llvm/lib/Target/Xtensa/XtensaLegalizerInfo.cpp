@@ -2,6 +2,8 @@
 #include "XtensaSubtarget.h"
 #include "llvm/CodeGen/GlobalISel/LegalizerHelper.h"
 #include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
+#include "llvm/CodeGen/GlobalISel/Utils.h"
+#include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
 #include "llvm/CodeGen/Register.h"
@@ -36,6 +38,7 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   const LLT S8 = LLT::scalar(8);
   const LLT S16 = LLT::scalar(16);
   const LLT S32 = LLT::scalar(32);
+  const LLT S64 = LLT::scalar(64);
   const LLT P0 = LLT::pointer(0, 32);
 
   getActionDefinitionsBuilder(G_PHI).legalFor({S32, P0}).clampScalar(0, S32,
@@ -76,9 +79,10 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   // that can result in substantially less code generated.
   getActionDefinitionsBuilder({G_SHL, G_LSHR, G_ASHR})
       .legalFor({{S32, S32}})
+      .customFor({{S64, S32}})
       .clampScalar(1, S32, S32)
       .widenScalarToNextPow2(0)
-      .clampScalar(0, S32, S32);
+      .clampScalar(0, S32, S64);
 
   getActionDefinitionsBuilder({G_FSHL, G_FSHR}).legalFor({{S32, S32}}).lower();
 
@@ -163,6 +167,10 @@ bool XtensaLegalizerInfo::legalizeCustom(LegalizerHelper &Helper,
   switch (MI.getOpcode()) {
   case TargetOpcode::G_ICMP:
     return legalizeICmp(MI, MRI, MIRBuilder, Observer);
+  case TargetOpcode::G_SHL:
+  case TargetOpcode::G_LSHR:
+  case TargetOpcode::G_ASHR:
+    return legalizeShift(MI, Helper, MRI, MIRBuilder, Observer);
   case TargetOpcode::G_CONSTANT:
     return legalizeConstant(MI, MRI, MIRBuilder, Observer);
   case TargetOpcode::G_SELECT:
@@ -198,6 +206,88 @@ bool XtensaLegalizerInfo::legalizeICmp(MachineInstr &MI,
   convertPtrSrc(MIRBuilder, MI, 3);
   Observer.changedInstr(MI);
 
+  return true;
+}
+
+bool XtensaLegalizerInfo::legalizeShift(MachineInstr &MI,
+                                        LegalizerHelper &Helper,
+                                        MachineRegisterInfo &MRI,
+                                        MachineIRBuilder &MIRBuilder,
+                                        GISelChangeObserver &Observer) const {
+  const LLT S32 = LLT::scalar(32);
+  const LLT S64 = LLT::scalar(64);
+
+  unsigned Opcode = MI.getOpcode();
+  Register Dest = MI.getOperand(0).getReg();
+  Register Input = MI.getOperand(1).getReg();
+  Register ShiftAmount = MI.getOperand(2).getReg();
+
+  LLT DestTy = MRI.getType(Dest);
+  LLT ShiftAmountTy = MRI.getType(ShiftAmount);
+
+  assert(DestTy == S64 && "Custom legalization attempted for non-64-bit shift");
+  assert(
+      ShiftAmountTy == S32 &&
+      "Custom legalization attempted for shift with incorrectly-sized amount");
+
+  if (auto VRegAndVal = getIConstantVRegValWithLookThrough(ShiftAmount, MRI)) {
+    return Helper.narrowScalarShiftByConstant(
+               MI, VRegAndVal->Value, S32, S32) == LegalizerHelper::Legalized;
+  }
+
+  // Adapted from `TargetLowering::expandShiftParts`
+
+  bool IsShl = Opcode == TargetOpcode::G_SHL;
+  bool IsAshr = Opcode == TargetOpcode::G_ASHR;
+
+  Register InputHi = MRI.createGenericVirtualRegister(S32);
+  Register InputLo = MRI.createGenericVirtualRegister(S32);
+  MIRBuilder.buildUnmerge({InputLo, InputHi}, Input);
+
+  auto LargeShiftCond = MIRBuilder.buildAnd(
+      S32,
+      MIRBuilder.buildLShr(S32, ShiftAmount, MIRBuilder.buildConstant(S32, 5)),
+      MIRBuilder.buildConstant(S32, 1));
+
+  auto MaskedShiftAmount =
+      MIRBuilder.buildAnd(S32, ShiftAmount, MIRBuilder.buildConstant(S32, 31));
+
+  auto LargeShiftFill =
+      IsAshr ? MIRBuilder.buildAShr(S32, InputHi,
+                                    MIRBuilder.buildConstant(S32, 31))
+             : MIRBuilder.buildConstant(S32, 0);
+
+  MachineInstrBuilder Funnel;
+  MachineInstrBuilder MaskedShiftResult;
+
+  if (IsShl) {
+    Funnel = MIRBuilder.buildInstr(TargetOpcode::G_FSHL, {S32},
+                                   {InputHi, InputLo, ShiftAmount});
+    MaskedShiftResult = MIRBuilder.buildShl(S32, InputLo, MaskedShiftAmount);
+  } else {
+    Funnel = MIRBuilder.buildInstr(TargetOpcode::G_FSHR, {S32},
+                                   {InputHi, InputLo, ShiftAmount});
+    MaskedShiftResult =
+        MIRBuilder.buildInstr(Opcode, {S32}, {InputHi, MaskedShiftAmount});
+  }
+
+  MachineInstrBuilder ResultHi;
+  MachineInstrBuilder ResultLo;
+
+  if (IsShl) {
+    ResultHi =
+        MIRBuilder.buildSelect(S32, LargeShiftCond, MaskedShiftResult, Funnel);
+    ResultLo = MIRBuilder.buildSelect(S32, LargeShiftCond, LargeShiftFill,
+                                      MaskedShiftResult);
+  } else {
+    ResultLo =
+        MIRBuilder.buildSelect(S32, LargeShiftCond, MaskedShiftResult, Funnel);
+    ResultHi = MIRBuilder.buildSelect(S32, LargeShiftCond, LargeShiftFill,
+                                      MaskedShiftResult);
+  }
+
+  MIRBuilder.buildMerge(Dest, {ResultLo, ResultHi});
+  MI.eraseFromParent();
   return true;
 }
 
