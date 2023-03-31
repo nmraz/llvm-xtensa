@@ -6,9 +6,8 @@ define i64 @shl_const(i64 %val) {
 ; OPT-LABEL: shl_const:
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    slli a4, a2, 5
-; OPT-NEXT:    slli a3, a3, 5
-; OPT-NEXT:    extui a2, a2, 27, 5
-; OPT-NEXT:    or a3, a3, a2
+; OPT-NEXT:    ssai 27
+; OPT-NEXT:    src a3, a3, a2
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
@@ -29,9 +28,8 @@ define i64 @shl_const_5bit(i64 %val) {
 ; OPT-LABEL: shl_const_5bit:
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    slli a4, a2, 17
-; OPT-NEXT:    slli a3, a3, 17
-; OPT-NEXT:    srli a2, a2, 15
-; OPT-NEXT:    or a3, a3, a2
+; OPT-NEXT:    ssai 15
+; OPT-NEXT:    src a3, a3, a2
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
@@ -89,9 +87,8 @@ entry:
 define i64 @lshr_const(i64 %val) {
 ; OPT-LABEL: lshr_const:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    srli a2, a2, 5
-; OPT-NEXT:    slli a4, a3, 27
-; OPT-NEXT:    or a2, a2, a4
+; OPT-NEXT:    ssai 5
+; OPT-NEXT:    src a2, a3, a2
 ; OPT-NEXT:    srli a3, a3, 5
 ; OPT-NEXT:    ret.n
 ;
@@ -110,9 +107,8 @@ entry:
 define i64 @lshr_const_5bit(i64 %val) {
 ; OPT-LABEL: lshr_const_5bit:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    extui a2, a2, 17, 15
-; OPT-NEXT:    slli a4, a3, 15
-; OPT-NEXT:    or a2, a2, a4
+; OPT-NEXT:    ssai 17
+; OPT-NEXT:    src a2, a3, a2
 ; OPT-NEXT:    extui a3, a3, 17, 15
 ; OPT-NEXT:    ret.n
 ;
@@ -168,9 +164,8 @@ entry:
 define i64 @ashr_const(i64 %val) {
 ; OPT-LABEL: ashr_const:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    srli a2, a2, 5
-; OPT-NEXT:    slli a4, a3, 27
-; OPT-NEXT:    or a2, a2, a4
+; OPT-NEXT:    ssai 5
+; OPT-NEXT:    src a2, a3, a2
 ; OPT-NEXT:    srai a3, a3, 5
 ; OPT-NEXT:    ret.n
 ;
@@ -189,9 +184,8 @@ entry:
 define i64 @ashr_const_5bit(i64 %val) {
 ; OPT-LABEL: ashr_const_5bit:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    extui a2, a2, 17, 15
-; OPT-NEXT:    slli a4, a3, 15
-; OPT-NEXT:    or a2, a2, a4
+; OPT-NEXT:    ssai 17
+; OPT-NEXT:    src a2, a3, a2
 ; OPT-NEXT:    srai a3, a3, 17
 ; OPT-NEXT:    ret.n
 ;

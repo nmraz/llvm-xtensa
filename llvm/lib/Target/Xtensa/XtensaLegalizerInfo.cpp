@@ -80,6 +80,8 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .widenScalarToNextPow2(0)
       .clampScalar(0, S32, S32);
 
+  getActionDefinitionsBuilder({G_FSHL, G_FSHR}).legalFor({{S32, S32}}).lower();
+
   getActionDefinitionsBuilder({G_SDIV, G_UDIV, G_SREM, G_UREM})
       .legalFor({S32})
       .widenScalarToNextPow2(0)

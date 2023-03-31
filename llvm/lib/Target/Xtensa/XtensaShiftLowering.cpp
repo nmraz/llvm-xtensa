@@ -5,6 +5,7 @@
 #include "llvm/CodeGen/GlobalISel/MIPatternMatch.h"
 #include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
 #include "llvm/CodeGen/GlobalISel/Utils.h"
+#include "llvm/CodeGen/MachineBasicBlock.h"
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
@@ -41,6 +42,7 @@ public:
 
   bool lower(MachineInstr &MI);
   bool lowerStandardShift(MachineInstr &MI);
+  bool lowerFunnelShift(MachineInstr &MI);
 
   bool runOnMachineFunction(MachineFunction &MF) override;
   void getAnalysisUsage(AnalysisUsage &AU) const override;
@@ -50,7 +52,7 @@ XtensaShiftLowering::XtensaShiftLowering() : MachineFunctionPass(ID) {
   initializeXtensaShiftLoweringPass(*PassRegistry::getPassRegistry());
 }
 
-static bool isLegalConstantShift(unsigned Opcode, uint64_t Value) {
+static bool isLegalConstantStandardShift(unsigned Opcode, uint64_t Value) {
   switch (Opcode) {
   case Xtensa::G_SHL:
     // SLLI doesn't support 0 immediates
@@ -60,7 +62,7 @@ static bool isLegalConstantShift(unsigned Opcode, uint64_t Value) {
   }
 }
 
-static unsigned getXtensaShiftOpcode(unsigned GenericOpcode) {
+static unsigned getStandardShiftOpcode(unsigned GenericOpcode) {
   switch (GenericOpcode) {
   case Xtensa::G_SHL:
     return Xtensa::SLL;
@@ -79,6 +81,9 @@ bool XtensaShiftLowering::lower(MachineInstr &MI) {
   case Xtensa::G_LSHR:
   case Xtensa::G_ASHR:
     return lowerStandardShift(MI);
+  case Xtensa::G_FSHL:
+  case Xtensa::G_FSHR:
+    return lowerFunnelShift(MI);
   default:
     return false;
   }
@@ -90,7 +95,7 @@ bool XtensaShiftLowering::lowerStandardShift(MachineInstr &MI) {
   Register ShiftAmount = MI.getOperand(2).getReg();
 
   Optional<int64_t> ShiftConst = getIConstantVRegSExtVal(ShiftAmount, *MRI);
-  if (ShiftConst && isLegalConstantShift(Opcode, *ShiftConst)) {
+  if (ShiftConst && isLegalConstantStandardShift(Opcode, *ShiftConst)) {
     // Can be selected directly later
     return false;
   }
@@ -105,10 +110,40 @@ bool XtensaShiftLowering::lowerStandardShift(MachineInstr &MI) {
                                : Xtensa::G_XTENSA_SSR_INRANGE))
       .addReg(ShiftAmount);
 
+  MachineInstr *ShiftMI = BuildMI(MBB, MI, MI.getDebugLoc(),
+                                  TII->get(getStandardShiftOpcode(Opcode)))
+                              .add(MI.getOperand(0))
+                              .add(MI.getOperand(1));
+  constrainSelectedInstRegOperands(*ShiftMI, *TII, *TRI, *RBI);
+
+  MI.removeFromParent();
+  return true;
+}
+
+bool XtensaShiftLowering::lowerFunnelShift(MachineInstr &MI) {
+  unsigned Opcode = MI.getOpcode();
+  MachineBasicBlock &MBB = *MI.getParent();
+  Register HighInput = MI.getOperand(1).getReg();
+  Register LowInput = MI.getOperand(2).getReg();
+  Register ShiftAmount = MI.getOperand(3).getReg();
+
+  bool IsLeftShift = Opcode == Xtensa::G_FSHL;
+
+  if (IsLeftShift) {
+    std::swap(HighInput, LowInput);
+  }
+
+  // The semantics of funnel shifts require masking the shift amount.
+  BuildMI(MBB, MI, MI.getDebugLoc(),
+          TII->get(IsLeftShift ? Xtensa::G_XTENSA_SSL_MASKED
+                               : Xtensa::G_XTENSA_SSR_MASKED))
+      .addReg(ShiftAmount);
+
   MachineInstr *ShiftMI =
-      BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(getXtensaShiftOpcode(Opcode)))
+      BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(Xtensa::SRC))
           .add(MI.getOperand(0))
-          .add(MI.getOperand(1));
+          .addReg(HighInput)
+          .addReg(LowInput);
   constrainSelectedInstRegOperands(*ShiftMI, *TII, *TRI, *RBI);
 
   MI.removeFromParent();
