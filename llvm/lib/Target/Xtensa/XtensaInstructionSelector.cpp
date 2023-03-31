@@ -18,6 +18,7 @@
 #include "XtensaRegisterInfo.h"
 #include "XtensaSubtarget.h"
 #include "XtensaTargetMachine.h"
+#include "llvm/ADT/APInt.h"
 #include "llvm/ADT/None.h"
 #include "llvm/ADT/Optional.h"
 #include "llvm/CodeGen/GlobalISel/GenericMachineInstrs.h"
@@ -96,6 +97,9 @@ private:
   bool emitUnsignedICmpSelect(MachineInstr &I, CmpInst::Predicate Pred,
                               Register CmpLHS, Register CmpRHS,
                               Register TrueVal, Register FalseVal);
+  bool emitUnsignedICmpSelectImm(MachineInstr &I, CmpInst::Predicate Pred,
+                                 Register CmpLHS, Register CmpRHS,
+                                 Register TrueVal, Register FalseVal);
 
   bool preISelLower(MachineInstr &I);
   bool convertPtrAddToAdd(MachineInstr &I);
@@ -238,21 +242,6 @@ static Optional<ICmpInfo> getICmpAroundZeroInfo(CmpInst::Predicate Pred) {
   }
 
   return It->Info;
-}
-
-static Optional<ICmpInfo> getUnsignedICmpInfo(CmpInst::Predicate Pred) {
-  switch (Pred) {
-  case CmpInst::ICMP_UGT:
-    return {{Xtensa::SELECT_LTU, true, false}};
-  case CmpInst::ICMP_UGE:
-    return {{Xtensa::SELECT_LTU, false, true}};
-  case CmpInst::ICMP_ULT:
-    return {{Xtensa::SELECT_LTU, false, false}};
-  case CmpInst::ICMP_ULE:
-    return {{Xtensa::SELECT_LTU, true, true}};
-  default:
-    return None;
-  }
 }
 
 bool XtensaInstructionSelector::select(MachineInstr &I) {
@@ -433,24 +422,95 @@ bool XtensaInstructionSelector::emitICmpSelectAroundZero(
 bool XtensaInstructionSelector::emitUnsignedICmpSelect(
     MachineInstr &I, CmpInst::Predicate Pred, Register CmpLHS, Register CmpRHS,
     Register TrueVal, Register FalseVal) {
-  auto MaybeInfo = getUnsignedICmpInfo(Pred);
-  if (!MaybeInfo) {
+  if (emitUnsignedICmpSelectImm(I, Pred, CmpLHS, CmpRHS, TrueVal, FalseVal)) {
+    return true;
+  }
+
+  bool SwapCmp = false;
+  bool SwapSelect = false;
+
+  switch (Pred) {
+  case CmpInst::ICMP_UGT:
+    SwapCmp = true;
+    break;
+  case CmpInst::ICMP_UGE:
+    SwapSelect = true;
+    break;
+  case CmpInst::ICMP_ULT:
+    break;
+  case CmpInst::ICMP_ULE:
+    SwapCmp = true;
+    SwapSelect = true;
+    break;
+  default:
     return false;
   }
-  ICmpInfo Info = *MaybeInfo;
 
-  if (Info.InvertCmp) {
+  if (SwapCmp) {
     std::swap(CmpLHS, CmpRHS);
   }
 
-  if (Info.InvertSelect) {
+  if (SwapSelect) {
     std::swap(TrueVal, FalseVal);
   }
 
-  MachineInstr *SelectMI = emitInstrFor(I, Info.Opcode)
+  MachineInstr *SelectMI = emitInstrFor(I, Xtensa::SELECT_LTU)
                                .add(I.getOperand(0))
                                .addReg(CmpLHS)
                                .addReg(CmpRHS)
+                               .addReg(TrueVal)
+                               .addReg(FalseVal);
+  constrainInstrRegisters(*SelectMI);
+  return true;
+}
+
+bool XtensaInstructionSelector::emitUnsignedICmpSelectImm(
+    MachineInstr &I, CmpInst::Predicate Pred, Register CmpLHS, Register CmpRHS,
+    Register TrueVal, Register FalseVal) {
+  const MachineRegisterInfo &MRI = MF->getRegInfo();
+  Optional<APInt> MaybeImmVal = getIConstantVRegVal(CmpRHS, MRI);
+  if (!MaybeImmVal || MaybeImmVal->getBitWidth() > 64) {
+    return false;
+  }
+
+  uint64_t ImmVal = MaybeImmVal->getZExtValue();
+
+  unsigned Opcode = 0;
+  switch (Pred) {
+  case CmpInst::ICMP_UGE:
+    if (!encodeB4ConstU(ImmVal)) {
+      return false;
+    }
+    Opcode = Xtensa::SELECT_GEUI;
+    break;
+  case CmpInst::ICMP_ULT:
+    if (!encodeB4ConstU(ImmVal)) {
+      return false;
+    }
+    Opcode = Xtensa::SELECT_LTUI;
+    break;
+  case CmpInst::ICMP_UGT:
+    if (!encodeB4ConstU(ImmVal + 1)) {
+      return false;
+    }
+    ImmVal++;
+    Opcode = Xtensa::SELECT_GEUI;
+    break;
+  case CmpInst::ICMP_ULE:
+    if (!encodeB4ConstU(ImmVal + 1)) {
+      return false;
+    }
+    ImmVal++;
+    Opcode = Xtensa::SELECT_LTUI;
+    break;
+  default:
+    return false;
+  }
+
+  MachineInstr *SelectMI = emitInstrFor(I, Opcode)
+                               .add(I.getOperand(0))
+                               .addReg(CmpLHS)
+                               .addImm(ImmVal)
                                .addReg(TrueVal)
                                .addReg(FalseVal);
   constrainInstrRegisters(*SelectMI);

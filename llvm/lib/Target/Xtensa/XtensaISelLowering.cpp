@@ -7,6 +7,7 @@
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineMemOperand.h"
+#include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetLowering.h"
 #include "llvm/IR/BasicBlock.h"
@@ -18,6 +19,19 @@
 #include <iterator>
 
 using namespace llvm;
+
+static unsigned getSelectBranchOpcode(unsigned Opcode) {
+  switch (Opcode) {
+  case Xtensa::SELECT_LTU:
+    return Xtensa::BLTU;
+  case Xtensa::SELECT_LTUI:
+    return Xtensa::BLTUI;
+  case Xtensa::SELECT_GEUI:
+    return Xtensa::BGEUI;
+  default:
+    llvm_unreachable("Unkown branch-select pseudo");
+  }
+}
 
 XtensaTargetLowering::XtensaTargetLowering(const TargetMachine &TM,
                                            const XtensaSubtarget &STI)
@@ -31,7 +45,9 @@ XtensaTargetLowering::XtensaTargetLowering(const TargetMachine &TM,
 
 MachineBasicBlock *XtensaTargetLowering::EmitInstrWithCustomInserter(
     MachineInstr &MI, MachineBasicBlock *MBB) const {
-  assert(MI.getOpcode() == Xtensa::SELECT_LTU &&
+  unsigned Opcode = MI.getOpcode();
+  assert((Opcode == Xtensa::SELECT_LTU || Opcode == Xtensa::SELECT_LTUI ||
+          Opcode == Xtensa::SELECT_GEUI) &&
          "Unexpected instruction with custom inserter");
 
   const TargetInstrInfo &TII = *Subtarget.getInstrInfo();
@@ -42,8 +58,8 @@ MachineBasicBlock *XtensaTargetLowering::EmitInstrWithCustomInserter(
   DebugLoc DL = MI.getDebugLoc();
 
   Register Dest = MI.getOperand(0).getReg();
-  Register CmpLHS = MI.getOperand(1).getReg();
-  Register CmpRHS = MI.getOperand(2).getReg();
+  const MachineOperand &CmpLHS = MI.getOperand(1);
+  const MachineOperand &CmpRHS = MI.getOperand(2);
   Register TrueVal = MI.getOperand(3).getReg();
   Register FalseVal = MI.getOperand(4).getReg();
 
@@ -79,9 +95,9 @@ MachineBasicBlock *XtensaTargetLowering::EmitInstrWithCustomInserter(
   MBB->addSuccessor(SinkMBB);
   FalseMBB->addSuccessor(SinkMBB);
 
-  BuildMI(MBB, DL, TII.get(Xtensa::BLTU))
-      .addReg(CmpLHS)
-      .addReg(CmpRHS)
+  BuildMI(MBB, DL, TII.get(getSelectBranchOpcode(Opcode)))
+      .add(CmpLHS)
+      .add(CmpRHS)
       .addMBB(SinkMBB);
 
   BuildMI(*SinkMBB, SinkMBB->begin(), DL, TII.get(Xtensa::PHI), Dest)

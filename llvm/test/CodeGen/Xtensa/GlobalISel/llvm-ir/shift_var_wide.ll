@@ -7,10 +7,9 @@
 define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; OPT-LABEL: shl_i33:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a5, 32
 ; OPT-NEXT:    movi.n a6, 0
 ; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltu a4, a5, .LBB0_2
+; OPT-NEXT:    bltui a4, 32, .LBB0_2
 ; OPT-NEXT:  # %bb.1: # %entry
 ; OPT-NEXT:    movi.n a7, 0
 ; OPT-NEXT:  .LBB0_2: # %entry
@@ -33,13 +32,13 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; UNOPT-NEXT:    movi.n a2, 32
 ; UNOPT-NEXT:    addi a3, a4, -32
 ; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a3, a2, a4
-; UNOPT-NEXT:    s32i.n a3, a1, 20 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 0
-; UNOPT-NEXT:    s32i.n a3, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 1
-; UNOPT-NEXT:    s32i.n a3, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltu a4, a2, .LBB0_3
+; UNOPT-NEXT:    sub a2, a2, a4
+; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 0
+; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 1
+; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
+; UNOPT-NEXT:    bltui a4, 32, .LBB0_3
 ; UNOPT-NEXT:  # %bb.2: # %entry
 ; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
 ; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
@@ -115,10 +114,9 @@ entry:
 define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; OPT-LABEL: shl_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a5, 32
 ; OPT-NEXT:    movi.n a6, 0
 ; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltu a4, a5, .LBB1_2
+; OPT-NEXT:    bltui a4, 32, .LBB1_2
 ; OPT-NEXT:  # %bb.1: # %entry
 ; OPT-NEXT:    movi.n a7, 0
 ; OPT-NEXT:  .LBB1_2: # %entry
@@ -141,13 +139,13 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; UNOPT-NEXT:    movi.n a2, 32
 ; UNOPT-NEXT:    addi a3, a4, -32
 ; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a3, a2, a4
-; UNOPT-NEXT:    s32i.n a3, a1, 20 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 0
-; UNOPT-NEXT:    s32i.n a3, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 1
-; UNOPT-NEXT:    s32i.n a3, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltu a4, a2, .LBB1_3
+; UNOPT-NEXT:    sub a2, a2, a4
+; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 0
+; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 1
+; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
+; UNOPT-NEXT:    bltui a4, 32, .LBB1_3
 ; UNOPT-NEXT:  # %bb.2: # %entry
 ; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
 ; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
@@ -224,10 +222,9 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; OPT-LABEL: lshr_i33:
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    extui a5, a3, 0, 1
-; OPT-NEXT:    movi.n a3, 32
 ; OPT-NEXT:    movi.n a6, 0
 ; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltu a4, a3, .LBB2_2
+; OPT-NEXT:    bltui a4, 32, .LBB2_2
 ; OPT-NEXT:  # %bb.1: # %entry
 ; OPT-NEXT:    movi.n a7, 0
 ; OPT-NEXT:  .LBB2_2: # %entry
@@ -252,13 +249,13 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; UNOPT-NEXT:    movi.n a2, 32
 ; UNOPT-NEXT:    addi a3, a4, -32
 ; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a3, a2, a4
-; UNOPT-NEXT:    s32i.n a3, a1, 20 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 0
-; UNOPT-NEXT:    s32i.n a3, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 1
-; UNOPT-NEXT:    s32i.n a3, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltu a4, a2, .LBB2_3
+; UNOPT-NEXT:    sub a2, a2, a4
+; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 0
+; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 1
+; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
+; UNOPT-NEXT:    bltui a4, 32, .LBB2_3
 ; UNOPT-NEXT:  # %bb.2: # %entry
 ; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
 ; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
@@ -332,10 +329,9 @@ entry:
 define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; OPT-LABEL: lshr_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a5, 32
 ; OPT-NEXT:    movi.n a6, 0
 ; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltu a4, a5, .LBB3_2
+; OPT-NEXT:    bltui a4, 32, .LBB3_2
 ; OPT-NEXT:  # %bb.1: # %entry
 ; OPT-NEXT:    movi.n a7, 0
 ; OPT-NEXT:  .LBB3_2: # %entry
@@ -358,13 +354,13 @@ define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; UNOPT-NEXT:    movi.n a2, 32
 ; UNOPT-NEXT:    addi a3, a4, -32
 ; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a3, a2, a4
-; UNOPT-NEXT:    s32i.n a3, a1, 20 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 0
-; UNOPT-NEXT:    s32i.n a3, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 1
-; UNOPT-NEXT:    s32i.n a3, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltu a4, a2, .LBB3_3
+; UNOPT-NEXT:    sub a2, a2, a4
+; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 0
+; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 1
+; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
+; UNOPT-NEXT:    bltui a4, 32, .LBB3_3
 ; UNOPT-NEXT:  # %bb.2: # %entry
 ; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
 ; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
@@ -446,9 +442,8 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; OPT-NEXT:    ssai 31
 ; OPT-NEXT:    src a6, a2, a5
 ; OPT-NEXT:    srai a5, a2, 31
-; OPT-NEXT:    movi.n a2, 32
 ; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltu a4, a2, .LBB4_2
+; OPT-NEXT:    bltui a4, 32, .LBB4_2
 ; OPT-NEXT:  # %bb.1: # %entry
 ; OPT-NEXT:    movi.n a7, 0
 ; OPT-NEXT:  .LBB4_2: # %entry
@@ -479,13 +474,13 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; UNOPT-NEXT:    movi.n a2, 32
 ; UNOPT-NEXT:    addi a3, a4, -32
 ; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a3, a2, a4
-; UNOPT-NEXT:    s32i.n a3, a1, 20 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 0
-; UNOPT-NEXT:    s32i.n a3, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 1
-; UNOPT-NEXT:    s32i.n a3, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltu a4, a2, .LBB4_3
+; UNOPT-NEXT:    sub a2, a2, a4
+; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 0
+; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 1
+; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
+; UNOPT-NEXT:    bltui a4, 32, .LBB4_3
 ; UNOPT-NEXT:  # %bb.2: # %entry
 ; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
 ; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
@@ -572,9 +567,8 @@ entry:
 define i64 @ashr_i64(i64 %val, i64 %shamt) {
 ; OPT-LABEL: ashr_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    movi.n a5, 32
 ; OPT-NEXT:    movi.n a7, 1
-; OPT-NEXT:    bltu a4, a5, .LBB5_2
+; OPT-NEXT:    bltui a4, 32, .LBB5_2
 ; OPT-NEXT:  # %bb.1: # %entry
 ; OPT-NEXT:    movi.n a7, 0
 ; OPT-NEXT:  .LBB5_2: # %entry
@@ -598,13 +592,13 @@ define i64 @ashr_i64(i64 %val, i64 %shamt) {
 ; UNOPT-NEXT:    movi.n a2, 32
 ; UNOPT-NEXT:    addi a3, a4, -32
 ; UNOPT-NEXT:    s32i.n a3, a1, 16 # 4-byte Spill
-; UNOPT-NEXT:    sub a3, a2, a4
-; UNOPT-NEXT:    s32i.n a3, a1, 20 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 0
-; UNOPT-NEXT:    s32i.n a3, a1, 24 # 4-byte Spill
-; UNOPT-NEXT:    movi.n a3, 1
-; UNOPT-NEXT:    s32i.n a3, a1, 28 # 4-byte Spill
-; UNOPT-NEXT:    bltu a4, a2, .LBB5_3
+; UNOPT-NEXT:    sub a2, a2, a4
+; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 0
+; UNOPT-NEXT:    s32i.n a2, a1, 24 # 4-byte Spill
+; UNOPT-NEXT:    movi.n a2, 1
+; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill
+; UNOPT-NEXT:    bltui a4, 32, .LBB5_3
 ; UNOPT-NEXT:  # %bb.2: # %entry
 ; UNOPT-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
 ; UNOPT-NEXT:    s32i.n a2, a1, 28 # 4-byte Spill

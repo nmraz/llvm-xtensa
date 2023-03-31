@@ -82,6 +82,8 @@ class XtensaSelectCCPseudo<DAGOperand CmpRHS>
 }
 
 def SELECT_LTU : XtensaSelectCCPseudo<GPR>;
+def SELECT_LTUI : XtensaSelectCCPseudo<b4constu>;
+def SELECT_GEUI : XtensaSelectCCPseudo<b4constu>;
 
 
 // Real instructions

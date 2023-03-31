@@ -148,7 +148,7 @@ body:             |
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[MOVI]], [[COPY2]]
     ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI2:%[0-9]+]]:gpr = MOVI 1
-    ; CHECK-NEXT: [[SELECT_LTU:%[0-9]+]]:gpr = SELECT_LTU [[COPY2]], [[MOVI]], [[MOVI2]], [[MOVI1]]
+    ; CHECK-NEXT: [[SELECT_LTUI:%[0-9]+]]:gpr = SELECT_LTUI [[COPY2]], 32, [[MOVI2]], [[MOVI1]]
     ; CHECK-NEXT: [[MOVI3:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI4:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVI3]], [[MOVI4]], [[COPY2]]
@@ -162,9 +162,9 @@ body:             |
     ; CHECK-NEXT: [[MOVI5:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: SSL [[ADDI]], implicit-def $sar
     ; CHECK-NEXT: [[SLL2:%[0-9]+]]:gpr = SLL [[COPY]], implicit $sar
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ1:%[0-9]+]]:gpr = MOVEQZ [[SLL]], [[MOVI5]], [[EXTUI]]
-    ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ2:%[0-9]+]]:gpr = MOVEQZ [[OR]], [[SLL2]], [[EXTUI1]]
     ; CHECK-NEXT: [[EXTUI2:%[0-9]+]]:gpr = EXTUI [[MOVEQZ]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ3:%[0-9]+]]:gpr = MOVEQZ [[COPY1]], [[MOVEQZ2]], [[EXTUI2]]
@@ -304,7 +304,7 @@ body:             |
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[MOVI]], [[COPY2]]
     ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI2:%[0-9]+]]:gpr = MOVI 1
-    ; CHECK-NEXT: [[SELECT_LTU:%[0-9]+]]:gpr = SELECT_LTU [[COPY2]], [[MOVI]], [[MOVI2]], [[MOVI1]]
+    ; CHECK-NEXT: [[SELECT_LTUI:%[0-9]+]]:gpr = SELECT_LTUI [[COPY2]], 32, [[MOVI2]], [[MOVI1]]
     ; CHECK-NEXT: [[MOVI3:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI4:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVI3]], [[MOVI4]], [[COPY2]]
@@ -318,9 +318,9 @@ body:             |
     ; CHECK-NEXT: [[MOVI5:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: SSL [[ADDI]], implicit-def $sar
     ; CHECK-NEXT: [[SLL2:%[0-9]+]]:gpr = SLL [[COPY]], implicit $sar
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ1:%[0-9]+]]:gpr = MOVEQZ [[SLL]], [[MOVI5]], [[EXTUI]]
-    ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ2:%[0-9]+]]:gpr = MOVEQZ [[OR]], [[SLL2]], [[EXTUI1]]
     ; CHECK-NEXT: [[EXTUI2:%[0-9]+]]:gpr = EXTUI [[MOVEQZ]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ3:%[0-9]+]]:gpr = MOVEQZ [[COPY1]], [[MOVEQZ2]], [[EXTUI2]]
@@ -477,7 +477,7 @@ body:             |
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[MOVI1]], [[COPY2]]
     ; CHECK-NEXT: [[MOVI2:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI3:%[0-9]+]]:gpr = MOVI 1
-    ; CHECK-NEXT: [[SELECT_LTU:%[0-9]+]]:gpr = SELECT_LTU [[COPY2]], [[MOVI1]], [[MOVI3]], [[MOVI2]]
+    ; CHECK-NEXT: [[SELECT_LTUI:%[0-9]+]]:gpr = SELECT_LTUI [[COPY2]], 32, [[MOVI3]], [[MOVI2]]
     ; CHECK-NEXT: [[MOVI4:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI5:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVI4]], [[MOVI5]], [[COPY2]]
@@ -491,11 +491,11 @@ body:             |
     ; CHECK-NEXT: [[MOVI6:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: SSR [[ADDI]], implicit-def $sar
     ; CHECK-NEXT: [[SRL2:%[0-9]+]]:gpr = SRL [[EXTUI]], implicit $sar
-    ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ1:%[0-9]+]]:gpr = MOVEQZ [[OR]], [[SRL2]], [[EXTUI1]]
     ; CHECK-NEXT: [[EXTUI2:%[0-9]+]]:gpr = EXTUI [[MOVEQZ]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ2:%[0-9]+]]:gpr = MOVEQZ [[AND]], [[MOVEQZ1]], [[EXTUI2]]
-    ; CHECK-NEXT: [[EXTUI3:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI3:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ3:%[0-9]+]]:gpr = MOVEQZ [[SRL]], [[MOVI6]], [[EXTUI3]]
     ; CHECK-NEXT: $a2 = COPY [[MOVEQZ2]]
     ; CHECK-NEXT: $a3 = COPY [[MOVEQZ3]]
@@ -637,7 +637,7 @@ body:             |
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[MOVI]], [[COPY2]]
     ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI2:%[0-9]+]]:gpr = MOVI 1
-    ; CHECK-NEXT: [[SELECT_LTU:%[0-9]+]]:gpr = SELECT_LTU [[COPY2]], [[MOVI]], [[MOVI2]], [[MOVI1]]
+    ; CHECK-NEXT: [[SELECT_LTUI:%[0-9]+]]:gpr = SELECT_LTUI [[COPY2]], 32, [[MOVI2]], [[MOVI1]]
     ; CHECK-NEXT: [[MOVI3:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI4:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVI3]], [[MOVI4]], [[COPY2]]
@@ -651,11 +651,11 @@ body:             |
     ; CHECK-NEXT: [[MOVI5:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: SSR [[ADDI]], implicit-def $sar
     ; CHECK-NEXT: [[SRL2:%[0-9]+]]:gpr = SRL [[COPY1]], implicit $sar
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ1:%[0-9]+]]:gpr = MOVEQZ [[OR]], [[SRL2]], [[EXTUI]]
     ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[MOVEQZ]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ2:%[0-9]+]]:gpr = MOVEQZ [[COPY]], [[MOVEQZ1]], [[EXTUI1]]
-    ; CHECK-NEXT: [[EXTUI2:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI2:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ3:%[0-9]+]]:gpr = MOVEQZ [[SRL]], [[MOVI5]], [[EXTUI2]]
     ; CHECK-NEXT: $a2 = COPY [[MOVEQZ2]]
     ; CHECK-NEXT: $a3 = COPY [[MOVEQZ3]]
@@ -830,7 +830,7 @@ body:             |
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[MOVI]], [[COPY2]]
     ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI2:%[0-9]+]]:gpr = MOVI 1
-    ; CHECK-NEXT: [[SELECT_LTU:%[0-9]+]]:gpr = SELECT_LTU [[COPY2]], [[MOVI]], [[MOVI2]], [[MOVI1]]
+    ; CHECK-NEXT: [[SELECT_LTUI:%[0-9]+]]:gpr = SELECT_LTUI [[COPY2]], 32, [[MOVI2]], [[MOVI1]]
     ; CHECK-NEXT: [[MOVI3:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI4:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVI3]], [[MOVI4]], [[COPY2]]
@@ -844,11 +844,11 @@ body:             |
     ; CHECK-NEXT: [[SRAI1:%[0-9]+]]:gpr = SRAI [[SRAI]], 31
     ; CHECK-NEXT: SSR [[ADDI]], implicit-def $sar
     ; CHECK-NEXT: [[SRA1:%[0-9]+]]:gpr = SRA [[SRAI]], implicit $sar
-    ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ1:%[0-9]+]]:gpr = MOVEQZ [[OR2]], [[SRA1]], [[EXTUI1]]
     ; CHECK-NEXT: [[EXTUI2:%[0-9]+]]:gpr = EXTUI [[MOVEQZ]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ2:%[0-9]+]]:gpr = MOVEQZ [[OR1]], [[MOVEQZ1]], [[EXTUI2]]
-    ; CHECK-NEXT: [[EXTUI3:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI3:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ3:%[0-9]+]]:gpr = MOVEQZ [[SRA]], [[SRAI1]], [[EXTUI3]]
     ; CHECK-NEXT: $a2 = COPY [[MOVEQZ2]]
     ; CHECK-NEXT: $a3 = COPY [[MOVEQZ3]]
@@ -1001,7 +1001,7 @@ body:             |
     ; CHECK-NEXT: [[SUB:%[0-9]+]]:gpr = SUB [[MOVI]], [[COPY2]]
     ; CHECK-NEXT: [[MOVI1:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI2:%[0-9]+]]:gpr = MOVI 1
-    ; CHECK-NEXT: [[SELECT_LTU:%[0-9]+]]:gpr = SELECT_LTU [[COPY2]], [[MOVI]], [[MOVI2]], [[MOVI1]]
+    ; CHECK-NEXT: [[SELECT_LTUI:%[0-9]+]]:gpr = SELECT_LTUI [[COPY2]], 32, [[MOVI2]], [[MOVI1]]
     ; CHECK-NEXT: [[MOVI3:%[0-9]+]]:gpr = MOVI 0
     ; CHECK-NEXT: [[MOVI4:%[0-9]+]]:gpr = MOVI 1
     ; CHECK-NEXT: [[MOVEQZ:%[0-9]+]]:gpr = MOVEQZ [[MOVI3]], [[MOVI4]], [[COPY2]]
@@ -1015,11 +1015,11 @@ body:             |
     ; CHECK-NEXT: [[SRAI:%[0-9]+]]:gpr = SRAI [[COPY1]], 31
     ; CHECK-NEXT: SSR [[ADDI]], implicit-def $sar
     ; CHECK-NEXT: [[SRA1:%[0-9]+]]:gpr = SRA [[COPY1]], implicit $sar
-    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ1:%[0-9]+]]:gpr = MOVEQZ [[OR]], [[SRA1]], [[EXTUI]]
     ; CHECK-NEXT: [[EXTUI1:%[0-9]+]]:gpr = EXTUI [[MOVEQZ]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ2:%[0-9]+]]:gpr = MOVEQZ [[COPY]], [[MOVEQZ1]], [[EXTUI1]]
-    ; CHECK-NEXT: [[EXTUI2:%[0-9]+]]:gpr = EXTUI [[SELECT_LTU]], 0, 1
+    ; CHECK-NEXT: [[EXTUI2:%[0-9]+]]:gpr = EXTUI [[SELECT_LTUI]], 0, 1
     ; CHECK-NEXT: [[MOVEQZ3:%[0-9]+]]:gpr = MOVEQZ [[SRA]], [[SRAI]], [[EXTUI2]]
     ; CHECK-NEXT: $a2 = COPY [[MOVEQZ2]]
     ; CHECK-NEXT: $a3 = COPY [[MOVEQZ3]]
