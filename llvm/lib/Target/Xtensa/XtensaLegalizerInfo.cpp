@@ -146,12 +146,9 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
   // legalization, meaning they are never legal in the final output;
   // everything should be 32-bit.
   getActionDefinitionsBuilder({G_ZEXT, G_SEXT, G_ANYEXT})
-      .legalIf([](const LegalityQuery &Query) { return false; })
-      .maxScalar(0, S32);
-
-  getActionDefinitionsBuilder(G_TRUNC)
-      .legalIf([](const LegalityQuery &Query) { return false; })
-      .maxScalar(1, S32);
+      .maxScalar(0, S32)
+      .unsupported();
+  getActionDefinitionsBuilder(G_TRUNC).maxScalar(1, S32).unsupported();
 
   getLegacyLegalizerInfo().computeTables();
 
