@@ -660,6 +660,9 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
   case Xtensa::G_PHI:
     I.setDesc(TII.get(Xtensa::PHI));
     return forceConstrainInstrRegisters(I);
+  case Xtensa::G_IMPLICIT_DEF:
+    I.setDesc(TII.get(Xtensa::IMPLICIT_DEF));
+    return forceConstrainInstrRegisters(I);
   case Xtensa::G_AND:
     return selectAndAsExtui(I);
   case Xtensa::G_SELECT:
