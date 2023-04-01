@@ -89,7 +89,7 @@ body:             |
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr(s32) = COPY $a3
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:_(s32) = COPY $a4
     ; CHECK-NEXT: G_XTENSA_SSL_MASKED [[COPY2]](s32), implicit-def $sar
-    ; CHECK-NEXT: [[SRC:%[0-9]+]]:gpr(s32) = SRC [[COPY1]](s32), [[COPY]](s32), implicit $sar
+    ; CHECK-NEXT: [[SRC:%[0-9]+]]:gpr(s32) = SRC [[COPY]](s32), [[COPY1]](s32), implicit $sar
     ; CHECK-NEXT: $a2 = COPY [[SRC]](s32)
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     %0:_(s32) = COPY $a2

@@ -9,7 +9,7 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    extui a5, a4, 5, 1
 ; OPT-NEXT:    ssl a4
-; OPT-NEXT:    src a4, a2, a3
+; OPT-NEXT:    src a4, a3, a2
 ; OPT-NEXT:    sll a6, a2
 ; OPT-NEXT:    mov.n a3, a6
 ; OPT-NEXT:    moveqz a3, a4, a5
@@ -27,7 +27,7 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; UNOPT-NEXT:    extui a5, a6, 5, 1
 ; UNOPT-NEXT:    extui a4, a6, 0, 5
 ; UNOPT-NEXT:    ssl a6
-; UNOPT-NEXT:    src a2, a3, a2
+; UNOPT-NEXT:    src a2, a2, a3
 ; UNOPT-NEXT:    ssl a4
 ; UNOPT-NEXT:    sll a4, a3
 ; UNOPT-NEXT:    mov.n a3, a4
@@ -41,7 +41,7 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; LX7-OPT:       # %bb.0: # %entry
 ; LX7-OPT-NEXT:    extui a5, a4, 5, 1
 ; LX7-OPT-NEXT:    ssl a4
-; LX7-OPT-NEXT:    src a4, a2, a3
+; LX7-OPT-NEXT:    src a4, a3, a2
 ; LX7-OPT-NEXT:    sll a6, a2
 ; LX7-OPT-NEXT:    mov.n a3, a6
 ; LX7-OPT-NEXT:    moveqz a3, a4, a5
@@ -59,7 +59,7 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; LX7-UNOPT-NEXT:    extui a5, a6, 5, 1
 ; LX7-UNOPT-NEXT:    extui a4, a6, 0, 5
 ; LX7-UNOPT-NEXT:    ssl a6
-; LX7-UNOPT-NEXT:    src a2, a3, a2
+; LX7-UNOPT-NEXT:    src a2, a2, a3
 ; LX7-UNOPT-NEXT:    ssl a4
 ; LX7-UNOPT-NEXT:    sll a4, a3
 ; LX7-UNOPT-NEXT:    mov.n a3, a4
@@ -78,7 +78,7 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    extui a5, a4, 5, 1
 ; OPT-NEXT:    ssl a4
-; OPT-NEXT:    src a4, a2, a3
+; OPT-NEXT:    src a4, a3, a2
 ; OPT-NEXT:    sll a6, a2
 ; OPT-NEXT:    mov.n a3, a6
 ; OPT-NEXT:    moveqz a3, a4, a5
@@ -96,7 +96,7 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; UNOPT-NEXT:    extui a5, a6, 5, 1
 ; UNOPT-NEXT:    extui a4, a6, 0, 5
 ; UNOPT-NEXT:    ssl a6
-; UNOPT-NEXT:    src a2, a3, a2
+; UNOPT-NEXT:    src a2, a2, a3
 ; UNOPT-NEXT:    ssl a4
 ; UNOPT-NEXT:    sll a4, a3
 ; UNOPT-NEXT:    mov.n a3, a4
@@ -110,7 +110,7 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; LX7-OPT:       # %bb.0: # %entry
 ; LX7-OPT-NEXT:    extui a5, a4, 5, 1
 ; LX7-OPT-NEXT:    ssl a4
-; LX7-OPT-NEXT:    src a4, a2, a3
+; LX7-OPT-NEXT:    src a4, a3, a2
 ; LX7-OPT-NEXT:    sll a6, a2
 ; LX7-OPT-NEXT:    mov.n a3, a6
 ; LX7-OPT-NEXT:    moveqz a3, a4, a5
@@ -128,7 +128,7 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; LX7-UNOPT-NEXT:    extui a5, a6, 5, 1
 ; LX7-UNOPT-NEXT:    extui a4, a6, 0, 5
 ; LX7-UNOPT-NEXT:    ssl a6
-; LX7-UNOPT-NEXT:    src a2, a3, a2
+; LX7-UNOPT-NEXT:    src a2, a2, a3
 ; LX7-UNOPT-NEXT:    ssl a4
 ; LX7-UNOPT-NEXT:    sll a4, a3
 ; LX7-UNOPT-NEXT:    mov.n a3, a4

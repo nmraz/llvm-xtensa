@@ -153,25 +153,25 @@ define i32 @fshl_i32(i32 %a, i32 %b, i32 %c) {
 ; OPT-LABEL: fshl_i32:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    ssl a4
-; OPT-NEXT:    src a2, a3, a2
+; OPT-NEXT:    src a2, a2, a3
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: fshl_i32:
 ; UNOPT:       # %bb.1:
 ; UNOPT-NEXT:    ssl a4
-; UNOPT-NEXT:    src a2, a3, a2
+; UNOPT-NEXT:    src a2, a2, a3
 ; UNOPT-NEXT:    ret.n
 ;
 ; LX7-OPT-LABEL: fshl_i32:
 ; LX7-OPT:       # %bb.0:
 ; LX7-OPT-NEXT:    ssl a4
-; LX7-OPT-NEXT:    src a2, a3, a2
+; LX7-OPT-NEXT:    src a2, a2, a3
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: fshl_i32:
 ; LX7-UNOPT:       # %bb.1:
 ; LX7-UNOPT-NEXT:    ssl a4
-; LX7-UNOPT-NEXT:    src a2, a3, a2
+; LX7-UNOPT-NEXT:    src a2, a2, a3
 ; LX7-UNOPT-NEXT:    ret.n
     %fshl = call i32 @llvm.fshl.i32(i32 %a, i32 %b, i32 %c)
     ret i32 %fshl
@@ -186,7 +186,7 @@ define i64 @fshl_i64(i64 %a, i64 %b, i64 %c) {
 ; OPT-NEXT:    extui a9, a8, 0, 6
 ; OPT-NEXT:    srli a7, a7, 5
 ; OPT-NEXT:    ssl a6
-; OPT-NEXT:    src a3, a2, a3
+; OPT-NEXT:    src a3, a3, a2
 ; OPT-NEXT:    sll a2, a2
 ; OPT-NEXT:    mov.n a6, a2
 ; OPT-NEXT:    moveqz a6, a3, a7
@@ -220,7 +220,7 @@ define i64 @fshl_i64(i64 %a, i64 %b, i64 %c) {
 ; UNOPT-NEXT:    extui a7, a9, 5, 1
 ; UNOPT-NEXT:    extui a6, a9, 0, 5
 ; UNOPT-NEXT:    ssl a9
-; UNOPT-NEXT:    src a2, a3, a2
+; UNOPT-NEXT:    src a2, a2, a3
 ; UNOPT-NEXT:    ssl a6
 ; UNOPT-NEXT:    sll a6, a3
 ; UNOPT-NEXT:    mov.n a3, a6
@@ -254,7 +254,7 @@ define i64 @fshl_i64(i64 %a, i64 %b, i64 %c) {
 ; LX7-OPT-NEXT:    extui a9, a8, 0, 6
 ; LX7-OPT-NEXT:    srli a7, a7, 5
 ; LX7-OPT-NEXT:    ssl a6
-; LX7-OPT-NEXT:    src a3, a2, a3
+; LX7-OPT-NEXT:    src a3, a3, a2
 ; LX7-OPT-NEXT:    sll a2, a2
 ; LX7-OPT-NEXT:    mov.n a6, a2
 ; LX7-OPT-NEXT:    moveqz a6, a3, a7
@@ -288,7 +288,7 @@ define i64 @fshl_i64(i64 %a, i64 %b, i64 %c) {
 ; LX7-UNOPT-NEXT:    extui a7, a9, 5, 1
 ; LX7-UNOPT-NEXT:    extui a6, a9, 0, 5
 ; LX7-UNOPT-NEXT:    ssl a9
-; LX7-UNOPT-NEXT:    src a2, a3, a2
+; LX7-UNOPT-NEXT:    src a2, a2, a3
 ; LX7-UNOPT-NEXT:    ssl a6
 ; LX7-UNOPT-NEXT:    sll a6, a3
 ; LX7-UNOPT-NEXT:    mov.n a3, a6
@@ -497,7 +497,7 @@ define i64 @fshr_i64(i64 %a, i64 %b, i64 %c) {
 ; OPT-NEXT:    src a2, a3, a2
 ; OPT-NEXT:    srli a3, a9, 5
 ; OPT-NEXT:    ssl a8
-; OPT-NEXT:    src a2, a10, a2
+; OPT-NEXT:    src a2, a2, a10
 ; OPT-NEXT:    sll a8, a10
 ; OPT-NEXT:    mov.n a9, a8
 ; OPT-NEXT:    moveqz a9, a2, a3
@@ -533,7 +533,7 @@ define i64 @fshr_i64(i64 %a, i64 %b, i64 %c) {
 ; UNOPT-NEXT:    extui a7, a9, 5, 1
 ; UNOPT-NEXT:    extui a6, a9, 0, 5
 ; UNOPT-NEXT:    ssl a9
-; UNOPT-NEXT:    src a2, a3, a2
+; UNOPT-NEXT:    src a2, a2, a3
 ; UNOPT-NEXT:    ssl a6
 ; UNOPT-NEXT:    sll a6, a3
 ; UNOPT-NEXT:    mov.n a3, a6
@@ -566,7 +566,7 @@ define i64 @fshr_i64(i64 %a, i64 %b, i64 %c) {
 ; LX7-OPT-NEXT:    src a2, a3, a2
 ; LX7-OPT-NEXT:    srli a3, a9, 5
 ; LX7-OPT-NEXT:    ssl a8
-; LX7-OPT-NEXT:    src a2, a10, a2
+; LX7-OPT-NEXT:    src a2, a2, a10
 ; LX7-OPT-NEXT:    sll a8, a10
 ; LX7-OPT-NEXT:    mov.n a9, a8
 ; LX7-OPT-NEXT:    moveqz a9, a2, a3
@@ -602,7 +602,7 @@ define i64 @fshr_i64(i64 %a, i64 %b, i64 %c) {
 ; LX7-UNOPT-NEXT:    extui a7, a9, 5, 1
 ; LX7-UNOPT-NEXT:    extui a6, a9, 0, 5
 ; LX7-UNOPT-NEXT:    ssl a9
-; LX7-UNOPT-NEXT:    src a2, a3, a2
+; LX7-UNOPT-NEXT:    src a2, a2, a3
 ; LX7-UNOPT-NEXT:    ssl a6
 ; LX7-UNOPT-NEXT:    sll a6, a3
 ; LX7-UNOPT-NEXT:    mov.n a3, a6

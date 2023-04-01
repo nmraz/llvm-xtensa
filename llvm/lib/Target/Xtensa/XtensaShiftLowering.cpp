@@ -129,10 +129,6 @@ bool XtensaShiftLowering::lowerFunnelShift(MachineInstr &MI) {
 
   bool IsLeftShift = Opcode == Xtensa::G_FSHL;
 
-  if (IsLeftShift) {
-    std::swap(HighInput, LowInput);
-  }
-
   // The semantics of funnel shifts require masking the shift amount.
   BuildMI(MBB, MI, MI.getDebugLoc(),
           TII->get(IsLeftShift ? Xtensa::G_XTENSA_SSL_MASKED
