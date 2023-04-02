@@ -7,6 +7,7 @@ def RetCC_Xtensa_Call0 : CallingConv<[
 
 def CC_Xtensa_Call0 : CallingConv<[
   CCIfType<[i1, i8, i16], CCPromoteToType<i32>>,
+  CCIfByVal<CCPassByVal<4, 4>>,
   // An i64 is split into two i32s, which must be passed in an even-based register pair.
   // When that happens, make sure the second half doesn't use the previous register.
   CCIfType<[i32], CCIfSplit<CCAssignToRegWithShadow<[A2, A4, A6],
