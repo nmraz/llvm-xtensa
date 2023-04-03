@@ -976,11 +976,12 @@ bool XtensaInstructionSelector::selectLoadStore(MachineInstr &I) {
 
   Register PreAdd = createVirtualGPR();
   emitAddParts(I, PreAdd, Base, PreAddParts);
-  emitInstrFor(I, Opcode)
-      .add(I.getOperand(0))
-      .addReg(PreAdd)
-      .addImm(InlineOffset)
-      .addMemOperand(MMO);
+  MachineInstr *LoadStore = emitInstrFor(I, Opcode)
+                                .add(I.getOperand(0))
+                                .addReg(PreAdd)
+                                .addImm(InlineOffset)
+                                .addMemOperand(MMO);
+  constrainInstrRegisters(*LoadStore);
 
   I.removeFromParent();
   return true;
