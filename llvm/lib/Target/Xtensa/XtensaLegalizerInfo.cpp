@@ -129,6 +129,8 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .clampScalar(0, S32, S32)
       .lower();
 
+  getActionDefinitionsBuilder({G_MEMSET, G_MEMCPY, G_MEMMOVE}).libcall();
+
   getActionDefinitionsBuilder(G_PTR_ADD)
       .legalFor({{P0, S32}})
       .clampScalar(1, S32, S32);
