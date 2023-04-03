@@ -59,6 +59,7 @@ public:
       : TargetPassConfig(TM, PM) {}
 
   bool addIRTranslator() override;
+  void addPreLegalizeMachineIR() override;
   bool addLegalizeMachineIR() override;
   void addPreRegBankSelect() override;
   bool addRegBankSelect() override;
@@ -76,6 +77,10 @@ TargetPassConfig *XtensaTargetMachine::createPassConfig(PassManagerBase &PM) {
 bool XtensaPassConfig::addIRTranslator() {
   addPass(new IRTranslator(getOptLevel()));
   return false;
+}
+
+void XtensaPassConfig::addPreLegalizeMachineIR() {
+  addPass(createXtensaPreLegalizerCombiner());
 }
 
 bool XtensaPassConfig::addLegalizeMachineIR() {

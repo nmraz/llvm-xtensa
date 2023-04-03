@@ -41,6 +41,13 @@ XtensaTargetLowering::XtensaTargetLowering(const TargetMachine &TM,
 
   addRegisterClass(MVT::i32, &Xtensa::GPRRegClass);
   computeRegisterProperties(STI.getRegisterInfo());
+
+  MaxStoresPerMemset = 8;
+  MaxStoresPerMemsetOptSize = 4;
+  MaxStoresPerMemcpy = 4;
+  MaxStoresPerMemcpyOptSize = 2;
+  MaxStoresPerMemmove = 4;
+  MaxStoresPerMemmoveOptSize = 2;
 }
 
 MachineBasicBlock *XtensaTargetLowering::EmitInstrWithCustomInserter(

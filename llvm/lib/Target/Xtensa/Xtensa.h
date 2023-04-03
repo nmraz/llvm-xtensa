@@ -22,12 +22,14 @@ createXtensaInstructionSelector(const XtensaTargetMachine &TM,
                                 const XtensaSubtarget &Subtarget,
                                 const XtensaRegisterBankInfo &RBI);
 
+FunctionPass *createXtensaPreLegalizerCombiner();
 FunctionPass *createXtensaPostLegalizerCombiner();
 FunctionPass *createXtensaO0PostLegalizerCombiner();
 FunctionPass *createXtensaShiftLowering();
 FunctionPass *createXtensaShiftCombiner();
 FunctionPass *createXtensaSizeReduction();
 
+void initializeXtensaPreLegalizerCombinerPass(PassRegistry &PR);
 void initializeXtensaPostLegalizerCombinerPass(PassRegistry &PR);
 void initializeXtensaO0PostLegalizerCombinerPass(PassRegistry &PR);
 void initializeXtensaShiftLoweringPass(PassRegistry &PR);
