@@ -717,7 +717,7 @@ bool XtensaInstructionSelector::selectAndAsExtui(MachineInstr &I) const {
                             .addImm(ShiftWidth)
                             .addImm(MaskWidth);
   constrainInstrRegisters(*Extui);
-  I.removeFromParent();
+  I.eraseFromParent();
   return true;
 }
 
@@ -773,7 +773,7 @@ bool XtensaInstructionSelector::selectSelectFedByICmp(MachineInstr &I) {
     return false;
   }
 
-  I.removeFromParent();
+  I.eraseFromParent();
   return true;
 }
 
@@ -861,7 +861,7 @@ bool XtensaInstructionSelector::selectAddSubConst(MachineInstr &I) {
   }
 
   emitAddParts(I, Dest, OtherOperand, *Parts);
-  I.removeFromParent();
+  I.eraseFromParent();
   return true;
 }
 
@@ -983,7 +983,7 @@ bool XtensaInstructionSelector::selectLoadStore(MachineInstr &I) {
                                 .addMemOperand(MMO);
   constrainInstrRegisters(*LoadStore);
 
-  I.removeFromParent();
+  I.eraseFromParent();
   return true;
 }
 

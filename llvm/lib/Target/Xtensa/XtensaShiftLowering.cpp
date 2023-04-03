@@ -116,7 +116,7 @@ bool XtensaShiftLowering::lowerStandardShift(MachineInstr &MI) {
                               .add(MI.getOperand(1));
   constrainSelectedInstRegOperands(*ShiftMI, *TII, *TRI, *RBI);
 
-  MI.removeFromParent();
+  MI.eraseFromParent();
   return true;
 }
 
@@ -142,7 +142,7 @@ bool XtensaShiftLowering::lowerFunnelShift(MachineInstr &MI) {
           .addReg(LowInput);
   constrainSelectedInstRegOperands(*ShiftMI, *TII, *TRI, *RBI);
 
-  MI.removeFromParent();
+  MI.eraseFromParent();
   return true;
 }
 

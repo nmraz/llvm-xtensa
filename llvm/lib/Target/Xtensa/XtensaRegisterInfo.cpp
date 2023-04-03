@@ -123,7 +123,7 @@ void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
     Register Dest = MI.getOperand(0).getReg();
     TII.addRegImm(MBB, II, MI.getDebugLoc(), Dest, FrameReg, false, Dest,
                   RealOffset);
-    MI.removeFromParent();
+    MI.eraseFromParent();
     break;
   }
   case Xtensa::L8UI:
