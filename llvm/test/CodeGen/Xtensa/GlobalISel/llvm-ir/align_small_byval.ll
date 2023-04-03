@@ -25,3 +25,27 @@ define i8 @func(ptr byval(%byte2) %p1, ptr byval(%byte2) %p2) {
   %add = add i8 %add1, %add2
   ret i8 %add
 }
+
+@s1 = private constant %byte2 { i8 1, i8 2 }
+@s2 = private constant %byte2 { i8 3, i8 4 }
+
+define void @caller() {
+; CHECK-LABEL: caller:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    mov.n a2, a1
+; CHECK-NEXT:    l32r a3, .LCPI1_1
+; CHECK-NEXT:    movi.n a4, 2
+; CHECK-NEXT:    call0 memcpy
+; CHECK-NEXT:    addi a2, a1, 4
+; CHECK-NEXT:    l32r a3, .LCPI1_0
+; CHECK-NEXT:    movi.n a4, 2
+; CHECK-NEXT:    call0 memcpy
+; CHECK-NEXT:    call0 func
+; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    ret.n
+  call i8 @func(ptr byval(%byte2) @s1, ptr byval(%byte2) @s2)
+  ret void
+}
