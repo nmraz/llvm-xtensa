@@ -42,6 +42,35 @@ define void @do_memset_len4_aligned(ptr %p, i8 %val) {
   ret void
 }
 
+define void @do_memset_len8_unaligned(ptr %p, i8 %val) {
+; CHECK-LABEL: do_memset_len8_unaligned:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    s8i a3, a2, 0
+; CHECK-NEXT:    s8i a3, a2, 1
+; CHECK-NEXT:    s8i a3, a2, 2
+; CHECK-NEXT:    s8i a3, a2, 3
+; CHECK-NEXT:    s8i a3, a2, 4
+; CHECK-NEXT:    s8i a3, a2, 5
+; CHECK-NEXT:    s8i a3, a2, 6
+; CHECK-NEXT:    s8i a3, a2, 7
+; CHECK-NEXT:    ret.n
+  call void @llvm.memset.p0.i32(ptr %p, i8 %val, i32 8, i1 false)
+  ret void
+}
+
+define void @do_memset_len8_aligned(ptr %p, i8 %val) {
+; CHECK-LABEL: do_memset_len8_aligned:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    extui a3, a3, 0, 8
+; CHECK-NEXT:    l32r a4, .LCPI4_0
+; CHECK-NEXT:    mull a3, a3, a4
+; CHECK-NEXT:    s32i.n a3, a2, 0
+; CHECK-NEXT:    s32i.n a3, a2, 4
+; CHECK-NEXT:    ret.n
+  call void @llvm.memset.p0.i32(ptr align 4 %p, i8 %val, i32 8, i1 false)
+  ret void
+}
+
 define void @do_memset0_len4_unaligned(ptr %p) {
 ; CHECK-LABEL: do_memset0_len4_unaligned:
 ; CHECK:       # %bb.0:
@@ -59,10 +88,7 @@ define void @do_memset0_len4_aligned(ptr %p) {
 ; CHECK-LABEL: do_memset0_len4_aligned:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    s8i a3, a2, 0
-; CHECK-NEXT:    s8i a3, a2, 1
-; CHECK-NEXT:    s8i a3, a2, 2
-; CHECK-NEXT:    s8i a3, a2, 3
+; CHECK-NEXT:    s32i.n a3, a2, 0
 ; CHECK-NEXT:    ret.n
   call void @llvm.memset.p0.i32(ptr align 4 %p, i8 0, i32 4, i1 false)
   ret void
@@ -86,10 +112,7 @@ define void @do_memset0_len5_aligned(ptr %p) {
 ; CHECK-LABEL: do_memset0_len5_aligned:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    s8i a3, a2, 0
-; CHECK-NEXT:    s8i a3, a2, 1
-; CHECK-NEXT:    s8i a3, a2, 2
-; CHECK-NEXT:    s8i a3, a2, 3
+; CHECK-NEXT:    s32i.n a3, a2, 0
 ; CHECK-NEXT:    s8i a3, a2, 4
 ; CHECK-NEXT:    ret.n
   call void @llvm.memset.p0.i32(ptr align 4 %p, i8 0, i32 5, i1 false)
@@ -99,13 +122,11 @@ define void @do_memset0_len5_aligned(ptr %p) {
 define void @do_memset0_len16_aligned(ptr %p) {
 ; CHECK-LABEL: do_memset0_len16_aligned:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    addi a1, a1, -16
-; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    movi.n a4, 16
-; CHECK-NEXT:    call0 memset
-; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
-; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    s32i.n a3, a2, 0
+; CHECK-NEXT:    s32i.n a3, a2, 4
+; CHECK-NEXT:    s32i.n a3, a2, 8
+; CHECK-NEXT:    s32i.n a3, a2, 12
 ; CHECK-NEXT:    ret.n
   call void @llvm.memset.p0.i32(ptr align 4 %p, i8 0, i32 16, i1 false)
   ret void
@@ -143,62 +164,52 @@ define void @do_memcpy_len4_unaligned(ptr %dest, ptr %src) {
 define void @do_memcpy_len4_aligned(ptr %dest, ptr %src) {
 ; CHECK-LABEL: do_memcpy_len4_aligned:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    l8ui a4, a3, 0
-; CHECK-NEXT:    s8i a4, a2, 0
-; CHECK-NEXT:    l8ui a4, a3, 1
-; CHECK-NEXT:    s8i a4, a2, 1
-; CHECK-NEXT:    l8ui a4, a3, 2
-; CHECK-NEXT:    s8i a4, a2, 2
-; CHECK-NEXT:    l8ui a3, a3, 3
-; CHECK-NEXT:    s8i a3, a2, 3
+; CHECK-NEXT:    l32i.n a3, a3, 0
+; CHECK-NEXT:    s32i.n a3, a2, 0
 ; CHECK-NEXT:    ret.n
-  call void @llvm.memcpy.p0.p0.i32(ptr align 4 %dest, ptr %src, i32 4, i1 false)
+  call void @llvm.memcpy.p0.p0.i32(ptr align 4 %dest, ptr align 4 %src, i32 4, i1 false)
   ret void
 }
 
 define void @do_memcpy_len5_unaligned(ptr %dest, ptr %src) {
 ; CHECK-LABEL: do_memcpy_len5_unaligned:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    l8ui a4, a3, 0
-; CHECK-NEXT:    s8i a4, a2, 0
-; CHECK-NEXT:    l8ui a4, a3, 1
-; CHECK-NEXT:    s8i a4, a2, 1
-; CHECK-NEXT:    l8ui a4, a3, 2
-; CHECK-NEXT:    s8i a4, a2, 2
-; CHECK-NEXT:    l8ui a3, a3, 3
-; CHECK-NEXT:    s8i a3, a2, 3
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    movi.n a4, 5
+; CHECK-NEXT:    call0 memcpy
+; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
 ; CHECK-NEXT:    ret.n
-  call void @llvm.memcpy.p0.p0.i32(ptr %dest, ptr %src, i32 4, i1 false)
+  call void @llvm.memcpy.p0.p0.i32(ptr %dest, ptr %src, i32 5, i1 false)
   ret void
 }
 
 define void @do_memcpy_len5_aligned(ptr %dest, ptr %src) {
 ; CHECK-LABEL: do_memcpy_len5_aligned:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    l8ui a4, a3, 0
-; CHECK-NEXT:    s8i a4, a2, 0
-; CHECK-NEXT:    l8ui a4, a3, 1
-; CHECK-NEXT:    s8i a4, a2, 1
-; CHECK-NEXT:    l8ui a4, a3, 2
-; CHECK-NEXT:    s8i a4, a2, 2
-; CHECK-NEXT:    l8ui a3, a3, 3
-; CHECK-NEXT:    s8i a3, a2, 3
+; CHECK-NEXT:    l32i.n a4, a3, 0
+; CHECK-NEXT:    s32i.n a4, a2, 0
+; CHECK-NEXT:    l8ui a3, a3, 4
+; CHECK-NEXT:    s8i a3, a2, 4
 ; CHECK-NEXT:    ret.n
-  call void @llvm.memcpy.p0.p0.i32(ptr align 4 %dest, ptr %src, i32 4, i1 false)
+  call void @llvm.memcpy.p0.p0.i32(ptr align 4 %dest, ptr align 4 %src, i32 5, i1 false)
   ret void
 }
 
 define void @do_memcpy_len16_aligned(ptr %dest, ptr %src) {
 ; CHECK-LABEL: do_memcpy_len16_aligned:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    addi a1, a1, -16
-; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a4, 16
-; CHECK-NEXT:    call0 memcpy
-; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
-; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    l32i.n a4, a3, 0
+; CHECK-NEXT:    s32i.n a4, a2, 0
+; CHECK-NEXT:    l32i.n a4, a3, 4
+; CHECK-NEXT:    s32i.n a4, a2, 4
+; CHECK-NEXT:    l32i.n a4, a3, 8
+; CHECK-NEXT:    s32i.n a4, a2, 8
+; CHECK-NEXT:    l32i.n a3, a3, 12
+; CHECK-NEXT:    s32i.n a3, a2, 12
 ; CHECK-NEXT:    ret.n
-  call void @llvm.memcpy.p0.p0.i32(ptr align 4 %dest, ptr %src, i32 16, i1 false)
+  call void @llvm.memcpy.p0.p0.i32(ptr align 4 %dest, ptr align 4 %src, i32 16, i1 false)
   ret void
 }
 
@@ -234,61 +245,51 @@ define void @do_memmove_len4_unaligned(ptr %dest, ptr %src) {
 define void @do_memmove_len4_aligned(ptr %dest, ptr %src) {
 ; CHECK-LABEL: do_memmove_len4_aligned:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    l8ui a4, a3, 0
-; CHECK-NEXT:    l8ui a5, a3, 1
-; CHECK-NEXT:    l8ui a6, a3, 2
-; CHECK-NEXT:    l8ui a3, a3, 3
-; CHECK-NEXT:    s8i a4, a2, 0
-; CHECK-NEXT:    s8i a5, a2, 1
-; CHECK-NEXT:    s8i a6, a2, 2
-; CHECK-NEXT:    s8i a3, a2, 3
+; CHECK-NEXT:    l32i.n a3, a3, 0
+; CHECK-NEXT:    s32i.n a3, a2, 0
 ; CHECK-NEXT:    ret.n
-  call void @llvm.memmove.p0.p0.i32(ptr align 4 %dest, ptr %src, i32 4, i1 false)
+  call void @llvm.memmove.p0.p0.i32(ptr align 4 %dest, ptr align 4 %src, i32 4, i1 false)
   ret void
 }
 
 define void @do_memmove_len5_unaligned(ptr %dest, ptr %src) {
 ; CHECK-LABEL: do_memmove_len5_unaligned:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    l8ui a4, a3, 0
-; CHECK-NEXT:    l8ui a5, a3, 1
-; CHECK-NEXT:    l8ui a6, a3, 2
-; CHECK-NEXT:    l8ui a3, a3, 3
-; CHECK-NEXT:    s8i a4, a2, 0
-; CHECK-NEXT:    s8i a5, a2, 1
-; CHECK-NEXT:    s8i a6, a2, 2
-; CHECK-NEXT:    s8i a3, a2, 3
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    movi.n a4, 5
+; CHECK-NEXT:    call0 memmove
+; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
 ; CHECK-NEXT:    ret.n
-  call void @llvm.memmove.p0.p0.i32(ptr %dest, ptr %src, i32 4, i1 false)
+  call void @llvm.memmove.p0.p0.i32(ptr %dest, ptr %src, i32 5, i1 false)
   ret void
 }
 
 define void @do_memmove_len5_aligned(ptr %dest, ptr %src) {
 ; CHECK-LABEL: do_memmove_len5_aligned:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    l8ui a4, a3, 0
-; CHECK-NEXT:    l8ui a5, a3, 1
-; CHECK-NEXT:    l8ui a6, a3, 2
-; CHECK-NEXT:    l8ui a3, a3, 3
-; CHECK-NEXT:    s8i a4, a2, 0
-; CHECK-NEXT:    s8i a5, a2, 1
-; CHECK-NEXT:    s8i a6, a2, 2
-; CHECK-NEXT:    s8i a3, a2, 3
+; CHECK-NEXT:    l32i.n a4, a3, 0
+; CHECK-NEXT:    l8ui a3, a3, 4
+; CHECK-NEXT:    s32i.n a4, a2, 0
+; CHECK-NEXT:    s8i a3, a2, 4
 ; CHECK-NEXT:    ret.n
-  call void @llvm.memmove.p0.p0.i32(ptr align 4 %dest, ptr %src, i32 4, i1 false)
+  call void @llvm.memmove.p0.p0.i32(ptr align 4 %dest, ptr align 4 %src, i32 5, i1 false)
   ret void
 }
 
 define void @do_memmove_len16_aligned(ptr %dest, ptr %src) {
 ; CHECK-LABEL: do_memmove_len16_aligned:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    addi a1, a1, -16
-; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    movi.n a4, 16
-; CHECK-NEXT:    call0 memmove
-; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
-; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    l32i.n a4, a3, 0
+; CHECK-NEXT:    l32i.n a5, a3, 4
+; CHECK-NEXT:    l32i.n a6, a3, 8
+; CHECK-NEXT:    l32i.n a3, a3, 12
+; CHECK-NEXT:    s32i.n a4, a2, 0
+; CHECK-NEXT:    s32i.n a5, a2, 4
+; CHECK-NEXT:    s32i.n a6, a2, 8
+; CHECK-NEXT:    s32i.n a3, a2, 12
 ; CHECK-NEXT:    ret.n
-  call void @llvm.memmove.p0.p0.i32(ptr align 4 %dest, ptr %src, i32 16, i1 false)
+  call void @llvm.memmove.p0.p0.i32(ptr align 4 %dest, ptr align 4 %src, i32 16, i1 false)
   ret void
 }

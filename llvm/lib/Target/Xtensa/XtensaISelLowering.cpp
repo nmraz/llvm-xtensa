@@ -12,6 +12,7 @@
 #include "llvm/CodeGen/TargetLowering.h"
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/MC/MCInst.h"
+#include "llvm/Support/Alignment.h"
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/MachineValueType.h"
 #include "llvm/Target/TargetMachine.h"
@@ -48,6 +49,37 @@ XtensaTargetLowering::XtensaTargetLowering(const TargetMachine &TM,
   MaxStoresPerMemcpyOptSize = 2;
   MaxStoresPerMemmove = 4;
   MaxStoresPerMemmoveOptSize = 2;
+}
+
+LLT XtensaTargetLowering::getOptimalMemOpLLT(
+    const MemOp &Op, const AttributeList &FuncAttributes) const {
+  if (Op.isMemset() && !Op.isZeroMemset()) {
+    // Lowering a nonzero memset with wider stores will likely require an l32r
+    // (either as the constant splat value or as the multiplicand required to
+    // splat), as well as a further byte extract and multiply for the
+    // non-constant case. These can combine to up to 5 cycles (1 for the
+    // extract, 2 for the l32r, 2 for the multiply) across 4 instructions, so
+    // avoid using them unless the costs saved by combining the stores would be
+    // substantial.
+
+    // We only break even at byte size 8, where the 7 cycles required for the
+    // preparation and 2 stores beat the 8 required for single-byte stores.
+    if (Op.size() >= 8 && Op.isAligned(Align(4))) {
+      return LLT::scalar(32);
+    }
+
+    return LLT();
+  }
+
+  if (Op.size() >= 4 && Op.isAligned(Align(4))) {
+    return LLT::scalar(32);
+  }
+
+  if (Op.size() >= 2 && Op.isAligned(Align(2))) {
+    return LLT::scalar(16);
+  }
+
+  return LLT();
 }
 
 MachineBasicBlock *XtensaTargetLowering::EmitInstrWithCustomInserter(
