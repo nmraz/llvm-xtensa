@@ -49,12 +49,12 @@ define void @caller() {
   ; CHECK-NEXT:   [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 0
   ; CHECK-NEXT:   [[PTR_ADD:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY]], [[C]](s32)
   ; CHECK-NEXT:   [[C1:%[0-9]+]]:_(s32) = G_CONSTANT i32 2
-  ; CHECK-NEXT:   G_MEMCPY [[PTR_ADD]](p0), [[GV]](p0), [[C1]](s32), 0 :: (dereferenceable store (s16) into stack, align 1), (dereferenceable load (s16) from @s1, align 8)
+  ; CHECK-NEXT:   G_MEMCPY [[PTR_ADD]](p0), [[GV]](p0), [[C1]](s32), 0 :: (dereferenceable store (s16) into stack, align 16), (dereferenceable load (s16) from @s1, align 8)
   ; CHECK-NEXT:   [[COPY1:%[0-9]+]]:_(p0) = COPY $a1
   ; CHECK-NEXT:   [[C2:%[0-9]+]]:_(s32) = G_CONSTANT i32 4
   ; CHECK-NEXT:   [[PTR_ADD1:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY1]], [[C2]](s32)
   ; CHECK-NEXT:   [[C3:%[0-9]+]]:_(s32) = G_CONSTANT i32 2
-  ; CHECK-NEXT:   G_MEMCPY [[PTR_ADD1]](p0), [[GV1]](p0), [[C3]](s32), 0 :: (dereferenceable store (s16) into stack + 4, align 1), (dereferenceable load (s16) from @s2, align 8)
+  ; CHECK-NEXT:   G_MEMCPY [[PTR_ADD1]](p0), [[GV1]](p0), [[C3]](s32), 0 :: (dereferenceable store (s16) into stack + 4, align 4), (dereferenceable load (s16) from @s2, align 8)
   ; CHECK-NEXT:   CALL0 @func, csr_xtensa_call0, implicit-def $a0, implicit-def $a2
   ; CHECK-NEXT:   [[COPY2:%[0-9]+]]:_(s32) = COPY $a2
   ; CHECK-NEXT:   [[TRUNC:%[0-9]+]]:_(s8) = G_TRUNC [[COPY2]](s32)

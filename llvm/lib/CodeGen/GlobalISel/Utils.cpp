@@ -25,11 +25,13 @@
 #include "llvm/CodeGen/MachineSizeOpts.h"
 #include "llvm/CodeGen/RegisterBankInfo.h"
 #include "llvm/CodeGen/StackProtector.h"
+#include "llvm/CodeGen/TargetFrameLowering.h"
 #include "llvm/CodeGen/TargetInstrInfo.h"
 #include "llvm/CodeGen/TargetLowering.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
 #include "llvm/CodeGen/TargetRegisterInfo.h"
 #include "llvm/IR/Constants.h"
+#include "llvm/Support/Alignment.h"
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Transforms/Utils/SizeOpts.h"
 
@@ -244,8 +246,7 @@ static void reportGISelDiagnostic(DiagnosticSeverity Severity,
                                   const TargetPassConfig &TPC,
                                   MachineOptimizationRemarkEmitter &MORE,
                                   MachineOptimizationRemarkMissed &R) {
-  bool IsFatal = Severity == DS_Error &&
-                 TPC.isGlobalISelAbortEnabled();
+  bool IsFatal = Severity == DS_Error && TPC.isGlobalISelAbortEnabled();
   // Print the function name explicitly if we don't have a debug location (which
   // makes the diagnostic less useful) or if we're going to emit a raw error.
   if (!R.getLocation().isValid() || IsFatal)
@@ -274,8 +275,8 @@ void llvm::reportGISelFailure(MachineFunction &MF, const TargetPassConfig &TPC,
                               MachineOptimizationRemarkEmitter &MORE,
                               const char *PassName, StringRef Msg,
                               const MachineInstr &MI) {
-  MachineOptimizationRemarkMissed R(PassName, "GISelFailure: ",
-                                    MI.getDebugLoc(), MI.getParent());
+  MachineOptimizationRemarkMissed R(
+      PassName, "GISelFailure: ", MI.getDebugLoc(), MI.getParent());
   R << Msg;
   // Printing MI is expensive;  only do it if expensive remarks are enabled.
   if (TPC.isGlobalISelAbortEnabled() || MORE.allowExtraAnalysis(PassName))
@@ -428,8 +429,8 @@ Optional<FPValueAndVReg> llvm::getFConstantVRegValWithLookThrough(
                         Reg->VReg};
 }
 
-const ConstantFP *
-llvm::getConstantFPVRegVal(Register VReg, const MachineRegisterInfo &MRI) {
+const ConstantFP *llvm::getConstantFPVRegVal(Register VReg,
+                                             const MachineRegisterInfo &MRI) {
   MachineInstr *MI = MRI.getVRegDef(VReg);
   if (TargetOpcode::G_FCONSTANT != MI->getOpcode())
     return nullptr;
@@ -636,7 +637,7 @@ bool llvm::isKnownNeverNaN(Register Val, const MachineRegisterInfo &MRI,
   if (!DefMI)
     return false;
 
-  const TargetMachine& TM = DefMI->getMF()->getTarget();
+  const TargetMachine &TM = DefMI->getMF()->getTarget();
   if (DefMI->getFlag(MachineInstr::FmNoNans) || TM.Options.NoNaNsFPMath)
     return true;
 
@@ -701,6 +702,11 @@ Align llvm::inferAlignFromPtrInfo(MachineFunction &MF,
                            MPO.Offset);
   }
 
+  if (PSV && PSV->isStack()) {
+    const TargetFrameLowering &TFI = *MF.getSubtarget().getFrameLowering();
+    return commonAlignment(TFI.getTransientStackAlign(), MPO.Offset);
+  }
+
   if (const Value *V = MPO.V.dyn_cast<const Value *>()) {
     const Module *M = MF.getFunction().getParent();
     return V->getPointerAlignment(M->getDataLayout());
@@ -721,7 +727,8 @@ Register llvm::getFunctionLiveInPhysReg(MachineFunction &MF,
     MachineInstr *Def = MRI.getVRegDef(LiveIn);
     if (Def) {
       // FIXME: Should the verifier check this is in the entry block?
-      assert(Def->getParent() == &EntryMBB && "live-in copy not in entry block");
+      assert(Def->getParent() == &EntryMBB &&
+             "live-in copy not in entry block");
       return LiveIn;
     }
 
@@ -736,7 +743,7 @@ Register llvm::getFunctionLiveInPhysReg(MachineFunction &MF,
   }
 
   BuildMI(EntryMBB, EntryMBB.begin(), DL, TII.get(TargetOpcode::COPY), LiveIn)
-    .addReg(PhysReg);
+      .addReg(PhysReg);
   if (!EntryMBB.isLiveIn(PhysReg))
     EntryMBB.addLiveIn(PhysReg);
   return LiveIn;
