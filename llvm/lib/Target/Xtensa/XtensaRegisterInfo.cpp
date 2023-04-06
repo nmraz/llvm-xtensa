@@ -13,6 +13,7 @@
 #include "llvm/CodeGen/TargetSubtargetInfo.h"
 #include "llvm/MC/MCRegister.h"
 #include "llvm/Support/ErrorHandling.h"
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 
@@ -147,8 +148,13 @@ void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
   int FI = MI.getOperand(FIOperandNum).getIndex();
   Register FrameReg = getFrameRegister(MF);
 
-  // Spills/restores always use the real stack pointer
-  if (MFI.isSpillSlotObjectIndex(FI)) {
+  const std::vector<CalleeSavedInfo> &CSI = MFI.getCalleeSavedInfo();
+  bool IsCSRSpill = std::any_of(CSI.begin(), CSI.end(), [&](const auto &CS) {
+    return CS.getFrameIdx() == FI;
+  });
+
+  // CSR spills/restores always use the stack pointer
+  if (IsCSRSpill) {
     FrameReg = Xtensa::A1;
   }
 
