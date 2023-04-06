@@ -21,3 +21,25 @@ define void @alloca_variable(i32 %size, i8 %x) {
   store i8 %x, ptr %p
   ret void
 }
+
+define void @alloca_variable_int(i32 %size, i32 %x) {
+; CHECK-LABEL: alloca_variable_int:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a15, a1, 12 # 4-byte Spill
+; CHECK-NEXT:    mov.n a15, a1
+; CHECK-NEXT:    slli a2, a2, 2
+; CHECK-NEXT:    addi a2, a2, 15
+; CHECK-NEXT:    movi.n a4, -16
+; CHECK-NEXT:    and a2, a2, a4
+; CHECK-NEXT:    sub a2, a1, a2
+; CHECK-NEXT:    mov.n a1, a2
+; CHECK-NEXT:    s32i.n a3, a2, 0
+; CHECK-NEXT:    mov.n a1, a15
+; CHECK-NEXT:    l32i.n a15, a1, 12 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    ret.n
+  %p = alloca i32, i32 %size
+  store i32 %x, ptr %p
+  ret void
+}

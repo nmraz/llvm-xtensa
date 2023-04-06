@@ -12,6 +12,12 @@
     ret void
   }
 
+  define void @alloca_variable_int(i32 %size, i32 %x) {
+    %p = alloca i32, i32 %size, align 4
+    store i32 %x, ptr %p, align 4
+    ret void
+  }
+
 ...
 ---
 name:            alloca_variable
@@ -108,6 +114,102 @@ body:             |
     %8:_(s32) = G_AND %6, %7
     %9:_(p0) = G_DYN_STACKALLOC %8(s32), 1
     G_STORE %1(s8), %9(p0) :: (store (s8) into %ir.p)
+    RETN implicit $a0
+
+...
+---
+name:            alloca_variable_int
+alignment:       4
+exposesReturnsTwice: false
+legalized:       false
+regBankSelected: false
+selected:        false
+failedISel:      false
+tracksRegLiveness: true
+hasWinCFI:       false
+callsEHReturn:   false
+callsUnwindInit: false
+hasEHCatchret:   false
+hasEHScopes:     false
+hasEHFunclets:   false
+failsVerification: false
+tracksDebugUserValues: false
+registers:
+  - { id: 0, class: _, preferred-register: '' }
+  - { id: 1, class: _, preferred-register: '' }
+  - { id: 2, class: _, preferred-register: '' }
+  - { id: 3, class: _, preferred-register: '' }
+  - { id: 4, class: _, preferred-register: '' }
+  - { id: 5, class: _, preferred-register: '' }
+  - { id: 6, class: _, preferred-register: '' }
+  - { id: 7, class: _, preferred-register: '' }
+  - { id: 8, class: _, preferred-register: '' }
+liveins:
+  - { reg: '$a2', virtual-reg: '' }
+  - { reg: '$a3', virtual-reg: '' }
+frameInfo:
+  isFrameAddressTaken: false
+  isReturnAddressTaken: false
+  hasStackMap:     false
+  hasPatchPoint:   false
+  stackSize:       0
+  offsetAdjustment: 0
+  maxAlignment:    1
+  adjustsStack:    false
+  hasCalls:        false
+  stackProtector:  ''
+  functionContext: ''
+  maxCallFrameSize: 4294967295
+  cvBytesOfCalleeSavedRegisters: 0
+  hasOpaqueSPAdjustment: false
+  hasVAStart:      false
+  hasMustTailInVarArgFunc: false
+  hasTailCall:     false
+  localFrameSize:  0
+  savePoint:       ''
+  restorePoint:    ''
+fixedStack:      []
+stack:
+  - { id: 0, name: p, type: variable-sized, offset: 0, alignment: 1, stack-id: default,
+      callee-saved-register: '', callee-saved-restored: true, debug-info-variable: '',
+      debug-info-expression: '', debug-info-location: '' }
+callSites:       []
+debugValueSubstitutions: []
+constants:       []
+machineFunctionInfo: {}
+body:             |
+  bb.1 (%ir-block.0):
+    liveins: $a2, $a3
+
+    ; CHECK-LABEL: name: alloca_variable_int
+    ; CHECK: liveins: $a2, $a3
+    ; CHECK-NEXT: {{  $}}
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:_(s32) = COPY $a2
+    ; CHECK-NEXT: [[COPY1:%[0-9]+]]:_(s32) = COPY $a3
+    ; CHECK-NEXT: [[C:%[0-9]+]]:_(s32) = G_CONSTANT i32 4
+    ; CHECK-NEXT: [[MUL:%[0-9]+]]:_(s32) = G_MUL [[COPY]], [[C]]
+    ; CHECK-NEXT: [[C1:%[0-9]+]]:_(s32) = G_CONSTANT i32 15
+    ; CHECK-NEXT: [[ADD:%[0-9]+]]:_(s32) = nuw G_ADD [[MUL]], [[C1]]
+    ; CHECK-NEXT: [[C2:%[0-9]+]]:_(s32) = G_CONSTANT i32 -16
+    ; CHECK-NEXT: [[AND:%[0-9]+]]:_(s32) = G_AND [[ADD]], [[C2]]
+    ; CHECK-NEXT: [[COPY2:%[0-9]+]]:_(p0) = COPY $a1
+    ; CHECK-NEXT: [[PTRTOINT:%[0-9]+]]:_(s32) = G_PTRTOINT [[COPY2]](p0)
+    ; CHECK-NEXT: [[SUB:%[0-9]+]]:_(s32) = G_SUB [[PTRTOINT]], [[AND]]
+    ; CHECK-NEXT: [[INTTOPTR:%[0-9]+]]:_(p0) = G_INTTOPTR [[SUB]](s32)
+    ; CHECK-NEXT: $a1 = COPY [[INTTOPTR]](p0)
+    ; CHECK-NEXT: [[COPY3:%[0-9]+]]:_(p0) = COPY [[INTTOPTR]](p0)
+    ; CHECK-NEXT: G_STORE [[COPY1]](s32), [[COPY3]](p0) :: (store (s32) into %ir.p)
+    ; CHECK-NEXT: RETN implicit $a0
+    %0:_(s32) = COPY $a2
+    %1:_(s32) = COPY $a3
+    %3:_(s32) = G_CONSTANT i32 4
+    %2:_(s32) = G_MUL %0, %3
+    %4:_(s32) = G_CONSTANT i32 15
+    %5:_(s32) = nuw G_ADD %2, %4
+    %6:_(s32) = G_CONSTANT i32 -16
+    %7:_(s32) = G_AND %5, %6
+    %8:_(p0) = G_DYN_STACKALLOC %7(s32), 1
+    G_STORE %1(s32), %8(p0) :: (store (s32) into %ir.p)
     RETN implicit $a0
 
 ...
