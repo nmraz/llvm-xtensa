@@ -3,6 +3,7 @@
 #include "XtensaFrameLowering.h"
 #include "XtensaInstrInfo.h"
 #include "XtensaInstrUtils.h"
+#include "XtensaMachineFunctionInfo.h"
 #include "XtensaSubtarget.h"
 #include "llvm/ADT/BitVector.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
@@ -12,6 +13,7 @@
 #include "llvm/CodeGen/TargetSubtargetInfo.h"
 #include "llvm/MC/MCRegister.h"
 #include "llvm/Support/ErrorHandling.h"
+#include <cassert>
 #include <cstdint>
 
 using namespace llvm;
@@ -106,19 +108,50 @@ bool XtensaRegisterInfo::requiresFrameIndexScavenging(
   return true;
 }
 
+bool XtensaRegisterInfo::hasReservedSpillSlot(const MachineFunction &MF,
+                                              Register Reg,
+                                              int &FrameIdx) const {
+  const XtensaFunctionInfo &FuncInfo = *MF.getInfo<XtensaFunctionInfo>();
+
+  if (Reg == Xtensa::A0) {
+    assert(FuncInfo.isRASpilled() &&
+           "Return address should be spilled but not marked as such");
+    FrameIdx = FuncInfo.getRASpillFrameIndex();
+    return true;
+  }
+
+  if (Reg == Xtensa::A15) {
+    const TargetSubtargetInfo &STI = MF.getSubtarget();
+    if (STI.getFrameLowering()->hasFP(MF)) {
+      // Only use the reserved FP slot when a15 is being used as a frame
+      // pointer.
+      FrameIdx = FuncInfo.getFPSpillFrameIndex();
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
                                              int SPAdj, unsigned FIOperandNum,
                                              RegScavenger *RS) const {
   MachineInstr &MI = *II;
   MachineBasicBlock &MBB = *MI.getParent();
   MachineFunction &MF = *MI.getMF();
-  const XtensaInstrInfo &TII =
-      *MF.getSubtarget<XtensaSubtarget>().getInstrInfo();
+  const XtensaSubtarget &STI = MF.getSubtarget<XtensaSubtarget>();
+  const XtensaInstrInfo &TII = *STI.getInstrInfo();
   MachineRegisterInfo &MRI = MF.getRegInfo();
   MachineFrameInfo &MFI = MF.getFrameInfo();
 
-  Register FrameReg = getFrameRegister(MF);
   int FI = MI.getOperand(FIOperandNum).getIndex();
+  Register FrameReg = getFrameRegister(MF);
+
+  // Spills/restores always use the real stack pointer
+  if (MFI.isSpillSlotObjectIndex(FI)) {
+    FrameReg = Xtensa::A1;
+  }
+
   int64_t AddedOffset = MI.getOperand(FIOperandNum + 1).getImm();
   int64_t RealOffset =
       MFI.getStackSize() + MFI.getObjectOffset(FI) + AddedOffset;

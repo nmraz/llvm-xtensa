@@ -3,6 +3,7 @@
 
 #include "Xtensa.h"
 #include "llvm/CodeGen/MachineBasicBlock.h"
+#include "llvm/CodeGen/Register.h"
 #include <cstdint>
 
 #define GET_REGINFO_HEADER
@@ -25,6 +26,9 @@ public:
 
   bool requiresRegisterScavenging(const MachineFunction &MF) const override;
   bool requiresFrameIndexScavenging(const MachineFunction &MF) const override;
+
+  bool hasReservedSpillSlot(const MachineFunction &MF, Register Reg,
+                            int &FrameIdx) const override;
 
   void eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
                            unsigned FIOperandNum,

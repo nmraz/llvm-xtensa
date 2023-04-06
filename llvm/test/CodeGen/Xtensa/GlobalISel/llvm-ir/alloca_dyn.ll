@@ -5,7 +5,7 @@ define void @alloca_variable(i32 %size, i8 %x) {
 ; CHECK-LABEL: alloca_variable:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    addi a1, a1, -16
-; CHECK-NEXT:    s32i.n a15, a15, 12 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a15, a1, 12 # 4-byte Spill
 ; CHECK-NEXT:    mov.n a15, a1
 ; CHECK-NEXT:    addi a2, a2, 15
 ; CHECK-NEXT:    movi.n a4, -16
@@ -13,8 +13,8 @@ define void @alloca_variable(i32 %size, i8 %x) {
 ; CHECK-NEXT:    sub a2, a1, a2
 ; CHECK-NEXT:    mov.n a1, a2
 ; CHECK-NEXT:    s8i a3, a2, 0
-; CHECK-NEXT:    l32i.n a15, a15, 12 # 4-byte Reload
 ; CHECK-NEXT:    mov.n a1, a15
+; CHECK-NEXT:    l32i.n a15, a1, 12 # 4-byte Reload
 ; CHECK-NEXT:    addi a1, a1, 16
 ; CHECK-NEXT:    ret.n
   %p = alloca i8, i32 %size
