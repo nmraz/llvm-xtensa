@@ -1,8 +1,8 @@
 #include "XtensaFrameLowering.h"
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
 #include "XtensaInstrInfo.h"
-#include "XtensaMachineFunctionInfo.h"
 #include "XtensaSubtarget.h"
+#include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/STLArrayExtras.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineFunction.h"
@@ -13,6 +13,7 @@
 #include "llvm/Support/Alignment.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Target/TargetMachine.h"
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <iterator>
@@ -27,6 +28,14 @@ static void adjustStackPointer(const XtensaInstrInfo &TII, MachineInstr &I,
   // most `a7`.
   TII.addRegImm(*I.getParent(), I, DebugLoc(), Xtensa::A1, Xtensa::A1, true,
                 Xtensa::A8, Offset, false);
+}
+
+static int getFPSaveIndex(ArrayRef<CalleeSavedInfo> CSI) {
+  const CalleeSavedInfo *CS =
+      std::find_if(CSI.begin(), CSI.end(),
+                   [](const auto &CS) { return CS.getReg() == Xtensa::A15; });
+  assert(CS != CSI.end() && "Frame pointer not saved?");
+  return CS->getFrameIdx();
 }
 
 XtensaFrameLowering::XtensaFrameLowering(const XtensaSubtarget &STI)
@@ -44,7 +53,6 @@ void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
   const XtensaInstrInfo &TII =
       *MF.getSubtarget<XtensaSubtarget>().getInstrInfo();
   const XtensaRegisterInfo &TRI = TII.getRegisterInfo();
-  const XtensaFunctionInfo &FuncInfo = *MF.getInfo<XtensaFunctionInfo>();
   const MachineFrameInfo &MFI = MF.getFrameInfo();
 
   uint64_t FrameSize = MFI.getStackSize();
@@ -58,8 +66,8 @@ void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
   if (hasFP(MF)) {
     // Based on empirical evidence from gcc, the frame pointer points to the
     // *end* of the static frame.
-    TII.storeRegToStackSlot(MBB, MBBI, Xtensa::A15, true,
-                            FuncInfo.getFPSpillFrameIndex(),
+    int FPSaveIndex = getFPSaveIndex(MFI.getCalleeSavedInfo());
+    TII.storeRegToStackSlot(MBB, MBBI, Xtensa::A15, true, FPSaveIndex,
                             TRI.getMinimalPhysRegClass(Xtensa::A15), &TRI);
     TII.copyPhysReg(MBB, MBBI, DebugLoc(), Xtensa::A15, Xtensa::A1, false);
   }
@@ -70,15 +78,14 @@ void XtensaFrameLowering::emitEpilogue(MachineFunction &MF,
   const XtensaInstrInfo &TII =
       *MF.getSubtarget<XtensaSubtarget>().getInstrInfo();
   const XtensaRegisterInfo &TRI = TII.getRegisterInfo();
-  const XtensaFunctionInfo &FuncInfo = *MF.getInfo<XtensaFunctionInfo>();
   const MachineFrameInfo &MFI = MF.getFrameInfo();
 
   MachineBasicBlock::iterator MBBI = MBB.getFirstTerminator();
 
   if (hasFP(MF)) {
     TII.copyPhysReg(MBB, MBBI, DebugLoc(), Xtensa::A1, Xtensa::A15, true);
-    TII.loadRegFromStackSlot(MBB, MBBI, Xtensa::A15,
-                             FuncInfo.getFPSpillFrameIndex(),
+    int FPSaveIndex = getFPSaveIndex(MFI.getCalleeSavedInfo());
+    TII.loadRegFromStackSlot(MBB, MBBI, Xtensa::A15, FPSaveIndex,
                              TRI.getMinimalPhysRegClass(Xtensa::A15), &TRI);
   }
 
@@ -97,7 +104,6 @@ bool XtensaFrameLowering::spillCalleeSavedRegisters(
   const XtensaInstrInfo &TII = *STI.getInstrInfo();
 
   for (const CalleeSavedInfo &CS : CSI) {
-    // Insert the spill to the stack frame.
     Register Reg = CS.getReg();
 
     if (hasFP(MF) && Reg == Xtensa::A15) {
@@ -152,18 +158,13 @@ void XtensaFrameLowering::determineCalleeSaves(MachineFunction &MF,
                                                RegScavenger *RS) const {
   TargetFrameLowering::determineCalleeSaves(MF, SavedRegs, RS);
   MachineFrameInfo &MFI = MF.getFrameInfo();
-  XtensaFunctionInfo &FuncInfo = *MF.getInfo<XtensaFunctionInfo>();
 
-  int SpillSPOffset = -4;
   if (MFI.hasCalls()) {
     SavedRegs.set(Xtensa::A0);
-    SpillSPOffset -= 4;
   }
 
   if (hasFP(MF)) {
     SavedRegs.set(Xtensa::A15);
-    int FI = MFI.CreateFixedSpillStackObject(4, SpillSPOffset, true);
-    FuncInfo.setFPSpillFrameIndex(FI);
   }
 }
 

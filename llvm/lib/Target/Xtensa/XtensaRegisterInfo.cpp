@@ -3,7 +3,6 @@
 #include "XtensaFrameLowering.h"
 #include "XtensaInstrInfo.h"
 #include "XtensaInstrUtils.h"
-#include "XtensaMachineFunctionInfo.h"
 #include "XtensaSubtarget.h"
 #include "llvm/ADT/BitVector.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
@@ -107,21 +106,6 @@ bool XtensaRegisterInfo::requiresRegisterScavenging(
 bool XtensaRegisterInfo::requiresFrameIndexScavenging(
     const MachineFunction &MF) const {
   return true;
-}
-
-bool XtensaRegisterInfo::hasReservedSpillSlot(const MachineFunction &MF,
-                                              Register Reg,
-                                              int &FrameIdx) const {
-  const XtensaFunctionInfo &FuncInfo = *MF.getInfo<XtensaFunctionInfo>();
-
-  if (Reg == Xtensa::A15 && MF.getSubtarget().getFrameLowering()->hasFP(MF)) {
-    // Only use the reserved FP slot when a15 is being used as a frame
-    // pointer.
-    FrameIdx = FuncInfo.getFPSpillFrameIndex();
-    return true;
-  }
-
-  return false;
 }
 
 void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,

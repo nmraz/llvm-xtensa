@@ -181,11 +181,11 @@ define void @call_stack() #0 {
 ; OPT-LABEL: call_stack:
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    addi a1, a1, -32
-; OPT-NEXT:    s32i.n a15, a1, 24 # 4-byte Spill
+; OPT-NEXT:    s32i.n a15, a1, 16 # 4-byte Spill
 ; OPT-NEXT:    mov.n a15, a1
 ; OPT-NEXT:    s32i.n a0, a1, 28 # 4-byte Spill
-; OPT-NEXT:    s32i.n a12, a1, 20 # 4-byte Spill
-; OPT-NEXT:    s32i.n a13, a1, 16 # 4-byte Spill
+; OPT-NEXT:    s32i.n a12, a1, 24 # 4-byte Spill
+; OPT-NEXT:    s32i.n a13, a1, 20 # 4-byte Spill
 ; OPT-NEXT:    movi.n a12, 7
 ; OPT-NEXT:    s32i.n a12, a1, 0
 ; OPT-NEXT:    movi.n a13, 1
@@ -220,11 +220,11 @@ define void @call_stack() #0 {
 ; OPT-NEXT:    movi.n a6, 5
 ; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    call0 stack_arg_i16
-; OPT-NEXT:    l32i.n a13, a1, 16 # 4-byte Reload
-; OPT-NEXT:    l32i.n a12, a1, 20 # 4-byte Reload
+; OPT-NEXT:    l32i.n a13, a1, 20 # 4-byte Reload
+; OPT-NEXT:    l32i.n a12, a1, 24 # 4-byte Reload
 ; OPT-NEXT:    l32i.n a0, a1, 28 # 4-byte Reload
 ; OPT-NEXT:    mov.n a1, a15
-; OPT-NEXT:    l32i.n a15, a1, 24 # 4-byte Reload
+; OPT-NEXT:    l32i.n a15, a1, 16 # 4-byte Reload
 ; OPT-NEXT:    addi a1, a1, 32
 ; OPT-NEXT:    ret.n
 ;
@@ -297,12 +297,12 @@ define void @call_stack_i64() #0 {
 ; OPT-LABEL: call_stack_i64:
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    addi a1, a1, -48
-; OPT-NEXT:    s32i.n a15, a1, 40 # 4-byte Spill
+; OPT-NEXT:    s32i.n a15, a1, 28 # 4-byte Spill
 ; OPT-NEXT:    mov.n a15, a1
 ; OPT-NEXT:    s32i.n a0, a1, 44 # 4-byte Spill
-; OPT-NEXT:    s32i.n a12, a1, 36 # 4-byte Spill
-; OPT-NEXT:    s32i.n a13, a1, 32 # 4-byte Spill
-; OPT-NEXT:    s32i.n a14, a1, 28 # 4-byte Spill
+; OPT-NEXT:    s32i.n a12, a1, 40 # 4-byte Spill
+; OPT-NEXT:    s32i.n a13, a1, 36 # 4-byte Spill
+; OPT-NEXT:    s32i.n a14, a1, 32 # 4-byte Spill
 ; OPT-NEXT:    movi.n a13, 7
 ; OPT-NEXT:    s32i.n a13, a1, 0
 ; OPT-NEXT:    movi.n a12, 0
@@ -334,12 +334,12 @@ define void @call_stack_i64() #0 {
 ; OPT-NEXT:    movi.n a6, 5
 ; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    call0 stack_arg_i64_aligned
-; OPT-NEXT:    l32i.n a14, a1, 28 # 4-byte Reload
-; OPT-NEXT:    l32i.n a13, a1, 32 # 4-byte Reload
-; OPT-NEXT:    l32i.n a12, a1, 36 # 4-byte Reload
+; OPT-NEXT:    l32i.n a14, a1, 32 # 4-byte Reload
+; OPT-NEXT:    l32i.n a13, a1, 36 # 4-byte Reload
+; OPT-NEXT:    l32i.n a12, a1, 40 # 4-byte Reload
 ; OPT-NEXT:    l32i.n a0, a1, 44 # 4-byte Reload
 ; OPT-NEXT:    mov.n a1, a15
-; OPT-NEXT:    l32i.n a15, a1, 40 # 4-byte Reload
+; OPT-NEXT:    l32i.n a15, a1, 28 # 4-byte Reload
 ; OPT-NEXT:    addi a1, a1, 48
 ; OPT-NEXT:    ret.n
 ;
