@@ -52,7 +52,7 @@ public:
     return &getInstrInfo()->getRegisterInfo();
   }
 
-  const TargetFrameLowering *getFrameLowering() const override {
+  const XtensaFrameLowering *getFrameLowering() const override {
     return &FrameLowering;
   }
 
