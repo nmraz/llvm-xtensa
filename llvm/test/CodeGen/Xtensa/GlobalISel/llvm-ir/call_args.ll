@@ -264,11 +264,11 @@ entry:
 define void @call_stack_i64() {
 ; OPT-LABEL: call_stack_i64:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    addi a1, a1, -16
-; OPT-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; OPT-NEXT:    s32i.n a12, a1, 8 # 4-byte Spill
-; OPT-NEXT:    s32i.n a13, a1, 4 # 4-byte Spill
-; OPT-NEXT:    s32i.n a14, a1, 0 # 4-byte Spill
+; OPT-NEXT:    addi a1, a1, -32
+; OPT-NEXT:    s32i.n a0, a1, 28 # 4-byte Spill
+; OPT-NEXT:    s32i.n a12, a1, 24 # 4-byte Spill
+; OPT-NEXT:    s32i.n a13, a1, 20 # 4-byte Spill
+; OPT-NEXT:    s32i.n a14, a1, 16 # 4-byte Spill
 ; OPT-NEXT:    movi.n a13, 7
 ; OPT-NEXT:    s32i.n a13, a1, 0
 ; OPT-NEXT:    movi.n a12, 0
@@ -300,17 +300,17 @@ define void @call_stack_i64() {
 ; OPT-NEXT:    movi.n a6, 5
 ; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    call0 stack_arg_i64_aligned
-; OPT-NEXT:    l32i.n a14, a1, 0 # 4-byte Reload
-; OPT-NEXT:    l32i.n a13, a1, 4 # 4-byte Reload
-; OPT-NEXT:    l32i.n a12, a1, 8 # 4-byte Reload
-; OPT-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
-; OPT-NEXT:    addi a1, a1, 16
+; OPT-NEXT:    l32i.n a14, a1, 16 # 4-byte Reload
+; OPT-NEXT:    l32i.n a13, a1, 20 # 4-byte Reload
+; OPT-NEXT:    l32i.n a12, a1, 24 # 4-byte Reload
+; OPT-NEXT:    l32i.n a0, a1, 28 # 4-byte Reload
+; OPT-NEXT:    addi a1, a1, 32
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: call_stack_i64:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    addi a1, a1, -32
-; UNOPT-NEXT:    s32i.n a0, a1, 28 # 4-byte Spill
+; UNOPT-NEXT:    addi a1, a1, -48
+; UNOPT-NEXT:    s32i.n a0, a1, 44 # 4-byte Spill
 ; UNOPT-NEXT:    mov.n a3, a1
 ; UNOPT-NEXT:    movi.n a2, 7
 ; UNOPT-NEXT:    s32i.n a2, a3, 0
@@ -318,23 +318,23 @@ define void @call_stack_i64() {
 ; UNOPT-NEXT:    movi.n a2, 0
 ; UNOPT-NEXT:    s32i.n a2, a3, 4
 ; UNOPT-NEXT:    movi.n a2, 1
-; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a2, a1, 20 # 4-byte Spill
 ; UNOPT-NEXT:    movi.n a3, 2
-; UNOPT-NEXT:    s32i.n a3, a1, 8 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a3, a1, 24 # 4-byte Spill
 ; UNOPT-NEXT:    movi.n a4, 3
-; UNOPT-NEXT:    s32i.n a4, a1, 12 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a4, a1, 28 # 4-byte Spill
 ; UNOPT-NEXT:    movi.n a5, 4
-; UNOPT-NEXT:    s32i.n a5, a1, 16 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a5, a1, 32 # 4-byte Spill
 ; UNOPT-NEXT:    movi.n a6, 5
-; UNOPT-NEXT:    s32i.n a6, a1, 20 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a6, a1, 36 # 4-byte Spill
 ; UNOPT-NEXT:    movi.n a7, 6
-; UNOPT-NEXT:    s32i.n a7, a1, 24 # 4-byte Spill
+; UNOPT-NEXT:    s32i.n a7, a1, 40 # 4-byte Spill
 ; UNOPT-NEXT:    call0 stack_arg_i64
-; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a3, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a4, a1, 12 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a5, a1, 16 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a6, a1, 20 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a2, a1, 20 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 24 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a4, a1, 28 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a5, a1, 32 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a6, a1, 36 # 4-byte Reload
 ; UNOPT-NEXT:    mov.n a8, a1
 ; UNOPT-NEXT:    movi.n a7, 6
 ; UNOPT-NEXT:    s32i.n a7, a8, 0
@@ -342,12 +342,12 @@ define void @call_stack_i64() {
 ; UNOPT-NEXT:    movi.n a7, 0
 ; UNOPT-NEXT:    s32i.n a7, a8, 4
 ; UNOPT-NEXT:    call0 stack_arg_i64_reg_unaligned
-; UNOPT-NEXT:    l32i.n a2, a1, 4 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a3, a1, 8 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a4, a1, 12 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a5, a1, 16 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a6, a1, 20 # 4-byte Reload
-; UNOPT-NEXT:    l32i.n a7, a1, 24 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a2, a1, 20 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a3, a1, 24 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a4, a1, 28 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a5, a1, 32 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a6, a1, 36 # 4-byte Reload
+; UNOPT-NEXT:    l32i.n a7, a1, 40 # 4-byte Reload
 ; UNOPT-NEXT:    mov.n a9, a1
 ; UNOPT-NEXT:    movi.n a8, 7
 ; UNOPT-NEXT:    s32i.n a8, a9, 0
@@ -358,8 +358,8 @@ define void @call_stack_i64() {
 ; UNOPT-NEXT:    movi.n a8, 0
 ; UNOPT-NEXT:    s32i.n a8, a9, 12
 ; UNOPT-NEXT:    call0 stack_arg_i64_aligned
-; UNOPT-NEXT:    l32i.n a0, a1, 28 # 4-byte Reload
-; UNOPT-NEXT:    addi a1, a1, 32
+; UNOPT-NEXT:    l32i.n a0, a1, 44 # 4-byte Reload
+; UNOPT-NEXT:    addi a1, a1, 48
 ; UNOPT-NEXT:    ret.n
 entry:
   call void @stack_arg_i64(i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i64 7)

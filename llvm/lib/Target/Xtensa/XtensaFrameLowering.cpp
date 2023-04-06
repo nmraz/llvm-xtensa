@@ -9,6 +9,7 @@
 #include "llvm/IR/DebugLoc.h"
 #include "llvm/Support/Alignment.h"
 #include "llvm/Support/Debug.h"
+#include "llvm/Target/TargetMachine.h"
 #include <cassert>
 #include <cstdint>
 
@@ -55,6 +56,20 @@ void XtensaFrameLowering::emitEpilogue(MachineFunction &MF,
   adjustStackPointer(TII, *MBB.getFirstTerminator(), FrameSize);
 }
 
+bool XtensaFrameLowering::hasFP(const MachineFunction &MF) const {
+  const MachineFrameInfo &MFI = MF.getFrameInfo();
+  const TargetRegisterInfo *TRI = STI.getRegisterInfo();
+
+  return MF.getTarget().Options.DisableFramePointerElim(MF) ||
+         MFI.hasVarSizedObjects() || TRI->hasStackRealignment(MF);
+}
+
+bool XtensaFrameLowering::hasReservedCallFrame(
+    const MachineFunction &MF) const {
+  const MachineFrameInfo &MFI = MF.getFrameInfo();
+  return !MFI.hasVarSizedObjects();
+}
+
 void XtensaFrameLowering::determineCalleeSaves(MachineFunction &MF,
                                                BitVector &SavedRegs,
                                                RegScavenger *RS) const {
@@ -63,6 +78,10 @@ void XtensaFrameLowering::determineCalleeSaves(MachineFunction &MF,
   const MachineFrameInfo &MFI = MF.getFrameInfo();
   if (MFI.hasCalls()) {
     SavedRegs.set(Xtensa::A0);
+  }
+
+  if (hasFP(MF)) {
+    SavedRegs.set(Xtensa::A15);
   }
 }
 

@@ -88,6 +88,11 @@ BitVector XtensaRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
   // Stack pointer
   Reserved.set(Xtensa::A1);
 
+  if (MF.getSubtarget().getFrameLowering()->hasFP(MF)) {
+    // Frame pointer
+    Reserved.set(Xtensa::A15);
+  }
+
   return Reserved;
 }
 
@@ -141,6 +146,5 @@ void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
 }
 
 Register XtensaRegisterInfo::getFrameRegister(const MachineFunction &MF) const {
-  // TODO: only call0 supports a dedicated frame pointer, a15?
-  return Xtensa::A1;
+  return getFrameLowering(MF)->hasFP(MF) ? Xtensa::A15 : Xtensa::A1;
 }
