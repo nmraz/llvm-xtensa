@@ -43,6 +43,8 @@ XtensaTargetLowering::XtensaTargetLowering(const TargetMachine &TM,
   addRegisterClass(MVT::i32, &Xtensa::GPRRegClass);
   computeRegisterProperties(STI.getRegisterInfo());
 
+  setStackPointerRegisterToSaveRestore(Xtensa::A1);
+
   MaxStoresPerMemset = 8;
   MaxStoresPerMemsetOptSize = 4;
   MaxStoresPerMemcpy = 4;

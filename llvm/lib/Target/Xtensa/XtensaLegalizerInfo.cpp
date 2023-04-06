@@ -143,6 +143,7 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .clampScalar(0, S32, S32);
 
   getActionDefinitionsBuilder({G_FRAME_INDEX, G_GLOBAL_VALUE}).legalFor({P0});
+  getActionDefinitionsBuilder(G_DYN_STACKALLOC).lower();
 
   // Ext/trunc instructions should all be folded together during
   // legalization, meaning they are never legal in the final output;
