@@ -27,6 +27,9 @@ protected:
 public:
   explicit XtensaFrameLowering(const XtensaSubtarget &STI);
 
+  const SpillSlot *
+  getCalleeSavedSpillSlots(unsigned &NumEntries) const override;
+
   void emitPrologue(MachineFunction &MF, MachineBasicBlock &MBB) const override;
   void emitEpilogue(MachineFunction &MF, MachineBasicBlock &MBB) const override;
 

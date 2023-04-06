@@ -7,9 +7,6 @@ namespace llvm {
 class XtensaFunctionInfo : public MachineFunctionInfo {
   virtual void anchor();
 
-  bool RASpilled;
-
-  int RASpillFrameIndex;
   int FPSpillFrameIndex;
 
 public:
@@ -19,12 +16,6 @@ public:
   clone(BumpPtrAllocator &Allocator, MachineFunction &DestMF,
         const DenseMap<MachineBasicBlock *, MachineBasicBlock *> &Src2DstMBB)
       const override;
-
-  void setSpillsRA() { RASpilled = true; }
-  bool isRASpilled() const { return RASpilled; }
-
-  int getRASpillFrameIndex() const { return RASpillFrameIndex; }
-  void setRASpillFrameIndex(int FI) { RASpillFrameIndex = FI; }
 
   int getFPSpillFrameIndex() const { return FPSpillFrameIndex; }
   void setFPSpillFrameIndex(int FI) { FPSpillFrameIndex = FI; }

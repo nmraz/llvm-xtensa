@@ -114,21 +114,11 @@ bool XtensaRegisterInfo::hasReservedSpillSlot(const MachineFunction &MF,
                                               int &FrameIdx) const {
   const XtensaFunctionInfo &FuncInfo = *MF.getInfo<XtensaFunctionInfo>();
 
-  if (Reg == Xtensa::A0) {
-    assert(FuncInfo.isRASpilled() &&
-           "Return address should be spilled but not marked as such");
-    FrameIdx = FuncInfo.getRASpillFrameIndex();
+  if (Reg == Xtensa::A15 && MF.getSubtarget().getFrameLowering()->hasFP(MF)) {
+    // Only use the reserved FP slot when a15 is being used as a frame
+    // pointer.
+    FrameIdx = FuncInfo.getFPSpillFrameIndex();
     return true;
-  }
-
-  if (Reg == Xtensa::A15) {
-    const TargetSubtargetInfo &STI = MF.getSubtarget();
-    if (STI.getFrameLowering()->hasFP(MF)) {
-      // Only use the reserved FP slot when a15 is being used as a frame
-      // pointer.
-      FrameIdx = FuncInfo.getFPSpillFrameIndex();
-      return true;
-    }
   }
 
   return false;

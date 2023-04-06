@@ -3,6 +3,7 @@
 #include "XtensaInstrInfo.h"
 #include "XtensaMachineFunctionInfo.h"
 #include "XtensaSubtarget.h"
+#include "llvm/ADT/STLArrayExtras.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineOperand.h"
@@ -30,6 +31,13 @@ static void adjustStackPointer(const XtensaInstrInfo &TII, MachineInstr &I,
 
 XtensaFrameLowering::XtensaFrameLowering(const XtensaSubtarget &STI)
     : TargetFrameLowering(StackGrowsDown, Align(16), 0, Align(16)), STI(STI) {}
+
+const TargetFrameLowering::SpillSlot *
+XtensaFrameLowering::getCalleeSavedSpillSlots(unsigned int &NumEntries) const {
+  static const SpillSlot Slots[] = {{Xtensa::A0, -4}};
+  NumEntries = array_lengthof(Slots);
+  return Slots;
+}
 
 void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
                                        MachineBasicBlock &MBB) const {
@@ -149,9 +157,6 @@ void XtensaFrameLowering::determineCalleeSaves(MachineFunction &MF,
   int SpillSPOffset = -4;
   if (MFI.hasCalls()) {
     SavedRegs.set(Xtensa::A0);
-    int FI = MFI.CreateFixedSpillStackObject(4, SpillSPOffset, true);
-    FuncInfo.setSpillsRA();
-    FuncInfo.setRASpillFrameIndex(FI);
     SpillSPOffset -= 4;
   }
 
