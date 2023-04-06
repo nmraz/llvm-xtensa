@@ -12,6 +12,7 @@
 #include "llvm/Target/TargetMachine.h"
 #include <cassert>
 #include <cstdint>
+#include <iterator>
 
 using namespace llvm;
 
@@ -35,11 +36,22 @@ void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
   const MachineFrameInfo &MFI = MF.getFrameInfo();
 
   uint64_t FrameSize = MFI.getStackSize();
-  if (!FrameSize) {
+  if (!FrameSize && !MFI.adjustsStack()) {
     return;
   }
 
-  adjustStackPointer(TII, *MBB.begin(), -FrameSize);
+  MachineBasicBlock::iterator MBBI = MBB.begin();
+  adjustStackPointer(TII, *MBBI, -FrameSize);
+
+  if (hasFP(MF)) {
+    // Based on empirical evidence from gcc, the frame pointer points to the
+    // *end* of the static frame.
+
+    // Advance to just after the last callee save, assuming all CSR saves have
+    // been inserted contiguously at the start of the block.
+    std::advance(MBBI, MFI.getCalleeSavedInfo().size());
+    TII.copyPhysReg(MBB, MBBI, DebugLoc(), Xtensa::A15, Xtensa::A1, false);
+  }
 }
 
 void XtensaFrameLowering::emitEpilogue(MachineFunction &MF,
@@ -47,6 +59,12 @@ void XtensaFrameLowering::emitEpilogue(MachineFunction &MF,
   const XtensaInstrInfo &TII =
       *MF.getSubtarget<XtensaSubtarget>().getInstrInfo();
   const MachineFrameInfo &MFI = MF.getFrameInfo();
+
+  MachineBasicBlock::iterator MBBI = MBB.getFirstTerminator();
+
+  if (hasFP(MF)) {
+    TII.copyPhysReg(MBB, MBBI, DebugLoc(), Xtensa::A1, Xtensa::A15, true);
+  }
 
   uint64_t FrameSize = MFI.getStackSize();
   if (!FrameSize) {
