@@ -85,14 +85,15 @@ void XtensaFrameLowering::emitEpilogue(MachineFunction &MF,
 bool XtensaFrameLowering::spillCalleeSavedRegisters(
     MachineBasicBlock &MBB, MachineBasicBlock::iterator MI,
     ArrayRef<CalleeSavedInfo> CSI, const TargetRegisterInfo *TRI) const {
+  const MachineFunction &MF = *MBB.getParent();
   const XtensaInstrInfo &TII = *STI.getInstrInfo();
 
   for (const CalleeSavedInfo &CS : CSI) {
     // Insert the spill to the stack frame.
     Register Reg = CS.getReg();
 
-    if (Reg == Xtensa::A15) {
-      // Actual spill will happen in prologue.
+    if (hasFP(MF) && Reg == Xtensa::A15) {
+      // Frame pointer setup will be handled in the prologue.
       continue;
     }
 
@@ -106,13 +107,14 @@ bool XtensaFrameLowering::spillCalleeSavedRegisters(
 bool XtensaFrameLowering::restoreCalleeSavedRegisters(
     MachineBasicBlock &MBB, MachineBasicBlock::iterator MI,
     MutableArrayRef<CalleeSavedInfo> CSI, const TargetRegisterInfo *TRI) const {
+  const MachineFunction &MF = *MBB.getParent();
   const XtensaInstrInfo &TII = *STI.getInstrInfo();
 
   for (const CalleeSavedInfo &CI : reverse(CSI)) {
     Register Reg = CI.getReg();
 
-    if (Reg == Xtensa::A15) {
-      // Actual restore will happen in epilogue.
+    if (hasFP(MF) && Reg == Xtensa::A15) {
+      // Frame poiner teardown will be handled in the epilogue.
       continue;
     }
 
