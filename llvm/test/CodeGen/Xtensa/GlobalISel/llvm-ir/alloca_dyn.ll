@@ -168,3 +168,247 @@ define void @alloca_overaligned_call_stack(i8 %x) {
   call void @f2(i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, ptr %p)
   ret void
 }
+
+define void @alloca_variable_overaligned(i32 %size, i8 %x) {
+; CHECK-LABEL: alloca_variable_overaligned:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    addi a1, a1, -32
+; CHECK-NEXT:    s32i.n a14, a1, 28 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a15, a1, 24 # 4-byte Spill
+; CHECK-NEXT:    mov.n a15, a1
+; CHECK-NEXT:    movi.n a4, -32
+; CHECK-NEXT:    and a1, a1, a4
+; CHECK-NEXT:    mov.n a14, a1
+; CHECK-NEXT:    addi a2, a2, 15
+; CHECK-NEXT:    movi.n a4, -16
+; CHECK-NEXT:    and a2, a2, a4
+; CHECK-NEXT:    sub a2, a1, a2
+; CHECK-NEXT:    movi.n a4, -32
+; CHECK-NEXT:    and a2, a2, a4
+; CHECK-NEXT:    mov.n a1, a2
+; CHECK-NEXT:    s8i a3, a2, 0
+; CHECK-NEXT:    mov.n a1, a15
+; CHECK-NEXT:    l32i.n a15, a1, 24 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a14, a1, 28 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 32
+; CHECK-NEXT:    ret.n
+  %p = alloca i8, i32 %size, align 32
+  store i8 %x, ptr %p
+  ret void
+}
+
+define void @alloca_variable_overaligned_call(i32 %size) {
+; CHECK-LABEL: alloca_variable_overaligned_call:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    addi a1, a1, -32
+; CHECK-NEXT:    s32i.n a0, a1, 28 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a14, a1, 24 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a15, a1, 20 # 4-byte Spill
+; CHECK-NEXT:    mov.n a15, a1
+; CHECK-NEXT:    movi.n a3, -32
+; CHECK-NEXT:    and a1, a1, a3
+; CHECK-NEXT:    mov.n a14, a1
+; CHECK-NEXT:    addi a2, a2, 15
+; CHECK-NEXT:    movi.n a3, -16
+; CHECK-NEXT:    and a2, a2, a3
+; CHECK-NEXT:    sub a2, a1, a2
+; CHECK-NEXT:    movi.n a3, -32
+; CHECK-NEXT:    and a2, a2, a3
+; CHECK-NEXT:    mov.n a1, a2
+; CHECK-NEXT:    call0 f
+; CHECK-NEXT:    mov.n a1, a15
+; CHECK-NEXT:    l32i.n a15, a1, 20 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a14, a1, 24 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a0, a1, 28 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 32
+; CHECK-NEXT:    ret.n
+  %p = alloca i8, i32 %size, align 32
+  call void @f(ptr %p)
+  ret void
+}
+
+define void @alloca_variable_overaligned_call_stack(i32 %size) {
+; CHECK-LABEL: alloca_variable_overaligned_call_stack:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    addi a1, a1, -32
+; CHECK-NEXT:    s32i.n a0, a1, 28 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a14, a1, 24 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a15, a1, 20 # 4-byte Spill
+; CHECK-NEXT:    mov.n a15, a1
+; CHECK-NEXT:    movi.n a3, -32
+; CHECK-NEXT:    and a1, a1, a3
+; CHECK-NEXT:    mov.n a14, a1
+; CHECK-NEXT:    addi a2, a2, 15
+; CHECK-NEXT:    movi.n a3, -16
+; CHECK-NEXT:    and a2, a2, a3
+; CHECK-NEXT:    sub a2, a1, a2
+; CHECK-NEXT:    movi.n a3, -32
+; CHECK-NEXT:    and a2, a2, a3
+; CHECK-NEXT:    mov.n a1, a2
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a2, a1, 0
+; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    movi.n a3, 0
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a5, 0
+; CHECK-NEXT:    movi.n a6, 0
+; CHECK-NEXT:    movi.n a7, 0
+; CHECK-NEXT:    call0 f2
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    mov.n a1, a15
+; CHECK-NEXT:    l32i.n a15, a1, 20 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a14, a1, 24 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a0, a1, 28 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 32
+; CHECK-NEXT:    ret.n
+  %p = alloca i8, i32 %size, align 32
+  call void @f2(i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, ptr %p)
+  ret void
+}
+
+define void @alloca_variable_and_overaligned(i32 %size, i8 %x1, i8 %x2) {
+; CHECK-LABEL: alloca_variable_and_overaligned:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    addi a1, a1, -64
+; CHECK-NEXT:    s32i.n a14, a1, 60 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a15, a1, 56 # 4-byte Spill
+; CHECK-NEXT:    mov.n a15, a1
+; CHECK-NEXT:    movi.n a5, -32
+; CHECK-NEXT:    and a1, a1, a5
+; CHECK-NEXT:    mov.n a14, a1
+; CHECK-NEXT:    addi a2, a2, 15
+; CHECK-NEXT:    movi.n a5, -16
+; CHECK-NEXT:    and a2, a2, a5
+; CHECK-NEXT:    sub a2, a1, a2
+; CHECK-NEXT:    mov.n a1, a2
+; CHECK-NEXT:    s8i a3, a2, 0
+; CHECK-NEXT:    s8i a4, a14, 0
+; CHECK-NEXT:    mov.n a1, a15
+; CHECK-NEXT:    l32i.n a15, a1, 56 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a14, a1, 60 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 64
+; CHECK-NEXT:    ret.n
+  %p1 = alloca i8, i32 %size
+  %p2 = alloca i8, i32 32, align 32
+  store i8 %x1, ptr %p1
+  store i8 %x2, ptr %p2
+  ret void
+}
+
+define void @alloca_variable_and_overaligned_call(i32 %size, i8 %x1, i8 %x2) {
+; CHECK-LABEL: alloca_variable_and_overaligned_call:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    addi a1, a1, -64
+; CHECK-NEXT:    s32i.n a0, a1, 60 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a14, a1, 56 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a15, a1, 52 # 4-byte Spill
+; CHECK-NEXT:    mov.n a15, a1
+; CHECK-NEXT:    movi.n a5, -32
+; CHECK-NEXT:    and a1, a1, a5
+; CHECK-NEXT:    mov.n a14, a1
+; CHECK-NEXT:    addi a2, a2, 15
+; CHECK-NEXT:    movi.n a5, -16
+; CHECK-NEXT:    and a2, a2, a5
+; CHECK-NEXT:    sub a2, a1, a2
+; CHECK-NEXT:    mov.n a1, a2
+; CHECK-NEXT:    s8i a3, a2, 0
+; CHECK-NEXT:    s8i a4, a14, 0
+; CHECK-NEXT:    call0 f
+; CHECK-NEXT:    mov.n a1, a15
+; CHECK-NEXT:    l32i.n a15, a1, 52 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a14, a1, 56 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a0, a1, 60 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 64
+; CHECK-NEXT:    ret.n
+  %p1 = alloca i8, i32 %size
+  %p2 = alloca i8, i32 32, align 32
+  store i8 %x1, ptr %p1
+  store i8 %x2, ptr %p2
+  call void @f(ptr %p1)
+  ret void
+}
+
+define void @alloca_variable_and_overaligned_call_stack(i32 %size, i8 %x1, i8 %x2) {
+; CHECK-LABEL: alloca_variable_and_overaligned_call_stack:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    addi a1, a1, -64
+; CHECK-NEXT:    s32i.n a0, a1, 60 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a14, a1, 56 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a15, a1, 52 # 4-byte Spill
+; CHECK-NEXT:    mov.n a15, a1
+; CHECK-NEXT:    movi.n a5, -32
+; CHECK-NEXT:    and a1, a1, a5
+; CHECK-NEXT:    mov.n a14, a1
+; CHECK-NEXT:    addi a2, a2, 15
+; CHECK-NEXT:    movi.n a5, -16
+; CHECK-NEXT:    and a2, a2, a5
+; CHECK-NEXT:    sub a2, a1, a2
+; CHECK-NEXT:    mov.n a1, a2
+; CHECK-NEXT:    s8i a3, a2, 0
+; CHECK-NEXT:    s8i a4, a14, 0
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a2, a1, 0
+; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    movi.n a3, 0
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a5, 0
+; CHECK-NEXT:    movi.n a6, 0
+; CHECK-NEXT:    movi.n a7, 0
+; CHECK-NEXT:    call0 f2
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    mov.n a1, a15
+; CHECK-NEXT:    l32i.n a15, a1, 52 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a14, a1, 56 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a0, a1, 60 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 64
+; CHECK-NEXT:    ret.n
+  %p1 = alloca i8, i32 %size
+  %p2 = alloca i8, i32 32, align 32
+  store i8 %x1, ptr %p1
+  store i8 %x2, ptr %p2
+  call void @f2(i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, ptr %p1)
+  ret void
+}
+
+define void @alloca_variable_and_overaligned_call_stack_formal_stack_arg(i32 %size, i8 %x1, i8 %x2, i32 %a4, i32 %a5, i32 %a6, i32 %a7) {
+; CHECK-LABEL: alloca_variable_and_overaligned_call_stack_formal_stack_arg:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    addi a1, a1, -64
+; CHECK-NEXT:    s32i.n a0, a1, 60 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a14, a1, 56 # 4-byte Spill
+; CHECK-NEXT:    s32i.n a15, a1, 52 # 4-byte Spill
+; CHECK-NEXT:    mov.n a15, a1
+; CHECK-NEXT:    movi.n a5, -32
+; CHECK-NEXT:    and a1, a1, a5
+; CHECK-NEXT:    mov.n a14, a1
+; CHECK-NEXT:    l32i a5, a15, 64
+; CHECK-NEXT:    addi a2, a2, 15
+; CHECK-NEXT:    movi.n a6, -16
+; CHECK-NEXT:    and a2, a2, a6
+; CHECK-NEXT:    sub a2, a1, a2
+; CHECK-NEXT:    mov.n a1, a2
+; CHECK-NEXT:    s8i a3, a2, 0
+; CHECK-NEXT:    s8i a4, a14, 0
+; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    s32i.n a2, a1, 0
+; CHECK-NEXT:    mov.n a2, a5
+; CHECK-NEXT:    movi.n a3, 0
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a5, 0
+; CHECK-NEXT:    movi.n a6, 0
+; CHECK-NEXT:    movi.n a7, 0
+; CHECK-NEXT:    call0 f2
+; CHECK-NEXT:    addi a1, a1, 16
+; CHECK-NEXT:    mov.n a1, a15
+; CHECK-NEXT:    l32i.n a15, a1, 52 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a14, a1, 56 # 4-byte Reload
+; CHECK-NEXT:    l32i.n a0, a1, 60 # 4-byte Reload
+; CHECK-NEXT:    addi a1, a1, 64
+; CHECK-NEXT:    ret.n
+  %p1 = alloca i8, i32 %size
+  %p2 = alloca i8, i32 32, align 32
+  store i8 %x1, ptr %p1
+  store i8 %x2, ptr %p2
+  call void @f2(i32 %a7, i32 0, i32 0, i32 0, i32 0, i32 0, ptr %p1)
+  ret void
+}
