@@ -127,8 +127,10 @@ void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
     return CS.getFrameIdx() == FI;
   });
 
-  // CSR spills/restores always use the stack pointer
-  if (IsCSRSpill) {
+  // CSR spills/restores always use the stack pointer (they occur before the
+  // frame has been set up), as do dynamic stack allocations if the stack has
+  // been realigned.
+  if (IsCSRSpill || (hasStackRealignment(MF) && !MFI.isFixedObjectIndex(FI))) {
     FrameReg = Xtensa::A1;
   }
 

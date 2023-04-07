@@ -521,6 +521,8 @@ void XtensaInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
       MachineMemOperand::MOStore, MFI.getObjectSize(FrameIndex),
       MFI.getObjectAlign(FrameIndex));
 
+  // NOTE: Parts of the frame lowering expect this to insert exactly one
+  // instruction (though it may later be expanded into several).
   BuildMI(MBB, MI, DL, get(Xtensa::S32I))
       .addReg(SrcReg, getKillRegState(IsKill))
       .addFrameIndex(FrameIndex)
@@ -543,6 +545,8 @@ void XtensaInstrInfo::loadRegFromStackSlot(
       MachineMemOperand::MOLoad, MFI.getObjectSize(FrameIndex),
       MFI.getObjectAlign(FrameIndex));
 
+  // NOTE: Parts of the frame lowering expect this to insert exactly one
+  // instruction (though it may later be expanded into several).
   BuildMI(MBB, MI, DL, get(Xtensa::L32I), DestReg)
       .addFrameIndex(FrameIndex)
       .addImm(0)
