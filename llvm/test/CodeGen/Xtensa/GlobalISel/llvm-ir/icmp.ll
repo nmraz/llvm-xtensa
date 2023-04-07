@@ -1272,15 +1272,11 @@ define i1 @icmp_sltz_i64(i64 %a, i64 %b) {
 ; CHECK-LABEL: icmp_sltz_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    extui a2, a3, 31, 1
-; CHECK-NEXT:    movi.n a4, 0
-; CHECK-NEXT:    moveqz a2, a4, a3
 ; CHECK-NEXT:    ret.n
 ;
 ; LX7-LABEL: icmp_sltz_i64:
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    extui a2, a3, 31, 1
-; LX7-NEXT:    movi.n a4, 0
-; LX7-NEXT:    moveqz a2, a4, a3
 ; LX7-NEXT:    ret.n
 entry:
   %icmp = icmp slt i64 %a, 0
@@ -1348,19 +1344,14 @@ define i1 @icmp_sgez_i64(i64 %a, i64 %b) {
 ; CHECK-NEXT:    movi.n a4, -1
 ; CHECK-NEXT:    movi.n a5, 0
 ; CHECK-NEXT:    movi.n a2, 1
-; CHECK-NEXT:    sub a4, a4, a3
-; CHECK-NEXT:    movgez a2, a5, a4
-; CHECK-NEXT:    addi a3, a3, 1
-; CHECK-NEXT:    moveqz a2, a5, a3
+; CHECK-NEXT:    sub a3, a4, a3
+; CHECK-NEXT:    movgez a2, a5, a3
 ; CHECK-NEXT:    ret.n
 ;
 ; LX7-LABEL: icmp_sgez_i64:
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    movi.n a2, -1
 ; LX7-NEXT:    salt a2, a2, a3
-; LX7-NEXT:    movi.n a4, 0
-; LX7-NEXT:    addi a3, a3, 1
-; LX7-NEXT:    moveqz a2, a4, a3
 ; LX7-NEXT:    ret.n
 entry:
   %icmp = icmp sgt i64 %a, -1

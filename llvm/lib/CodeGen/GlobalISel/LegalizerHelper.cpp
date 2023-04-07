@@ -5050,6 +5050,7 @@ LegalizerHelper::LegalizeResult
 LegalizerHelper::narrowScalarICmp(MachineInstr &MI, unsigned TypeIdx,
                                   LLT NarrowTy) {
   Register LHS = MI.getOperand(2).getReg();
+  Register RHS = MI.getOperand(3).getReg();
   LLT SrcTy = MRI.getType(LHS);
   uint64_t NarrowSize = NarrowTy.getSizeInBits();
   uint64_t SrcSize = SrcTy.getSizeInBits();
@@ -5068,8 +5069,7 @@ LegalizerHelper::narrowScalarICmp(MachineInstr &MI, unsigned TypeIdx,
 
   LLT Unused; // Matches LeftoverTy; G_ICMP LHS and RHS are the same type.
   SmallVector<Register, 4> RHSPartRegs, RHSLeftoverRegs;
-  if (!extractParts(MI.getOperand(3).getReg(), SrcTy, NarrowTy, Unused,
-                    RHSPartRegs, RHSLeftoverRegs))
+  if (!extractParts(RHS, SrcTy, NarrowTy, Unused, RHSPartRegs, RHSLeftoverRegs))
     return UnableToLegalize;
 
   // We now have the LHS and RHS of the compare split into narrow-type
@@ -5119,11 +5119,24 @@ LegalizerHelper::narrowScalarICmp(MachineInstr &MI, unsigned TypeIdx,
     Register RHSL = RHSPartRegs[0];
     Register RHSH = RHSPartRegs[1];
     MachineInstrBuilder CmpH = MIRBuilder.buildICmp(Pred, ResTy, LHSH, RHSH);
-    MachineInstrBuilder CmpHEQ =
-        MIRBuilder.buildICmp(CmpInst::Predicate::ICMP_EQ, ResTy, LHSH, RHSH);
-    MachineInstrBuilder CmpLU = MIRBuilder.buildICmp(
-        ICmpInst::getUnsignedPredicate(Pred), ResTy, LHSL, RHSL);
-    MIRBuilder.buildSelect(Dst, CmpHEQ, CmpLU, CmpH);
+
+    bool NeedsLowCmp = true;
+    if (auto ConstRHS = getIConstantVRegValWithLookThrough(RHS, MRI)) {
+      if ((ConstRHS->Value == 0 && Pred == CmpInst::Predicate::ICMP_SLT) ||
+          (ConstRHS->Value == -1 && Pred == CmpInst::Predicate::ICMP_SGT)) {
+        NeedsLowCmp = false;
+      }
+    }
+
+    if (NeedsLowCmp) {
+      MachineInstrBuilder CmpHEQ =
+          MIRBuilder.buildICmp(CmpInst::Predicate::ICMP_EQ, ResTy, LHSH, RHSH);
+      MachineInstrBuilder CmpLU = MIRBuilder.buildICmp(
+          ICmpInst::getUnsignedPredicate(Pred), ResTy, LHSL, RHSL);
+      MIRBuilder.buildSelect(Dst, CmpHEQ, CmpLU, CmpH);
+    } else {
+      MIRBuilder.buildCopy(Dst, CmpH);
+    }
   }
   MI.eraseFromParent();
   return Legalized;
