@@ -3,32 +3,33 @@
 ; RUN: llc -O0 < %s -mtriple=xtensa | FileCheck %s --check-prefix=UNOPT
 
 declare void @f(ptr %a, ptr %b)
+declare void @g(ptr %a, ptr %b, i32 %x)
 
 define void @alloca_large() {
 ; OPT-LABEL: alloca_large:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    movi a8, -1008
-; OPT-NEXT:    add.n a1, a1, a8
+; OPT-NEXT:    movi a2, -1008
+; OPT-NEXT:    add.n a1, a1, a2
 ; OPT-NEXT:    s32i a0, a1, 1004 # 4-byte Spill
 ; OPT-NEXT:    addi a2, a1, 4
 ; OPT-NEXT:    mov.n a3, a2
 ; OPT-NEXT:    call0 f
 ; OPT-NEXT:    l32i a0, a1, 1004 # 4-byte Reload
-; OPT-NEXT:    movi a8, 1008
-; OPT-NEXT:    add.n a1, a1, a8
+; OPT-NEXT:    movi a2, 1008
+; OPT-NEXT:    add.n a1, a1, a2
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: alloca_large:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    movi a8, -1008
-; UNOPT-NEXT:    add.n a1, a1, a8
+; UNOPT-NEXT:    movi a2, -1008
+; UNOPT-NEXT:    add.n a1, a1, a2
 ; UNOPT-NEXT:    s32i a0, a1, 1004 # 4-byte Spill
 ; UNOPT-NEXT:    addi a3, a1, 4
 ; UNOPT-NEXT:    mov.n a2, a3
 ; UNOPT-NEXT:    call0 f
 ; UNOPT-NEXT:    l32i a0, a1, 1004 # 4-byte Reload
-; UNOPT-NEXT:    movi a8, 1008
-; UNOPT-NEXT:    add.n a1, a1, a8
+; UNOPT-NEXT:    movi a2, 1008
+; UNOPT-NEXT:    add.n a1, a1, a2
 ; UNOPT-NEXT:    ret.n
   %p = alloca i8, i32 1000
   call void @f(ptr %p, ptr %p)
@@ -38,8 +39,8 @@ define void @alloca_large() {
 define void @alloca_large2() {
 ; OPT-LABEL: alloca_large2:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    movi a8, -2016
-; OPT-NEXT:    add.n a1, a1, a8
+; OPT-NEXT:    movi a2, -2016
+; OPT-NEXT:    add.n a1, a1, a2
 ; OPT-NEXT:    addmi a2, a1, 1024
 ; OPT-NEXT:    s32i a0, a2, 988 # 4-byte Spill
 ; OPT-NEXT:    movi a2, 1012
@@ -48,14 +49,14 @@ define void @alloca_large2() {
 ; OPT-NEXT:    call0 f
 ; OPT-NEXT:    addmi a2, a1, 1024
 ; OPT-NEXT:    l32i a0, a2, 988 # 4-byte Reload
-; OPT-NEXT:    movi a8, 2016
-; OPT-NEXT:    add.n a1, a1, a8
+; OPT-NEXT:    movi a2, 2016
+; OPT-NEXT:    add.n a1, a1, a2
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: alloca_large2:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    movi a8, -2016
-; UNOPT-NEXT:    add.n a1, a1, a8
+; UNOPT-NEXT:    movi a2, -2016
+; UNOPT-NEXT:    add.n a1, a1, a2
 ; UNOPT-NEXT:    addmi a2, a1, 1024
 ; UNOPT-NEXT:    s32i a0, a2, 988 # 4-byte Spill
 ; UNOPT-NEXT:    movi a2, 1012
@@ -64,11 +65,84 @@ define void @alloca_large2() {
 ; UNOPT-NEXT:    call0 f
 ; UNOPT-NEXT:    addmi a2, a1, 1024
 ; UNOPT-NEXT:    l32i a0, a2, 988 # 4-byte Reload
-; UNOPT-NEXT:    movi a8, 2016
-; UNOPT-NEXT:    add.n a1, a1, a8
+; UNOPT-NEXT:    movi a2, 2016
+; UNOPT-NEXT:    add.n a1, a1, a2
 ; UNOPT-NEXT:    ret.n
   %a = alloca i8, i32 1000
   %b = alloca i8, i32 1000
   call void @f(ptr %a, ptr %b)
+  ret void
+}
+
+define void @alloca_large_param(i32 %x) {
+; OPT-LABEL: alloca_large_param:
+; OPT:       # %bb.0:
+; OPT-NEXT:    movi a3, -1008
+; OPT-NEXT:    add.n a1, a1, a3
+; OPT-NEXT:    s32i a0, a1, 1004 # 4-byte Spill
+; OPT-NEXT:    mov.n a4, a2
+; OPT-NEXT:    addi a2, a1, 4
+; OPT-NEXT:    mov.n a3, a2
+; OPT-NEXT:    call0 g
+; OPT-NEXT:    l32i a0, a1, 1004 # 4-byte Reload
+; OPT-NEXT:    movi a2, 1008
+; OPT-NEXT:    add.n a1, a1, a2
+; OPT-NEXT:    ret.n
+;
+; UNOPT-LABEL: alloca_large_param:
+; UNOPT:       # %bb.1:
+; UNOPT-NEXT:    movi a3, -1008
+; UNOPT-NEXT:    add.n a1, a1, a3
+; UNOPT-NEXT:    s32i a0, a1, 1004 # 4-byte Spill
+; UNOPT-NEXT:    mov.n a4, a2
+; UNOPT-NEXT:    addi a3, a1, 4
+; UNOPT-NEXT:    mov.n a2, a3
+; UNOPT-NEXT:    call0 g
+; UNOPT-NEXT:    l32i a0, a1, 1004 # 4-byte Reload
+; UNOPT-NEXT:    movi a2, 1008
+; UNOPT-NEXT:    add.n a1, a1, a2
+; UNOPT-NEXT:    ret.n
+  %p = alloca i8, i32 1000
+  call void @g(ptr %p, ptr %p, i32 %x)
+  ret void
+}
+
+define void @alloca_large2_param(i32 %x) {
+; OPT-LABEL: alloca_large2_param:
+; OPT:       # %bb.0:
+; OPT-NEXT:    movi a3, -2016
+; OPT-NEXT:    add.n a1, a1, a3
+; OPT-NEXT:    addmi a3, a1, 1024
+; OPT-NEXT:    s32i a0, a3, 988 # 4-byte Spill
+; OPT-NEXT:    mov.n a4, a2
+; OPT-NEXT:    movi a2, 1012
+; OPT-NEXT:    add.n a2, a1, a2
+; OPT-NEXT:    addi a3, a1, 12
+; OPT-NEXT:    call0 f
+; OPT-NEXT:    addmi a2, a1, 1024
+; OPT-NEXT:    l32i a0, a2, 988 # 4-byte Reload
+; OPT-NEXT:    movi a2, 2016
+; OPT-NEXT:    add.n a1, a1, a2
+; OPT-NEXT:    ret.n
+;
+; UNOPT-LABEL: alloca_large2_param:
+; UNOPT:       # %bb.1:
+; UNOPT-NEXT:    movi a3, -2016
+; UNOPT-NEXT:    add.n a1, a1, a3
+; UNOPT-NEXT:    addmi a3, a1, 1024
+; UNOPT-NEXT:    s32i a0, a3, 988 # 4-byte Spill
+; UNOPT-NEXT:    mov.n a4, a2
+; UNOPT-NEXT:    movi a2, 1012
+; UNOPT-NEXT:    add.n a2, a1, a2
+; UNOPT-NEXT:    addi a3, a1, 12
+; UNOPT-NEXT:    call0 f
+; UNOPT-NEXT:    addmi a2, a1, 1024
+; UNOPT-NEXT:    l32i a0, a2, 988 # 4-byte Reload
+; UNOPT-NEXT:    movi a2, 2016
+; UNOPT-NEXT:    add.n a1, a1, a2
+; UNOPT-NEXT:    ret.n
+  %a = alloca i8, i32 1000
+  %b = alloca i8, i32 1000
+  call void @f(ptr %a, ptr %b, i32 %x)
   ret void
 }

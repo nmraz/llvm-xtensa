@@ -1,12 +1,14 @@
 #include "XtensaFrameLowering.h"
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
 #include "XtensaInstrInfo.h"
+#include "XtensaRegisterInfo.h"
 #include "XtensaSubtarget.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/STLArrayExtras.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineOperand.h"
+#include "llvm/CodeGen/MachineRegisterInfo.h"
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetFrameLowering.h"
 #include "llvm/IR/DebugLoc.h"
@@ -24,10 +26,10 @@ static void adjustStackPointer(const XtensaInstrInfo &TII, MachineInstr &I,
                                int32_t Offset) {
   // Note: we never want to split the stack pointer adjustment, as that may
   // cause it to be temporarily misaligned.
-  // The `a8` register is always safe to use as a temporary, as arguments use at
-  // most `a7`.
+  MachineRegisterInfo &MRI = I.getParent()->getParent()->getRegInfo();
+  Register Temp = MRI.createVirtualRegister(&Xtensa::GPRRegClass);
   TII.addRegImm(*I.getParent(), I, DebugLoc(), Xtensa::A1, Xtensa::A1, true,
-                Xtensa::A8, Offset, false);
+                Temp, Offset, false);
 }
 
 static int getFPSaveIndex(ArrayRef<CalleeSavedInfo> CSI) {
