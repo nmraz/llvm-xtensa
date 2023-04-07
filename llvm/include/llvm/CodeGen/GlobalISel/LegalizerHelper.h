@@ -339,6 +339,8 @@ public:
   LegalizeResult narrowScalarShift(MachineInstr &MI, unsigned TypeIdx, LLT Ty);
   LegalizeResult narrowScalarAddSub(MachineInstr &MI, unsigned TypeIdx,
                                     LLT NarrowTy);
+  LegalizeResult narrowScalarICmp(MachineInstr &MI, unsigned TypeIdx,
+                                  LLT NarrowTy);
   LegalizeResult narrowScalarMul(MachineInstr &MI, LLT Ty);
   LegalizeResult narrowScalarFPTOI(MachineInstr &MI, unsigned TypeIdx, LLT Ty);
   LegalizeResult narrowScalarExtract(MachineInstr &MI, unsigned TypeIdx, LLT Ty);
