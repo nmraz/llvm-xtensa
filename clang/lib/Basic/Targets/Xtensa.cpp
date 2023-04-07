@@ -19,7 +19,11 @@
 using namespace clang;
 using namespace clang::targets;
 
-static constexpr llvm::StringLiteral ValidCPUNames[] = {{"generic"}, {"lx7"}};
+static constexpr llvm::StringLiteral ValidCPUNames[] = {
+    {"generic"},
+    {"lx7"},
+    {"esp32"},
+};
 
 bool XtensaTargetInfo::isValidCPUName(StringRef Name) const {
   return llvm::is_contained(ValidCPUNames, Name);

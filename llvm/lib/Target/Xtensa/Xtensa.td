@@ -6,6 +6,9 @@ include "XtensaInstrInfo.td"
 include "XtensaCallingConv.td"
 include "XtensaCombine.td"
 
+def FeatureMinMax : SubtargetFeature<"minMax", "HasMinMax", "true", "Enable min"
+                                     "and max instructions">;
+
 def FeatureSalt : SubtargetFeature<"salt", "HasSalt", "true", "Enable salt and "
                                    "saltu instructions">;
 
@@ -19,6 +22,7 @@ class Proc<string Name, list<SubtargetFeature> Features>
    : ProcessorModel<Name, NoSchedModel, Features>;
 
 def : Proc<"generic", []>;
+def : Proc<"esp32", [FeatureMinMax]>;
 def : Proc<"lx7", [FeatureLX7]>;
 
 def XtensaAsmParser : AsmParser {

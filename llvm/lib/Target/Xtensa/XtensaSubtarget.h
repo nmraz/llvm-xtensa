@@ -35,6 +35,7 @@ private:
   std::unique_ptr<LegalizerInfo> Legalizer;
   std::unique_ptr<InstructionSelector> InstSelector;
 
+  bool HasMinMax;
   bool HasSalt;
   bool HasLX7;
 
@@ -58,6 +59,7 @@ public:
 
   const TargetLowering *getTargetLowering() const override { return &TLInfo; }
 
+  bool hasMinMax() const { return HasMinMax; }
   bool hasSalt() const { return HasSalt; }
 
   // GlobalISel
