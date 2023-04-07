@@ -117,7 +117,7 @@ define void @test_stack_ext_needed() {
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(p0) = COPY $sp
   ; CHECK-NEXT:   [[C1:%[0-9]+]]:_(s64) = G_CONSTANT i64 0
   ; CHECK-NEXT:   [[PTR_ADD:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY]], [[C1]](s64)
-  ; CHECK-NEXT:   G_STORE [[C]](s8), [[PTR_ADD]](p0) :: (store (s8) into stack)
+  ; CHECK-NEXT:   G_STORE [[C]](s8), [[PTR_ADD]](p0) :: (store (s8) into stack, align 16)
   ; CHECK-NEXT:   $x0 = COPY [[DEF]](s64)
   ; CHECK-NEXT:   $x1 = COPY [[DEF]](s64)
   ; CHECK-NEXT:   $x2 = COPY [[DEF]](s64)
@@ -198,16 +198,16 @@ define i32 @i8i16caller() nounwind readnone {
   ; CHECK-NEXT:   [[COPY:%[0-9]+]]:_(p0) = COPY $sp
   ; CHECK-NEXT:   [[C12:%[0-9]+]]:_(s64) = G_CONSTANT i64 0
   ; CHECK-NEXT:   [[PTR_ADD:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY]], [[C12]](s64)
-  ; CHECK-NEXT:   G_STORE [[C8]](s8), [[PTR_ADD]](p0) :: (store (s8) into stack)
+  ; CHECK-NEXT:   G_STORE [[C8]](s8), [[PTR_ADD]](p0) :: (store (s8) into stack, align 16)
   ; CHECK-NEXT:   [[C13:%[0-9]+]]:_(s64) = G_CONSTANT i64 8
   ; CHECK-NEXT:   [[PTR_ADD1:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY]], [[C13]](s64)
-  ; CHECK-NEXT:   G_STORE [[C9]](s16), [[PTR_ADD1]](p0) :: (store (s16) into stack + 8, align 1)
+  ; CHECK-NEXT:   G_STORE [[C9]](s16), [[PTR_ADD1]](p0) :: (store (s16) into stack + 8, align 8)
   ; CHECK-NEXT:   [[C14:%[0-9]+]]:_(s64) = G_CONSTANT i64 16
   ; CHECK-NEXT:   [[PTR_ADD2:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY]], [[C14]](s64)
-  ; CHECK-NEXT:   G_STORE [[C10]](s8), [[PTR_ADD2]](p0) :: (store (s8) into stack + 16)
+  ; CHECK-NEXT:   G_STORE [[C10]](s8), [[PTR_ADD2]](p0) :: (store (s8) into stack + 16, align 16)
   ; CHECK-NEXT:   [[C15:%[0-9]+]]:_(s64) = G_CONSTANT i64 24
   ; CHECK-NEXT:   [[PTR_ADD3:%[0-9]+]]:_(p0) = G_PTR_ADD [[COPY]], [[C15]](s64)
-  ; CHECK-NEXT:   G_STORE [[C11]](s8), [[PTR_ADD3]](p0) :: (store (s8) into stack + 24)
+  ; CHECK-NEXT:   G_STORE [[C11]](s8), [[PTR_ADD3]](p0) :: (store (s8) into stack + 24, align 8)
   ; CHECK-NEXT:   $x0 = COPY [[C]](s64)
   ; CHECK-NEXT:   $x1 = COPY [[C1]](s64)
   ; CHECK-NEXT:   $x2 = COPY [[C2]](s64)

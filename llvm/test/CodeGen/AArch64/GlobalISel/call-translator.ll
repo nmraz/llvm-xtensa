@@ -234,13 +234,13 @@ define void @test_stack_slots([8 x i64], i64 %lhs, i64 %rhs, i64* %addr) {
 ; CHECK: [[SP:%[0-9]+]]:_(p0) = COPY $sp
 ; CHECK: [[C42_OFFS:%[0-9]+]]:_(s64) = G_CONSTANT i64 0
 ; CHECK: [[C42_LOC:%[0-9]+]]:_(p0) = G_PTR_ADD [[SP]], [[C42_OFFS]](s64)
-; CHECK: G_STORE [[C42]](s64), [[C42_LOC]](p0) :: (store (s64) into stack, align 1)
+; CHECK: G_STORE [[C42]](s64), [[C42_LOC]](p0) :: (store (s64) into stack, align 16)
 ; CHECK: [[C12_OFFS:%[0-9]+]]:_(s64) = G_CONSTANT i64 8
 ; CHECK: [[C12_LOC:%[0-9]+]]:_(p0) = G_PTR_ADD [[SP]], [[C12_OFFS]](s64)
-; CHECK: G_STORE [[C12]](s64), [[C12_LOC]](p0) :: (store (s64) into stack + 8, align 1)
+; CHECK: G_STORE [[C12]](s64), [[C12_LOC]](p0) :: (store (s64) into stack + 8)
 ; CHECK: [[PTR_OFFS:%[0-9]+]]:_(s64) = G_CONSTANT i64 16
 ; CHECK: [[PTR_LOC:%[0-9]+]]:_(p0) = G_PTR_ADD [[SP]], [[PTR_OFFS]](s64)
-; CHECK: G_STORE [[PTR]](p0), [[PTR_LOC]](p0) :: (store (p0) into stack + 16, align 1)
+; CHECK: G_STORE [[PTR]](p0), [[PTR_LOC]](p0) :: (store (p0) into stack + 16, align 16)
 ; CHECK: BL @test_stack_slots
 ; CHECK: ADJCALLSTACKUP 24, 0, implicit-def $sp, implicit $sp
 define void @test_call_stack() {
@@ -292,9 +292,9 @@ define void @take_128bit_struct([2 x i64]* %ptr, [2 x i64] %in) {
 ; CHECK: [[SP:%[0-9]+]]:_(p0) = COPY $sp
 ; CHECK: [[CST2:%[0-9]+]]:_(s64) = G_CONSTANT i64 0
 ; CHECK: [[GEP2:%[0-9]+]]:_(p0) = G_PTR_ADD [[SP]], [[CST2]](s64)
-; CHECK: G_STORE [[LO]](s64), [[GEP2]](p0) :: (store (s64) into stack, align 1)
+; CHECK: G_STORE [[LO]](s64), [[GEP2]](p0) :: (store (s64) into stack, align 16)
 ; CHECK: [[GEP3:%[0-9]+]]:_(p0) = G_PTR_ADD [[SP]], [[CST]](s64)
-; CHECK: G_STORE [[HI]](s64), [[GEP3]](p0) :: (store (s64) into stack + 8, align 1)
+; CHECK: G_STORE [[HI]](s64), [[GEP3]](p0) :: (store (s64) into stack + 8)
 define void @test_split_struct([2 x i64]* %ptr) {
   %struct = load [2 x i64], [2 x i64]* %ptr
   call void @take_split_struct([2 x i64]* null, i64 1, i64 2, i64 3,
