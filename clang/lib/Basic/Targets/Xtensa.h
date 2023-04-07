@@ -15,8 +15,10 @@
 
 #include "clang/Basic/TargetInfo.h"
 #include "clang/Basic/TargetOptions.h"
+#include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/Triple.h"
 #include "llvm/Support/Compiler.h"
+#include <string>
 
 namespace clang {
 namespace targets {
@@ -37,6 +39,9 @@ public:
     UseZeroLengthBitfieldAlignment = true;
     resetDataLayout("e-m:e-p:32:32-i64:64-n32-S128");
   }
+
+  bool setCPU(const std::string &Name) override { return isValidCPUName(Name); }
+  bool isValidCPUName(StringRef Name) const override;
 
   void getTargetDefines(const LangOptions &Opts,
                         MacroBuilder &Builder) const override;

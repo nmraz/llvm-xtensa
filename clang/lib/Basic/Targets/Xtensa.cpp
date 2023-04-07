@@ -14,9 +14,16 @@
 #include "clang/Basic/Builtins.h"
 #include "clang/Basic/MacroBuilder.h"
 #include "clang/Basic/TargetBuiltins.h"
+#include "llvm/ADT/STLExtras.h"
 
 using namespace clang;
 using namespace clang::targets;
+
+static constexpr llvm::StringLiteral ValidCPUNames[] = {{"generic"}, {"lx7"}};
+
+bool XtensaTargetInfo::isValidCPUName(StringRef Name) const {
+  return llvm::is_contained(ValidCPUNames, Name);
+}
 
 void XtensaTargetInfo::getTargetDefines(const LangOptions &Opts,
                                         MacroBuilder &Builder) const {
