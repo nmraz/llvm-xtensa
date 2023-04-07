@@ -18,7 +18,7 @@ define void @test(i32 %x) {
 ; CHECK-NEXT:    and a2, a2, a3
 ; CHECK-NEXT:    sub a12, a1, a2
 ; CHECK-NEXT:    mov.n a1, a12
-; CHECK-NEXT:    movi a2, -260
+; CHECK-NEXT:    movi a2, -272
 ; CHECK-NEXT:    add.n a1, a1, a2
 ; CHECK-NEXT:    mov.n a2, a1
 ; CHECK-NEXT:    l32r a3, .LCPI0_0
@@ -26,7 +26,7 @@ define void @test(i32 %x) {
 ; CHECK-NEXT:    call0 memcpy
 ; CHECK-NEXT:    mov.n a2, a12
 ; CHECK-NEXT:    call0 f
-; CHECK-NEXT:    movi a2, 260
+; CHECK-NEXT:    movi a2, 272
 ; CHECK-NEXT:    add.n a1, a1, a2
 ; CHECK-NEXT:    l32i.n a12, a1, 8 # 4-byte Reload
 ; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload

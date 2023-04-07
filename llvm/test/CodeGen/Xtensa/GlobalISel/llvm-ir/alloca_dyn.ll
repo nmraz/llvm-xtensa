@@ -82,7 +82,7 @@ define void @alloca_variable_call_stack(i32 %size) {
 ; CHECK-NEXT:    and a2, a2, a3
 ; CHECK-NEXT:    sub a2, a1, a2
 ; CHECK-NEXT:    mov.n a1, a2
-; CHECK-NEXT:    addi a1, a1, -4
+; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a2, a1, 0
 ; CHECK-NEXT:    movi.n a2, 0
 ; CHECK-NEXT:    movi.n a3, 0
@@ -91,7 +91,7 @@ define void @alloca_variable_call_stack(i32 %size) {
 ; CHECK-NEXT:    movi.n a6, 0
 ; CHECK-NEXT:    movi.n a7, 0
 ; CHECK-NEXT:    call0 f2
-; CHECK-NEXT:    addi a1, a1, 4
+; CHECK-NEXT:    addi a1, a1, 16
 ; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
 ; CHECK-NEXT:    mov.n a1, a15
 ; CHECK-NEXT:    l32i.n a15, a1, 8 # 4-byte Reload

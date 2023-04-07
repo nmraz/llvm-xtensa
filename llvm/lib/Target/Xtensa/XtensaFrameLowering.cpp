@@ -182,11 +182,11 @@ MachineBasicBlock::iterator XtensaFrameLowering::eliminateCallFramePseudoInstr(
     const XtensaInstrInfo &TII =
         *MF.getSubtarget<XtensaSubtarget>().getInstrInfo();
 
-    int32_t Size = I->getOperand(0).getImm();
+    int32_t Amount = alignTo(I->getOperand(0).getImm(), getStackAlign());
     if (I->getOpcode() == Xtensa::ADJCALLSTACKDOWN)
-      Size = -Size;
+      Amount = -Amount;
 
-    adjustStackPointer(TII, *I, Size);
+    adjustStackPointer(TII, *I, Amount);
   }
 
   return MBB.erase(I);
