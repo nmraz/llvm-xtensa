@@ -6,7 +6,7 @@ include "XtensaInstrInfo.td"
 include "XtensaCallingConv.td"
 include "XtensaCombine.td"
 
-def FeatureMinMax : SubtargetFeature<"minMax", "HasMinMax", "true", "Enable min"
+def FeatureMinMax : SubtargetFeature<"minmax", "HasMinMax", "true", "Enable min"
                                      "and max instructions">;
 
 def FeatureSalt : SubtargetFeature<"salt", "HasSalt", "true", "Enable salt and "
