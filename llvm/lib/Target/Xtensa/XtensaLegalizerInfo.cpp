@@ -75,6 +75,8 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .widenScalarToNextPow2(0)
       .clampScalar(0, S32, S32);
 
+  getActionDefinitionsBuilder(G_ABS).legalFor({S32}).minScalar(0, S32).lower();
+
   // Note: we narrow the shift amount before dealing with the shifted value, as
   // that can result in substantially less code generated.
   getActionDefinitionsBuilder({G_SHL, G_LSHR, G_ASHR})
