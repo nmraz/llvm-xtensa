@@ -171,16 +171,20 @@ void XtensaFrameLowering::determineCalleeSaves(MachineFunction &MF,
 MachineBasicBlock::iterator XtensaFrameLowering::eliminateCallFramePseudoInstr(
     MachineFunction &MF, MachineBasicBlock &MBB,
     MachineBasicBlock::iterator I) const {
-  const XtensaInstrInfo &TII =
-      *MF.getSubtarget<XtensaSubtarget>().getInstrInfo();
-  const MachineFrameInfo &MFI = MF.getFrameInfo();
-
-  assert(!MFI.hasVarSizedObjects() &&
-         "Dynamic stack readjustments are unimplemented");
-
-  if (I->getOpcode() == TII.getCallFrameDestroyOpcode()) {
+  if (I->getOpcode() == Xtensa::ADJCALLSTACKUP) {
     uint64_t CalleePopAmount = I->getOperand(1).getImm();
     assert(CalleePopAmount == 0 && "Callee pop readjustment is not supported");
+  }
+
+  if (!hasReservedCallFrame(MF)) {
+    const XtensaInstrInfo &TII =
+        *MF.getSubtarget<XtensaSubtarget>().getInstrInfo();
+
+    int32_t Size = I->getOperand(0).getImm();
+    if (I->getOpcode() == Xtensa::ADJCALLSTACKDOWN)
+      Size = -Size;
+
+    adjustStackPointer(TII, *I, Size);
   }
 
   return MBB.erase(I);
