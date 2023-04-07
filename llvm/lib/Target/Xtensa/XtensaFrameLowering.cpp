@@ -135,6 +135,10 @@ void XtensaFrameLowering::determineCalleeSaves(MachineFunction &MF,
   if (hasFP(MF)) {
     SavedRegs.set(Xtensa::A15);
   }
+
+  if (hasBP(MF)) {
+    SavedRegs.set(STI.getRegisterInfo()->getBaseRegister());
+  }
 }
 
 MachineBasicBlock::iterator XtensaFrameLowering::eliminateCallFramePseudoInstr(
