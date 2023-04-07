@@ -11,7 +11,7 @@ class LegalizerHelper;
 
 class XtensaLegalizerInfo : public LegalizerInfo {
 public:
-  XtensaLegalizerInfo(const XtensaSubtarget &ST);
+  XtensaLegalizerInfo(const XtensaSubtarget &STI);
 
   bool legalizeCustom(LegalizerHelper &Helper, MachineInstr &MI) const override;
 

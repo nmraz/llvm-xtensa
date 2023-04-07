@@ -31,7 +31,7 @@ static void convertPtrDst(MachineRegisterInfo &MRI,
   Dst.setReg(NewDst);
 }
 
-XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
+XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &STI) {
   using namespace TargetOpcode;
 
   const LLT S1 = LLT::scalar(1);
@@ -76,6 +76,15 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
       .clampScalar(0, S32, S32);
 
   getActionDefinitionsBuilder(G_ABS).legalFor({S32}).minScalar(0, S32).lower();
+
+  if (STI.hasMinMax()) {
+    getActionDefinitionsBuilder({G_SMIN, G_UMIN, G_SMAX, G_UMAX})
+        .legalFor({S32})
+        .minScalar(0, S32)
+        .lower();
+  } else {
+    getActionDefinitionsBuilder({G_SMIN, G_UMIN, G_SMAX, G_UMAX}).lower();
+  }
 
   // Note: we narrow the shift amount before dealing with the shifted value, as
   // that can result in substantially less code generated.
@@ -157,7 +166,7 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &ST) {
 
   getLegacyLegalizerInfo().computeTables();
 
-  verify(*ST.getInstrInfo());
+  verify(*STI.getInstrInfo());
 }
 
 bool XtensaLegalizerInfo::legalizeCustom(LegalizerHelper &Helper,
