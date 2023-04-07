@@ -90,9 +90,17 @@ BitVector XtensaRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
   // Stack pointer
   Reserved.set(Xtensa::A1);
 
-  if (MF.getSubtarget().getFrameLowering()->hasFP(MF)) {
+  const XtensaFrameLowering *TFI =
+      MF.getSubtarget<XtensaSubtarget>().getFrameLowering();
+  if (TFI->hasFP(MF)) {
     // Frame pointer
     Reserved.set(Xtensa::A15);
+  }
+
+  if (TFI->hasBP(MF)) {
+    // Base pointer, used when the stack must be realigned and there are dynamic
+    // stack allocations.
+    Reserved.set(getBaseRegister());
   }
 
   return Reserved;
@@ -116,6 +124,7 @@ void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
   MachineFunction &MF = *MI.getMF();
   const XtensaSubtarget &STI = MF.getSubtarget<XtensaSubtarget>();
   const XtensaInstrInfo &TII = *STI.getInstrInfo();
+  const XtensaFrameLowering &TFI = *STI.getFrameLowering();
   MachineRegisterInfo &MRI = MF.getRegInfo();
   MachineFrameInfo &MFI = MF.getFrameInfo();
 
@@ -127,11 +136,17 @@ void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
     return CS.getFrameIdx() == FI;
   });
 
-  // CSR spills/restores always use the stack pointer (they occur before the
-  // frame has been set up), as do dynamic stack allocations if the stack has
-  // been realigned.
-  if (IsCSRSpill || (hasStackRealignment(MF) && !MFI.isFixedObjectIndex(FI))) {
+  if (IsCSRSpill) {
+    // CSR spills/restores always use the stack pointer, as they occur before
+    // the frame has been set up.
     FrameReg = Xtensa::A1;
+  } else if (hasStackRealignment(MF) && !MFI.isFixedObjectIndex(FI)) {
+    // When base pointers are required, we can't use the frame pointer as the
+    // stack has been realigned, and we can't use the stack pointer because
+    // there are dynamic stack allocations. The computation based on the static
+    // frame size below is still correct, as the base pointer represents what
+    // the stack pointer "should have been" before any dynamic allocations.
+    FrameReg = TFI.hasBP(MF) ? getBaseRegister() : Xtensa::A1;
   }
 
   int64_t AddedOffset = MI.getOperand(FIOperandNum + 1).getImm();
@@ -163,3 +178,5 @@ void XtensaRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
 Register XtensaRegisterInfo::getFrameRegister(const MachineFunction &MF) const {
   return getFrameLowering(MF)->hasFP(MF) ? Xtensa::A15 : Xtensa::A1;
 }
+
+Register XtensaRegisterInfo::getBaseRegister() const { return Xtensa::A14; }

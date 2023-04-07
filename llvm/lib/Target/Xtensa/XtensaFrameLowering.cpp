@@ -53,6 +53,8 @@ void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
   const MachineFrameInfo &MFI = MF.getFrameInfo();
   const std::vector<CalleeSavedInfo> &CSI = MFI.getCalleeSavedInfo();
 
+  DebugLoc DL;
+
   uint64_t FrameSize = MFI.getStackSize();
 
   MachineBasicBlock::iterator MBBI = MBB.begin();
@@ -62,18 +64,22 @@ void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
   std::advance(MBBI, CSI.size());
 
   if (hasFP(MF)) {
-    // Based on empirical evidence from gcc, the frame pointer points to the
-    // *end* of the static frame.
-    TII.copyPhysReg(MBB, MBBI, DebugLoc(), Xtensa::A15, Xtensa::A1, false);
+    TII.copyPhysReg(MBB, MBBI, DL, Xtensa::A15, Xtensa::A1, false);
 
     if (TRI.hasStackRealignment(MF)) {
       Align Alignment = MFI.getMaxAlign();
       Register Temp = MRI.createVirtualRegister(&Xtensa::GPRRegClass);
-      TII.loadImm(MBB, MBBI, DebugLoc(), Temp, -Alignment.value());
-      BuildMI(MBB, MBBI, DebugLoc(), TII.get(Xtensa::AND), Xtensa::A1)
+      TII.loadImm(MBB, MBBI, DL, Temp, -Alignment.value());
+      BuildMI(MBB, MBBI, DL, TII.get(Xtensa::AND), Xtensa::A1)
           .addReg(Xtensa::A1, RegState::Kill)
           .addReg(Temp, RegState::Kill);
     }
+  }
+
+  if (hasBP(MF)) {
+    // The base pointer should point to the stack after realignment, but before
+    // any dynamic allocations.
+    TII.copyPhysReg(MBB, MBBI, DL, TRI.getBaseRegister(), Xtensa::A1, false);
   }
 }
 
@@ -93,7 +99,7 @@ void XtensaFrameLowering::emitEpilogue(MachineFunction &MF,
   }
 
   uint64_t FrameSize = MFI.getStackSize();
-  adjustStackPointer(TII, *MBB.getFirstTerminator(), FrameSize);
+  adjustStackPointer(TII, *MBBI, FrameSize);
 }
 
 bool XtensaFrameLowering::hasFP(const MachineFunction &MF) const {
@@ -102,6 +108,12 @@ bool XtensaFrameLowering::hasFP(const MachineFunction &MF) const {
 
   return MF.getTarget().Options.DisableFramePointerElim(MF) ||
          MFI.hasVarSizedObjects() || TRI->hasStackRealignment(MF);
+}
+
+bool XtensaFrameLowering::hasBP(const MachineFunction &MF) const {
+  const MachineFrameInfo &MFI = MF.getFrameInfo();
+  const TargetRegisterInfo *TRI = STI.getRegisterInfo();
+  return MFI.hasVarSizedObjects() && TRI->hasStackRealignment(MF);
 }
 
 bool XtensaFrameLowering::hasReservedCallFrame(
