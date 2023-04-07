@@ -48,6 +48,7 @@ def b4constu_minus1 : ImmLeaf<i32, [{
 
 // Codegen predicates
 
+def HasMinMax : Predicate<"Subtarget->hasMinMax()">;
 def HasSalt : Predicate<"Subtarget->hasSalt()">;
 
 // Pseudo-instructions for codegen/lowering
@@ -285,6 +286,13 @@ def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []> {
 }
 
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
+
+let Predicates = [HasMinMax] in {
+  def MAX : ArithRRR<0b0011, 0b0101, "max", [(set i32:$ar, (smax i32:$as, i32:$at))]>;
+  def MAXU : ArithRRR<0b0011, 0b0111, "maxu", [(set i32:$ar, (umax i32:$as, i32:$at))]>;
+  def MIN : ArithRRR<0b0011, 0b0100, "min", [(set i32:$ar, (smin i32:$as, i32:$at))]>;
+  def MINU : ArithRRR<0b0011, 0b0110, "minu", [(set i32:$ar, (umin i32:$as, i32:$at))]>;
+}
 
 let isSelect = true in {
   def MOVEQZ : MovRRR<0b1000, "moveqz", []>;
