@@ -97,6 +97,11 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &STI) {
 
   getActionDefinitionsBuilder({G_FSHL, G_FSHR}).legalFor({{S32, S32}}).lower();
 
+  getActionDefinitionsBuilder(G_BSWAP)
+      .customFor({S32})
+      .maxScalar(0, S32)
+      .lower();
+
   getActionDefinitionsBuilder({G_SDIV, G_UDIV, G_SREM, G_UREM})
       .legalFor({S32})
       .widenScalarToNextPow2(0)
@@ -182,6 +187,8 @@ bool XtensaLegalizerInfo::legalizeCustom(LegalizerHelper &Helper,
   case TargetOpcode::G_LSHR:
   case TargetOpcode::G_ASHR:
     return legalizeShift(MI, Helper, MRI, MIRBuilder, Observer);
+  case TargetOpcode::G_BSWAP:
+    return legalizeBswap(MI, MRI, MIRBuilder, Observer);
   case TargetOpcode::G_CONSTANT:
     return legalizeConstant(MI, MRI, MIRBuilder, Observer);
   case TargetOpcode::G_SELECT:
@@ -298,6 +305,42 @@ bool XtensaLegalizerInfo::legalizeShift(MachineInstr &MI,
   }
 
   MIRBuilder.buildMerge(Dest, {ResultLo, ResultHi});
+  MI.eraseFromParent();
+  return true;
+}
+
+bool XtensaLegalizerInfo::legalizeBswap(MachineInstr &MI,
+                                        MachineRegisterInfo &MRI,
+                                        MachineIRBuilder &MIRBuilder,
+                                        GISelChangeObserver &Observer) const {
+  const LLT S32 = LLT::scalar(32);
+  Register Dest = MI.getOperand(0).getReg();
+  Register Input = MI.getOperand(1).getReg();
+
+  assert(MRI.getType(Dest) == S32 &&
+         "Custom lowering attempted for bad bswap width");
+
+  // Convention: input bytes are numbered `1 2 3 4`, where 1 is the MSB.
+  // We want to output `4 3 2 1` to `Dest`.
+
+  auto Eight = MIRBuilder.buildConstant(S32, 8);
+  auto Sixteen = MIRBuilder.buildConstant(S32, 16);
+
+  // Build `X X 1 2`, where X is some arbitrary padding.
+  auto Parts12 = MIRBuilder.buildLShr(S32, Input, Sixteen);
+
+  // Build `2 1 2 3` by (funnel) shifting `X X 1 2 1 2 3 4` right by 8.
+  auto Parts2123 = MIRBuilder.buildInstr(TargetOpcode::G_FSHR, {S32},
+                                         {Parts12, Input, Eight});
+
+  // Build `3 2 1 2` by rotating `2 1 2 3` right by 8.
+  auto Parts3212 = MIRBuilder.buildInstr(TargetOpcode::G_FSHR, {S32},
+                                         {Parts2123, Parts2123, Eight});
+
+  // Build `4 3 2 1` by (funnel) shifting `1 2 3 4 3 2 1 2` right by 8.
+  MIRBuilder.buildInstr(TargetOpcode::G_FSHR, {Dest},
+                        {Input, Parts3212, Eight});
+
   MI.eraseFromParent();
   return true;
 }

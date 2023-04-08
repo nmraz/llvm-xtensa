@@ -112,6 +112,11 @@ public:
                             MachineBasicBlock::iterator MI, Register DestReg,
                             int FrameIndex, const TargetRegisterClass *RC,
                             const TargetRegisterInfo *TRI) const override;
+
+  // Groups of shifts involving SAR can often rapidly exceed the default limit
+  // of 5. A concrete example of this is 64-bit byte swaps, which generate an
+  // `ssai 8` before almost every instruction.
+  unsigned getMachineCSELookAheadLimit() const override { return 50; }
 };
 
 } // namespace llvm

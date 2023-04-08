@@ -25,6 +25,9 @@ private:
   bool legalizeShift(MachineInstr &MI, LegalizerHelper &Helper,
                      MachineRegisterInfo &MRI, MachineIRBuilder &MIRBuilder,
                      GISelChangeObserver &Observer) const;
+  bool legalizeBswap(MachineInstr &MI, MachineRegisterInfo &MRI,
+                     MachineIRBuilder &MIRBuilder,
+                     GISelChangeObserver &Observer) const;
   bool legalizeSelect(MachineInstr &MI, MachineRegisterInfo &MRI,
                       MachineIRBuilder &MIRBuilder,
                       GISelChangeObserver &Observer) const;
