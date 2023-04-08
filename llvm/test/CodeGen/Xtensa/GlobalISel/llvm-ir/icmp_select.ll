@@ -26,15 +26,15 @@ define i32 @select_icmp_ne_i32(i32 %a, i32 %b, i32 %c, i32 %d) {
 ; CHECK-LABEL: select_icmp_ne_i32:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    sub a2, a2, a3
-; CHECK-NEXT:    moveqz a4, a5, a2
-; CHECK-NEXT:    mov.n a2, a4
+; CHECK-NEXT:    movnez a5, a4, a2
+; CHECK-NEXT:    mov.n a2, a5
 ; CHECK-NEXT:    ret.n
 ;
 ; LX7-LABEL: select_icmp_ne_i32:
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    sub a2, a2, a3
-; LX7-NEXT:    moveqz a4, a5, a2
-; LX7-NEXT:    mov.n a2, a4
+; LX7-NEXT:    movnez a5, a4, a2
+; LX7-NEXT:    mov.n a2, a5
 ; LX7-NEXT:    ret.n
 entry:
   %cmp.not = icmp eq i32 %a, %b
@@ -46,15 +46,15 @@ define i32 @select_icmp_lt_i32(i32 %a, i32 %b, i32 %c, i32 %d) {
 ; CHECK-LABEL: select_icmp_lt_i32:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    sub a2, a2, a3
-; CHECK-NEXT:    movgez a4, a5, a2
-; CHECK-NEXT:    mov.n a2, a4
+; CHECK-NEXT:    movltz a5, a4, a2
+; CHECK-NEXT:    mov.n a2, a5
 ; CHECK-NEXT:    ret.n
 ;
 ; LX7-LABEL: select_icmp_lt_i32:
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    sub a2, a2, a3
-; LX7-NEXT:    movgez a4, a5, a2
-; LX7-NEXT:    mov.n a2, a4
+; LX7-NEXT:    movltz a5, a4, a2
+; LX7-NEXT:    mov.n a2, a5
 ; LX7-NEXT:    ret.n
 entry:
   %cmp = icmp slt i32 %a, %b
@@ -86,15 +86,15 @@ define i32 @select_icmp_gt_i32(i32 %a, i32 %b, i32 %c, i32 %d) {
 ; CHECK-LABEL: select_icmp_gt_i32:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    sub a2, a3, a2
-; CHECK-NEXT:    movgez a4, a5, a2
-; CHECK-NEXT:    mov.n a2, a4
+; CHECK-NEXT:    movltz a5, a4, a2
+; CHECK-NEXT:    mov.n a2, a5
 ; CHECK-NEXT:    ret.n
 ;
 ; LX7-LABEL: select_icmp_gt_i32:
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    sub a2, a3, a2
-; LX7-NEXT:    movgez a4, a5, a2
-; LX7-NEXT:    mov.n a2, a4
+; LX7-NEXT:    movltz a5, a4, a2
+; LX7-NEXT:    mov.n a2, a5
 ; LX7-NEXT:    ret.n
 entry:
   %cmp = icmp sgt i32 %a, %b
@@ -125,14 +125,14 @@ entry:
 define i32 @select_icmp_ltz_i32(i32 %a, i32 %c, i32 %d) {
 ; CHECK-LABEL: select_icmp_ltz_i32:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    movgez a3, a4, a2
-; CHECK-NEXT:    mov.n a2, a3
+; CHECK-NEXT:    movltz a4, a3, a2
+; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 ;
 ; LX7-LABEL: select_icmp_ltz_i32:
 ; LX7:       # %bb.0: # %entry
-; LX7-NEXT:    movgez a3, a4, a2
-; LX7-NEXT:    mov.n a2, a3
+; LX7-NEXT:    movltz a4, a3, a2
+; LX7-NEXT:    mov.n a2, a4
 ; LX7-NEXT:    ret.n
 entry:
   %cmp = icmp slt i32 %a, 0
@@ -144,15 +144,15 @@ define i32 @select_icmp_ltez_i32(i32 %a, i32 %c, i32 %d) {
 ; CHECK-LABEL: select_icmp_ltez_i32:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a2, a2, -1
-; CHECK-NEXT:    movgez a3, a4, a2
-; CHECK-NEXT:    mov.n a2, a3
+; CHECK-NEXT:    movltz a4, a3, a2
+; CHECK-NEXT:    mov.n a2, a4
 ; CHECK-NEXT:    ret.n
 ;
 ; LX7-LABEL: select_icmp_ltez_i32:
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    addi a2, a2, -1
-; LX7-NEXT:    movgez a3, a4, a2
-; LX7-NEXT:    mov.n a2, a3
+; LX7-NEXT:    movltz a4, a3, a2
+; LX7-NEXT:    mov.n a2, a4
 ; LX7-NEXT:    ret.n
 entry:
   %cmp = icmp slt i32 %a, 1
@@ -212,8 +212,8 @@ define i32 @select_icmp_ult_i32(i32 %a, i32 %b, i32 %c, i32 %d) {
 ; LX7-LABEL: select_icmp_ult_i32:
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    saltu a2, a2, a3
-; LX7-NEXT:    moveqz a4, a5, a2
-; LX7-NEXT:    mov.n a2, a4
+; LX7-NEXT:    movnez a5, a4, a2
+; LX7-NEXT:    mov.n a2, a5
 ; LX7-NEXT:    ret.n
 entry:
   %cmp = icmp ult i32 %a, %b
@@ -258,8 +258,8 @@ define i32 @select_icmp_ugt_i32(i32 %a, i32 %b, i32 %c, i32 %d) {
 ; LX7-LABEL: select_icmp_ugt_i32:
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    saltu a2, a3, a2
-; LX7-NEXT:    moveqz a4, a5, a2
-; LX7-NEXT:    mov.n a2, a4
+; LX7-NEXT:    movnez a5, a4, a2
+; LX7-NEXT:    mov.n a2, a5
 ; LX7-NEXT:    ret.n
 entry:
   %cmp = icmp ugt i32 %a, %b

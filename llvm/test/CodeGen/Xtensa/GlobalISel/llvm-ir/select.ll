@@ -6,8 +6,8 @@ define i1 @select_i1(i1 %val, i1 %a, i1 %b) {
 ; OPT-LABEL: select_i1:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    extui a2, a2, 0, 1
-; OPT-NEXT:    moveqz a3, a4, a2
-; OPT-NEXT:    mov.n a2, a3
+; OPT-NEXT:    movnez a4, a3, a2
+; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: select_i1:
@@ -28,8 +28,8 @@ define i8 @select_i8(i1 %val, i8 %a, i8 %b) {
 ; OPT-LABEL: select_i8:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    extui a2, a2, 0, 1
-; OPT-NEXT:    moveqz a3, a4, a2
-; OPT-NEXT:    mov.n a2, a3
+; OPT-NEXT:    movnez a4, a3, a2
+; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: select_i8:
@@ -50,8 +50,8 @@ define i16 @select_i16(i1 %val, i16 %a, i16 %b) {
 ; OPT-LABEL: select_i16:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    extui a2, a2, 0, 1
-; OPT-NEXT:    moveqz a3, a4, a2
-; OPT-NEXT:    mov.n a2, a3
+; OPT-NEXT:    movnez a4, a3, a2
+; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: select_i16:
@@ -72,8 +72,8 @@ define i32 @select_i32(i1 %val, i32 %a, i32 %b) {
 ; OPT-LABEL: select_i32:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    extui a2, a2, 0, 1
-; OPT-NEXT:    moveqz a3, a4, a2
-; OPT-NEXT:    mov.n a2, a3
+; OPT-NEXT:    movnez a4, a3, a2
+; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: select_i32:
@@ -94,8 +94,8 @@ define ptr @select_ptr(i1 %val, ptr %a, ptr %b) {
 ; OPT-LABEL: select_ptr:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    extui a2, a2, 0, 1
-; OPT-NEXT:    moveqz a3, a4, a2
-; OPT-NEXT:    mov.n a2, a3
+; OPT-NEXT:    movnez a4, a3, a2
+; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: select_ptr:

@@ -294,7 +294,7 @@ let Predicates = [HasMinMax] in {
   def MINU : ArithRRR<0b0011, 0b0110, "minu", [(set i32:$ar, (umin i32:$as, i32:$at))]>;
 }
 
-let isSelect = true in {
+let isSelect = true, isCommutable = true in {
   def MOVEQZ : MovRRR<0b1000, "moveqz", []>;
   def MOVNEZ : MovRRR<0b1001, "movnez", []>;
   def MOVLTZ : MovRRR<0b1010, "movltz", []>;

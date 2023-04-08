@@ -72,6 +72,10 @@ public:
                  const DebugLoc &DL, Register Dest, Register Src, bool KillSrc,
                  Register Temp, int32_t Value, bool AllowSplit = true) const;
 
+  MachineInstr *commuteInstructionImpl(MachineInstr &MI, bool NewMI,
+                                       unsigned OpIdx1,
+                                       unsigned OpIdx2) const override;
+
   unsigned isLoadFromStackSlot(const MachineInstr &MI,
                                int &FrameIndex) const override;
   unsigned isLoadFromStackSlotPostFE(const MachineInstr &MI,

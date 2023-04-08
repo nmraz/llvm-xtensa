@@ -166,6 +166,21 @@ static Optional<unsigned> getReversedBranchOpcode(unsigned Opcode) {
   return None;
 }
 
+static unsigned getReversedCondMoveOpcode(unsigned Opcode) {
+  switch (Opcode) {
+  case Xtensa::MOVEQZ:
+    return Xtensa::MOVNEZ;
+  case Xtensa::MOVNEZ:
+    return Xtensa::MOVEQZ;
+  case Xtensa::MOVGEZ:
+    return Xtensa::MOVLTZ;
+  case Xtensa::MOVLTZ:
+    return Xtensa::MOVGEZ;
+  default:
+    llvm_unreachable("Not a conditional move");
+  }
+}
+
 static bool isPrecededByTerminator(MachineBasicBlock::iterator I,
                                    MachineBasicBlock::iterator Begin) {
   return I != Begin && prev_nodbg(I, Begin)->isTerminator();
@@ -301,6 +316,25 @@ void XtensaInstrInfo::addRegImm(MachineBasicBlock &MBB,
     }
   }
   addRegImmWithLoad(MBB, I, DL, Dest, Src, KillSrc, Temp, Value);
+}
+
+MachineInstr *XtensaInstrInfo::commuteInstructionImpl(MachineInstr &MI,
+                                                      bool NewMI,
+                                                      unsigned OpIdx1,
+                                                      unsigned OpIdx2) const {
+  unsigned Opcode = MI.getOpcode();
+  switch (Opcode) {
+  case Xtensa::MOVEQZ:
+  case Xtensa::MOVNEZ:
+  case Xtensa::MOVGEZ:
+  case Xtensa::MOVLTZ:
+    MachineInstr *Commuted =
+        TargetInstrInfo::commuteInstructionImpl(MI, NewMI, OpIdx1, OpIdx2);
+    Commuted->setDesc(get(getReversedCondMoveOpcode(Opcode)));
+    return Commuted;
+  }
+
+  return TargetInstrInfo::commuteInstructionImpl(MI, NewMI, OpIdx1, OpIdx2);
 }
 
 unsigned XtensaInstrInfo::isLoadFromStackSlot(const MachineInstr &MI,

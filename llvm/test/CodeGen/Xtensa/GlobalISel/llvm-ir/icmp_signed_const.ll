@@ -17,10 +17,10 @@ define i1 @icmp_slt_5(i32 %n) {
 define i1 @icmp_sgt_5(i32 %n) {
 ; CHECK-LABEL: icmp_sgt_5:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    movi.n a4, 1
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a3, 1
 ; CHECK-NEXT:    addi a2, a2, -6
-; CHECK-NEXT:    movgez a3, a4, a2
+; CHECK-NEXT:    movltz a3, a4, a2
 ; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
   %cmp = icmp sgt i32 %n, 5
@@ -43,10 +43,10 @@ define i1 @icmp_sle_5(i32 %n) {
 define i1 @icmp_sge_5(i32 %n) {
 ; CHECK-LABEL: icmp_sge_5:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    movi.n a4, 1
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a3, 1
 ; CHECK-NEXT:    addi a2, a2, -5
-; CHECK-NEXT:    movgez a3, a4, a2
+; CHECK-NEXT:    movltz a3, a4, a2
 ; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
   %cmp = icmp sgt i32 %n, 4
@@ -69,10 +69,10 @@ define i1 @icmp_slt_127(i32 %n) {
 define i1 @icmp_sgt_127(i32 %n) {
 ; CHECK-LABEL: icmp_sgt_127:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    movi.n a4, 1
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a3, 1
 ; CHECK-NEXT:    addi a2, a2, -128
-; CHECK-NEXT:    movgez a3, a4, a2
+; CHECK-NEXT:    movltz a3, a4, a2
 ; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
   %cmp = icmp sgt i32 %n, 127
@@ -95,10 +95,10 @@ define i1 @icmp_sle_127(i32 %n) {
 define i1 @icmp_sge_127(i32 %n) {
 ; CHECK-LABEL: icmp_sge_127:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    movi.n a4, 1
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a3, 1
 ; CHECK-NEXT:    addi a2, a2, -127
-; CHECK-NEXT:    movgez a3, a4, a2
+; CHECK-NEXT:    movltz a3, a4, a2
 ; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
   %cmp = icmp sgt i32 %n, 126
@@ -149,10 +149,10 @@ define i1 @icmp_sle_128(i32 %n) {
 define i1 @icmp_sge_128(i32 %n) {
 ; CHECK-LABEL: icmp_sge_128:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    movi.n a4, 1
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a3, 1
 ; CHECK-NEXT:    addi a2, a2, -128
-; CHECK-NEXT:    movgez a3, a4, a2
+; CHECK-NEXT:    movltz a3, a4, a2
 ; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
   %cmp = icmp sgt i32 %n, 127
@@ -176,10 +176,10 @@ define i1 @icmp_slt_255(i32 %n) {
 define i1 @icmp_sgt_255(i32 %n) {
 ; CHECK-LABEL: icmp_sgt_255:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    movi.n a4, 1
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a3, 1
 ; CHECK-NEXT:    addmi a2, a2, -256
-; CHECK-NEXT:    movgez a3, a4, a2
+; CHECK-NEXT:    movltz a3, a4, a2
 ; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
   %cmp = icmp sgt i32 %n, 255
@@ -257,10 +257,10 @@ define i1 @icmp_sle_256(i32 %n) {
 define i1 @icmp_sge_256(i32 %n) {
 ; CHECK-LABEL: icmp_sge_256:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi.n a3, 0
-; CHECK-NEXT:    movi.n a4, 1
+; CHECK-NEXT:    movi.n a4, 0
+; CHECK-NEXT:    movi.n a3, 1
 ; CHECK-NEXT:    addmi a2, a2, -256
-; CHECK-NEXT:    movgez a3, a4, a2
+; CHECK-NEXT:    movltz a3, a4, a2
 ; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
   %cmp = icmp sgt i32 %n, 255

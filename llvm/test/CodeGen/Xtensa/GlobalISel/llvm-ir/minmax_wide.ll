@@ -29,9 +29,9 @@ define i64 @smin_i64(i64 %a, i64 %b) {
 ; LX7-NEXT:    salt a6, a3, a5
 ; LX7-NEXT:    saltu a7, a2, a4
 ; LX7-NEXT:    sub a8, a3, a5
-; LX7-NEXT:    moveqz a6, a7, a8
-; LX7-NEXT:    moveqz a2, a4, a6
-; LX7-NEXT:    moveqz a3, a5, a6
+; LX7-NEXT:    movnez a7, a6, a8
+; LX7-NEXT:    moveqz a2, a4, a7
+; LX7-NEXT:    moveqz a3, a5, a7
 ; LX7-NEXT:    ret.n
   %smin = call i64 @llvm.smin.i64(i64 %a, i64 %b)
   ret i64 %smin
@@ -61,9 +61,9 @@ define i64 @umin_i64(i64 %a, i64 %b) {
 ; LX7-NEXT:    saltu a6, a3, a5
 ; LX7-NEXT:    saltu a7, a2, a4
 ; LX7-NEXT:    sub a8, a3, a5
-; LX7-NEXT:    moveqz a6, a7, a8
-; LX7-NEXT:    moveqz a2, a4, a6
-; LX7-NEXT:    moveqz a3, a5, a6
+; LX7-NEXT:    movnez a7, a6, a8
+; LX7-NEXT:    moveqz a2, a4, a7
+; LX7-NEXT:    moveqz a3, a5, a7
 ; LX7-NEXT:    ret.n
   %umin = call i64 @llvm.umin.i64(i64 %a, i64 %b)
   ret i64 %umin
@@ -92,9 +92,9 @@ define i64 @smax_i64(i64 %a, i64 %b) {
 ; LX7-NEXT:    salt a6, a5, a3
 ; LX7-NEXT:    saltu a7, a4, a2
 ; LX7-NEXT:    sub a8, a3, a5
-; LX7-NEXT:    moveqz a6, a7, a8
-; LX7-NEXT:    moveqz a2, a4, a6
-; LX7-NEXT:    moveqz a3, a5, a6
+; LX7-NEXT:    movnez a7, a6, a8
+; LX7-NEXT:    moveqz a2, a4, a7
+; LX7-NEXT:    moveqz a3, a5, a7
 ; LX7-NEXT:    ret.n
   %smax = call i64 @llvm.smax.i64(i64 %a, i64 %b)
   ret i64 %smax
@@ -124,9 +124,9 @@ define i64 @umax_i64(i64 %a, i64 %b) {
 ; LX7-NEXT:    saltu a6, a5, a3
 ; LX7-NEXT:    saltu a7, a4, a2
 ; LX7-NEXT:    sub a8, a3, a5
-; LX7-NEXT:    moveqz a6, a7, a8
-; LX7-NEXT:    moveqz a2, a4, a6
-; LX7-NEXT:    moveqz a3, a5, a6
+; LX7-NEXT:    movnez a7, a6, a8
+; LX7-NEXT:    moveqz a2, a4, a7
+; LX7-NEXT:    moveqz a3, a5, a7
 ; LX7-NEXT:    ret.n
   %umax = call i64 @llvm.umax.i64(i64 %a, i64 %b)
   ret i64 %umax
