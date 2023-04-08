@@ -304,14 +304,17 @@ let isSelect = true in {
 def : Pat<(select i32:$cond, i32:$true, i32:$false),
           (MOVEQZ i32:$true, i32:$false, i32:$cond)>;
 
-let isAsCheapAsAMove = true, isReMaterializable = true in {
+let isAsCheapAsAMove = true, isReMaterializable = true, isMoveImm = true in {
   def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", []>;
   def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi", [(set i32:$at, simm12:$imm12)]>;
+}
 
-  def MOVN : ArithBaseRRRN<0b1101, (outs GPR:$at), (ins GPR:$as),
-                          "mov.n $at, $as", []> {
-    let ar = 0b0000;
-  }
+def MOVN : ArithBaseRRRN<0b1101, (outs GPR:$at), (ins GPR:$as),
+                        "mov.n $at, $as", []> {
+  let isAsCheapAsAMove = true;
+  let isMoveReg = true;
+
+  let ar = 0b0000;
 }
 
 def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s", []>;
