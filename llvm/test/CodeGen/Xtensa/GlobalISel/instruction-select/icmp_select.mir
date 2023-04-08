@@ -926,8 +926,8 @@ body:             |
     ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; CHECK-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
     ; CHECK-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a4
-    ; CHECK-NEXT: [[NEG:%[0-9]+]]:gpr = NEG [[COPY]]
-    ; CHECK-NEXT: [[MOVGEZ:%[0-9]+]]:gpr = MOVGEZ [[COPY1]], [[COPY2]], [[NEG]]
+    ; CHECK-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], -1
+    ; CHECK-NEXT: [[MOVGEZ:%[0-9]+]]:gpr = MOVGEZ [[COPY2]], [[COPY1]], [[ADDI]]
     ; CHECK-NEXT: $a2 = COPY [[MOVGEZ]]
     ; CHECK-NEXT: RETN implicit $a0, implicit $a2
     ; LX7-LABEL: name: select_icmp_gtz_i32
@@ -936,8 +936,8 @@ body:             |
     ; LX7-NEXT: [[COPY:%[0-9]+]]:gpr = COPY $a2
     ; LX7-NEXT: [[COPY1:%[0-9]+]]:gpr = COPY $a3
     ; LX7-NEXT: [[COPY2:%[0-9]+]]:gpr = COPY $a4
-    ; LX7-NEXT: [[NEG:%[0-9]+]]:gpr = NEG [[COPY]]
-    ; LX7-NEXT: [[MOVGEZ:%[0-9]+]]:gpr = MOVGEZ [[COPY1]], [[COPY2]], [[NEG]]
+    ; LX7-NEXT: [[ADDI:%[0-9]+]]:gpr = ADDI [[COPY]], -1
+    ; LX7-NEXT: [[MOVGEZ:%[0-9]+]]:gpr = MOVGEZ [[COPY2]], [[COPY1]], [[ADDI]]
     ; LX7-NEXT: $a2 = COPY [[MOVGEZ]]
     ; LX7-NEXT: RETN implicit $a0, implicit $a2
     %0:gprb(s32) = COPY $a2

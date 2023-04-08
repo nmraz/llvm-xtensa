@@ -91,6 +91,8 @@ private:
                     const AddConstParts &Parts);
   bool emitICmpSelect(MachineInstr &I, CmpInst::Predicate Pred, Register CmpLHS,
                       Register CmpRHS, Register TrueVal, Register FalseVal);
+  void tryAdjustICmpConstRHS(MachineInstr &I, CmpInst::Predicate &Pred,
+                             Register &RHS, MachineInstr *&NewRHSInst);
   bool emitICmpSelectAroundZero(MachineInstr &I, CmpInst::Predicate Pred,
                                 Register CmpLHS, Register CmpRHS,
                                 Register TrueVal, Register FalseVal);
@@ -212,34 +214,6 @@ static Optional<unsigned> getLoadStoreOpcode(unsigned Opcode,
   }
 
   return None;
-}
-
-struct ICmpInfo {
-  unsigned Opcode;
-  bool SwapCmp;
-  bool SwapSelect;
-};
-
-static Optional<ICmpInfo> getICmpAroundZeroInfo(CmpInst::Predicate Pred) {
-  struct {
-    CmpInst::Predicate Pred;
-    ICmpInfo Info;
-  } Info[] = {
-      {CmpInst::ICMP_EQ, {Xtensa::MOVEQZ, false, false}},
-      {CmpInst::ICMP_NE, {Xtensa::MOVEQZ, false, true}},
-      {CmpInst::ICMP_SGT, {Xtensa::MOVGEZ, true, true}},
-      {CmpInst::ICMP_SGE, {Xtensa::MOVGEZ, false, false}},
-      {CmpInst::ICMP_SLT, {Xtensa::MOVGEZ, false, true}},
-      {CmpInst::ICMP_SLE, {Xtensa::MOVGEZ, true, false}},
-  };
-
-  auto *It = std::find_if(std::begin(Info), std::end(Info),
-                          [&](const auto &Info) { return Info.Pred == Pred; });
-  if (It == std::end(Info)) {
-    return None;
-  }
-
-  return It->Info;
 }
 
 bool XtensaInstructionSelector::select(MachineInstr &I) {
@@ -379,16 +353,75 @@ bool XtensaInstructionSelector::emitICmpSelect(MachineInstr &I,
   return false;
 }
 
+struct ICmpInfo {
+  unsigned Opcode;
+  bool SwapCmp;
+  bool SwapSelect;
+};
+
+static Optional<ICmpInfo> getICmpAroundZeroInfo(CmpInst::Predicate Pred) {
+  struct {
+    CmpInst::Predicate Pred;
+    ICmpInfo Info;
+  } Info[] = {
+      {CmpInst::ICMP_EQ, {Xtensa::MOVEQZ, false, false}},
+      {CmpInst::ICMP_NE, {Xtensa::MOVEQZ, false, true}},
+      {CmpInst::ICMP_SGT, {Xtensa::MOVGEZ, true, true}},
+      {CmpInst::ICMP_SGE, {Xtensa::MOVGEZ, false, false}},
+      {CmpInst::ICMP_SLT, {Xtensa::MOVGEZ, false, true}},
+      {CmpInst::ICMP_SLE, {Xtensa::MOVGEZ, true, false}},
+  };
+
+  auto *It = std::find_if(std::begin(Info), std::end(Info),
+                          [&](const auto &Info) { return Info.Pred == Pred; });
+  if (It == std::end(Info)) {
+    return None;
+  }
+
+  return It->Info;
+}
+
+void XtensaInstructionSelector::tryAdjustICmpConstRHS(
+    MachineInstr &I, CmpInst::Predicate &Pred, Register &RHS,
+    MachineInstr *&NewRHSInst) {
+  if (Pred != CmpInst::ICMP_SGT && Pred != CmpInst::ICMP_SLE) {
+    return;
+  }
+
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+
+  // Try to adjust comparisons to keep the constant on the right, so that the
+  // subtraction can be selected as an `addi`/`addmi`.
+  auto MaybeConst = getIConstantVRegSExtVal(RHS, MRI);
+  if (!MaybeConst) {
+    return;
+  }
+  int64_t AdjustedConst = *MaybeConst + 1;
+  if (!isInt<8>(-AdjustedConst) && !isShiftedInt<8, 8>(-AdjustedConst)) {
+    // If the constant won't fit anyway, there's no benefit to mutating things
+    // as opposed to reusing the original value.
+    return;
+  }
+
+  RHS = createVirtualGPR();
+  MachineIRBuilder Builder(I);
+  NewRHSInst = Builder.buildConstant(RHS, AdjustedConst);
+  Pred = CmpInst::getFlippedStrictnessPredicate(Pred);
+}
+
 bool XtensaInstructionSelector::emitICmpSelectAroundZero(
     MachineInstr &I, CmpInst::Predicate Pred, Register CmpLHS, Register CmpRHS,
     Register TrueVal, Register FalseVal) {
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+
+  MachineInstr *AdjustedRHS = nullptr;
+  tryAdjustICmpConstRHS(I, Pred, CmpRHS, AdjustedRHS);
+
   auto MaybeInfo = getICmpAroundZeroInfo(Pred);
   if (!MaybeInfo) {
     return false;
   }
   ICmpInfo ZeroConversionInfo = *MaybeInfo;
-
-  MachineRegisterInfo &MRI = MF->getRegInfo();
 
   if (ZeroConversionInfo.SwapCmp) {
     std::swap(CmpLHS, CmpRHS);
@@ -406,6 +439,12 @@ bool XtensaInstructionSelector::emitICmpSelectAroundZero(
     if (!select(*Builder.buildSub(Selector, CmpLHS, CmpRHS))) {
       return false;
     }
+  }
+
+  if (AdjustedRHS) {
+    assert(isTriviallyDead(*AdjustedRHS, MRI) &&
+           "Adjusted compare RHS not folded into subtract?");
+    AdjustedRHS->eraseFromParent();
   }
 
   MachineInstr *MovMI = emitInstrFor(I, ZeroConversionInfo.Opcode)
