@@ -984,8 +984,12 @@ bool XtensaInstructionSelector::selectLoadStore(MachineInstr &I) {
   MachineRegisterInfo &MRI = MF->getRegInfo();
 
   Register Base = I.getOperand(1).getReg();
-  int64_t Offset = 0;
-  mi_match(Base, MRI, m_GPtrAdd(m_Reg(Base), m_ICst(Offset)));
+
+  Register ConstBase;
+  int64_t ConstOffset = 0;
+  if (mi_match(Base, MRI, m_GPtrAdd(m_Reg(ConstBase), m_ICst(ConstOffset)))) {
+    Base = ConstBase;
+  }
 
   if (!I.hasOneMemOperand()) {
     return false;
@@ -1002,7 +1006,7 @@ bool XtensaInstructionSelector::selectLoadStore(MachineInstr &I) {
 
   uint16_t InlineOffset = 0;
   AddConstParts PreAddParts = {0, 0};
-  if (auto OffParts = splitOffsetConst(Offset, Log2_32(ByteSize))) {
+  if (auto OffParts = splitOffsetConst(ConstOffset, Log2_32(ByteSize))) {
     InlineOffset = OffParts->Offset;
     PreAddParts.Low = OffParts->LowAdd;
     PreAddParts.Middle = OffParts->MiddleAdd;

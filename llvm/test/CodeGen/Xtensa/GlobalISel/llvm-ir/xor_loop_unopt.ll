@@ -20,9 +20,13 @@ define void @xor_loop(ptr noundef %a, ptr noundef %b, i32 noundef %n) {
 ; CHECK-NEXT:  .LBB0_3: # %for.body
 ; CHECK-NEXT:    # in Loop: Header=BB0_2 Depth=1
 ; CHECK-NEXT:    l32i.n a2, a1, 8
+; CHECK-NEXT:    l32i.n a3, a1, 0
+; CHECK-NEXT:    add.n a2, a2, a3
 ; CHECK-NEXT:    l8ui a2, a2, 0
 ; CHECK-NEXT:    sext a4, a2, 7
-; CHECK-NEXT:    l32i.n a3, a1, 12
+; CHECK-NEXT:    l32i.n a2, a1, 12
+; CHECK-NEXT:    l32i.n a3, a1, 0
+; CHECK-NEXT:    add.n a3, a2, a3
 ; CHECK-NEXT:    l8ui a2, a3, 0
 ; CHECK-NEXT:    sext a2, a2, 7
 ; CHECK-NEXT:    xor a2, a2, a4
