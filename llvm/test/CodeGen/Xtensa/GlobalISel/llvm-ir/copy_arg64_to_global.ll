@@ -18,10 +18,10 @@ define void @f2(i32 %a1, i32 %a2, i32 %a3, i32 %a4, i32 %a5, i64 %a6) {
 ; CHECK-LABEL: f2:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    l32i.n a2, a1, 0
-; CHECK-NEXT:    l32i.n a3, a1, 4
-; CHECK-NEXT:    l32r a4, .LCPI1_0
-; CHECK-NEXT:    s32i.n a2, a4, 0
-; CHECK-NEXT:    s32i.n a3, a4, 4
+; CHECK-NEXT:    l32r a3, .LCPI1_0
+; CHECK-NEXT:    l32i.n a4, a1, 4
+; CHECK-NEXT:    s32i.n a2, a3, 0
+; CHECK-NEXT:    s32i.n a4, a3, 4
 ; CHECK-NEXT:    ret.n
   store i64 %a6, ptr @global
   ret void

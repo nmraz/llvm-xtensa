@@ -103,10 +103,10 @@ define i16 @offset_load_i16_oob2(ptr %base) {
 define i16 @offset_load_i16_unaligned(ptr %base) {
 ; OPT-LABEL: offset_load_i16_unaligned:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    l8ui a3, a2, 10
-; OPT-NEXT:    l8ui a2, a2, 11
-; OPT-NEXT:    slli a2, a2, 8
-; OPT-NEXT:    or a2, a2, a3
+; OPT-NEXT:    l8ui a3, a2, 11
+; OPT-NEXT:    l8ui a2, a2, 10
+; OPT-NEXT:    slli a3, a3, 8
+; OPT-NEXT:    or a2, a3, a2
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_load_i16_unaligned:
@@ -220,15 +220,15 @@ define i32 @offset_load_i32_oob2(ptr %base) {
 define i32 @offset_load_i32_unaligned(ptr %base) {
 ; OPT-LABEL: offset_load_i32_unaligned:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    l8ui a3, a2, 20
-; OPT-NEXT:    l8ui a4, a2, 21
-; OPT-NEXT:    slli a4, a4, 8
-; OPT-NEXT:    or a3, a4, a3
-; OPT-NEXT:    l8ui a4, a2, 22
-; OPT-NEXT:    l8ui a2, a2, 23
-; OPT-NEXT:    slli a2, a2, 24
-; OPT-NEXT:    slli a4, a4, 16
-; OPT-NEXT:    or a2, a2, a4
+; OPT-NEXT:    l8ui a3, a2, 21
+; OPT-NEXT:    l8ui a4, a2, 20
+; OPT-NEXT:    l8ui a5, a2, 23
+; OPT-NEXT:    l8ui a2, a2, 22
+; OPT-NEXT:    slli a3, a3, 8
+; OPT-NEXT:    or a3, a3, a4
+; OPT-NEXT:    slli a4, a5, 24
+; OPT-NEXT:    slli a2, a2, 16
+; OPT-NEXT:    or a2, a4, a2
 ; OPT-NEXT:    or a2, a2, a3
 ; OPT-NEXT:    ret.n
 ;
@@ -314,25 +314,25 @@ define i64 @offset_load_i64_unaligned_off(ptr %base) {
 define i64 @offset_load_i64_unaligned(ptr %base) {
 ; OPT-LABEL: offset_load_i64_unaligned:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    l8ui a3, a2, 40
-; OPT-NEXT:    l8ui a4, a2, 41
-; OPT-NEXT:    slli a4, a4, 8
-; OPT-NEXT:    or a3, a4, a3
-; OPT-NEXT:    l8ui a4, a2, 42
+; OPT-NEXT:    l8ui a3, a2, 41
+; OPT-NEXT:    l8ui a4, a2, 40
 ; OPT-NEXT:    l8ui a5, a2, 43
-; OPT-NEXT:    slli a5, a5, 24
-; OPT-NEXT:    slli a4, a4, 16
-; OPT-NEXT:    or a4, a5, a4
+; OPT-NEXT:    l8ui a6, a2, 42
+; OPT-NEXT:    slli a3, a3, 8
+; OPT-NEXT:    or a3, a3, a4
+; OPT-NEXT:    slli a4, a5, 24
+; OPT-NEXT:    slli a5, a6, 16
+; OPT-NEXT:    or a4, a4, a5
 ; OPT-NEXT:    or a4, a4, a3
-; OPT-NEXT:    l8ui a3, a2, 44
-; OPT-NEXT:    l8ui a5, a2, 45
-; OPT-NEXT:    slli a5, a5, 8
-; OPT-NEXT:    or a3, a5, a3
-; OPT-NEXT:    l8ui a5, a2, 46
-; OPT-NEXT:    l8ui a2, a2, 47
-; OPT-NEXT:    slli a2, a2, 24
-; OPT-NEXT:    slli a5, a5, 16
-; OPT-NEXT:    or a2, a2, a5
+; OPT-NEXT:    l8ui a3, a2, 45
+; OPT-NEXT:    l8ui a5, a2, 44
+; OPT-NEXT:    l8ui a6, a2, 47
+; OPT-NEXT:    l8ui a2, a2, 46
+; OPT-NEXT:    slli a3, a3, 8
+; OPT-NEXT:    or a3, a3, a5
+; OPT-NEXT:    slli a5, a6, 24
+; OPT-NEXT:    slli a2, a2, 16
+; OPT-NEXT:    or a2, a5, a2
 ; OPT-NEXT:    or a3, a2, a3
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n

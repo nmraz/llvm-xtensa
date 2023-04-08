@@ -10,11 +10,10 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; OPT-NEXT:    extui a5, a4, 5, 1
 ; OPT-NEXT:    ssl a4
 ; OPT-NEXT:    src a4, a3, a2
-; OPT-NEXT:    sll a6, a2
-; OPT-NEXT:    mov.n a3, a6
-; OPT-NEXT:    moveqz a3, a4, a5
+; OPT-NEXT:    sll a3, a2
 ; OPT-NEXT:    movi.n a2, 0
-; OPT-NEXT:    moveqz a2, a6, a5
+; OPT-NEXT:    moveqz a2, a3, a5
+; OPT-NEXT:    moveqz a3, a4, a5
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: shl_i33:
@@ -42,11 +41,10 @@ define i33 @shl_i33(i33 %val, i33 %shamt) {
 ; LX7-OPT-NEXT:    extui a5, a4, 5, 1
 ; LX7-OPT-NEXT:    ssl a4
 ; LX7-OPT-NEXT:    src a4, a3, a2
-; LX7-OPT-NEXT:    sll a6, a2
-; LX7-OPT-NEXT:    mov.n a3, a6
-; LX7-OPT-NEXT:    moveqz a3, a4, a5
+; LX7-OPT-NEXT:    sll a3, a2
 ; LX7-OPT-NEXT:    movi.n a2, 0
-; LX7-OPT-NEXT:    moveqz a2, a6, a5
+; LX7-OPT-NEXT:    moveqz a2, a3, a5
+; LX7-OPT-NEXT:    moveqz a3, a4, a5
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: shl_i33:
@@ -79,11 +77,10 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; OPT-NEXT:    extui a5, a4, 5, 1
 ; OPT-NEXT:    ssl a4
 ; OPT-NEXT:    src a4, a3, a2
-; OPT-NEXT:    sll a6, a2
-; OPT-NEXT:    mov.n a3, a6
-; OPT-NEXT:    moveqz a3, a4, a5
+; OPT-NEXT:    sll a3, a2
 ; OPT-NEXT:    movi.n a2, 0
-; OPT-NEXT:    moveqz a2, a6, a5
+; OPT-NEXT:    moveqz a2, a3, a5
+; OPT-NEXT:    moveqz a3, a4, a5
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: shl_i64:
@@ -111,11 +108,10 @@ define i64 @shl_i64(i64 %val, i64 %shamt) {
 ; LX7-OPT-NEXT:    extui a5, a4, 5, 1
 ; LX7-OPT-NEXT:    ssl a4
 ; LX7-OPT-NEXT:    src a4, a3, a2
-; LX7-OPT-NEXT:    sll a6, a2
-; LX7-OPT-NEXT:    mov.n a3, a6
-; LX7-OPT-NEXT:    moveqz a3, a4, a5
+; LX7-OPT-NEXT:    sll a3, a2
 ; LX7-OPT-NEXT:    movi.n a2, 0
-; LX7-OPT-NEXT:    moveqz a2, a6, a5
+; LX7-OPT-NEXT:    moveqz a2, a3, a5
+; LX7-OPT-NEXT:    moveqz a3, a4, a5
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: shl_i64:
@@ -149,11 +145,10 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; OPT-NEXT:    extui a5, a4, 5, 1
 ; OPT-NEXT:    ssr a4
 ; OPT-NEXT:    src a4, a3, a2
-; OPT-NEXT:    srl a6, a3
-; OPT-NEXT:    mov.n a2, a6
-; OPT-NEXT:    moveqz a2, a4, a5
+; OPT-NEXT:    srl a2, a3
 ; OPT-NEXT:    movi.n a3, 0
-; OPT-NEXT:    moveqz a3, a6, a5
+; OPT-NEXT:    moveqz a3, a2, a5
+; OPT-NEXT:    moveqz a2, a4, a5
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: lshr_i33:
@@ -185,11 +180,10 @@ define i33 @lshr_i33(i33 %val, i33 %shamt) {
 ; LX7-OPT-NEXT:    extui a5, a4, 5, 1
 ; LX7-OPT-NEXT:    ssr a4
 ; LX7-OPT-NEXT:    src a4, a3, a2
-; LX7-OPT-NEXT:    srl a6, a3
-; LX7-OPT-NEXT:    mov.n a2, a6
-; LX7-OPT-NEXT:    moveqz a2, a4, a5
+; LX7-OPT-NEXT:    srl a2, a3
 ; LX7-OPT-NEXT:    movi.n a3, 0
-; LX7-OPT-NEXT:    moveqz a3, a6, a5
+; LX7-OPT-NEXT:    moveqz a3, a2, a5
+; LX7-OPT-NEXT:    moveqz a2, a4, a5
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: lshr_i33:
@@ -225,11 +219,10 @@ define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; OPT-NEXT:    extui a5, a4, 5, 1
 ; OPT-NEXT:    ssr a4
 ; OPT-NEXT:    src a4, a3, a2
-; OPT-NEXT:    srl a6, a3
-; OPT-NEXT:    mov.n a2, a6
-; OPT-NEXT:    moveqz a2, a4, a5
+; OPT-NEXT:    srl a2, a3
 ; OPT-NEXT:    movi.n a3, 0
-; OPT-NEXT:    moveqz a3, a6, a5
+; OPT-NEXT:    moveqz a3, a2, a5
+; OPT-NEXT:    moveqz a2, a4, a5
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: lshr_i64:
@@ -257,11 +250,10 @@ define i64 @lshr_i64(i64 %val, i64 %shamt) {
 ; LX7-OPT-NEXT:    extui a5, a4, 5, 1
 ; LX7-OPT-NEXT:    ssr a4
 ; LX7-OPT-NEXT:    src a4, a3, a2
-; LX7-OPT-NEXT:    srl a6, a3
-; LX7-OPT-NEXT:    mov.n a2, a6
-; LX7-OPT-NEXT:    moveqz a2, a4, a5
+; LX7-OPT-NEXT:    srl a2, a3
 ; LX7-OPT-NEXT:    movi.n a3, 0
-; LX7-OPT-NEXT:    moveqz a3, a6, a5
+; LX7-OPT-NEXT:    moveqz a3, a2, a5
+; LX7-OPT-NEXT:    moveqz a2, a4, a5
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: lshr_i64:
@@ -300,10 +292,9 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; OPT-NEXT:    extui a6, a4, 5, 1
 ; OPT-NEXT:    ssr a4
 ; OPT-NEXT:    src a4, a3, a5
-; OPT-NEXT:    sra a5, a3
-; OPT-NEXT:    mov.n a2, a5
+; OPT-NEXT:    sra a2, a3
+; OPT-NEXT:    moveqz a3, a2, a6
 ; OPT-NEXT:    moveqz a2, a4, a6
-; OPT-NEXT:    moveqz a3, a5, a6
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: ashr_i33:
@@ -345,10 +336,9 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; LX7-OPT-NEXT:    extui a6, a4, 5, 1
 ; LX7-OPT-NEXT:    ssr a4
 ; LX7-OPT-NEXT:    src a4, a3, a5
-; LX7-OPT-NEXT:    sra a5, a3
-; LX7-OPT-NEXT:    mov.n a2, a5
+; LX7-OPT-NEXT:    sra a2, a3
+; LX7-OPT-NEXT:    moveqz a3, a2, a6
 ; LX7-OPT-NEXT:    moveqz a2, a4, a6
-; LX7-OPT-NEXT:    moveqz a3, a5, a6
 ; LX7-OPT-NEXT:    ret.n
 ;
 ; LX7-UNOPT-LABEL: ashr_i33:
@@ -390,10 +380,9 @@ define i64 @ashr_i64(i64 %val, i64 %shamt) {
 ; OPT-NEXT:    srai a5, a3, 31
 ; OPT-NEXT:    ssr a4
 ; OPT-NEXT:    src a4, a3, a2
-; OPT-NEXT:    sra a3, a3
-; OPT-NEXT:    mov.n a2, a3
+; OPT-NEXT:    sra a2, a3
+; OPT-NEXT:    moveqz a5, a2, a6
 ; OPT-NEXT:    moveqz a2, a4, a6
-; OPT-NEXT:    moveqz a5, a3, a6
 ; OPT-NEXT:    mov.n a3, a5
 ; OPT-NEXT:    ret.n
 ;
@@ -420,10 +409,9 @@ define i64 @ashr_i64(i64 %val, i64 %shamt) {
 ; LX7-OPT-NEXT:    srai a5, a3, 31
 ; LX7-OPT-NEXT:    ssr a4
 ; LX7-OPT-NEXT:    src a4, a3, a2
-; LX7-OPT-NEXT:    sra a3, a3
-; LX7-OPT-NEXT:    mov.n a2, a3
+; LX7-OPT-NEXT:    sra a2, a3
+; LX7-OPT-NEXT:    moveqz a5, a2, a6
 ; LX7-OPT-NEXT:    moveqz a2, a4, a6
-; LX7-OPT-NEXT:    moveqz a5, a3, a6
 ; LX7-OPT-NEXT:    mov.n a3, a5
 ; LX7-OPT-NEXT:    ret.n
 ;

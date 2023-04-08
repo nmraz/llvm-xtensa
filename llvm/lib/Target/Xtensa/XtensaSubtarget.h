@@ -68,6 +68,8 @@ public:
   const RegisterBankInfo *getRegBankInfo() const override;
   const LegalizerInfo *getLegalizerInfo() const override;
   InstructionSelector *getInstructionSelector() const override;
+
+  bool enableMachineScheduler() const override { return true; }
 };
 
 } // namespace llvm

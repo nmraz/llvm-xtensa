@@ -188,37 +188,37 @@ define void @call_stack() #0 {
 ; OPT-NEXT:    mov.n a15, a1
 ; OPT-NEXT:    movi.n a12, 7
 ; OPT-NEXT:    s32i.n a12, a1, 0
+; OPT-NEXT:    movi.n a2, 1
+; OPT-NEXT:    movi.n a3, 2
+; OPT-NEXT:    movi.n a4, 3
+; OPT-NEXT:    movi.n a5, 4
+; OPT-NEXT:    movi.n a6, 5
+; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    movi.n a13, 1
-; OPT-NEXT:    movi.n a2, 1
-; OPT-NEXT:    movi.n a3, 2
-; OPT-NEXT:    movi.n a4, 3
-; OPT-NEXT:    movi.n a5, 4
-; OPT-NEXT:    movi.n a6, 5
-; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    call0 stack_arg_i32
+; OPT-NEXT:    movi.n a2, 1
+; OPT-NEXT:    movi.n a3, 2
+; OPT-NEXT:    movi.n a4, 3
+; OPT-NEXT:    movi.n a5, 4
+; OPT-NEXT:    movi.n a6, 5
+; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    s32i.n a13, a1, 0
-; OPT-NEXT:    movi.n a2, 1
-; OPT-NEXT:    movi.n a3, 2
-; OPT-NEXT:    movi.n a4, 3
-; OPT-NEXT:    movi.n a5, 4
-; OPT-NEXT:    movi.n a6, 5
-; OPT-NEXT:    movi.n a7, 6
 ; OPT-NEXT:    call0 stack_arg_i1
-; OPT-NEXT:    s32i.n a12, a1, 0
 ; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    movi.n a3, 2
 ; OPT-NEXT:    movi.n a4, 3
 ; OPT-NEXT:    movi.n a5, 4
 ; OPT-NEXT:    movi.n a6, 5
 ; OPT-NEXT:    movi.n a7, 6
+; OPT-NEXT:    s32i.n a12, a1, 0
 ; OPT-NEXT:    call0 stack_arg_i8
-; OPT-NEXT:    s32i.n a12, a1, 0
 ; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    movi.n a3, 2
 ; OPT-NEXT:    movi.n a4, 3
 ; OPT-NEXT:    movi.n a5, 4
 ; OPT-NEXT:    movi.n a6, 5
 ; OPT-NEXT:    movi.n a7, 6
+; OPT-NEXT:    s32i.n a12, a1, 0
 ; OPT-NEXT:    call0 stack_arg_i16
 ; OPT-NEXT:    mov.n a1, a15
 ; OPT-NEXT:    l32i.n a15, a1, 16 # 4-byte Reload
@@ -312,27 +312,27 @@ define void @call_stack_i64() #0 {
 ; OPT-NEXT:    movi.n a4, 3
 ; OPT-NEXT:    movi.n a5, 4
 ; OPT-NEXT:    movi.n a6, 5
-; OPT-NEXT:    movi.n a14, 6
 ; OPT-NEXT:    movi.n a7, 6
+; OPT-NEXT:    movi.n a14, 6
 ; OPT-NEXT:    call0 stack_arg_i64
 ; OPT-NEXT:    s32i.n a14, a1, 0
-; OPT-NEXT:    s32i.n a12, a1, 4
 ; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    movi.n a3, 2
 ; OPT-NEXT:    movi.n a4, 3
 ; OPT-NEXT:    movi.n a5, 4
 ; OPT-NEXT:    movi.n a6, 5
+; OPT-NEXT:    s32i.n a12, a1, 4
 ; OPT-NEXT:    call0 stack_arg_i64_reg_unaligned
 ; OPT-NEXT:    s32i.n a13, a1, 0
 ; OPT-NEXT:    movi.n a2, 8
 ; OPT-NEXT:    s32i.n a2, a1, 8
-; OPT-NEXT:    s32i.n a12, a1, 12
 ; OPT-NEXT:    movi.n a2, 1
 ; OPT-NEXT:    movi.n a3, 2
 ; OPT-NEXT:    movi.n a4, 3
 ; OPT-NEXT:    movi.n a5, 4
 ; OPT-NEXT:    movi.n a6, 5
 ; OPT-NEXT:    movi.n a7, 6
+; OPT-NEXT:    s32i.n a12, a1, 12
 ; OPT-NEXT:    call0 stack_arg_i64_aligned
 ; OPT-NEXT:    mov.n a1, a15
 ; OPT-NEXT:    l32i.n a15, a1, 28 # 4-byte Reload

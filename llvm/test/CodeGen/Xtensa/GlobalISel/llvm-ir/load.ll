@@ -35,10 +35,10 @@ entry:
 define i16 @load_i16_unaligned_1(ptr %p) {
 ; OPT-LABEL: load_i16_unaligned_1:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    l8ui a3, a2, 0
-; OPT-NEXT:    l8ui a2, a2, 1
-; OPT-NEXT:    slli a2, a2, 8
-; OPT-NEXT:    or a2, a2, a3
+; OPT-NEXT:    l8ui a3, a2, 1
+; OPT-NEXT:    l8ui a2, a2, 0
+; OPT-NEXT:    slli a3, a3, 8
+; OPT-NEXT:    or a2, a3, a2
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: load_i16_unaligned_1:
@@ -71,15 +71,15 @@ entry:
 define i32 @load_i32_unaligned_1(ptr %p) {
 ; OPT-LABEL: load_i32_unaligned_1:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    l8ui a3, a2, 0
-; OPT-NEXT:    l8ui a4, a2, 1
-; OPT-NEXT:    slli a4, a4, 8
-; OPT-NEXT:    or a3, a4, a3
-; OPT-NEXT:    l8ui a4, a2, 2
-; OPT-NEXT:    l8ui a2, a2, 3
-; OPT-NEXT:    slli a2, a2, 24
-; OPT-NEXT:    slli a4, a4, 16
-; OPT-NEXT:    or a2, a2, a4
+; OPT-NEXT:    l8ui a3, a2, 1
+; OPT-NEXT:    l8ui a4, a2, 0
+; OPT-NEXT:    l8ui a5, a2, 3
+; OPT-NEXT:    l8ui a2, a2, 2
+; OPT-NEXT:    slli a3, a3, 8
+; OPT-NEXT:    or a3, a3, a4
+; OPT-NEXT:    slli a4, a5, 24
+; OPT-NEXT:    slli a2, a2, 16
+; OPT-NEXT:    or a2, a4, a2
 ; OPT-NEXT:    or a2, a2, a3
 ; OPT-NEXT:    ret.n
 ;
@@ -104,10 +104,10 @@ entry:
 define i32 @load_i32_unaligned_2(ptr %p) {
 ; OPT-LABEL: load_i32_unaligned_2:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    l16ui a3, a2, 0
-; OPT-NEXT:    l16ui a2, a2, 2
-; OPT-NEXT:    slli a2, a2, 16
-; OPT-NEXT:    or a2, a2, a3
+; OPT-NEXT:    l16ui a3, a2, 2
+; OPT-NEXT:    l16ui a2, a2, 0
+; OPT-NEXT:    slli a3, a3, 16
+; OPT-NEXT:    or a2, a3, a2
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: load_i32_unaligned_2:
@@ -144,25 +144,25 @@ entry:
 define i64 @load_i64_unaligned_1(ptr %p) {
 ; OPT-LABEL: load_i64_unaligned_1:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    l8ui a3, a2, 0
-; OPT-NEXT:    l8ui a4, a2, 1
-; OPT-NEXT:    slli a4, a4, 8
-; OPT-NEXT:    or a3, a4, a3
-; OPT-NEXT:    l8ui a4, a2, 2
+; OPT-NEXT:    l8ui a3, a2, 1
+; OPT-NEXT:    l8ui a4, a2, 0
 ; OPT-NEXT:    l8ui a5, a2, 3
-; OPT-NEXT:    slli a5, a5, 24
-; OPT-NEXT:    slli a4, a4, 16
-; OPT-NEXT:    or a4, a5, a4
+; OPT-NEXT:    l8ui a6, a2, 2
+; OPT-NEXT:    slli a3, a3, 8
+; OPT-NEXT:    or a3, a3, a4
+; OPT-NEXT:    slli a4, a5, 24
+; OPT-NEXT:    slli a5, a6, 16
+; OPT-NEXT:    or a4, a4, a5
 ; OPT-NEXT:    or a4, a4, a3
-; OPT-NEXT:    l8ui a3, a2, 4
-; OPT-NEXT:    l8ui a5, a2, 5
-; OPT-NEXT:    slli a5, a5, 8
-; OPT-NEXT:    or a3, a5, a3
-; OPT-NEXT:    l8ui a5, a2, 6
-; OPT-NEXT:    l8ui a2, a2, 7
-; OPT-NEXT:    slli a2, a2, 24
-; OPT-NEXT:    slli a5, a5, 16
-; OPT-NEXT:    or a2, a2, a5
+; OPT-NEXT:    l8ui a3, a2, 5
+; OPT-NEXT:    l8ui a5, a2, 4
+; OPT-NEXT:    l8ui a6, a2, 7
+; OPT-NEXT:    l8ui a2, a2, 6
+; OPT-NEXT:    slli a3, a3, 8
+; OPT-NEXT:    or a3, a3, a5
+; OPT-NEXT:    slli a5, a6, 24
+; OPT-NEXT:    slli a2, a2, 16
+; OPT-NEXT:    or a2, a5, a2
 ; OPT-NEXT:    or a3, a2, a3
 ; OPT-NEXT:    mov.n a2, a4
 ; OPT-NEXT:    ret.n
@@ -199,15 +199,14 @@ entry:
 define i64 @load_i64_unaligned_2(ptr %p) {
 ; OPT-LABEL: load_i64_unaligned_2:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    l16ui a3, a2, 0
-; OPT-NEXT:    l16ui a4, a2, 2
-; OPT-NEXT:    slli a4, a4, 16
-; OPT-NEXT:    or a4, a4, a3
-; OPT-NEXT:    l16ui a3, a2, 4
-; OPT-NEXT:    l16ui a2, a2, 6
-; OPT-NEXT:    slli a2, a2, 16
-; OPT-NEXT:    or a3, a2, a3
-; OPT-NEXT:    mov.n a2, a4
+; OPT-NEXT:    l16ui a3, a2, 2
+; OPT-NEXT:    l16ui a4, a2, 0
+; OPT-NEXT:    l16ui a5, a2, 6
+; OPT-NEXT:    l16ui a6, a2, 4
+; OPT-NEXT:    slli a2, a3, 16
+; OPT-NEXT:    or a2, a2, a4
+; OPT-NEXT:    slli a3, a5, 16
+; OPT-NEXT:    or a3, a3, a6
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: load_i64_unaligned_2:
@@ -264,15 +263,15 @@ entry:
 define ptr @load_ptr_unaligned_1(ptr %p) {
 ; OPT-LABEL: load_ptr_unaligned_1:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    l8ui a3, a2, 0
-; OPT-NEXT:    l8ui a4, a2, 1
-; OPT-NEXT:    slli a4, a4, 8
-; OPT-NEXT:    or a3, a4, a3
-; OPT-NEXT:    l8ui a4, a2, 2
-; OPT-NEXT:    l8ui a2, a2, 3
-; OPT-NEXT:    slli a2, a2, 24
-; OPT-NEXT:    slli a4, a4, 16
-; OPT-NEXT:    or a2, a2, a4
+; OPT-NEXT:    l8ui a3, a2, 1
+; OPT-NEXT:    l8ui a4, a2, 0
+; OPT-NEXT:    l8ui a5, a2, 3
+; OPT-NEXT:    l8ui a2, a2, 2
+; OPT-NEXT:    slli a3, a3, 8
+; OPT-NEXT:    or a3, a3, a4
+; OPT-NEXT:    slli a4, a5, 24
+; OPT-NEXT:    slli a2, a2, 16
+; OPT-NEXT:    or a2, a4, a2
 ; OPT-NEXT:    or a2, a2, a3
 ; OPT-NEXT:    ret.n
 ;
@@ -297,10 +296,10 @@ entry:
 define ptr @load_ptr_unaligned_2(ptr %p) {
 ; OPT-LABEL: load_ptr_unaligned_2:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    l16ui a3, a2, 0
-; OPT-NEXT:    l16ui a2, a2, 2
-; OPT-NEXT:    slli a2, a2, 16
-; OPT-NEXT:    or a2, a2, a3
+; OPT-NEXT:    l16ui a3, a2, 2
+; OPT-NEXT:    l16ui a2, a2, 0
+; OPT-NEXT:    slli a3, a3, 16
+; OPT-NEXT:    or a2, a3, a2
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: load_ptr_unaligned_2:

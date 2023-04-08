@@ -1287,8 +1287,8 @@ define i1 @icmp_slez_i64(i64 %a, i64 %b) {
 ; CHECK-LABEL: icmp_slez_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    mov.n a4, a2
-; CHECK-NEXT:    extui a2, a3, 31, 1
 ; CHECK-NEXT:    movi.n a5, 1
+; CHECK-NEXT:    extui a2, a3, 31, 1
 ; CHECK-NEXT:    bltu a4, a5, .LBB57_2
 ; CHECK-NEXT:  # %bb.1: # %entry
 ; CHECK-NEXT:    movi.n a5, 0
