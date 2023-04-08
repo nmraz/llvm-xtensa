@@ -27,11 +27,14 @@ using namespace llvm;
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeXtensaTarget() {
   RegisterTargetMachine<XtensaTargetMachine> Register(getTheXtensaTarget());
 
-  PassRegistry *PR = PassRegistry::getPassRegistry();
-  initializeGlobalISel(*PR);
-  initializeXtensaPostLegalizerCombinerPass(*PR);
-  initializeXtensaShiftLoweringPass(*PR);
-  initializeXtensaShiftCombinerPass(*PR);
+  PassRegistry &PR = *PassRegistry::getPassRegistry();
+  initializeGlobalISel(PR);
+  initializeXtensaPreLegalizerCombinerPass(PR);
+  initializeXtensaPostLegalizerCombinerPass(PR);
+  initializeXtensaO0PostLegalizerCombinerPass(PR);
+  initializeXtensaShiftLoweringPass(PR);
+  initializeXtensaShiftCombinerPass(PR);
+  initializeXtensaSizeReductionPass(PR);
 }
 
 XtensaTargetMachine::XtensaTargetMachine(const Target &T, const Triple &TT,
