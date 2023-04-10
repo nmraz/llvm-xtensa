@@ -136,14 +136,14 @@ class CondBranchPat<dag cond, dag instr>
 def : Pat<(brcond (i32 (and i32:$a, 1)), bb:$offset),
           (BBSI i32:$a, 0, bb:$offset)>;
 def : Pat<(brcond (srl i32:$a, (i32 31)), bb:$offset),
-          (BBSI i32:$a, 31, bb:$offset)>;
+          (BLTZ i32:$a, bb:$offset)>;
 def : Pat<(brcond (i32 (and (srl i32:$a, uimm5:$bit), 1)), bb:$offset),
           (BBSI i32:$a, uimm5:$bit, bb:$offset)>;
 
 def : Pat<(brcond (i32 (xor (and i32:$a, 1), 1)), bb:$offset),
           (BBCI i32:$a, 0, bb:$offset)>;
 def : Pat<(brcond (xor (srl i32:$a, (i32 31)), 1), bb:$offset),
-          (BBCI i32:$a, 31, bb:$offset)>;
+          (BGEZ i32:$a, bb:$offset)>;
 def : Pat<(brcond (i32 (xor (and (srl i32:$a, uimm5:$bit), 1), 1)), bb:$offset),
           (BBCI i32:$a, uimm5:$bit, bb:$offset)>;
 

@@ -108,7 +108,7 @@ define void @branch_set_31(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    bbci a2, 31, .LBB4_2
+; CHECK-NEXT:    bgez a2, .LBB4_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB4_2: # %if.end
@@ -133,7 +133,7 @@ define void @branch_clear_31(i32 %a) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    bbsi a2, 31, .LBB5_2
+; CHECK-NEXT:    bltz a2, .LBB5_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB5_2: # %if.end
