@@ -113,13 +113,13 @@ def xtensa_generic_combines : GICombineGroup<[trivial_combines,
     truncstore_merge, funnel_shift_combines,
     constant_fold,
     intdiv_combines, mulh_combines,
-    and_or_disjoint_mask]>;
+    and_or_disjoint_mask, fold_binop_into_select]>;
 
 def XtensaPostLegalizerCombinerHelper : GICombinerHelper<
   "XtensaGenPostLegalizerCombinerHelper",
   [xtensa_generic_combines,
    // Xtensa-specific
-   fold_binop_into_select, left_identity_zero, icmp_pow2_mask,
+   left_identity_zero, icmp_pow2_mask,
    repeated_xor_const, fold_expensive_icmp]> {
   let DisableRuleOption = "xtensapostlegalizercombiner-disable-rule";
 }
