@@ -36,6 +36,11 @@ static Optional<unsigned> getNarrowOpcodeFor(const MachineInstr &MI) {
       return Xtensa::MOVIN;
     }
     break;
+  case Xtensa::ADDI:
+    if (XtensaII::encodeAddiNImm4(MI.getOperand(2).getImm()).has_value()) {
+      return Xtensa::ADDIN;
+    }
+    break;
   case Xtensa::L32I:
   case Xtensa::S32I:
     if (isShiftedUInt<4, 2>(MI.getOperand(2).getImm())) {

@@ -35,7 +35,7 @@ define void @xor_loop(ptr noundef %a, ptr noundef %b, i32 noundef %n) {
 ; CHECK-NEXT:  .LBB0_4: # %for.inc
 ; CHECK-NEXT:    # in Loop: Header=BB0_2 Depth=1
 ; CHECK-NEXT:    l32i.n a2, a1, 0
-; CHECK-NEXT:    addi a2, a2, 1
+; CHECK-NEXT:    addi.n a2, a2, 1
 ; CHECK-NEXT:    s32i.n a2, a1, 0
 ; CHECK-NEXT:    j .LBB0_2
 ; CHECK-NEXT:  .LBB0_5: # %for.end

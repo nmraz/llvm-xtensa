@@ -12,7 +12,7 @@ define i32 @addi_zero(i32 %a) {
 define i32 @addi_pos(i32 %a) {
 ; CHECK-LABEL: addi_pos:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    addi a2, a2, 5
+; CHECK-NEXT:    addi.n a2, a2, 5
 ; CHECK-NEXT:    ret.n
   %add = add i32 %a, 5
   ret i32 %add
@@ -85,7 +85,7 @@ define i32 @subi_pos(i32 %a) {
 define i32 @subi_neg(i32 %a) {
 ; CHECK-LABEL: subi_neg:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    addi a2, a2, 5
+; CHECK-NEXT:    addi.n a2, a2, 5
 ; CHECK-NEXT:    ret.n
   %sub = sub i32 %a, -5
   ret i32 %sub

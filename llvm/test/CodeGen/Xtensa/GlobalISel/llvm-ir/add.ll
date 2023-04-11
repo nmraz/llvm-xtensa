@@ -112,7 +112,7 @@ define i33 @add_i33(i33 %a, i33 %b) {
 ; OPT-NEXT:    add.n a3, a5, a3
 ; OPT-NEXT:    bgeu a2, a6, .LBB4_2
 ; OPT-NEXT:  # %bb.1:
-; OPT-NEXT:    addi a3, a3, 1
+; OPT-NEXT:    addi.n a3, a3, 1
 ; OPT-NEXT:  .LBB4_2: # %entry
 ; OPT-NEXT:    ret.n
 ;
@@ -178,7 +178,7 @@ define i64 @add_i64(i64 %a, i64 %b) {
 ; OPT-NEXT:    add.n a3, a5, a3
 ; OPT-NEXT:    bgeu a2, a6, .LBB5_2
 ; OPT-NEXT:  # %bb.1:
-; OPT-NEXT:    addi a3, a3, 1
+; OPT-NEXT:    addi.n a3, a3, 1
 ; OPT-NEXT:  .LBB5_2: # %entry
 ; OPT-NEXT:    ret.n
 ;

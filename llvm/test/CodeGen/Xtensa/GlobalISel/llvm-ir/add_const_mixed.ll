@@ -5,7 +5,7 @@ define i32 @add_const_mixed(i32 %a) {
 ; CHECK-LABEL: add_const_mixed:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    addmi a2, a2, 12800
-; CHECK-NEXT:    addi a2, a2, 6
+; CHECK-NEXT:    addi.n a2, a2, 6
 ; CHECK-NEXT:    ret.n
   %add = add i32 %a, 12806
   ret i32 %add
@@ -25,7 +25,7 @@ define i32 @add_const_mixed_comm(i32 %a) {
 ; CHECK-LABEL: add_const_mixed_comm:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    addmi a2, a2, 12800
-; CHECK-NEXT:    addi a2, a2, 6
+; CHECK-NEXT:    addi.n a2, a2, 6
 ; CHECK-NEXT:    ret.n
   %add = add i32 12806, %a
   ret i32 %add

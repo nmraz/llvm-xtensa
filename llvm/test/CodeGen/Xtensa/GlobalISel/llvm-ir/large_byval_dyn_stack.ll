@@ -13,7 +13,7 @@ define void @test(i32 %x) {
 ; CHECK-NEXT:    s32i.n a12, a1, 8 # 4-byte Spill
 ; CHECK-NEXT:    s32i.n a15, a1, 4 # 4-byte Spill
 ; CHECK-NEXT:    mov.n a15, a1
-; CHECK-NEXT:    addi a2, a2, 15
+; CHECK-NEXT:    addi.n a2, a2, 15
 ; CHECK-NEXT:    movi.n a3, -16
 ; CHECK-NEXT:    and a2, a2, a3
 ; CHECK-NEXT:    sub a12, a1, a2

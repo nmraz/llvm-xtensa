@@ -52,13 +52,13 @@ define i16 @offset_load_i16(ptr %base) {
 define i16 @offset_load_i16_unaligned_off(ptr %base) {
 ; OPT-LABEL: offset_load_i16_unaligned_off:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    addi a2, a2, 11
+; OPT-NEXT:    addi.n a2, a2, 11
 ; OPT-NEXT:    l16ui a2, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_load_i16_unaligned_off:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addi a2, a2, 11
+; UNOPT-NEXT:    addi.n a2, a2, 11
 ; UNOPT-NEXT:    l16ui a2, a2, 0
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i8, ptr %base, i32 11

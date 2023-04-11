@@ -209,7 +209,7 @@ define i1 @icmp_slez_i8(i8 %a, i8 %b) {
 ; CHECK-NEXT:    sext a3, a2, 7
 ; CHECK-NEXT:    movi.n a4, 0
 ; CHECK-NEXT:    movi.n a2, 1
-; CHECK-NEXT:    addi a3, a3, -1
+; CHECK-NEXT:    addi.n a3, a3, -1
 ; CHECK-NEXT:    movgez a2, a4, a3
 ; CHECK-NEXT:    ret.n
 ;
@@ -230,7 +230,7 @@ define i1 @icmp_sgtz_i8(i8 %a, i8 %b) {
 ; CHECK-NEXT:    sext a3, a2, 7
 ; CHECK-NEXT:    movi.n a4, 0
 ; CHECK-NEXT:    movi.n a2, 1
-; CHECK-NEXT:    addi a3, a3, -1
+; CHECK-NEXT:    addi.n a3, a3, -1
 ; CHECK-NEXT:    movltz a2, a4, a3
 ; CHECK-NEXT:    ret.n
 ;
@@ -568,7 +568,7 @@ define i1 @icmp_slez_i16(i16 %a, i16 %b) {
 ; CHECK-NEXT:    sext a3, a2, 15
 ; CHECK-NEXT:    movi.n a4, 0
 ; CHECK-NEXT:    movi.n a2, 1
-; CHECK-NEXT:    addi a3, a3, -1
+; CHECK-NEXT:    addi.n a3, a3, -1
 ; CHECK-NEXT:    movgez a2, a4, a3
 ; CHECK-NEXT:    ret.n
 ;
@@ -589,7 +589,7 @@ define i1 @icmp_sgtz_i16(i16 %a, i16 %b) {
 ; CHECK-NEXT:    sext a3, a2, 15
 ; CHECK-NEXT:    movi.n a4, 0
 ; CHECK-NEXT:    movi.n a2, 1
-; CHECK-NEXT:    addi a3, a3, -1
+; CHECK-NEXT:    addi.n a3, a3, -1
 ; CHECK-NEXT:    movltz a2, a4, a3
 ; CHECK-NEXT:    ret.n
 ;
@@ -908,7 +908,7 @@ define i1 @icmp_slez_i32(i32 %a, i32 %b) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    movi.n a4, 0
 ; CHECK-NEXT:    movi.n a3, 1
-; CHECK-NEXT:    addi a2, a2, -1
+; CHECK-NEXT:    addi.n a2, a2, -1
 ; CHECK-NEXT:    movgez a3, a4, a2
 ; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
@@ -928,7 +928,7 @@ define i1 @icmp_sgtz_i32(i32 %a, i32 %b) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    movi.n a4, 0
 ; CHECK-NEXT:    movi.n a3, 1
-; CHECK-NEXT:    addi a2, a2, -1
+; CHECK-NEXT:    addi.n a2, a2, -1
 ; CHECK-NEXT:    movltz a3, a4, a2
 ; CHECK-NEXT:    mov.n a2, a3
 ; CHECK-NEXT:    ret.n
@@ -1304,7 +1304,7 @@ define i1 @icmp_sgtz_i64(i64 %a, i64 %b) {
 ; CHECK-NEXT:    mov.n a4, a2
 ; CHECK-NEXT:    movi.n a6, 0
 ; CHECK-NEXT:    movi.n a5, 1
-; CHECK-NEXT:    addi a7, a3, -1
+; CHECK-NEXT:    addi.n a7, a3, -1
 ; CHECK-NEXT:    movi.n a2, 0
 ; CHECK-NEXT:    movgez a2, a5, a7
 ; CHECK-NEXT:    bltu a6, a4, .LBB58_2

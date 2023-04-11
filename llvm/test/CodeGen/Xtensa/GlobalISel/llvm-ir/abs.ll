@@ -97,7 +97,7 @@ define i64 @abs_i64(i64 %val) {
 ; OPT-NEXT:    add.n a3, a3, a4
 ; OPT-NEXT:    bgeu a2, a4, .LBB3_2
 ; OPT-NEXT:  # %bb.1:
-; OPT-NEXT:    addi a3, a3, 1
+; OPT-NEXT:    addi.n a3, a3, 1
 ; OPT-NEXT:  .LBB3_2:
 ; OPT-NEXT:    xor a2, a2, a4
 ; OPT-NEXT:    xor a3, a3, a4
