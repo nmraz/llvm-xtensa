@@ -1,4 +1,5 @@
 #include "XtensaAsmBackend.h"
+#include "XtensaBaseInfo.h"
 #include "XtensaFixupKinds.h"
 #include "XtensaMCTargetDesc.h"
 #include "llvm/ADT/None.h"
@@ -100,6 +101,13 @@ static unsigned adjustFixupValue(const MCFixup &Fixup, int64_t Value,
   }
 }
 
+static unsigned getRelaxedOpcode(unsigned Opcode) {
+  switch (Opcode) {
+  default:
+    return Opcode;
+  }
+}
+
 std::unique_ptr<MCObjectTargetWriter>
 XtensaAsmBackend::createObjectTargetWriter() const {
   return createXtensaELFObjectWriter(TheTriple);
@@ -184,6 +192,29 @@ XtensaAsmBackend::getFixupKindInfo(MCFixupKind Kind) const {
          "Invalid fixup kind");
 
   return Infos[Kind - FirstTargetFixupKind];
+}
+
+bool XtensaAsmBackend::mayNeedRelaxation(const MCInst &Inst,
+                                         const MCSubtargetInfo &STI) const {
+  if (Inst.getFlags() & XtensaII::InstrFlagNoRelax) {
+    return false;
+  }
+
+  return getRelaxedOpcode(Inst.getOpcode()) != Inst.getOpcode();
+}
+
+bool XtensaAsmBackend::fixupNeedsRelaxation(const MCFixup &Fixup,
+                                            uint64_t Value,
+                                            const MCRelaxableFragment *DF,
+                                            const MCAsmLayout &Layout) const {
+  return false;
+}
+
+void XtensaAsmBackend::relaxInstruction(MCInst &Inst,
+                                        const MCSubtargetInfo &STI) const {
+  assert(!(Inst.getFlags() & XtensaII::InstrFlagNoRelax) &&
+         "Attempted to relax non-relaxable instruction?");
+  Inst.setOpcode(getRelaxedOpcode(Inst.getOpcode()));
 }
 
 bool XtensaAsmBackend::shouldInsertExtraNopBytesForCodeAlign(
