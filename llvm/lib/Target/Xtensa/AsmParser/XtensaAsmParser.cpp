@@ -36,6 +36,8 @@ private:
 #define GET_ASSEMBLER_HEADER
 #include "XtensaGenAsmMatcher.inc"
 
+  bool CurInstRelaxable;
+
 public:
   enum XtensaMatchResultTy {
     Match_XtensaFirst = FIRST_TARGET_MATCH_RESULT_TY,
@@ -356,8 +358,9 @@ bool XtensaAsmParser::parseOperand(OperandVector &Operands,
 bool XtensaAsmParser::ParseInstruction(ParseInstructionInfo &Info,
                                        StringRef Name, SMLoc NameLoc,
                                        OperandVector &Operands) {
+  CurInstRelaxable = true;
   if (Name.consume_front("_")) {
-    // TODO: force wide/narrow instruction
+    CurInstRelaxable = false;
   }
 
   Operands.push_back(XtensaOperand::createToken(Name, NameLoc));
@@ -394,6 +397,9 @@ bool XtensaAsmParser::MatchAndEmitInstruction(SMLoc IDLoc, unsigned int &Opcode,
                                               uint64_t &ErrorInfo,
                                               bool MatchingInlineAsm) {
   MCInst Inst;
+  if (!CurInstRelaxable) {
+    Inst.setFlags(XtensaII::InstrFlagNoRelax);
+  }
 
   unsigned Res =
       MatchInstructionImpl(Operands, Inst, ErrorInfo, MatchingInlineAsm);

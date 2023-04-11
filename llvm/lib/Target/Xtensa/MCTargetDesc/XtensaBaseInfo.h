@@ -26,6 +26,10 @@ namespace llvm {
 
 namespace XtensaII {
 
+enum InstrFlags {
+  InstrFlagNoRelax = 1 << 0,
+};
+
 inline Optional<uint64_t> encodeB4Const(int64_t Value) {
   switch (Value) {
   case -1:
