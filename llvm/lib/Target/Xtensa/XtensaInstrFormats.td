@@ -210,8 +210,13 @@ class XtensaGenericInstruction : GenericInstruction {
 
 class XtensaPseudo<dag outs, dag ins, list<dag> pattern>
    : XtensaInst<outs, ins, "", pattern> {
-  let isCodeGenOnly = 1;
-  let isPseudo = 1;
+  let isCodeGenOnly = true;
+  let isPseudo = true;
+}
+
+class XtensaAsmPseudo<dag outs, dag ins, list<dag> pattern>
+   : XtensaPseudo<outs, ins, pattern> {
+  let isAsmParserOnly = true;
 }
 
 class Inst16<bits<4> op0, dag outs, dag ins, string asmstr, list<dag> pattern>

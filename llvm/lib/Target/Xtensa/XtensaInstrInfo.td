@@ -105,30 +105,61 @@ def ADDN : ArithRRRN<0b1010, "add.n", [(set i32:$ar, (add i32:$as, i32:$at))]>;
 
 def AND : ArithRRR<0b0000, 0b0001, "and", [(set i32:$ar, (and i32:$as, i32:$at))]>;
 
-def BALL : BranchRR8<0b0100, "ball">;
-def BANY : BranchRR8<0b1000, "bany">;
-def BBC : BranchRR8<0b0101, "bbc">;
-def BBCI : BranchRB8<0b011, "bbci">;
-def BBS : BranchRR8<0b1101, "bbs">;
-def BBSI : BranchRB8<0b111, "bbsi">;
-def BEQ : BranchRR8<0b0001, "beq">;
-def BEQI : BranchRI8<0b00, "beqi">;
-def BEQZ : BranchRZ12<0b00, "beqz">;
-def BGE : BranchRR8<0b1010, "bge">;
-def BGEI : BranchRI8<0b11, "bgei">;
-def BGEU : BranchRR8<0b1011, "bgeu">;
-def BGEUI : BranchRUI8<0b11, "bgeui">;
-def BGEZ : BranchRZ12<0b11, "bgez">;
-def BLT : BranchRR8<0b0010, "blt">;
-def BLTI : BranchRI8<0b10, "blti">;
-def BLTU : BranchRR8<0b0011, "bltu">;
-def BLTUI : BranchRUI8<0b10, "bltui">;
-def BLTZ : BranchRZ12<0b10, "bltz">;
-def BNALL : BranchRR8<0b1100, "bnall">;
-def BNE : BranchRR8<0b1001, "bne">;
-def BNEI : BranchRI8<0b01, "bnei">;
-def BNEZ : BranchRZ12<0b01, "bnez">;
-def BNONE : BranchRR8<0b0000, "bnone">;
+class XtensaRelaxedBranchPseudo<dag ins>
+   : XtensaAsmPseudo<(outs), ins, []> {
+  let Size = 6;
+  let hasSideEffects = false;
+  let mayLoad = false;
+  let mayStore = false;
+  let isBranch = true;
+  let isTerminator = true;
+}
+
+multiclass RelaxableBranchRR8<bits<4> r, string name> {
+  def NAME : BranchRR8<r, name>;
+  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, GPR:$at, jmptarget18:$offset)>;
+}
+multiclass RelaxableBranchRB8<bits<3> arhi, string name> {
+  def NAME : BranchRB8<arhi, name>;
+  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, uimm5:$bbi, jmptarget18:$offset)>;
+}
+multiclass RelaxableBranchRI8<bits<2> m, string name> {
+  def NAME: BranchRI8<m, name>;
+  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, b4const:$imm, jmptarget18:$offset)>;
+}
+multiclass RelaxableBranchRUI8<bits<2> m, string name> {
+  def NAME: BranchRUI8<m, name>;
+  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, b4constu:$imm, jmptarget18:$offset)>;
+}
+multiclass RelaxableBranchRZ12<bits<2> m, string name> {
+  def NAME: BranchRZ12<m, name>;
+  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, jmptarget18:$offset)>;
+}
+
+defm BALL : RelaxableBranchRR8<0b0100, "ball">;
+defm BANY : RelaxableBranchRR8<0b1000, "bany">;
+defm BBC : RelaxableBranchRR8<0b0101, "bbc">;
+defm BBCI : RelaxableBranchRB8<0b011, "bbci">;
+defm BBS : RelaxableBranchRR8<0b1101, "bbs">;
+defm BBSI : RelaxableBranchRB8<0b111, "bbsi">;
+defm BEQ : RelaxableBranchRR8<0b0001, "beq">;
+defm BEQI : RelaxableBranchRI8<0b00, "beqi">;
+defm BEQZ : RelaxableBranchRZ12<0b00, "beqz">;
+defm BGE : RelaxableBranchRR8<0b1010, "bge">;
+defm BGEI : RelaxableBranchRI8<0b11, "bgei">;
+defm BGEU : RelaxableBranchRR8<0b1011, "bgeu">;
+defm BGEUI : RelaxableBranchRUI8<0b11, "bgeui">;
+defm BGEZ : RelaxableBranchRZ12<0b11, "bgez">;
+defm BLT : RelaxableBranchRR8<0b0010, "blt">;
+defm BLTI : RelaxableBranchRI8<0b10, "blti">;
+defm BLTU : RelaxableBranchRR8<0b0011, "bltu">;
+defm BLTUI : RelaxableBranchRUI8<0b10, "bltui">;
+defm BLTZ : RelaxableBranchRZ12<0b10, "bltz">;
+defm BNALL : RelaxableBranchRR8<0b1100, "bnall">;
+defm BNE : RelaxableBranchRR8<0b1001, "bne">;
+defm BNEI : RelaxableBranchRI8<0b01, "bnei">;
+defm BNEZ : RelaxableBranchRZ12<0b01, "bnez">;
+defm BNONE : RelaxableBranchRR8<0b0000, "bnone">;
 
 class CondBranchPat<dag cond, dag instr>
   : Pat<(brcond (i32 cond), bb:$offset), instr>;
