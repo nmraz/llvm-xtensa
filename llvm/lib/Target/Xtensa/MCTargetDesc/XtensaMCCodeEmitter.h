@@ -30,7 +30,9 @@ public:
   void encodeInstruction(const MCInst &MI, raw_ostream &OS,
                          SmallVectorImpl<MCFixup> &Fixups,
                          const MCSubtargetInfo &STI) const override;
-
+  bool tryEmitRelaxedBranch(const MCInst &MI, raw_ostream &OS,
+                            SmallVectorImpl<MCFixup> &Fixups,
+                            const MCSubtargetInfo &STI) const;
   void emitOpcode(uint64_t Binary, unsigned int Size, raw_ostream &OS) const;
 
   // getBinaryCodeForInstr - TableGen'erated function for getting the

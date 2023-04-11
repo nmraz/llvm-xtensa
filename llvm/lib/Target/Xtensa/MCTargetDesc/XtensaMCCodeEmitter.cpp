@@ -2,12 +2,15 @@
 #include "XtensaBaseInfo.h"
 #include "XtensaFixupKinds.h"
 #include "XtensaMCTargetDesc.h"
+#include "llvm/ADT/None.h"
 #include "llvm/ADT/Optional.h"
 #include "llvm/MC/MCCodeEmitter.h"
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCExpr.h"
 #include "llvm/MC/MCFixup.h"
 #include "llvm/MC/MCInst.h"
+#include "llvm/MC/MCInstBuilder.h"
+#include "llvm/MC/MCInstrDesc.h"
 #include "llvm/MC/MCInstrInfo.h"
 #include "llvm/MC/MCRegisterInfo.h"
 #include "llvm/MC/MCSubtargetInfo.h"
@@ -25,8 +28,102 @@ void XtensaMCCodeEmitter::encodeInstruction(const MCInst &MI, raw_ostream &OS,
                                             SmallVectorImpl<MCFixup> &Fixups,
                                             const MCSubtargetInfo &STI) const {
   unsigned Size = MCII.get(MI.getOpcode()).getSize();
+  if (tryEmitRelaxedBranch(MI, OS, Fixups, STI)) {
+    return;
+  }
   uint64_t Binary = getBinaryCodeForInstr(MI, Fixups, STI);
   emitOpcode(Binary, Size, OS);
+}
+
+static Optional<unsigned> getInvertedUnrelaxedOpcode(unsigned Opcode) {
+  switch (Opcode) {
+  case Xtensa::BALLRelaxed:
+    return Xtensa::BNALL;
+  case Xtensa::BANYRelaxed:
+    return Xtensa::BNONE;
+  case Xtensa::BBCRelaxed:
+    return Xtensa::BBS;
+  case Xtensa::BBCIRelaxed:
+    return Xtensa::BBSI;
+  case Xtensa::BBSRelaxed:
+    return Xtensa::BBC;
+  case Xtensa::BBSIRelaxed:
+    return Xtensa::BBCI;
+  case Xtensa::BEQRelaxed:
+    return Xtensa::BNE;
+  case Xtensa::BEQIRelaxed:
+    return Xtensa::BNEI;
+  case Xtensa::BEQZRelaxed:
+    return Xtensa::BNEZ;
+  case Xtensa::BGERelaxed:
+    return Xtensa::BLT;
+  case Xtensa::BGEIRelaxed:
+    return Xtensa::BLTI;
+  case Xtensa::BGEURelaxed:
+    return Xtensa::BLTU;
+  case Xtensa::BGEUIRelaxed:
+    return Xtensa::BLTUI;
+  case Xtensa::BGEZRelaxed:
+    return Xtensa::BLTZ;
+  case Xtensa::BLTRelaxed:
+    return Xtensa::BGE;
+  case Xtensa::BLTIRelaxed:
+    return Xtensa::BGEI;
+  case Xtensa::BLTURelaxed:
+    return Xtensa::BGEU;
+  case Xtensa::BLTUIRelaxed:
+    return Xtensa::BGEUI;
+  case Xtensa::BLTZRelaxed:
+    return Xtensa::BGEZ;
+  case Xtensa::BNALLRelaxed:
+    return Xtensa::BALL;
+  case Xtensa::BNERelaxed:
+    return Xtensa::BEQ;
+  case Xtensa::BNEIRelaxed:
+    return Xtensa::BEQI;
+  case Xtensa::BNEZRelaxed:
+    return Xtensa::BEQZ;
+  case Xtensa::BNONERelaxed:
+    return Xtensa::BANY;
+  default:
+    return None;
+  }
+}
+
+bool XtensaMCCodeEmitter::tryEmitRelaxedBranch(
+    const MCInst &MI, raw_ostream &OS, SmallVectorImpl<MCFixup> &Fixups,
+    const MCSubtargetInfo &STI) const {
+  unsigned Opcode = MI.getOpcode();
+  Optional<unsigned> MaybeInvertedOpcode = getInvertedUnrelaxedOpcode(Opcode);
+  if (!MaybeInvertedOpcode) {
+    return false;
+  }
+  unsigned InvertedOpcode = *MaybeInvertedOpcode;
+
+  const MCInstrDesc &OrigDesc = MCII.get(Opcode);
+  const MCInstrDesc &Desc = MCII.get(InvertedOpcode);
+  assert(OrigDesc.getNumOperands() == Desc.getNumOperands());
+
+  // Assumption: the branch target is always the last operand.
+  unsigned NumOperands = Desc.getNumOperands();
+  MCInstBuilder InvertedInst(InvertedOpcode);
+  for (unsigned I = 0; I < NumOperands - 1; I++) {
+    InvertedInst.addOperand(MI.getOperand(I));
+  }
+
+  // Note: this must be signed for the offset computation below to be correct.
+  int InvertedInstSize = Desc.getSize();
+
+  // For now, all relaxable branches end up using an offset relative to `pc+4`.
+  InvertedInst.addImm(InvertedInstSize - 4);
+  emitOpcode(getBinaryCodeForInstr(InvertedInst, Fixups, STI), InvertedInstSize,
+             OS);
+
+  MCInst Jump = MCInstBuilder(Xtensa::J).addOperand(
+      MI.getOperand(Desc.getNumOperands() - 1));
+  emitOpcode(getBinaryCodeForInstr(Jump, Fixups, STI), 3, OS);
+
+  return true;
 }
 
 void XtensaMCCodeEmitter::emitOpcode(uint64_t Value, unsigned int Size,
