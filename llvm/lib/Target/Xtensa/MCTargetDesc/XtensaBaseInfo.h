@@ -156,6 +156,30 @@ inline Optional<uint32_t> decodeB4ConstU(uint32_t Value) {
   }
 }
 
+inline Optional<uint32_t> encodeAddiNImm4(int64_t Value) {
+  if (Value == -1) {
+    return 0;
+  }
+
+  if (Value >= 1 && Value <= 15) {
+    return Value;
+  }
+
+  return None;
+}
+
+inline Optional<int32_t> decodeAddiNImm4(uint32_t Value) {
+  if (Value == 0) {
+    return -1;
+  }
+
+  if (Value >= 1 && Value <= 15) {
+    return Value;
+  }
+
+  return None;
+}
+
 inline bool isMoviNImm7(int32_t Value) { return Value >= -32 && Value <= 95; }
 
 } // namespace XtensaII

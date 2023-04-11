@@ -165,6 +165,7 @@ public:
 
   bool isUImm4Plus1() const;
   bool isUImm4Plus7() const;
+  bool isAddiNImm4() const;
   bool isUImm5Sub32() const;
   bool isMoviNImm7() const;
   bool isB4Const() const;
@@ -185,6 +186,10 @@ bool XtensaOperand::isUImm4Plus1() const {
 bool XtensaOperand::isUImm4Plus7() const {
   uint64_t Val = getConstImm();
   return Val >= 7 && Val <= 22;
+}
+
+bool XtensaOperand::isAddiNImm4() const {
+  return XtensaII::encodeAddiNImm4(getConstImm()).has_value();
 }
 
 bool XtensaOperand::isUImm5Sub32() const {

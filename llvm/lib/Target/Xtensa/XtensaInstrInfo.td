@@ -87,6 +87,7 @@ def ABS : ArithRRrt<0b0000, 0b0110, 0b0001, "abs", [(set i32:$ar, (abs i32:$at))
 
 def ADD : ArithRRR<0b0000, 0b1000, "add", []>;
 def ADDI : ArithRRI8<0b0010, 0b1100, simm8, "addi", []>;
+def ADDIN : ArithRRI4N<0b1011, addin_imm4, "addi.n", []>;
 def ADDMI : ArithRRI8<0b0010, 0b1101, simm8_sl8, "addmi", []>;
 
 def ADDX2 : ArithRRR<0b0000, 0b1001, "addx2", [

@@ -95,6 +95,14 @@ static DecodeStatus decodeUImm4Plus7(MCInst &MI, uint32_t Imm, uint64_t Address,
   return DecodeStatus::Success;
 }
 
+static DecodeStatus decodeAddiNImm4(MCInst &MI, uint32_t Imm, uint64_t Address,
+                                    const MCDisassembler *Decoder) {
+  Optional<int32_t> Decoded = XtensaII::decodeAddiNImm4(Imm);
+  assert(Decoded && "Invalid addin_imm4 immediate");
+  MI.addOperand(MCOperand::createImm(*Decoded));
+  return DecodeStatus::Success;
+}
+
 static DecodeStatus decodeUImm5Sub32(MCInst &MI, uint32_t Imm, uint64_t Address,
                                      const MCDisassembler *Decoder) {
   MI.addOperand(MCOperand::createImm(32 - Imm));

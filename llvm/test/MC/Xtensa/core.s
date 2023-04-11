@@ -28,6 +28,21 @@ addi a8, sp, -128
 # CHECK: encoding: [0x82,0xc1,0xf4]
 addi a8, a1, -12
 
+# Instruction format RRRN
+# CHECK-INST: addi.n a2, a3, 5
+# CHECK: encoding: [0x5b,0x23]
+addi.n a2, a3, 5
+
+# Instruction format RRRN
+# CHECK-INST: addi.n a2, a3, -1
+# CHECK: encoding: [0x0b,0x23]
+addi.n a2, a3, -1
+
+# Instruction format RRRN
+# CHECK-INST: addi.n a2, a3, 15
+# CHECK: encoding: [0xfb,0x23]
+addi.n a2, a3, 15
+
 # Instruction format RRI8
 # CHECK-INST:  addmi a1, a2, 32512
 # CHECK: encoding: [0x12,0xd2,0x7f]

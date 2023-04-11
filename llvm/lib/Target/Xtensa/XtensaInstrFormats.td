@@ -118,6 +118,12 @@ def b4constu : ImmOperand<i32, "B4ConstU">, ImmLeaf<i32, [{ return encodeB4Const
   let DecoderMethod = "decodeB4ConstU";
 }
 
+def AddiNImm4OperandClass : ConstantImmOperandClass<"AddiNImm4", "invalid addi.n immediate">;
+def addin_imm4 : ImmOperand<i32, "AddiNImm4"> {
+  let EncoderMethod = "getAddiNImm4OpValue";
+  let DecoderMethod = "decodeAddiNImm4";
+}
+
 // 4-bit immediate incremented by 1; used only in `extui` instruction
 def UImm4Plus1OperandClass : ConstantImmOperandClass<"UImm4Plus1", "expected a constant in the range [1, 16]">;
 def uimm4_plus1 : ImmOperand<i32, "UImm4Plus1"> {
@@ -461,6 +467,13 @@ class ArithRs<bits<4> op1, bits<4> op2, bits<4> t, bits<4> r, string name, list<
 class ArithRRRN<bits<4> op0, string name, list<dag> pattern>
   : ArithBaseRRRN<op0, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
           !strconcat(name, "\t$ar, $as, $at"), pattern>;
+
+class ArithRRI4N<bits<4> op0, Operand Imm, string name, list<dag> pattern>
+  : ArithBaseRRRN<op0, (outs GPR:$ar), (ins GPR:$as, Imm:$imm),
+                  !strconcat(name, "\t$ar, $as, $imm"), pattern> {
+  bits<4> imm;
+  let at = imm;
+}
 
 // Load instruction classes
 let hasSideEffects = false, mayLoad = true, mayStore = false in {

@@ -2,6 +2,7 @@
 #include "XtensaBaseInfo.h"
 #include "XtensaFixupKinds.h"
 #include "XtensaMCTargetDesc.h"
+#include "llvm/ADT/Optional.h"
 #include "llvm/MC/MCCodeEmitter.h"
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCExpr.h"
@@ -75,6 +76,16 @@ XtensaMCCodeEmitter::getUImm4Plus7OpValue(const MCInst &MI, unsigned int OpIdx,
   uint64_t Val = MI.getOperand(OpIdx).getImm();
   assert(Val >= 7 && Val <= 22 && "Invalid uimm4p7 value");
   return Val - 7;
+}
+
+unsigned
+XtensaMCCodeEmitter::getAddiNImm4OpValue(const MCInst &MI, unsigned OpIdx,
+                                         SmallVectorImpl<MCFixup> &Fixups,
+                                         const MCSubtargetInfo &STI) const {
+  int64_t Val = MI.getOperand(OpIdx).getImm();
+  Optional<uint32_t> Encoded = XtensaII::encodeAddiNImm4(Val);
+  assert(Encoded.has_value() && "Invalid addin_imm4 value");
+  return *Encoded;
 }
 
 unsigned
