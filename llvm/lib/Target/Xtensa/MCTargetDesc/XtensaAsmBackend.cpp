@@ -255,7 +255,14 @@ bool XtensaAsmBackend::fixupNeedsRelaxation(const MCFixup &Fixup,
                                             uint64_t Value,
                                             const MCRelaxableFragment *DF,
                                             const MCAsmLayout &Layout) const {
-  return false;
+  switch (static_cast<unsigned>(Fixup.getKind())) {
+  case Xtensa::fixup_xtensa_brtarget8:
+    return !isInt<8>(Value - 4);
+  case Xtensa::fixup_xtensa_brtarget12:
+    return !isInt<12>(Value - 4);
+  default:
+    return false;
+  }
 }
 
 void XtensaAsmBackend::relaxInstruction(MCInst &Inst,
