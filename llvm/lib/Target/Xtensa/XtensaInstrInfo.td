@@ -73,6 +73,7 @@ class XtensaSelectCCPseudo<DAGOperand CmpRHS>
    : XtensaPseudo<(outs GPR:$res),
                   (ins GPR:$lhs, CmpRHS:$rhs, GPR:$trueval, GPR:$falseval),
                   []> {
+  let hasSideEffects = false;
   let usesCustomInserter = true;
 }
 
