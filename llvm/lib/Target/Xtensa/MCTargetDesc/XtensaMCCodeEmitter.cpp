@@ -111,17 +111,25 @@ bool XtensaMCCodeEmitter::tryEmitRelaxedBranch(
     InvertedInst.addOperand(MI.getOperand(I));
   }
 
-  // Note: this must be signed for the offset computation below to be correct.
+  // Note: these must be signed for the offset computation below to be correct.
   int InvertedInstSize = Desc.getSize();
+  int JumpSize = 3;
 
   // For now, all relaxable branches end up using an offset relative to `pc+4`.
-  InvertedInst.addImm(InvertedInstSize - 4);
+  InvertedInst.addImm(InvertedInstSize + JumpSize - 4);
   emitOpcode(getBinaryCodeForInstr(InvertedInst, Fixups, STI), InvertedInstSize,
              OS);
 
-  MCInst Jump = MCInstBuilder(Xtensa::J).addOperand(
-      MI.getOperand(Desc.getNumOperands() - 1));
-  emitOpcode(getBinaryCodeForInstr(Jump, Fixups, STI), 3, OS);
+  MCOperand JumpDest = MI.getOperand(Desc.getNumOperands() - 1);
+  MCInst Jump = MCInstBuilder(Xtensa::J).addOperand(JumpDest);
+  emitOpcode(getBinaryCodeForInstr(Jump, Fixups, STI), JumpSize, OS);
+  Fixups.clear();
+
+  if (!JumpDest.isImm()) {
+    Fixups.push_back(
+        MCFixup::create(InvertedInstSize, JumpDest.getExpr(),
+                        (MCFixupKind)Xtensa::fixup_xtensa_jmptarget18));
+  }
 
   return true;
 }
