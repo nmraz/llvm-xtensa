@@ -103,6 +103,54 @@ static unsigned adjustFixupValue(const MCFixup &Fixup, int64_t Value,
 
 static unsigned getRelaxedOpcode(unsigned Opcode) {
   switch (Opcode) {
+  case Xtensa::BALL:
+    return Xtensa::BALLRelaxed;
+  case Xtensa::BANY:
+    return Xtensa::BANYRelaxed;
+  case Xtensa::BBC:
+    return Xtensa::BBCRelaxed;
+  case Xtensa::BBCI:
+    return Xtensa::BBCIRelaxed;
+  case Xtensa::BBS:
+    return Xtensa::BBSRelaxed;
+  case Xtensa::BBSI:
+    return Xtensa::BBSIRelaxed;
+  case Xtensa::BEQ:
+    return Xtensa::BEQRelaxed;
+  case Xtensa::BEQI:
+    return Xtensa::BEQIRelaxed;
+  case Xtensa::BEQZ:
+    return Xtensa::BEQZRelaxed;
+  case Xtensa::BGE:
+    return Xtensa::BGERelaxed;
+  case Xtensa::BGEI:
+    return Xtensa::BGEIRelaxed;
+  case Xtensa::BGEU:
+    return Xtensa::BGEURelaxed;
+  case Xtensa::BGEUI:
+    return Xtensa::BGEUIRelaxed;
+  case Xtensa::BGEZ:
+    return Xtensa::BGEZRelaxed;
+  case Xtensa::BLT:
+    return Xtensa::BLTRelaxed;
+  case Xtensa::BLTI:
+    return Xtensa::BLTIRelaxed;
+  case Xtensa::BLTU:
+    return Xtensa::BLTURelaxed;
+  case Xtensa::BLTUI:
+    return Xtensa::BLTUIRelaxed;
+  case Xtensa::BLTZ:
+    return Xtensa::BLTZRelaxed;
+  case Xtensa::BNALL:
+    return Xtensa::BNALLRelaxed;
+  case Xtensa::BNE:
+    return Xtensa::BNERelaxed;
+  case Xtensa::BNEI:
+    return Xtensa::BNEIRelaxed;
+  case Xtensa::BNEZ:
+    return Xtensa::BNEZRelaxed;
+  case Xtensa::BNONE:
+    return Xtensa::BNONERelaxed;
   default:
     return Opcode;
   }
