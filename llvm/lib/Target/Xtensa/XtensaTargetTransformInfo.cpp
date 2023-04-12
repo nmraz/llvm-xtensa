@@ -37,6 +37,10 @@ void XtensaTTIImpl::getUnrollingPreferences(Loop *L, ScalarEvolution &SE,
   // Copied out of base implementation, with minor adjustments to enable
   // unrolling even though Xtensa is an in-order CPU.
 
+  // Upper bound unrolling (for small loops) should always be enabled, even if
+  // they contain calls.
+  UP.UpperBound = true;
+
   // Scan the loop: don't unroll loops with calls.
   for (BasicBlock *BB : L->blocks()) {
     for (Instruction &I : *BB) {
@@ -62,7 +66,7 @@ void XtensaTTIImpl::getUnrollingPreferences(Loop *L, ScalarEvolution &SE,
 
   // Enable runtime and partial unrolling up to the specified size.
   // Enable using trip count upper bound to unroll loops.
-  UP.Partial = UP.Runtime = UP.UpperBound = true;
+  UP.Partial = UP.Runtime = true;
   UP.DefaultUnrollRuntimeCount = 4;
 
   // Avoid unrolling when optimizing for size.
