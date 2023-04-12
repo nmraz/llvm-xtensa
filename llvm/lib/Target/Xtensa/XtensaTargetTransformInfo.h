@@ -31,6 +31,11 @@ public:
   explicit XtensaTTIImpl(const XtensaTargetMachine *TM, const Function &F)
       : BaseT(TM, F.getParent()->getDataLayout()), ST(TM->getSubtargetImpl(F)),
         TLI(ST->getTargetLowering()) {}
+
+  bool isLoweredToCall(const Function *F);
+  void getUnrollingPreferences(Loop *L, ScalarEvolution &SE,
+                               TTI::UnrollingPreferences &UP,
+                               OptimizationRemarkEmitter *ORE);
 };
 
 } // end namespace llvm
