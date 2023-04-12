@@ -126,9 +126,9 @@ bool XtensaMCCodeEmitter::tryEmitRelaxedBranch(
   Fixups.clear();
 
   if (!JumpDest.isImm()) {
-    Fixups.push_back(
-        MCFixup::create(InvertedInstSize, JumpDest.getExpr(),
-                        (MCFixupKind)Xtensa::fixup_xtensa_jmptarget18));
+    Fixups.push_back(MCFixup::create(
+        InvertedInstSize, JumpDest.getExpr(),
+        (MCFixupKind)Xtensa::fixup_xtensa_jmptarget18, MI.getLoc()));
   }
 
   return true;
