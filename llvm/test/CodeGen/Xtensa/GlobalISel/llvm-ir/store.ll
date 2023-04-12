@@ -172,26 +172,26 @@ define void @store_i64_unaligned_1(ptr %p, i64 %val) {
 ;
 ; UNOPT-LABEL: store_i64_unaligned_1:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    mov.n a3, a2
-; UNOPT-NEXT:    mov.n a2, a4
-; UNOPT-NEXT:    extui a4, a2, 16, 16
-; UNOPT-NEXT:    extui a6, a2, 0, 16
-; UNOPT-NEXT:    srli a6, a6, 8
-; UNOPT-NEXT:    s8i a2, a3, 0
-; UNOPT-NEXT:    s8i a6, a3, 1
-; UNOPT-NEXT:    extui a2, a2, 16, 16
+; UNOPT-NEXT:    mov.n a6, a2
+; UNOPT-NEXT:    extui a3, a4, 16, 16
+; UNOPT-NEXT:    extui a2, a4, 0, 16
 ; UNOPT-NEXT:    srli a2, a2, 8
-; UNOPT-NEXT:    s8i a4, a3, 2
-; UNOPT-NEXT:    s8i a2, a3, 3
+; UNOPT-NEXT:    s8i a4, a6, 0
+; UNOPT-NEXT:    s8i a2, a6, 1
+; UNOPT-NEXT:    extui a2, a4, 16, 16
+; UNOPT-NEXT:    srli a2, a2, 8
+; UNOPT-NEXT:    s8i a3, a6, 2
+; UNOPT-NEXT:    s8i a2, a6, 3
+; UNOPT-NEXT:    addi.n a3, a6, 4
 ; UNOPT-NEXT:    extui a4, a5, 16, 16
 ; UNOPT-NEXT:    extui a2, a5, 0, 16
 ; UNOPT-NEXT:    srli a2, a2, 8
-; UNOPT-NEXT:    s8i a5, a3, 4
-; UNOPT-NEXT:    s8i a2, a3, 5
+; UNOPT-NEXT:    s8i a5, a6, 4
+; UNOPT-NEXT:    s8i a2, a3, 1
 ; UNOPT-NEXT:    extui a2, a5, 16, 16
 ; UNOPT-NEXT:    srli a2, a2, 8
-; UNOPT-NEXT:    s8i a4, a3, 6
-; UNOPT-NEXT:    s8i a2, a3, 7
+; UNOPT-NEXT:    s8i a4, a3, 2
+; UNOPT-NEXT:    s8i a2, a3, 3
 ; UNOPT-NEXT:    ret.n
 entry:
   store i64 %val, ptr %p, align 1
@@ -211,13 +211,18 @@ define void @store_i64_unaligned_2(ptr %p, i64 %val) {
 ;
 ; UNOPT-LABEL: store_i64_unaligned_2:
 ; UNOPT:       # %bb.1: # %entry
-; UNOPT-NEXT:    mov.n a3, a2
-; UNOPT-NEXT:    extui a2, a4, 16, 16
-; UNOPT-NEXT:    s16i a4, a3, 0
-; UNOPT-NEXT:    s16i a2, a3, 2
+; UNOPT-NEXT:    addi a1, a1, -16
+; UNOPT-NEXT:    s32i.n a2, a1, 12 # 4-byte Spill
+; UNOPT-NEXT:    mov.n a3, a4
+; UNOPT-NEXT:    l32i.n a4, a1, 12 # 4-byte Reload
+; UNOPT-NEXT:    extui a2, a3, 16, 16
+; UNOPT-NEXT:    s16i a3, a4, 0
+; UNOPT-NEXT:    s16i a2, a4, 2
+; UNOPT-NEXT:    addi.n a3, a4, 4
 ; UNOPT-NEXT:    extui a2, a5, 16, 16
-; UNOPT-NEXT:    s16i a5, a3, 4
-; UNOPT-NEXT:    s16i a2, a3, 6
+; UNOPT-NEXT:    s16i a5, a4, 4
+; UNOPT-NEXT:    s16i a2, a3, 2
+; UNOPT-NEXT:    addi a1, a1, 16
 ; UNOPT-NEXT:    ret.n
 entry:
   store i64 %val, ptr %p, align 2

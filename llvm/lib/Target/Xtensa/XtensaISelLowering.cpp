@@ -11,10 +11,12 @@
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetLowering.h"
 #include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Instruction.h"
 #include "llvm/MC/MCInst.h"
 #include "llvm/Support/Alignment.h"
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/MachineValueType.h"
+#include "llvm/Support/MathExtras.h"
 #include "llvm/Target/TargetMachine.h"
 #include <cassert>
 #include <iterator>
@@ -82,6 +84,31 @@ LLT XtensaTargetLowering::getOptimalMemOpLLT(
   }
 
   return LLT();
+}
+
+bool XtensaTargetLowering::isLegalAddressingMode(const DataLayout &DL,
+                                                 const AddrMode &AM, Type *Ty,
+                                                 unsigned int AddrSpace,
+                                                 Instruction *I) const {
+  if (AM.BaseGV || AM.Scale) {
+    return false;
+  }
+
+  // Registers alone are always legal
+  if (!AM.BaseOffs) {
+    return true;
+  }
+
+  switch (DL.getTypeSizeInBits(Ty)) {
+  case 8:
+    return isUInt<8>(AM.BaseOffs);
+  case 16:
+    return isShiftedUInt<8, 1>(AM.BaseOffs);
+  case 32:
+    return isShiftedUInt<8, 2>(AM.BaseOffs);
+  default:
+    return false;
+  }
 }
 
 MachineBasicBlock *XtensaTargetLowering::EmitInstrWithCustomInserter(
