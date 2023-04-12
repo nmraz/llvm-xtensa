@@ -57,7 +57,9 @@ public:
     return &FrameLowering;
   }
 
-  const TargetLowering *getTargetLowering() const override { return &TLInfo; }
+  const XtensaTargetLowering *getTargetLowering() const override {
+    return &TLInfo;
+  }
 
   bool hasMinMax() const { return HasMinMax; }
   bool hasSalt() const { return HasSalt; }

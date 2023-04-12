@@ -4,6 +4,7 @@
 #include "XtensaSubtarget.h"
 #include "llvm/ADT/Optional.h"
 #include "llvm/ADT/StringRef.h"
+#include "llvm/Analysis/TargetTransformInfo.h"
 #include "llvm/IR/Function.h"
 #include "llvm/Target/TargetMachine.h"
 
@@ -20,6 +21,8 @@ public:
                       Optional<Reloc::Model> RM, Optional<CodeModel::Model> CM,
                       CodeGenOpt::Level OL, bool JIT);
   ~XtensaTargetMachine() override;
+
+  TargetTransformInfo getTargetTransformInfo(const Function &F) const override;
 
   const XtensaSubtarget *getSubtargetImpl(const Function &F) const override {
     return &Subtarget;

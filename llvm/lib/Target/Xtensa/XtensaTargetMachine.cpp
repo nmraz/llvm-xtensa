@@ -1,6 +1,7 @@
 #include "XtensaTargetMachine.h"
 #include "TargetInfo/XtensaTargetInfo.h"
 #include "Xtensa.h"
+#include "XtensaTargetTransformInfo.h"
 #include "llvm/ADT/Optional.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/Triple.h"
@@ -53,6 +54,11 @@ XtensaTargetMachine::XtensaTargetMachine(const Target &T, const Triple &TT,
 }
 
 XtensaTargetMachine::~XtensaTargetMachine() = default;
+
+TargetTransformInfo
+XtensaTargetMachine::getTargetTransformInfo(const Function &F) const {
+  return TargetTransformInfo(XtensaTTIImpl(this, F));
+}
 
 namespace {
 

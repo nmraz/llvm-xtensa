@@ -44,6 +44,7 @@ add_llvm_target(XtensaCodeGen
   XtensaShiftLowering.cpp
   XtensaSubtarget.cpp
   XtensaTargetMachine.cpp
+  XtensaTargetTransformInfo.cpp
 
   LINK_COMPONENTS
   Analysis
