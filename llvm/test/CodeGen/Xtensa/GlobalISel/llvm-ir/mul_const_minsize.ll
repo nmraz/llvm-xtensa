@@ -138,3 +138,24 @@ define i32 @mul_neg_40(i32 %a) #0 {
 }
 
 attributes #0 = { minsize }
+
+define i32 @mul_4097(i32 %a) {
+; CHECK-LABEL: mul_4097:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    slli a3, a2, 12
+; CHECK-NEXT:    add.n a2, a3, a2
+; CHECK-NEXT:    ret.n
+  %mul = mul i32 %a, 4097
+  ret i32 %mul
+}
+
+define i32 @mul_neg_4097(i32 %a) {
+; CHECK-LABEL: mul_neg_4097:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    slli a3, a2, 12
+; CHECK-NEXT:    add.n a2, a3, a2
+; CHECK-NEXT:    neg a2, a2
+; CHECK-NEXT:    ret.n
+  %mul = mul i32 %a, -4097
+  ret i32 %mul
+}
