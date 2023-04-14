@@ -211,27 +211,51 @@ static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
     return false;
   }
 
-  const MachineFunction &MF = *MI.getParent()->getParent();
+  Register Dest = MI.getOperand(0).getReg();
 
-  if (MF.getFunction().hasMinSize() && isInt<12>(MulAmount)) {
+  const MachineFunction &MF = *MI.getParent()->getParent();
+  bool MinSize = MF.getFunction().hasMinSize();
+
+  uint64_t AbsMulAmount = MulAmount < 0 ? -MulAmount : MulAmount;
+
+  if (isPowerOf2_64(AbsMulAmount)) {
+    if (MulAmount < 0 && MulAmount != -1 && MinSize) {
+      // `slli` + `neg` can never be better than `movi{.n}` + `mull`, but it can
+      // sometimes be worse.
+      return false;
+    }
+
+    unsigned ShiftAmount = Log2_64(AbsMulAmount);
+
+    BuildFn = [=](MachineIRBuilder &MIB) {
+      LLT S32 = LLT::scalar(32);
+      auto Shift =
+          MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, ShiftAmount));
+      if (MulAmount >= 0) {
+        MIB.buildCopy(Dest, Shift);
+      } else {
+        MIB.buildSub(Dest, MIB.buildConstant(S32, 0), Shift);
+      }
+    };
+    return true;
+  }
+
+  if (MinSize && isInt<12>(MulAmount)) {
     // For min-size functions, only bother doing this if we would have required
     // an `l32r`, bringing the total byte count up to 10 and the allowed
     // instruction count to 3.
     return false;
   }
 
-  unsigned BaseShiftAmount = 0;
-  unsigned SmallShiftAmount = 0;
-
   // Note: we currently assume that the original multiplication cost 3 cycles (1
   // for the immediate load and 2 for the multiply).
-  uint64_t AbsMulAmount = MulAmount < 0 ? -MulAmount : MulAmount;
+
+  unsigned BaseShiftAmount = 0;
+  unsigned SmallShiftAmount = 0;
 
   if (!getMulShifts(AbsMulAmount, BaseShiftAmount, SmallShiftAmount)) {
     return false;
   }
-
-  Register Dest = MI.getOperand(0).getReg();
 
   BuildFn = [=](MachineIRBuilder &MIB) {
     LLT S32 = LLT::scalar(32);

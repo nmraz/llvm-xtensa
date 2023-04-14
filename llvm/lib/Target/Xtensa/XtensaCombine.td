@@ -106,7 +106,7 @@ def ssl_masked_const : GICombineRule<
 // removed. Also removed is `xor_of_and_with_same_reg`, since xtensa does not
 // have a dedicated `not` instruction, making the original version less
 // expensive.
-def xtensa_generic_combines : GICombineGroup<[trivial_combines,
+def xtensa_generic_combines : GICombineGroup<[copy_prop, add_p2i_to_ptradd,
     combines_for_extload,
     undef_combines, identity_combines, phi_combines,
     simplify_add_to_sub, hoist_logic_op_with_same_opcode_hands,
