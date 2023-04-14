@@ -42,7 +42,7 @@ define i32 @mul_neg_5(i32 %a) {
 define i32 @mul_6(i32 %a) {
 ; CHECK-LABEL: mul_6:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    slli a3, a2, 1
+; CHECK-NEXT:    add.n a3, a2, a2
 ; CHECK-NEXT:    addx4 a2, a2, a3
 ; CHECK-NEXT:    ret.n
   %mul = mul i32 %a, 6
@@ -52,7 +52,7 @@ define i32 @mul_6(i32 %a) {
 define i32 @mul_neg_6(i32 %a) {
 ; CHECK-LABEL: mul_neg_6:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    slli a3, a2, 1
+; CHECK-NEXT:    add.n a3, a2, a2
 ; CHECK-NEXT:    addx4 a2, a2, a3
 ; CHECK-NEXT:    neg a2, a2
 ; CHECK-NEXT:    ret.n
@@ -63,7 +63,7 @@ define i32 @mul_neg_6(i32 %a) {
 define i32 @mul_10(i32 %a) {
 ; CHECK-LABEL: mul_10:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    slli a3, a2, 1
+; CHECK-NEXT:    add.n a3, a2, a2
 ; CHECK-NEXT:    addx8 a2, a2, a3
 ; CHECK-NEXT:    ret.n
   %mul = mul i32 %a, 10
@@ -73,7 +73,7 @@ define i32 @mul_10(i32 %a) {
 define i32 @mul_neg_10(i32 %a) {
 ; CHECK-LABEL: mul_neg_10:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    slli a3, a2, 1
+; CHECK-NEXT:    add.n a3, a2, a2
 ; CHECK-NEXT:    addx8 a2, a2, a3
 ; CHECK-NEXT:    neg a2, a2
 ; CHECK-NEXT:    ret.n

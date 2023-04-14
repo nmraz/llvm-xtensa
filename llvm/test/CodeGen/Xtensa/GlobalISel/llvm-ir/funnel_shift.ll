@@ -318,7 +318,7 @@ define i8 @fshr_i8(i8 %a, i8 %b, i8 %c) {
 ; OPT-NEXT:    movi.n a6, -1
 ; OPT-NEXT:    xor a4, a4, a6
 ; OPT-NEXT:    extui a4, a4, 0, 3
-; OPT-NEXT:    slli a2, a2, 1
+; OPT-NEXT:    add.n a2, a2, a2
 ; OPT-NEXT:    ssl a4
 ; OPT-NEXT:    sll a2, a2
 ; OPT-NEXT:    extui a3, a3, 0, 8
@@ -334,7 +334,7 @@ define i8 @fshr_i8(i8 %a, i8 %b, i8 %c) {
 ; UNOPT-NEXT:    movi.n a6, -1
 ; UNOPT-NEXT:    xor a5, a5, a6
 ; UNOPT-NEXT:    extui a5, a5, 0, 3
-; UNOPT-NEXT:    slli a2, a2, 1
+; UNOPT-NEXT:    add.n a2, a2, a2
 ; UNOPT-NEXT:    extui a5, a5, 0, 8
 ; UNOPT-NEXT:    ssl a5
 ; UNOPT-NEXT:    sll a2, a2
@@ -351,7 +351,7 @@ define i8 @fshr_i8(i8 %a, i8 %b, i8 %c) {
 ; LX7-OPT-NEXT:    movi.n a6, -1
 ; LX7-OPT-NEXT:    xor a4, a4, a6
 ; LX7-OPT-NEXT:    extui a4, a4, 0, 3
-; LX7-OPT-NEXT:    slli a2, a2, 1
+; LX7-OPT-NEXT:    add.n a2, a2, a2
 ; LX7-OPT-NEXT:    ssl a4
 ; LX7-OPT-NEXT:    sll a2, a2
 ; LX7-OPT-NEXT:    extui a3, a3, 0, 8
@@ -367,7 +367,7 @@ define i8 @fshr_i8(i8 %a, i8 %b, i8 %c) {
 ; LX7-UNOPT-NEXT:    movi.n a6, -1
 ; LX7-UNOPT-NEXT:    xor a5, a5, a6
 ; LX7-UNOPT-NEXT:    extui a5, a5, 0, 3
-; LX7-UNOPT-NEXT:    slli a2, a2, 1
+; LX7-UNOPT-NEXT:    add.n a2, a2, a2
 ; LX7-UNOPT-NEXT:    extui a5, a5, 0, 8
 ; LX7-UNOPT-NEXT:    ssl a5
 ; LX7-UNOPT-NEXT:    sll a2, a2
@@ -388,7 +388,7 @@ define i16 @fshr_i16(i16 %a, i16 %b, i16 %c) {
 ; OPT-NEXT:    movi.n a6, -1
 ; OPT-NEXT:    xor a4, a4, a6
 ; OPT-NEXT:    extui a4, a4, 0, 4
-; OPT-NEXT:    slli a2, a2, 1
+; OPT-NEXT:    add.n a2, a2, a2
 ; OPT-NEXT:    ssl a4
 ; OPT-NEXT:    sll a2, a2
 ; OPT-NEXT:    extui a3, a3, 0, 16
@@ -404,7 +404,7 @@ define i16 @fshr_i16(i16 %a, i16 %b, i16 %c) {
 ; UNOPT-NEXT:    movi.n a6, -1
 ; UNOPT-NEXT:    xor a5, a5, a6
 ; UNOPT-NEXT:    extui a5, a5, 0, 4
-; UNOPT-NEXT:    slli a2, a2, 1
+; UNOPT-NEXT:    add.n a2, a2, a2
 ; UNOPT-NEXT:    extui a5, a5, 0, 16
 ; UNOPT-NEXT:    ssl a5
 ; UNOPT-NEXT:    sll a2, a2
@@ -421,7 +421,7 @@ define i16 @fshr_i16(i16 %a, i16 %b, i16 %c) {
 ; LX7-OPT-NEXT:    movi.n a6, -1
 ; LX7-OPT-NEXT:    xor a4, a4, a6
 ; LX7-OPT-NEXT:    extui a4, a4, 0, 4
-; LX7-OPT-NEXT:    slli a2, a2, 1
+; LX7-OPT-NEXT:    add.n a2, a2, a2
 ; LX7-OPT-NEXT:    ssl a4
 ; LX7-OPT-NEXT:    sll a2, a2
 ; LX7-OPT-NEXT:    extui a3, a3, 0, 16
@@ -437,7 +437,7 @@ define i16 @fshr_i16(i16 %a, i16 %b, i16 %c) {
 ; LX7-UNOPT-NEXT:    movi.n a6, -1
 ; LX7-UNOPT-NEXT:    xor a5, a5, a6
 ; LX7-UNOPT-NEXT:    extui a5, a5, 0, 4
-; LX7-UNOPT-NEXT:    slli a2, a2, 1
+; LX7-UNOPT-NEXT:    add.n a2, a2, a2
 ; LX7-UNOPT-NEXT:    extui a5, a5, 0, 16
 ; LX7-UNOPT-NEXT:    ssl a5
 ; LX7-UNOPT-NEXT:    sll a2, a2
@@ -486,7 +486,7 @@ define i64 @fshr_i64(i64 %a, i64 %b, i64 %c) {
 ; OPT-NEXT:    movi.n a8, -1
 ; OPT-NEXT:    xor a8, a6, a8
 ; OPT-NEXT:    extui a9, a8, 0, 6
-; OPT-NEXT:    slli a10, a2, 1
+; OPT-NEXT:    add.n a10, a2, a2
 ; OPT-NEXT:    ssai 31
 ; OPT-NEXT:    src a2, a3, a2
 ; OPT-NEXT:    srli a3, a9, 5
@@ -517,8 +517,8 @@ define i64 @fshr_i64(i64 %a, i64 %b, i64 %c) {
 ; UNOPT-NEXT:    movi.n a7, -1
 ; UNOPT-NEXT:    xor a3, a3, a7
 ; UNOPT-NEXT:    extui a9, a3, 0, 6
-; UNOPT-NEXT:    slli a3, a6, 1
-; UNOPT-NEXT:    slli a2, a2, 1
+; UNOPT-NEXT:    add.n a3, a6, a6
+; UNOPT-NEXT:    add.n a2, a2, a2
 ; UNOPT-NEXT:    extui a6, a6, 31, 1
 ; UNOPT-NEXT:    or a2, a2, a6
 ; UNOPT-NEXT:    extui a7, a9, 5, 1
@@ -552,7 +552,7 @@ define i64 @fshr_i64(i64 %a, i64 %b, i64 %c) {
 ; LX7-OPT-NEXT:    movi.n a8, -1
 ; LX7-OPT-NEXT:    xor a8, a6, a8
 ; LX7-OPT-NEXT:    extui a9, a8, 0, 6
-; LX7-OPT-NEXT:    slli a10, a2, 1
+; LX7-OPT-NEXT:    add.n a10, a2, a2
 ; LX7-OPT-NEXT:    ssai 31
 ; LX7-OPT-NEXT:    src a2, a3, a2
 ; LX7-OPT-NEXT:    srli a3, a9, 5
@@ -583,8 +583,8 @@ define i64 @fshr_i64(i64 %a, i64 %b, i64 %c) {
 ; LX7-UNOPT-NEXT:    movi.n a7, -1
 ; LX7-UNOPT-NEXT:    xor a3, a3, a7
 ; LX7-UNOPT-NEXT:    extui a9, a3, 0, 6
-; LX7-UNOPT-NEXT:    slli a3, a6, 1
-; LX7-UNOPT-NEXT:    slli a2, a2, 1
+; LX7-UNOPT-NEXT:    add.n a3, a6, a6
+; LX7-UNOPT-NEXT:    add.n a2, a2, a2
 ; LX7-UNOPT-NEXT:    extui a6, a6, 31, 1
 ; LX7-UNOPT-NEXT:    or a2, a2, a6
 ; LX7-UNOPT-NEXT:    extui a7, a9, 5, 1

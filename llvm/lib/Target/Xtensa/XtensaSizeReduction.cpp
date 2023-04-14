@@ -59,8 +59,20 @@ bool XtensaSizeReduction::runOnMachineFunction(MachineFunction &MF) {
 
   for (MachineBasicBlock &MBB : MF) {
     for (MachineInstr &MI : MBB) {
+      switch (MI.getOpcode()) {
+      case Xtensa::SLLI:
+        if (MI.getOperand(2).getImm() == 1) {
+          // Convert `slli x, y, 1` -> `add.n x, y, y`
+          MI.setDesc(TII.get(Xtensa::ADDN));
+          MI.getOperand(2).ChangeToRegister(MI.getOperand(1).getReg(), false);
+          Modified = true;
+          continue;
+        }
+      }
+
       if (auto NarrowOpcode = getNarrowOpcodeFor(MI)) {
         MI.setDesc(TII.get(*NarrowOpcode));
+        Modified = true;
       }
     }
   }

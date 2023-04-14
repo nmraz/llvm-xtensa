@@ -309,7 +309,7 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; UNOPT-NEXT:    srli a4, a4, 1
 ; UNOPT-NEXT:    or a2, a2, a4
 ; UNOPT-NEXT:    extui a3, a3, 31, 1
-; UNOPT-NEXT:    slli a4, a2, 1
+; UNOPT-NEXT:    add.n a4, a2, a2
 ; UNOPT-NEXT:    or a6, a3, a4
 ; UNOPT-NEXT:    srai a2, a2, 31
 ; UNOPT-NEXT:    extui a5, a7, 5, 1
@@ -353,7 +353,7 @@ define i33 @ashr_i33(i33 %val, i33 %shamt) {
 ; LX7-UNOPT-NEXT:    srli a4, a4, 1
 ; LX7-UNOPT-NEXT:    or a2, a2, a4
 ; LX7-UNOPT-NEXT:    extui a3, a3, 31, 1
-; LX7-UNOPT-NEXT:    slli a4, a2, 1
+; LX7-UNOPT-NEXT:    add.n a4, a2, a2
 ; LX7-UNOPT-NEXT:    or a6, a3, a4
 ; LX7-UNOPT-NEXT:    srai a2, a2, 31
 ; LX7-UNOPT-NEXT:    extui a5, a7, 5, 1
