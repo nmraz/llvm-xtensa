@@ -9,9 +9,9 @@ define void @xor_loop(ptr nocapture noundef %a, ptr nocapture noundef readonly %
 ; CHECK-NEXT:    # =>This Inner Loop Header: Depth=1
 ; CHECK-NEXT:    l8ui a5, a3, 0
 ; CHECK-NEXT:    l8ui a6, a2, 0
+; CHECK-NEXT:    addi.n a4, a4, -1
 ; CHECK-NEXT:    xor a5, a6, a5
 ; CHECK-NEXT:    s8i a5, a2, 0
-; CHECK-NEXT:    addi.n a4, a4, -1
 ; CHECK-NEXT:    addi.n a2, a2, 1
 ; CHECK-NEXT:    addi.n a3, a3, 1
 ; CHECK-NEXT:    bnez a4, .LBB0_1

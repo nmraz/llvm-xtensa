@@ -175,8 +175,8 @@ define void @do_memcpy_len5_unaligned(ptr %dest, ptr %src) {
 ; CHECK-LABEL: do_memcpy_len5_unaligned:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    addi a1, a1, -16
-; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; CHECK-NEXT:    movi.n a4, 5
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; CHECK-NEXT:    call0 memcpy
 ; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
 ; CHECK-NEXT:    addi a1, a1, 16
@@ -256,8 +256,8 @@ define void @do_memmove_len5_unaligned(ptr %dest, ptr %src) {
 ; CHECK-LABEL: do_memmove_len5_unaligned:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    addi a1, a1, -16
-; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; CHECK-NEXT:    movi.n a4, 5
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; CHECK-NEXT:    call0 memmove
 ; CHECK-NEXT:    l32i.n a0, a1, 12 # 4-byte Reload
 ; CHECK-NEXT:    addi a1, a1, 16

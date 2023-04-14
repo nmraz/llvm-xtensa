@@ -1143,9 +1143,9 @@ define i1 @icmp_slt_i64(i64 %a, i64 %b) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    mov.n a6, a2
 ; CHECK-NEXT:    movi.n a8, 0
-; CHECK-NEXT:    movi.n a7, 1
 ; CHECK-NEXT:    sub a3, a3, a5
 ; CHECK-NEXT:    movi.n a2, 1
+; CHECK-NEXT:    movi.n a7, 1
 ; CHECK-NEXT:    movgez a2, a8, a3
 ; CHECK-NEXT:    bltu a6, a4, .LBB52_2
 ; CHECK-NEXT:  # %bb.1: # %entry
@@ -1170,10 +1170,10 @@ define i1 @icmp_sle_i64(i64 %a, i64 %b) {
 ; CHECK-LABEL: icmp_sle_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    mov.n a6, a2
-; CHECK-NEXT:    movi.n a7, 0
 ; CHECK-NEXT:    movi.n a8, 1
 ; CHECK-NEXT:    sub a9, a5, a3
 ; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    movi.n a7, 0
 ; CHECK-NEXT:    movgez a2, a8, a9
 ; CHECK-NEXT:    bltu a4, a6, .LBB53_2
 ; CHECK-NEXT:  # %bb.1: # %entry
@@ -1187,8 +1187,8 @@ define i1 @icmp_sle_i64(i64 %a, i64 %b) {
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    movi.n a6, 1
 ; LX7-NEXT:    salt a7, a5, a3
-; LX7-NEXT:    xor a7, a7, a6
 ; LX7-NEXT:    saltu a2, a4, a2
+; LX7-NEXT:    xor a7, a7, a6
 ; LX7-NEXT:    xor a2, a2, a6
 ; LX7-NEXT:    sub a3, a3, a5
 ; LX7-NEXT:    movnez a2, a7, a3
@@ -1203,9 +1203,9 @@ define i1 @icmp_sgt_i64(i64 %a, i64 %b) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    mov.n a6, a2
 ; CHECK-NEXT:    movi.n a8, 0
-; CHECK-NEXT:    movi.n a7, 1
 ; CHECK-NEXT:    sub a9, a5, a3
 ; CHECK-NEXT:    movi.n a2, 1
+; CHECK-NEXT:    movi.n a7, 1
 ; CHECK-NEXT:    movgez a2, a8, a9
 ; CHECK-NEXT:    bltu a4, a6, .LBB54_2
 ; CHECK-NEXT:  # %bb.1: # %entry
@@ -1231,10 +1231,10 @@ define i1 @icmp_sge_i64(i64 %a, i64 %b) {
 ; CHECK-LABEL: icmp_sge_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    mov.n a6, a2
-; CHECK-NEXT:    movi.n a7, 0
 ; CHECK-NEXT:    movi.n a8, 1
 ; CHECK-NEXT:    sub a3, a3, a5
 ; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    movi.n a7, 0
 ; CHECK-NEXT:    movgez a2, a8, a3
 ; CHECK-NEXT:    bltu a6, a4, .LBB55_2
 ; CHECK-NEXT:  # %bb.1: # %entry
@@ -1247,8 +1247,8 @@ define i1 @icmp_sge_i64(i64 %a, i64 %b) {
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    movi.n a6, 1
 ; LX7-NEXT:    salt a7, a3, a5
-; LX7-NEXT:    xor a7, a7, a6
 ; LX7-NEXT:    saltu a2, a2, a4
+; LX7-NEXT:    xor a7, a7, a6
 ; LX7-NEXT:    xor a2, a2, a6
 ; LX7-NEXT:    sub a3, a3, a5
 ; LX7-NEXT:    movnez a2, a7, a3
@@ -1288,8 +1288,8 @@ define i1 @icmp_slez_i64(i64 %a, i64 %b) {
 ;
 ; LX7-LABEL: icmp_slez_i64:
 ; LX7:       # %bb.0: # %entry
-; LX7-NEXT:    extui a4, a3, 31, 1
 ; LX7-NEXT:    movi.n a5, 1
+; LX7-NEXT:    extui a4, a3, 31, 1
 ; LX7-NEXT:    saltu a2, a2, a5
 ; LX7-NEXT:    movnez a2, a4, a3
 ; LX7-NEXT:    ret.n
@@ -1302,10 +1302,10 @@ define i1 @icmp_sgtz_i64(i64 %a, i64 %b) {
 ; CHECK-LABEL: icmp_sgtz_i64:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    mov.n a4, a2
-; CHECK-NEXT:    movi.n a6, 0
 ; CHECK-NEXT:    movi.n a5, 1
 ; CHECK-NEXT:    addi.n a7, a3, -1
 ; CHECK-NEXT:    movi.n a2, 0
+; CHECK-NEXT:    movi.n a6, 0
 ; CHECK-NEXT:    movgez a2, a5, a7
 ; CHECK-NEXT:    bltu a6, a4, .LBB58_2
 ; CHECK-NEXT:  # %bb.1: # %entry
@@ -1396,8 +1396,8 @@ define i1 @icmp_ule_i64(i64 %a, i64 %b) {
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    movi.n a6, 1
 ; LX7-NEXT:    saltu a7, a5, a3
-; LX7-NEXT:    xor a7, a7, a6
 ; LX7-NEXT:    saltu a2, a4, a2
+; LX7-NEXT:    xor a7, a7, a6
 ; LX7-NEXT:    xor a2, a2, a6
 ; LX7-NEXT:    sub a3, a3, a5
 ; LX7-NEXT:    movnez a2, a7, a3
@@ -1459,8 +1459,8 @@ define i1 @icmp_uge_i64(i64 %a, i64 %b) {
 ; LX7:       # %bb.0: # %entry
 ; LX7-NEXT:    movi.n a6, 1
 ; LX7-NEXT:    saltu a7, a3, a5
-; LX7-NEXT:    xor a7, a7, a6
 ; LX7-NEXT:    saltu a2, a2, a4
+; LX7-NEXT:    xor a7, a7, a6
 ; LX7-NEXT:    xor a2, a2, a6
 ; LX7-NEXT:    sub a3, a3, a5
 ; LX7-NEXT:    movnez a2, a7, a3

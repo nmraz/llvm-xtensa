@@ -33,11 +33,11 @@ define void @caller() {
 ; CHECK-LABEL: caller:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    addi a1, a1, -16
-; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; CHECK-NEXT:    l32r a2, .LCPI1_1
-; CHECK-NEXT:    l16ui a2, a2, 0
 ; CHECK-NEXT:    l32r a3, .LCPI1_0
+; CHECK-NEXT:    l16ui a2, a2, 0
 ; CHECK-NEXT:    l16ui a3, a3, 0
+; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
 ; CHECK-NEXT:    s16i a2, a1, 0
 ; CHECK-NEXT:    s16i a3, a1, 4
 ; CHECK-NEXT:    call0 func

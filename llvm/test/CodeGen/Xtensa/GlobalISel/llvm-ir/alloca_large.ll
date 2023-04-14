@@ -10,9 +10,9 @@ define void @alloca_large() {
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    movi a2, -1008
 ; OPT-NEXT:    add.n a1, a1, a2
-; OPT-NEXT:    s32i a0, a1, 1004 # 4-byte Spill
 ; OPT-NEXT:    addi.n a2, a1, 4
 ; OPT-NEXT:    mov.n a3, a2
+; OPT-NEXT:    s32i a0, a1, 1004 # 4-byte Spill
 ; OPT-NEXT:    call0 f
 ; OPT-NEXT:    l32i a0, a1, 1004 # 4-byte Reload
 ; OPT-NEXT:    movi a2, 1008
@@ -79,10 +79,10 @@ define void @alloca_large_param(i32 %x) {
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    movi a3, -1008
 ; OPT-NEXT:    add.n a1, a1, a3
-; OPT-NEXT:    s32i a0, a1, 1004 # 4-byte Spill
 ; OPT-NEXT:    mov.n a4, a2
 ; OPT-NEXT:    addi.n a2, a1, 4
 ; OPT-NEXT:    mov.n a3, a2
+; OPT-NEXT:    s32i a0, a1, 1004 # 4-byte Spill
 ; OPT-NEXT:    call0 g
 ; OPT-NEXT:    l32i a0, a1, 1004 # 4-byte Reload
 ; OPT-NEXT:    movi a2, 1008
@@ -113,9 +113,9 @@ define void @alloca_large2_param(i32 %x) {
 ; OPT-NEXT:    movi a3, -2016
 ; OPT-NEXT:    add.n a1, a1, a3
 ; OPT-NEXT:    addmi a3, a1, 1024
-; OPT-NEXT:    s32i a0, a3, 988 # 4-byte Spill
 ; OPT-NEXT:    mov.n a4, a2
 ; OPT-NEXT:    movi a2, 1012
+; OPT-NEXT:    s32i a0, a3, 988 # 4-byte Spill
 ; OPT-NEXT:    add.n a2, a1, a2
 ; OPT-NEXT:    addi.n a3, a1, 12
 ; OPT-NEXT:    call0 f

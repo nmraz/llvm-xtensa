@@ -11,9 +11,9 @@ define i64 @smin_i64(i64 %a, i64 %b) {
 ; CHECK-LABEL: smin_i64:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    movi.n a9, 0
-; CHECK-NEXT:    movi.n a8, 1
 ; CHECK-NEXT:    sub a7, a3, a5
 ; CHECK-NEXT:    movi.n a6, 1
+; CHECK-NEXT:    movi.n a8, 1
 ; CHECK-NEXT:    movgez a6, a9, a7
 ; CHECK-NEXT:    bltu a2, a4, .LBB0_2
 ; CHECK-NEXT:  # %bb.1:
@@ -73,9 +73,9 @@ define i64 @smax_i64(i64 %a, i64 %b) {
 ; CHECK-LABEL: smax_i64:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    movi.n a8, 0
-; CHECK-NEXT:    movi.n a7, 1
 ; CHECK-NEXT:    sub a9, a5, a3
 ; CHECK-NEXT:    movi.n a6, 1
+; CHECK-NEXT:    movi.n a7, 1
 ; CHECK-NEXT:    movgez a6, a8, a9
 ; CHECK-NEXT:    bltu a4, a2, .LBB2_2
 ; CHECK-NEXT:  # %bb.1:

@@ -76,12 +76,12 @@ entry:
 define void @store_i32_unaligned_1(ptr %p, i32 %val) {
 ; OPT-LABEL: store_i32_unaligned_1:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    extui a4, a3, 16, 16
 ; OPT-NEXT:    extui a5, a3, 0, 16
+; OPT-NEXT:    extui a4, a3, 16, 16
 ; OPT-NEXT:    srli a5, a5, 8
 ; OPT-NEXT:    s8i a3, a2, 0
-; OPT-NEXT:    s8i a5, a2, 1
 ; OPT-NEXT:    extui a3, a3, 24, 8
+; OPT-NEXT:    s8i a5, a2, 1
 ; OPT-NEXT:    s8i a4, a2, 2
 ; OPT-NEXT:    s8i a3, a2, 3
 ; OPT-NEXT:    ret.n
@@ -154,18 +154,18 @@ define void @store_i64_unaligned_1(ptr %p, i64 %val) {
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    extui a3, a4, 16, 16
 ; OPT-NEXT:    extui a6, a4, 0, 16
-; OPT-NEXT:    srli a6, a6, 8
 ; OPT-NEXT:    s8i a4, a2, 0
-; OPT-NEXT:    s8i a6, a2, 1
 ; OPT-NEXT:    extui a4, a4, 24, 8
-; OPT-NEXT:    s8i a3, a2, 2
 ; OPT-NEXT:    s8i a4, a2, 3
-; OPT-NEXT:    extui a3, a5, 16, 16
 ; OPT-NEXT:    extui a4, a5, 0, 16
 ; OPT-NEXT:    srli a4, a4, 8
-; OPT-NEXT:    s8i a5, a2, 4
+; OPT-NEXT:    srli a6, a6, 8
+; OPT-NEXT:    s8i a3, a2, 2
+; OPT-NEXT:    extui a3, a5, 16, 16
 ; OPT-NEXT:    s8i a4, a2, 5
 ; OPT-NEXT:    extui a4, a5, 24, 8
+; OPT-NEXT:    s8i a6, a2, 1
+; OPT-NEXT:    s8i a5, a2, 4
 ; OPT-NEXT:    s8i a3, a2, 6
 ; OPT-NEXT:    s8i a4, a2, 7
 ; OPT-NEXT:    ret.n
@@ -202,9 +202,9 @@ define void @store_i64_unaligned_2(ptr %p, i64 %val) {
 ; OPT-LABEL: store_i64_unaligned_2:
 ; OPT:       # %bb.0: # %entry
 ; OPT-NEXT:    extui a3, a4, 16, 16
-; OPT-NEXT:    s16i a4, a2, 0
 ; OPT-NEXT:    s16i a3, a2, 2
 ; OPT-NEXT:    extui a3, a5, 16, 16
+; OPT-NEXT:    s16i a4, a2, 0
 ; OPT-NEXT:    s16i a5, a2, 4
 ; OPT-NEXT:    s16i a3, a2, 6
 ; OPT-NEXT:    ret.n
@@ -264,12 +264,12 @@ entry:
 define void @store_ptr_unaligned_1(ptr %p, ptr %val) {
 ; OPT-LABEL: store_ptr_unaligned_1:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    extui a4, a3, 16, 16
 ; OPT-NEXT:    extui a5, a3, 0, 16
+; OPT-NEXT:    extui a4, a3, 16, 16
 ; OPT-NEXT:    srli a5, a5, 8
 ; OPT-NEXT:    s8i a3, a2, 0
-; OPT-NEXT:    s8i a5, a2, 1
 ; OPT-NEXT:    extui a3, a3, 24, 8
+; OPT-NEXT:    s8i a5, a2, 1
 ; OPT-NEXT:    s8i a4, a2, 2
 ; OPT-NEXT:    s8i a3, a2, 3
 ; OPT-NEXT:    ret.n

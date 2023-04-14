@@ -65,7 +65,10 @@ namespace {
 class XtensaPassConfig : public TargetPassConfig {
 public:
   XtensaPassConfig(XtensaTargetMachine &TM, PassManagerBase &PM)
-      : TargetPassConfig(TM, PM) {}
+      : TargetPassConfig(TM, PM) {
+    if (TM.getOptLevel() != CodeGenOpt::None)
+      substitutePass(&PostRASchedulerID, &PostMachineSchedulerID);
+  }
 
   bool addIRTranslator() override;
   void addPreLegalizeMachineIR() override;

@@ -72,6 +72,7 @@ public:
   InstructionSelector *getInstructionSelector() const override;
 
   bool enableMachineScheduler() const override { return true; }
+  bool enablePostRAScheduler() const override { return true; }
 };
 
 } // namespace llvm

@@ -276,12 +276,12 @@ define void @offset_store_i32_oob2(ptr %base, i32 %val) {
 define void @offset_store_i32_unaligned(ptr %base, i32 %val) {
 ; OPT-LABEL: offset_store_i32_unaligned:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    extui a4, a3, 16, 16
 ; OPT-NEXT:    extui a5, a3, 0, 16
+; OPT-NEXT:    extui a4, a3, 16, 16
 ; OPT-NEXT:    srli a5, a5, 8
 ; OPT-NEXT:    s8i a3, a2, 20
-; OPT-NEXT:    s8i a5, a2, 21
 ; OPT-NEXT:    extui a3, a3, 24, 8
+; OPT-NEXT:    s8i a5, a2, 21
 ; OPT-NEXT:    s8i a4, a2, 22
 ; OPT-NEXT:    s8i a3, a2, 23
 ; OPT-NEXT:    ret.n
@@ -327,8 +327,8 @@ define void @offset_store_i64_neg(ptr %base, i64 %val) {
 ; OPT-LABEL: offset_store_i64_neg:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addi a3, a2, -40
-; OPT-NEXT:    s32i.n a4, a3, 0
 ; OPT-NEXT:    addi a2, a2, -36
+; OPT-NEXT:    s32i.n a4, a3, 0
 ; OPT-NEXT:    s32i.n a5, a2, 0
 ; OPT-NEXT:    ret.n
 ;
@@ -365,8 +365,8 @@ define void @offset_store_i64_unaligned_off(ptr %base, i64 %val) {
 ; OPT-LABEL: offset_store_i64_unaligned_off:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    addi a3, a2, 21
-; OPT-NEXT:    s32i.n a4, a3, 0
 ; OPT-NEXT:    addi a2, a2, 25
+; OPT-NEXT:    s32i.n a4, a3, 0
 ; OPT-NEXT:    s32i.n a5, a2, 0
 ; OPT-NEXT:    ret.n
 ;
@@ -387,18 +387,18 @@ define void @offset_store_i64_unaligned(ptr %base, i64 %val) {
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    extui a3, a4, 16, 16
 ; OPT-NEXT:    extui a6, a4, 0, 16
-; OPT-NEXT:    srli a6, a6, 8
 ; OPT-NEXT:    s8i a4, a2, 40
-; OPT-NEXT:    s8i a6, a2, 41
 ; OPT-NEXT:    extui a4, a4, 24, 8
-; OPT-NEXT:    s8i a3, a2, 42
 ; OPT-NEXT:    s8i a4, a2, 43
-; OPT-NEXT:    extui a3, a5, 16, 16
 ; OPT-NEXT:    extui a4, a5, 0, 16
 ; OPT-NEXT:    srli a4, a4, 8
-; OPT-NEXT:    s8i a5, a2, 44
+; OPT-NEXT:    srli a6, a6, 8
+; OPT-NEXT:    s8i a3, a2, 42
+; OPT-NEXT:    extui a3, a5, 16, 16
 ; OPT-NEXT:    s8i a4, a2, 45
 ; OPT-NEXT:    extui a4, a5, 24, 8
+; OPT-NEXT:    s8i a6, a2, 41
+; OPT-NEXT:    s8i a5, a2, 44
 ; OPT-NEXT:    s8i a3, a2, 46
 ; OPT-NEXT:    s8i a4, a2, 47
 ; OPT-NEXT:    ret.n
