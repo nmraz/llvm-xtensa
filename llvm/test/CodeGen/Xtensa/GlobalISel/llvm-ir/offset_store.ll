@@ -20,14 +20,14 @@ define void @offset_store_i8(ptr %base, i8 %val) {
 define void @offset_store_i8_neg(ptr %base, i8 %val) {
 ; OPT-LABEL: offset_store_i8_neg:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    addmi a2, a2, -256
-; OPT-NEXT:    s8i a3, a2, 251
+; OPT-NEXT:    addi a2, a2, -5
+; OPT-NEXT:    s8i a3, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i8_neg:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addmi a2, a2, -256
-; UNOPT-NEXT:    s8i a3, a2, 251
+; UNOPT-NEXT:    addi a2, a2, -5
+; UNOPT-NEXT:    s8i a3, a2, 0
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i8, ptr %base, i32 -5
   store i8 %val, ptr %p
@@ -69,14 +69,14 @@ define void @offset_store_i16(ptr %base, i16 %val) {
 define void @offset_store_i16_neg(ptr %base, i16 %val) {
 ; OPT-LABEL: offset_store_i16_neg:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    addmi a2, a2, -512
-; OPT-NEXT:    s16i a3, a2, 502
+; OPT-NEXT:    addi a2, a2, -10
+; OPT-NEXT:    s16i a3, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i16_neg:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addmi a2, a2, -512
-; UNOPT-NEXT:    s16i a3, a2, 502
+; UNOPT-NEXT:    addi a2, a2, -10
+; UNOPT-NEXT:    s16i a3, a2, 0
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i16, ptr %base, i32 -5
   store i16 %val, ptr %p
@@ -178,14 +178,14 @@ define void @offset_store_i32(ptr %base, i32 %val) {
 define void @offset_store_i32_neg(ptr %base, i32 %val) {
 ; OPT-LABEL: offset_store_i32_neg:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    addmi a2, a2, -1024
-; OPT-NEXT:    s32i a3, a2, 1004
+; OPT-NEXT:    addi a2, a2, -20
+; OPT-NEXT:    s32i.n a3, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i32_neg:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addmi a2, a2, -1024
-; UNOPT-NEXT:    s32i a3, a2, 1004
+; UNOPT-NEXT:    addi a2, a2, -20
+; UNOPT-NEXT:    s32i.n a3, a2, 0
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i32, ptr %base, i32 -5
   store i32 %val, ptr %p
@@ -326,17 +326,18 @@ define void @offset_store_i64(ptr %base, i64 %val) {
 define void @offset_store_i64_neg(ptr %base, i64 %val) {
 ; OPT-LABEL: offset_store_i64_neg:
 ; OPT:       # %bb.0:
-; OPT-NEXT:    addmi a2, a2, -1024
-; OPT-NEXT:    s32i a4, a2, 984
-; OPT-NEXT:    s32i a5, a2, 988
+; OPT-NEXT:    addi a3, a2, -40
+; OPT-NEXT:    s32i.n a4, a3, 0
+; OPT-NEXT:    addi a2, a2, -36
+; OPT-NEXT:    s32i.n a5, a2, 0
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: offset_store_i64_neg:
 ; UNOPT:       # %bb.1:
-; UNOPT-NEXT:    addmi a3, a2, -1024
-; UNOPT-NEXT:    s32i a4, a3, 984
-; UNOPT-NEXT:    addmi a2, a2, -1024
-; UNOPT-NEXT:    s32i a5, a2, 988
+; UNOPT-NEXT:    addi a3, a2, -40
+; UNOPT-NEXT:    s32i.n a4, a3, 0
+; UNOPT-NEXT:    addi a2, a2, -36
+; UNOPT-NEXT:    s32i.n a5, a2, 0
 ; UNOPT-NEXT:    ret.n
   %p = getelementptr i64, ptr %base, i32 -5
   store i64 %val, ptr %p

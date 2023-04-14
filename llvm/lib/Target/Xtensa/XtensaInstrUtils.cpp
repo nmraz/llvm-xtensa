@@ -15,6 +15,12 @@ static Optional<OffsetConstInnerParts>
 splitOffsetConstInner(int32_t Value, unsigned int Shift) {
   assert(Shift <= 2 && "Shift amount for offset too large");
 
+  if (Value < 0) {
+    // Don't generate an `addmi` and another large load offset for small
+    // negative offsets.
+    return None;
+  }
+
   uint32_t ZeroMask = (1 << Shift) - 1;
   uint32_t HighMask = static_cast<uint32_t>(-1) << (Shift + 8);
 
