@@ -186,7 +186,7 @@ static bool matchExpensiveICmpOp(MachineRegisterInfo &MRI, MachineInstr &MI,
 
 static bool getMulShifts(uint64_t MulAmount, unsigned &BaseShiftAmount,
                          unsigned &SmallShiftAmount) {
-  for (unsigned I : {1, 2, 3}) {
+  for (unsigned I : {0, 1, 2, 3}) {
     uint64_t AdjustedMulAmount = MulAmount - (1 << I);
     if (isPowerOf2_64(AdjustedMulAmount)) {
       BaseShiftAmount = Log2_64(AdjustedMulAmount);
