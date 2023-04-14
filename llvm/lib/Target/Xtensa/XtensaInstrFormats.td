@@ -419,7 +419,8 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
 
   class ArithRI12<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
     : I_RRI8<op0, (outs GPR:$at), (ins Imm:$imm12),
-             !strconcat(name, "\t$at, $imm12"), pattern> {
+             !strconcat(name, "\t$at, $imm12"), pattern>,
+             Sched<[WriteALU]> {
     bits<12> imm12;
     let ar = r;
     let as = imm12{11...8};
@@ -431,34 +432,47 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
 
   class ArithRI7N<bits<4> op0, bit i, Operand Imm, string name, list<dag> pattern>
     : I_RI7<op0, i, (outs GPR:$as), (ins Imm:$imm7),
-            !strconcat(name, "\t$as, $imm7"), pattern>;
+            !strconcat(name, "\t$as, $imm7"), pattern>,
+            Sched<[WriteALU]>;
 }
 
 class ArithRRR<bits<4> op1, bits<4> op2, string name, list<dag> pattern>
   : ArithBaseRRR<op1, op2, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
-          !strconcat(name, "\t$ar, $as, $at"), pattern>;
+                 !strconcat(name, "\t$ar, $as, $at"), pattern>;
+
+class ArithRRRSched<bits<4> op1, bits<4> op2, string name, list<dag> pattern>
+  : ArithRRR<op1, op2, name, pattern>, Sched<[WriteALU]>;
 
 class ArithRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
   : ArithBaseRRI8<op0, r, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
-                  !strconcat(name, "\t$at, $as, $imm8"), pattern> {
+                  !strconcat(name, "\t$at, $as, $imm8"), pattern>,
+                  Sched<[WriteALU]> {
   let isReMaterializable = true;
 }
 
 class MovRRR<bits<4> op2, string name, list<dag> pattern>
   : ArithBaseRRR<0b0011, op2, (outs GPR:$ar), (ins GPR:$_ar, GPR:$as, GPR:$at),
-          !strconcat(name, "\t$ar, $as, $at"), pattern> {
+                 !strconcat(name, "\t$ar, $as, $at"), pattern>,
+                 Sched<[WriteALU]> {
   let Constraints = "$ar = $_ar";
 }
 
 class ArithRRrt<bits<4> op1, bits<4> op2, bits<4> s, string name, list<dag> pattern>
   : ArithBaseRRR<op1, op2, (outs GPR:$ar), (ins GPR:$at),
-          !strconcat(name, "\t$ar, $at"), pattern> {
+                 !strconcat(name, "\t$ar, $at"), pattern> {
+  let as = s;
+}
+
+class ArithRRrtSched<bits<4> op1, bits<4> op2, bits<4> s, string name,
+                     list<dag> pattern>
+  : ArithBaseRRR<op1, op2, (outs GPR:$ar), (ins GPR:$at),
+                 !strconcat(name, "\t$ar, $at"), pattern> {
   let as = s;
 }
 
 class ArithRRrs<bits<4> op1, bits<4> op2, bits<4> t, string name, list<dag> pattern>
   : ArithBaseRRR<op1, op2, (outs GPR:$ar), (ins GPR:$as),
-          !strconcat(name, "\t$ar, $as"), pattern> {
+                 !strconcat(name, "\t$ar, $as"), pattern> {
   let at = t;
 }
 
@@ -471,11 +485,13 @@ class ArithRs<bits<4> op1, bits<4> op2, bits<4> t, bits<4> r, string name, list<
 
 class ArithRRRN<bits<4> op0, string name, list<dag> pattern>
   : ArithBaseRRRN<op0, (outs GPR:$ar), (ins GPR:$as, GPR:$at),
-          !strconcat(name, "\t$ar, $as, $at"), pattern>;
+                  !strconcat(name, "\t$ar, $as, $at"), pattern>,
+                  Sched<[WriteALU]>;
 
 class ArithRRI4N<bits<4> op0, Operand Imm, string name, list<dag> pattern>
   : ArithBaseRRRN<op0, (outs GPR:$ar), (ins GPR:$as, Imm:$imm),
-                  !strconcat(name, "\t$ar, $as, $imm"), pattern> {
+                  !strconcat(name, "\t$ar, $as, $imm"), pattern>,
+                  Sched<[WriteALU]> {
   bits<4> imm;
   let at = imm;
 }
@@ -483,13 +499,16 @@ class ArithRRI4N<bits<4> op0, Operand Imm, string name, list<dag> pattern>
 // Load instruction classes
 let hasSideEffects = false, mayLoad = true, mayStore = false in {
   class LoadRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
-    : ArithRRI8<op0, r, Imm, name, pattern> {
+    : ArithBaseRRI8<op0, r, (outs GPR:$at), (ins GPR:$as, Imm:$imm8),
+                    !strconcat(name, "\t$at, $as, $imm8"), pattern>,
+                    Sched<[WriteLd]> {
       let isReMaterializable = false;
     }
 
   class LoadRRRN<bits<4> op0, Operand Imm, string name, list<dag> pattern>
     : ArithBaseRRRN<op0, (outs GPR:$at), (ins GPR:$as, Imm:$offset),
-              !strconcat(name, "\t$at, $as, $offset"), pattern> {
+                    !strconcat(name, "\t$at, $as, $offset"), pattern>,
+                    Sched<[WriteLd]> {
     bits<4> offset;
     let ar = offset;
   }
@@ -503,11 +522,13 @@ let hasSideEffects = false, mayLoad = true, mayStore = false in {
 let mayLoad = false, mayStore = true in {
   class StoreRRI8<bits<4> op0, bits<4> r, Operand Imm, string name, list<dag> pattern>
     : ArithBaseRRI8<op0, r, (outs), (ins GPR:$at, GPR:$as, Imm:$imm8),
-                    !strconcat(name, "\t$at, $as, $imm8"), pattern>;
+                    !strconcat(name, "\t$at, $as, $imm8"), pattern>,
+                    Sched<[]>;
 
   class StoreRRRN<bits<4> op0, Operand Imm, string name, list<dag> pattern>
     : ArithBaseRRRN<op0, (outs), (ins GPR:$at, GPR:$as, Imm:$offset),
-              !strconcat(name, "\t$at, $as, $offset"), pattern> {
+                    !strconcat(name, "\t$at, $as, $offset"), pattern>,
+                    Sched<[WriteALU]> {
     bits<4> offset;
     let ar = offset;
   }
@@ -521,7 +542,7 @@ let hasSideEffects = false, mayLoad = false, mayStore = false in {
 
   class GenericCall<bits<4> op0, bits<2> n, Operand Imm, string name, list<dag> pattern>
     : I_CALL<op0, n, (outs), (ins Imm:$offset),
-              !strconcat(name, "\t$offset"), pattern>;
+             !strconcat(name, "\t$offset"), pattern>;
 
   class GenericCallX<bits<2> m, bits<2> n, string name, list<dag> pattern>
       : I_CALLX<0b0000, 0b0000, 0b0000, m, n, (outs), (ins GPR:$as),
@@ -535,7 +556,8 @@ let hasSideEffects = false, mayLoad = false, mayStore = false,
     isBranch = true, isTerminator = true in {
   class BranchRR8<bits<4> r, string name>
     : I_RRI8<0b0111, (outs), (ins GPR:$as, GPR:$at, brtarget8:$offset),
-              !strconcat(name, "\t$as, $at, $offset"), []>  {
+             !strconcat(name, "\t$as, $at, $offset"), []>,
+             Sched<[WriteBranch]> {
     bits<8> offset;
 
     let imm8 = offset;
@@ -544,7 +566,8 @@ let hasSideEffects = false, mayLoad = false, mayStore = false,
 
   class BranchRC8<bits<2> m, bits<2> n, Operand Imm, string name>
     : I_BRI8<0b0110, m, n, (outs), (ins GPR:$as, Imm:$imm, brtarget8:$offset),
-              !strconcat(name, "\t$as, $imm, $offset"), []> {
+             !strconcat(name, "\t$as, $imm, $offset"), []>,
+             Sched<[WriteBranch]> {
     bits<4> imm;
 
     let ar = imm;
@@ -552,7 +575,8 @@ let hasSideEffects = false, mayLoad = false, mayStore = false,
 
   class BranchRB8<bits<3> arhi, string name>
     : I_BRI8<0b0111, 0b00, 0b00, (outs), (ins GPR:$as, uimm5:$bbi, brtarget8:$offset),
-             !strconcat(name, "\t$as, $bbi, $offset"), []> {
+             !strconcat(name, "\t$as, $bbi, $offset"), []>,
+             Sched<[WriteBranch]> {
     bits<5> bbi;
 
     let ar{0} = bbi{4};
@@ -562,7 +586,7 @@ let hasSideEffects = false, mayLoad = false, mayStore = false,
   }
 
   class BranchRZ12<bits<2> m, string name>
-    : GenericBRI12<0b0110, m, 0b01, brtarget12, name>;
+    : GenericBRI12<0b0110, m, 0b01, brtarget12, name>, Sched<[WriteBranch]>;
 }
 
 class BranchRI8<bits<2> m, string name> : BranchRC8<m, 0b10, b4const, name>;
@@ -571,12 +595,12 @@ class BranchRUI8<bits<2> m, string name> : BranchRC8<m, 0b11, b4constu, name>;
 // Call instruction classes
 let isCall = true in {
   class Call<bits<2> n, Register retAddr, string name>
-     : GenericCall<0b0101, n, calltarget18, name, []> {
+     : GenericCall<0b0101, n, calltarget18, name, []>, Sched<[WriteBranch]> {
     let Defs = [retAddr];
   }
 
   class CallX<bits<2> n, Register retAddr, string name>
-     : GenericCallX<0b11, n, name, []> {
+     : GenericCallX<0b11, n, name, []>, Sched<[WriteBranch]> {
     let Defs = [retAddr];
   }
 }

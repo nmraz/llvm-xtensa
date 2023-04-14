@@ -58,13 +58,17 @@ let Uses = [A1], Defs = [A1] in {
   // passing. `amt1` represents the number of bytes to be reserved on the stack,
   // and `amt2` represents the number of bytes that have already been reserved
   // for the purposes of use in this call (beyond `amt1`).
-  def ADJCALLSTACKDOWN : XtensaPseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), []>;
+  def ADJCALLSTACKDOWN : XtensaPseudo<(outs),
+                                      (ins i32imm:$amt1, i32imm:$amt2), []>,
+                                      Sched<[]>;
 
   // Pseudo-instruction used to model deallocation of stack slots for argument
   // passing. `amt1` represents the number of bytes to be popped off the stack,
   // and `amt2` represents the number of bytes that have already been popped by
   // the callee.
-  def ADJCALLSTACKUP : XtensaPseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), []>;
+  def ADJCALLSTACKUP : XtensaPseudo<(outs),
+                                    (ins i32imm:$amt1, i32imm:$amt2), []>,
+                                    Sched<[]>;
 }
 
 // Pseudos expanded to conditional branches when the `saltu` instruction is not
@@ -84,26 +88,28 @@ def SELECT_GEUI : XtensaSelectCCPseudo<b4constu>;
 
 // Real instructions
 
-def ABS : ArithRRrt<0b0000, 0b0110, 0b0001, "abs", [(set i32:$ar, (abs i32:$at))]>;
+def ABS : ArithRRrtSched<0b0000, 0b0110, 0b0001, "abs",
+                    [(set i32:$ar, (abs i32:$at))]>;
 
-def ADD : ArithRRR<0b0000, 0b1000, "add", []>;
+def ADD : ArithRRRSched<0b0000, 0b1000, "add", []>;
 def ADDI : ArithRRI8<0b0010, 0b1100, simm8, "addi", []>;
 def ADDIN : ArithRRI4N<0b1011, addin_imm4, "addi.n", []>;
 def ADDMI : ArithRRI8<0b0010, 0b1101, simm8_sl8, "addmi", []>;
 
-def ADDX2 : ArithRRR<0b0000, 0b1001, "addx2", [
+def ADDX2 : ArithRRRSched<0b0000, 0b1001, "addx2", [
   (set i32:$ar, (add i32:$at, (shl i32:$as, (i32 1))))
 ]>;
-def ADDX4 : ArithRRR<0b0000, 0b1010, "addx4", [
+def ADDX4 : ArithRRRSched<0b0000, 0b1010, "addx4", [
   (set i32:$ar, (add i32:$at, (shl i32:$as, (i32 2))))
 ]>;
-def ADDX8 : ArithRRR<0b0000, 0b1011, "addx8", [
+def ADDX8 : ArithRRRSched<0b0000, 0b1011, "addx8", [
   (set i32:$ar, (add i32:$at, (shl i32:$as, (i32 3))))
 ]>;
 
 def ADDN : ArithRRRN<0b1010, "add.n", [(set i32:$ar, (add i32:$as, i32:$at))]>;
 
-def AND : ArithRRR<0b0000, 0b0001, "and", [(set i32:$ar, (and i32:$as, i32:$at))]>;
+def AND : ArithRRRSched<0b0000, 0b0001, "and",
+                        [(set i32:$ar, (and i32:$as, i32:$at))]>;
 
 class XtensaRelaxedBranchPseudo<dag ins>
    : XtensaAsmPseudo<(outs), ins, []> {
@@ -117,19 +123,23 @@ class XtensaRelaxedBranchPseudo<dag ins>
 
 multiclass RelaxableBranchRR8<bits<4> r, string name> {
   def NAME : BranchRR8<r, name>;
-  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, GPR:$at, jmptarget18:$offset)>;
+  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, GPR:$at,
+                                           jmptarget18:$offset)>;
 }
 multiclass RelaxableBranchRB8<bits<3> arhi, string name> {
   def NAME : BranchRB8<arhi, name>;
-  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, uimm5:$bbi, jmptarget18:$offset)>;
+  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, uimm5:$bbi,
+                                           jmptarget18:$offset)>;
 }
 multiclass RelaxableBranchRI8<bits<2> m, string name> {
   def NAME: BranchRI8<m, name>;
-  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, b4const:$imm, jmptarget18:$offset)>;
+  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, b4const:$imm,
+                                           jmptarget18:$offset)>;
 }
 multiclass RelaxableBranchRUI8<bits<2> m, string name> {
   def NAME: BranchRUI8<m, name>;
-  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, b4constu:$imm, jmptarget18:$offset)>;
+  def Relaxed : XtensaRelaxedBranchPseudo<(ins GPR:$as, b4constu:$imm,
+                                           jmptarget18:$offset)>;
 }
 multiclass RelaxableBranchRZ12<bits<2> m, string name> {
   def NAME: BranchRZ12<m, name>;
@@ -205,22 +215,28 @@ def : CondBranchPat<(setult i32:$a, i32:$b), (BLTU i32:$a, i32:$b, bb:$offset)>;
 
 // Arithmetic constant comparison branches
 
-def : CondBranchPat<(seteq i32:$a, b4const:$imm), (BEQI i32:$a, b4const:$imm, bb:$offset)>;
-def : CondBranchPat<(setne i32:$a, b4const:$imm), (BNEI i32:$a, b4const:$imm, bb:$offset)>;
+def : CondBranchPat<(seteq i32:$a, b4const:$imm),
+                    (BEQI i32:$a, b4const:$imm, bb:$offset)>;
+def : CondBranchPat<(setne i32:$a, b4const:$imm),
+                    (BNEI i32:$a, b4const:$imm, bb:$offset)>;
 
-def : CondBranchPat<(setge i32:$a, b4const:$imm), (BGEI i32:$a, b4const:$imm, bb:$offset)>;
+def : CondBranchPat<(setge i32:$a, b4const:$imm),
+                    (BGEI i32:$a, b4const:$imm, bb:$offset)>;
 def : CondBranchPat<(setgt i32:$a, b4const_minus1:$imm),
                     (BGEI i32:$a, b4const_minus1:$imm, bb:$offset)>;
 
-def : CondBranchPat<(setlt i32:$a, b4const:$imm), (BLTI i32:$a, b4const:$imm, bb:$offset)>;
+def : CondBranchPat<(setlt i32:$a, b4const:$imm),
+                    (BLTI i32:$a, b4const:$imm, bb:$offset)>;
 def : CondBranchPat<(setle i32:$a, b4const_minus1:$imm),
                     (BLTI i32:$a, b4const_minus1:$imm, bb:$offset)>;
 
-def : CondBranchPat<(setuge i32:$a, b4constu:$imm), (BGEUI i32:$a, b4constu:$imm, bb:$offset)>;
+def : CondBranchPat<(setuge i32:$a, b4constu:$imm),
+                    (BGEUI i32:$a, b4constu:$imm, bb:$offset)>;
 def : CondBranchPat<(setugt i32:$a, b4constu_minus1:$imm),
                     (BGEUI i32:$a, b4constu_minus1:$imm, bb:$offset)>;
 
-def : CondBranchPat<(setult i32:$a, b4constu:$imm), (BLTUI i32:$a, b4constu:$imm, bb:$offset)>;
+def : CondBranchPat<(setult i32:$a, b4constu:$imm),
+                    (BLTUI i32:$a, b4constu:$imm, bb:$offset)>;
 def : CondBranchPat<(setule i32:$a, b4constu_minus1:$imm),
                     (BLTUI i32:$a, b4constu_minus1:$imm, bb:$offset)>;
 
@@ -238,19 +254,23 @@ def CALLX4  : CallX<0b01, A4, "callx4">;
 def CALLX8  : CallX<0b10, A8, "callx8">;
 def CALLX12 : CallX<0b11, A12, "callx12">;
 
-def DSYNC : I_Fixed24<0x002030, "dsync", []>;
+// TODO: proper scheduling model
+def DSYNC : I_Fixed24<0x002030, "dsync", []>, Sched<[]>;
 
-def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12_sl3, "entry"> {
+def ENTRY : GenericBRI12<0b0110, 0b00, 0b11, uimm12_sl3, "entry">, Sched<[]> {
   // This essentially renames all registers.
   let hasSideEffects = true;
 }
 
-def ESYNC : I_Fixed24<0x002020, "esync", []>;
+// TODO: proper scheduling model
+def ESYNC : I_Fixed24<0x002020, "esync", []>, Sched<[]>;
 
 // This instruction is so unusual that it's easiest to just define manually
 def EXTUI
-   : Inst24<0b0000, (outs GPR:$ar), (ins GPR:$at, uimm5:$shiftimm, uimm4_plus1:$maskimm),
-            "extui $ar, $at, $shiftimm, $maskimm", []> {
+   : Inst24<0b0000, (outs GPR:$ar),
+            (ins GPR:$at, uimm5:$shiftimm, uimm4_plus1:$maskimm),
+            "extui $ar, $at, $shiftimm, $maskimm", []>,
+            Sched<[WriteALU]> {
   let hasSideEffects = false;
   let mayLoad = false;
   let mayStore = false;
@@ -277,19 +297,21 @@ def : Pat<(srl i32:$at, (extui_lshrimm i32:$lshrimm, i32:$maskimm)),
 def : Pat<(setlt i32:$a, 0),
           (EXTUI i32:$a, 31, 1)>;
 
-def EXTW : I_Fixed24<0x0020d0, "extw", []>;
+// TODO: proper scheduling model
+def EXTW : I_Fixed24<0x0020d0, "extw", []>, Sched<[]>;
 
 let isTrap = true in {
-  def ILL : I_Fixed24<0x000000, "ill", []>;
-  def ILLN : I_Fixed16<0xf06d, "ill.n", []>;
+  def ILL : I_Fixed24<0x000000, "ill", []>, Sched<[]>;
+  def ILLN : I_Fixed16<0xf06d, "ill.n", []>, Sched<[]>;
 }
 
-def ISYNC : I_Fixed24<0x002000, "isync", []>;
+// TODO: proper scheduling model
+def ISYNC : I_Fixed24<0x002000, "isync", []>, Sched<[]>;
 
 let isBranch = true, isTerminator = true, isBarrier = true in {
-  def J : GenericCall<0b0110, 0b00, jmptarget18, "j", [(br bb:$offset)]>;
-  // def J.L
-  def JX : GenericCallX<0b10, 0b10, "jx", []>;
+  def J : GenericCall<0b0110, 0b00, jmptarget18, "j", [(br bb:$offset)]>,
+          Sched<[WriteBranch]>;
+  def JX : GenericCallX<0b10, 0b10, "jx", []>, Sched<[WriteBranch]>;
 }
 
 def L8UI : LoadRRI8<0b0010, 0b0000, uimm8, "l8ui", []>;
@@ -314,17 +336,22 @@ def : FrameIndexOffLoadPat<sextloadi16, L16SI>;
 // 32-bit loads
 def : FrameIndexOffLoadPat<load, L32I>;
 
-def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []> {
+def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []>, Sched<[WriteL32R]> {
   let isReMaterializable = true;
 }
 
+// TODO: proper scheduling model
 def MEMW : I_Fixed24<0x0020c0, "memw", []>;
 
 let Predicates = [HasMinMax] in {
-  def MAX : ArithRRR<0b0011, 0b0101, "max", [(set i32:$ar, (smax i32:$as, i32:$at))]>;
-  def MAXU : ArithRRR<0b0011, 0b0111, "maxu", [(set i32:$ar, (umax i32:$as, i32:$at))]>;
-  def MIN : ArithRRR<0b0011, 0b0100, "min", [(set i32:$ar, (smin i32:$as, i32:$at))]>;
-  def MINU : ArithRRR<0b0011, 0b0110, "minu", [(set i32:$ar, (umin i32:$as, i32:$at))]>;
+  def MAX : ArithRRRSched<0b0011, 0b0101, "max",
+                          [(set i32:$ar, (smax i32:$as, i32:$at))]>;
+  def MAXU : ArithRRRSched<0b0011, 0b0111, "maxu",
+                           [(set i32:$ar, (umax i32:$as, i32:$at))]>;
+  def MIN : ArithRRRSched<0b0011, 0b0100, "min",
+                          [(set i32:$ar, (smin i32:$as, i32:$at))]>;
+  def MINU : ArithRRRSched<0b0011, 0b0110, "minu",
+                           [(set i32:$ar, (umin i32:$as, i32:$at))]>;
 }
 
 let isSelect = true, isCommutable = true in {
@@ -339,36 +366,53 @@ def : Pat<(select i32:$cond, i32:$true, i32:$false),
 
 let isAsCheapAsAMove = true, isReMaterializable = true, isMoveImm = true in {
   def MOVIN : ArithRI7N<0b1100, 0, movin_imm7, "movi.n", []>;
-  def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi", [(set i32:$at, simm12:$imm12)]>;
+  def MOVI : ArithRI12<0b0010, 0b1010, simm12, "movi",
+                       [(set i32:$at, simm12:$imm12)]>;
 }
 
 def MOVN : ArithBaseRRRN<0b1101, (outs GPR:$at), (ins GPR:$as),
-                        "mov.n $at, $as", []> {
+                        "mov.n $at, $as", []>, Sched<[WriteALU]> {
   let isAsCheapAsAMove = true;
   let isMoveReg = true;
 
   let ar = 0b0000;
 }
 
-def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s", []>;
-def MUL16U : ArithRRR<0b0001, 0b1100, "mul16u", []>;
+def MUL16S : ArithRRR<0b0001, 0b1101, "mul16s", []>, Sched<[WriteMul]>;
+def MUL16U : ArithRRR<0b0001, 0b1100, "mul16u", []>, Sched<[WriteMul]>;
 
-def MULL : ArithRRR<0b0010, 0b1000, "mull", [(set i32:$ar, (mul i32:$as, i32:$at))]>;
-def MULSH : ArithRRR<0b0010, 0b1011, "mulsh", [(set i32:$ar, (mulhs i32:$as, i32:$at))]>;
-def MULUH : ArithRRR<0b0010, 0b1010, "muluh", [(set i32:$ar, (mulhu i32:$as, i32:$at))]>;
+def MULL : ArithRRR<0b0010, 0b1000, "mull",
+                           [(set i32:$ar, (mul i32:$as, i32:$at))]>,
+                           Sched<[WriteMul]>;
+def MULSH : ArithRRR<0b0010, 0b1011, "mulsh",
+                            [(set i32:$ar, (mulhs i32:$as, i32:$at))]>,
+                            Sched<[WriteMul]>;
+def MULUH : ArithRRR<0b0010, 0b1010, "muluh",
+                            [(set i32:$ar, (mulhu i32:$as, i32:$at))]>,
+                            Sched<[WriteMul]>;
 
-def NEG : ArithRRrt<0b0000, 0b0110, 0b0000, "neg", [(set i32:$ar, (ineg i32:$at))]>;
+def NEG : ArithRRrtSched<0b0000, 0b0110, 0b0000, "neg",
+                    [(set i32:$ar, (ineg i32:$at))]>;
 
-def NOP : I_Fixed24<0x0020f0, "nop", []>;
-def NOPN : I_Fixed16<0xf03d, "nop.n", []>;
+def NOP : I_Fixed24<0x0020f0, "nop", []>, Sched<[]>;
+def NOPN : I_Fixed16<0xf03d, "nop.n", []>, Sched<[]>;
 
-def OR : ArithRRR<0b0000, 0b0010, "or", [(set i32:$ar, (or i32:$as, i32:$at))]>;
+def OR : ArithRRRSched<0b0000, 0b0010, "or",
+                       [(set i32:$ar, (or i32:$as, i32:$at))]>;
 def MOV : InstAlias<"mov $ar, $as", (OR GPR:$ar, GPR:$as, GPR:$as)>;
 
-def QUOS : ArithRRR<0b0010, 0b1101, "quos", [(set i32:$ar, (sdiv i32:$as, i32:$at))]>;
-def QUOU : ArithRRR<0b0010, 0b1100, "quou", [(set i32:$ar, (udiv i32:$as, i32:$at))]>;
-def REMS : ArithRRR<0b0010, 0b1111, "rems", [(set i32:$ar, (srem i32:$as, i32:$at))]>;
-def REMU : ArithRRR<0b0010, 0b1110, "remu", [(set i32:$ar, (urem i32:$as, i32:$at))]>;
+def QUOS : ArithRRR<0b0010, 0b1101, "quos",
+                           [(set i32:$ar, (sdiv i32:$as, i32:$at))]>,
+                           Sched<[WriteDiv]>;
+def QUOU : ArithRRR<0b0010, 0b1100, "quou",
+                           [(set i32:$ar, (udiv i32:$as, i32:$at))]>,
+                           Sched<[WriteDiv]>;
+def REMS : ArithRRR<0b0010, 0b1111, "rems",
+                           [(set i32:$ar, (srem i32:$as, i32:$at))]>,
+                           Sched<[WriteDiv]>;
+def REMU : ArithRRR<0b0010, 0b1110, "remu",
+                           [(set i32:$ar, (urem i32:$as, i32:$at))]>,
+                           Sched<[WriteDiv]>;
 
 // def RER
 
@@ -376,19 +420,20 @@ let Uses = [A0],
     isTerminator = true, isBarrier = true, isReturn = true,
     mayLoad = false, mayStore = false in {
   let hasSideEffects = false in {
-    def RET : I_Fixed24<0x000080, "ret", []>;
-    def RETN : I_Fixed16<0xf00d, "ret.n", []>;
+    def RET : I_Fixed24<0x000080, "ret", []>, Sched<[WriteBranch]>;
+    def RETN : I_Fixed16<0xf00d, "ret.n", []>, Sched<[WriteBranch]>;
   }
 
   // These instructions also have the side effect of incrementing the window
   // before performing the return.
-  def RETW : I_Fixed24<0x000090, "retw", []>;
-  def RETWN : I_Fixed16<0xf01d, "retw.n", []>;
+  def RETW : I_Fixed24<0x000090, "retw", []>, Sched<[WriteBranch]>;
+  def RETWN : I_Fixed16<0xf01d, "retw.n", []>, Sched<[WriteBranch]>;
 }
 
 // def RSR
 
-def RSYNC : I_Fixed24<0x002010, "rsync", []>;
+// TODO: proper scheduling model
+def RSYNC : I_Fixed24<0x002010, "rsync", []>, Sched<[]>;
 
 // def RUR
 
@@ -408,54 +453,72 @@ def : FrameIndexOffStorePat<store, S32I>;
 // def S32NB
 
 let Predicates = [HasSalt] in {
-  def SALT : ArithRRR<0b0010, 0b0111, "salt", []>;
-  def SALTU : ArithRRR<0b0010, 0b0110, "saltu", []>;
+  def SALT : ArithRRRSched<0b0010, 0b0111, "salt", []>;
+  def SALTU : ArithRRRSched<0b0010, 0b0110, "saltu", []>;
 }
 
 def SEXT
-   : ArithBaseRRR<0b0011, 0b0010, (outs GPR:$ar), (ins GPR:$as, uimm4_plus7:$imm),
-                  "sext $ar, $as, $imm", []> {
+   : ArithBaseRRR<0b0011, 0b0010, (outs GPR:$ar),
+                  (ins GPR:$as, uimm4_plus7:$imm),
+                  "sext $ar, $as, $imm", []>, Sched<[WriteALU]> {
   bits<4> imm;
   let at = imm;
 }
 
 let Uses = [SAR] in {
-  def SLL : ArithRRrs<0b0001, 0b1010, 0b0000, "sll", []>;
-  def SRA : ArithRRrt<0b0001, 0b1011, 0b0000, "sra", []>;
-  def SRC : ArithRRR<0b0001, 0b1000, "src", []>;
-  def SRL : ArithRRrt<0b0001, 0b1001, 0b0000, "srl", []>;
+  def SLL : ArithRRrs<0b0001, 0b1010, 0b0000, "sll", []>,
+            Sched<[WriteALU, ReadDefault, ReadSAR]>;
+  def SRA : ArithRRrt<0b0001, 0b1011, 0b0000, "sra", []>,
+            Sched<[WriteALU, ReadDefault, ReadSAR]>;
+  def SRC : ArithRRR<0b0001, 0b1000, "src", []>,
+            Sched<[WriteALU, ReadDefault, ReadSAR]>;
+  def SRL : ArithRRrt<0b0001, 0b1001, 0b0000, "srl", []>,
+            Sched<[WriteALU, ReadDefault, ReadSAR]>;
 }
 
 let isReMaterializable = true in {
-  def SLLI : ArithBaseRRR<0b0001, 0b0000, (outs GPR:$ar), (ins GPR:$as, uimm5_sub32:$imm),
-                    "slli $ar, $as, $imm", [(set i32:$ar, (shl i32:$as, uimm5_sub32:$imm))]> {
+  def SLLI : ArithBaseRRR<0b0001, 0b0000, (outs GPR:$ar),
+                          (ins GPR:$as, uimm5_sub32:$imm),
+                          "slli $ar, $as, $imm",
+                          [(set i32:$ar, (shl i32:$as, uimm5_sub32:$imm))]>,
+                          Sched<[WriteALU]> {
     bits<5> imm;
     let at = imm{3...0};
     let Inst{20} = imm{4};
   }
 
-  def SRAI : ArithBaseRRR<0b0001, 0b0010, (outs GPR:$ar), (ins GPR:$at, uimm5:$imm),
-                    "srai $ar, $at, $imm", [(set i32:$ar, (sra i32:$at, uimm5:$imm))]> {
+  def SRAI : ArithBaseRRR<0b0001, 0b0010, (outs GPR:$ar),
+                          (ins GPR:$at, uimm5:$imm),
+                          "srai $ar, $at, $imm",
+                          [(set i32:$ar, (sra i32:$at, uimm5:$imm))]>,
+                          Sched<[WriteALU]> {
     bits<5> imm;
     let as = imm{3...0};
     let Inst{20} = imm{4};
   }
 
-  def SRLI : ArithBaseRRR<0b0001, 0b0100, (outs GPR:$ar), (ins GPR:$at, uimm4:$imm),
-                    "srli $ar, $at, $imm", [(set i32:$ar, (srl i32:$at, uimm4:$imm))]> {
+  def SRLI : ArithBaseRRR<0b0001, 0b0100, (outs GPR:$ar),
+                          (ins GPR:$at, uimm4:$imm),
+                          "srli $ar, $at, $imm",
+                          [(set i32:$ar, (srl i32:$at, uimm4:$imm))]>,
+                          Sched<[WriteALU]> {
     bits<4> imm;
     let as = imm;
   }
 }
 
 let Defs = [SAR] in {
-  def SSA8B : ArithRs<0b0000, 0b0100, 0b0000, 0b0011, "ssa8b", []>;
-  def SSA8L : ArithRs<0b0000, 0b0100, 0b0000, 0b0010, "ssa8l", []>;
-  def SSL : ArithRs<0b0000, 0b0100, 0b0000, 0b0001, "ssl", []>;
-  def SSR : ArithRs<0b0000, 0b0100, 0b0000, 0b0000, "ssr", []>;
+  def SSA8B : ArithRs<0b0000, 0b0100, 0b0000, 0b0011, "ssa8b", []>,
+              Sched<[ReadDefault, WriteSAR]>;
+  def SSA8L : ArithRs<0b0000, 0b0100, 0b0000, 0b0010, "ssa8l", []>,
+              Sched<[ReadDefault, WriteSAR]>;
+  def SSL : ArithRs<0b0000, 0b0100, 0b0000, 0b0001, "ssl", []>,
+            Sched<[ReadDefault, WriteSAR]>;
+  def SSR : ArithRs<0b0000, 0b0100, 0b0000, 0b0000, "ssr", []>,
+            Sched<[ReadDefault, WriteSAR]>;
 
   def SSAI : ArithBaseRRR<0b0000, 0b0100, (outs), (ins uimm5:$imm),
-                  "ssai $imm", []> {
+                          "ssai $imm", []>, Sched<[WriteSAR]> {
     bits<5> imm;
 
     let at = 0b0000;
@@ -465,7 +528,8 @@ let Defs = [SAR] in {
   }
 }
 
-def SUB : ArithRRR<0b0000, 0b1100, "sub", [(set i32:$ar, (sub i32:$as, i32:$at))]>;
+def SUB : ArithRRRSched<0b0000, 0b1100, "sub",
+                        [(set i32:$ar, (sub i32:$as, i32:$at))]>;
 
 // Note: the generic selection of SSR/SSL is implemented manually in C++ due to
 // a tablegen bug causing it to always add an extra implicit def.
@@ -473,13 +537,13 @@ def : Pat<(xtensa_ssr_masked uimm5:$a), (SSAI uimm5:$a)>;
 def : Pat<(xtensa_ssr_masked (shl i32:$a, (i32 3))), (SSA8L i32:$a)>;
 def : Pat<(xtensa_ssl_masked (shl i32:$a, (i32 3))), (SSA8B i32:$a)>;
 
-def SUBX2 : ArithRRR<0b0000, 0b1101, "subx2", [
+def SUBX2 : ArithRRRSched<0b0000, 0b1101, "subx2", [
   (set i32:$ar, (sub (shl i32:$as, (i32 1)), i32:$at))
 ]>;
-def SUBX4 : ArithRRR<0b0000, 0b1110, "subx4", [
+def SUBX4 : ArithRRRSched<0b0000, 0b1110, "subx4", [
   (set i32:$ar, (sub (shl i32:$as, (i32 2)), i32:$at))
 ]>;
-def SUBX8 : ArithRRR<0b0000, 0b1111, "subx8", [
+def SUBX8 : ArithRRRSched<0b0000, 0b1111, "subx8", [
   (set i32:$ar, (sub (shl i32:$as, (i32 3)), i32:$at))
 ]>;
 
@@ -487,7 +551,8 @@ def SUBX8 : ArithRRR<0b0000, 0b1111, "subx8", [
 // def WSR
 // def WUR
 
-def XOR : ArithRRR<0b0000, 0b0011, "xor", [(set i32:$ar, (xor i32:$as, i32:$at))]>;
+def XOR : ArithRRRSched<0b0000, 0b0011, "xor",
+                        [(set i32:$ar, (xor i32:$as, i32:$at))]>;
 
 let Predicates = [HasSalt] in {
   def : Pat<(setlt i32:$a, i32:$b),

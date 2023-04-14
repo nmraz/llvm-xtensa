@@ -2,6 +2,7 @@ include "llvm/Target/Target.td"
 
 include "XtensaRegisterInfo.td"
 include "XtensaRegisterBanks.td"
+include "XtensaSchedule.td"
 include "XtensaInstrInfo.td"
 include "XtensaCallingConv.td"
 include "XtensaCombine.td"
