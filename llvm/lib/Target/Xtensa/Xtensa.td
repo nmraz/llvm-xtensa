@@ -19,8 +19,10 @@ def FeatureLX7 : SubtargetFeature<"lx7", "HasLX7", "true",
 
 def XtensaInstrInfo : InstrInfo;
 
+include "XtensaSched7Stage.td"
+
 class Proc<string Name, list<SubtargetFeature> Features>
-   : ProcessorModel<Name, NoSchedModel, Features>;
+   : ProcessorModel<Name, Xtensa7StageModel, Features>;
 
 def : Proc<"generic", []>;
 def : Proc<"esp32", [FeatureMinMax]>;

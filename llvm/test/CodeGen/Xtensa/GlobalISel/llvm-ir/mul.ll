@@ -157,10 +157,10 @@ entry:
 define i64 @mul_i32_i64_signed(i32 %a, i32 %b) {
 ; OPT-LABEL: mul_i32_i64_signed:
 ; OPT:       # %bb.0: # %entry
-; OPT-NEXT:    srai a5, a2, 31
-; OPT-NEXT:    srai a6, a3, 31
 ; OPT-NEXT:    mull a4, a2, a3
+; OPT-NEXT:    srai a5, a2, 31
 ; OPT-NEXT:    mull a5, a5, a3
+; OPT-NEXT:    srai a6, a3, 31
 ; OPT-NEXT:    mull a6, a2, a6
 ; OPT-NEXT:    muluh a2, a2, a3
 ; OPT-NEXT:    add.n a3, a5, a6

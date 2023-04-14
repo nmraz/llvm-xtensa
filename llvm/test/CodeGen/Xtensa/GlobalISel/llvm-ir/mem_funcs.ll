@@ -61,8 +61,8 @@ define void @do_memset_len8_unaligned(ptr %p, i8 %val) {
 define void @do_memset_len8_aligned(ptr %p, i8 %val) {
 ; CHECK-LABEL: do_memset_len8_aligned:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    l32r a4, .LCPI4_0
 ; CHECK-NEXT:    extui a3, a3, 0, 8
+; CHECK-NEXT:    l32r a4, .LCPI4_0
 ; CHECK-NEXT:    mull a3, a3, a4
 ; CHECK-NEXT:    s32i.n a3, a2, 0
 ; CHECK-NEXT:    s32i.n a3, a2, 4

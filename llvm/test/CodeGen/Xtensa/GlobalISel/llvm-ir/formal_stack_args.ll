@@ -27,10 +27,10 @@ define void @stack_arg_i64(i32 %arg1, i32 %arg2, i32 %arg3, i32 %arg4, i32 %arg5
 ; OPT-LABEL: stack_arg_i64:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    l32i.n a2, a1, 0
-; OPT-NEXT:    l32r a3, .LCPI1_0
-; OPT-NEXT:    l32i.n a4, a1, 4
-; OPT-NEXT:    s32i.n a2, a3, 0
-; OPT-NEXT:    s32i.n a4, a3, 4
+; OPT-NEXT:    l32i.n a3, a1, 4
+; OPT-NEXT:    l32r a4, .LCPI1_0
+; OPT-NEXT:    s32i.n a2, a4, 0
+; OPT-NEXT:    s32i.n a3, a4, 4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: stack_arg_i64:
@@ -50,12 +50,12 @@ define void @stack_arg_i64_aligned(i32 %arg1, i32 %arg2, i32 %arg3, i32 %arg4, i
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    l32i.n a2, a1, 0
 ; OPT-NEXT:    l32i.n a3, a1, 8
-; OPT-NEXT:    l32r a4, .LCPI2_1
-; OPT-NEXT:    l32r a5, .LCPI2_0
-; OPT-NEXT:    l32i.n a6, a1, 12
-; OPT-NEXT:    s32i.n a2, a4, 0
-; OPT-NEXT:    s32i.n a3, a5, 0
-; OPT-NEXT:    s32i.n a6, a5, 4
+; OPT-NEXT:    l32i.n a4, a1, 12
+; OPT-NEXT:    l32r a5, .LCPI2_1
+; OPT-NEXT:    s32i.n a2, a5, 0
+; OPT-NEXT:    l32r a2, .LCPI2_0
+; OPT-NEXT:    s32i.n a3, a2, 0
+; OPT-NEXT:    s32i.n a4, a2, 4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: stack_arg_i64_aligned:
@@ -78,10 +78,10 @@ define void @mixed_stack_args(i32 %arg1, i32 %arg2, i32 %arg3, i32 %arg4, i32 %a
 ; OPT-LABEL: mixed_stack_args:
 ; OPT:       # %bb.0:
 ; OPT-NEXT:    l32i.n a2, a1, 8
-; OPT-NEXT:    l32r a3, .LCPI3_0
-; OPT-NEXT:    l32i.n a4, a1, 12
-; OPT-NEXT:    s32i.n a2, a3, 0
-; OPT-NEXT:    s32i.n a4, a3, 4
+; OPT-NEXT:    l32i.n a3, a1, 12
+; OPT-NEXT:    l32r a4, .LCPI3_0
+; OPT-NEXT:    s32i.n a2, a4, 0
+; OPT-NEXT:    s32i.n a3, a4, 4
 ; OPT-NEXT:    ret.n
 ;
 ; UNOPT-LABEL: mixed_stack_args:
