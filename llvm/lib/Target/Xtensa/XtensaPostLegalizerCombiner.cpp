@@ -1,3 +1,4 @@
+#include "MCTargetDesc/XtensaBaseInfo.h"
 #include "XtensaInstrInfo.h"
 #include "XtensaSubtarget.h"
 #include "llvm/ADT/None.h"
@@ -13,6 +14,7 @@
 #include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
 #include "llvm/CodeGen/GlobalISel/Utils.h"
 #include "llvm/CodeGen/MachineDominators.h"
+#include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
@@ -177,6 +179,77 @@ static bool matchExpensiveICmpOp(MachineRegisterInfo &MRI, MachineInstr &MI,
         Builder.buildSelect(Dest, ICmpReg, OneVal, ZeroVal);
     LLVM_DEBUG(dbgs() << "\tBuilt select:");
     LLVM_DEBUG(Select->dump());
+  };
+
+  return true;
+}
+
+static bool getMulShifts(uint64_t MulAmount, unsigned &BaseShiftAmount,
+                         unsigned &SmallShiftAmount) {
+  for (unsigned I : {1, 2, 3}) {
+    uint64_t AdjustedMulAmount = MulAmount - (1 << I);
+    if (isPowerOf2_64(AdjustedMulAmount)) {
+      BaseShiftAmount = Log2_64(AdjustedMulAmount);
+      SmallShiftAmount = I;
+      return true;
+    }
+  }
+
+  return false;
+}
+
+static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
+                          BuildFnTy &BuildFn) {
+  Register InputReg;
+  int64_t MulAmount;
+  if (!mi_match(MI, MRI, m_GMul(m_Reg(InputReg), m_ICst(MulAmount)))) {
+    return false;
+  }
+
+  if (!MulAmount) {
+    // Will be handled by other combines.
+    return false;
+  }
+
+  const MachineFunction &MF = *MI.getParent()->getParent();
+
+  if (MF.getFunction().hasMinSize() && isInt<12>(MulAmount)) {
+    // For min-size functions, only bother doing this if we would have required
+    // an `l32r`, bringing the total byte count up to 10 and the allowed
+    // instruction count to 3.
+    return false;
+  }
+
+  unsigned BaseShiftAmount = 0;
+  unsigned SmallShiftAmount = 0;
+
+  // Note: we currently assume that the original multiplication cost 3 cycles (1
+  // for the immediate load and 2 for the multiply).
+  uint64_t AbsMulAmount = MulAmount < 0 ? -MulAmount : MulAmount;
+
+  if (!getMulShifts(AbsMulAmount, BaseShiftAmount, SmallShiftAmount)) {
+    return false;
+  }
+
+  Register Dest = MI.getOperand(0).getReg();
+
+  BuildFn = [=](MachineIRBuilder &MIB) {
+    LLT S32 = LLT::scalar(32);
+
+    auto BaseShift =
+        MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, BaseShiftAmount));
+    Register ExtraAddend =
+        SmallShiftAmount
+            ? MIB.buildShl(S32, InputReg,
+                           MIB.buildConstant(S32, SmallShiftAmount))
+                  .getReg(0)
+            : InputReg;
+    auto Add = MIB.buildAdd(S32, BaseShift, ExtraAddend);
+    if (MulAmount < 0) {
+      MIB.buildSub(Dest, MIB.buildConstant(S32, 0), Add);
+    } else {
+      MIB.buildCopy(Dest, Add);
+    }
   };
 
   return true;
