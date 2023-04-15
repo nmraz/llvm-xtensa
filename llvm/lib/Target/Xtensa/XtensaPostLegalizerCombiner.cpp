@@ -187,12 +187,12 @@ static bool matchExpensiveICmpOp(MachineRegisterInfo &MRI, MachineInstr &MI,
 static void bumpMulCostIf(int &Cost, bool B) { Cost += B; }
 
 static bool matchMulConstPow2(Register DestReg, Register InputReg,
-                              int64_t MulAmount, uint64_t AbsMulAmount,
-                              int Budget, BuildFnTy &BuildFn) {
+                              uint64_t AbsMulAmount, bool IsNeg, int Budget,
+                              BuildFnTy &BuildFn) {
   int Cost = 0;
   unsigned ShiftAmount = Log2_64(AbsMulAmount);
   bumpMulCostIf(Cost, ShiftAmount > 0); // Need an explicit shift
-  bumpMulCostIf(Cost, MulAmount < 0);   // Need an extra `neg`
+  bumpMulCostIf(Cost, IsNeg);           // Need an extra `neg`
   if (Cost > Budget) {
     return false;
   }
@@ -201,10 +201,10 @@ static bool matchMulConstPow2(Register DestReg, Register InputReg,
     LLT S32 = LLT::scalar(32);
     auto Shift =
         MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, ShiftAmount));
-    if (MulAmount >= 0) {
-      MIB.buildCopy(DestReg, Shift);
-    } else {
+    if (IsNeg) {
       MIB.buildSub(DestReg, MIB.buildConstant(S32, 0), Shift);
+    } else {
+      MIB.buildCopy(DestReg, Shift);
     }
   };
 
@@ -224,7 +224,7 @@ static bool getMulShifts(uint64_t MulAmount, unsigned &BaseShiftAmount,
   return false;
 }
 
-static bool breakDownMulConst(int64_t MulAmount, uint64_t AbsMulAmount,
+static bool breakDownMulConst(uint64_t AbsMulAmount, bool IsNeg,
                               unsigned &LHSShiftAmount,
                               unsigned &RHSShiftAmount, bool &NeedsSub,
                               bool &NeedsNeg) {
@@ -232,7 +232,7 @@ static bool breakDownMulConst(int64_t MulAmount, uint64_t AbsMulAmount,
   // This will enable us to use an `addx` instruction for the small amount.
   if (getMulShifts(AbsMulAmount, LHSShiftAmount, RHSShiftAmount)) {
     NeedsSub = false;
-    NeedsNeg = MulAmount < 0;
+    NeedsNeg = IsNeg;
     return true;
   }
 
@@ -246,7 +246,7 @@ static bool breakDownMulConst(int64_t MulAmount, uint64_t AbsMulAmount,
   NeedsSub = true;
   NeedsNeg = false;
 
-  if (MulAmount >= 0) {
+  if (!IsNeg) {
     LHSShiftAmount = Shift;
     RHSShiftAmount = 0;
   } else {
@@ -280,8 +280,8 @@ static unsigned getMulConstGenericCost(unsigned LHSShiftAmount,
 }
 
 static bool matchMulConstGeneric(Register DestReg, Register InputReg,
-                                 int64_t MulAmount, uint64_t AbsMulAmount,
-                                 int Budget, BuildFnTy &BuildFn) {
+                                 uint64_t AbsMulAmount, bool IsNeg, int Budget,
+                                 BuildFnTy &BuildFn) {
   unsigned LHSShiftAmount = 0;
   unsigned RHSShiftAmount = 0;
   bool NeedsSub = false;
@@ -294,11 +294,10 @@ static bool matchMulConstGeneric(Register DestReg, Register InputReg,
   // * (sub x, (shl x, B))
   //
   // Where `S` is at most 3, enabling the shifts to be folded into the adds.
-  if (!breakDownMulConst(MulAmount, AbsMulAmount, LHSShiftAmount,
-                         RHSShiftAmount, NeedsSub, NeedsNeg)) {
+  if (!breakDownMulConst(AbsMulAmount, IsNeg, LHSShiftAmount, RHSShiftAmount,
+                         NeedsSub, NeedsNeg)) {
     return false;
   }
-
   int Cost = getMulConstGenericCost(LHSShiftAmount, RHSShiftAmount, NeedsSub,
                                     NeedsNeg);
   if (Cost > Budget) {
@@ -379,13 +378,14 @@ static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
   }
 
   Register DestReg = MI.getOperand(0).getReg();
-  uint64_t AbsMulAmount = MulAmount < 0 ? -MulAmount : MulAmount;
+  bool IsNeg = MulAmount < 0;
+  uint64_t AbsMulAmount = IsNeg ? -MulAmount : MulAmount;
   if (isPowerOf2_64(AbsMulAmount)) {
-    return matchMulConstPow2(DestReg, InputReg, MulAmount, AbsMulAmount, Budget,
+    return matchMulConstPow2(DestReg, InputReg, AbsMulAmount, IsNeg, Budget,
                              BuildFn);
   }
-  return matchMulConstGeneric(DestReg, InputReg, MulAmount, AbsMulAmount,
-                              Budget, BuildFn);
+  return matchMulConstGeneric(DestReg, InputReg, AbsMulAmount, IsNeg, Budget,
+                              BuildFn);
 }
 
 #define XTENSAPOSTLEGALIZERCOMBINERHELPER_GENCOMBINERHELPER_DEPS
