@@ -197,6 +197,55 @@ static bool matchMulConstPow2(Register DestReg, Register InputReg,
   return true;
 }
 
+static bool matchMulConstSpecial(Register DestReg, Register InputReg,
+                                 uint64_t AbsMulAmount, bool IsNeg,
+                                 unsigned Budget, BuildFnTy &BuildFn) {
+  bool PreMulSub = false;
+  unsigned PreMulShiftAmount = 0;
+  uint64_t RemainingMulAmount = 0;
+
+  // Attempt to match a pattern that we can create with `addx`/`subx` followed
+  // by the generic sum of powers of 2.
+
+  if (AbsMulAmount % 9 == 0) {
+    // 9 = 2^3 + 1
+    PreMulShiftAmount = 3;
+    RemainingMulAmount = AbsMulAmount / 9;
+  } else if (AbsMulAmount % 7 == 0) {
+    // 7 = 2^3 - 1
+    PreMulShiftAmount = 3;
+    PreMulSub = true;
+    RemainingMulAmount = AbsMulAmount / 7;
+  } else if (AbsMulAmount % 5 == 0) {
+    // 5 = 2^2 + 1
+    PreMulShiftAmount = 2;
+    RemainingMulAmount = AbsMulAmount / 5;
+  } else if (AbsMulAmount % 3 == 0) {
+    // 3 = 2^2 - 1
+    PreMulShiftAmount = 1;
+    RemainingMulAmount = AbsMulAmount / 3;
+  } else {
+    return false;
+  }
+
+  MulConst2Pow2Parts Parts;
+  if (!Parts.matchFrom(RemainingMulAmount, IsNeg) ||
+      Parts.getCost() + 1 > Budget) {
+    return false;
+  }
+
+  BuildFn = [=](MachineIRBuilder &MIB) {
+    LLT S32 = LLT::scalar(32);
+    auto PreMulShift =
+        MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, PreMulShiftAmount));
+    Register PreMul = MIB.buildInstr(PreMulSub ? Xtensa::G_SUB : Xtensa::G_ADD,
+                                     {S32}, {PreMulShift, InputReg})
+                          .getReg(0);
+    Parts.build(MIB, DestReg, PreMul);
+  };
+  return true;
+}
+
 static bool matchMulConst2Pow2(Register DestReg, Register InputReg,
                                uint64_t AbsMulAmount, bool IsNeg,
                                unsigned Budget, BuildFnTy &BuildFn) {
@@ -269,7 +318,10 @@ static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
                         BuildFn)) {
     return true;
   }
-
+  if (matchMulConstSpecial(DestReg, InputReg, AbsMulAmount, IsNeg, Budget,
+                           BuildFn)) {
+    return true;
+  }
   return matchMulConst2Pow2(DestReg, InputReg, AbsMulAmount, IsNeg, Budget,
                             BuildFn);
 }

@@ -42,6 +42,11 @@ bool MulConst2Pow2Parts::matchFrom(uint64_t AbsMulAmount, bool IsNeg) {
   unsigned BaseShiftAmount = countTrailingZeros(AbsMulAmount);
   uint64_t NormalizedMulAmount = AbsMulAmount >> BaseShiftAmount;
 
+  if (NormalizedMulAmount == 1) {
+    // Let other things take care of powers of 2.
+    return false;
+  }
+
   if (isPowerOf2_64(NormalizedMulAmount - 1)) {
     // Sum of powers of 2.
     LHSShiftAmount = Log2_64(NormalizedMulAmount - 1) + BaseShiftAmount;
