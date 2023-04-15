@@ -72,6 +72,27 @@ static bool matchICmpPow2Mask(const MachineRegisterInfo &MRI, MachineInstr &MI,
   return true;
 }
 
+static bool matchAndNot(const MachineRegisterInfo &MRI, MachineInstr &MI,
+                        BuildFnTy &BuildFn) {
+  Register AndOperand;
+  Register NotOperand;
+
+  if (!mi_match(MI, MRI,
+                m_GAnd(m_Reg(AndOperand),
+                       m_OneNonDBGUse(
+                           m_GXor(m_Reg(NotOperand), m_SpecificICst(-1)))))) {
+    return false;
+  }
+
+  Register Dest = MI.getOperand(0).getReg();
+
+  BuildFn = [=](MachineIRBuilder &MIB) {
+    auto And = MIB.buildAnd(LLT::scalar(32), AndOperand, NotOperand);
+    MIB.buildXor(Dest, And, AndOperand);
+  };
+  return true;
+}
+
 static bool matchRepeatedXorConst(const CombinerHelper &Helper,
                                   const MachineRegisterInfo &MRI,
                                   MachineInstr &MI, Register &OrigReg) {

@@ -57,10 +57,10 @@ define void @branch_nmask_nez(i32 %a, i32 %b) {
 ; CHECK-LABEL: branch_nmask_nez:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
-; CHECK-NEXT:    movi.n a4, -1
-; CHECK-NEXT:    xor a3, a3, a4
+; CHECK-NEXT:    and a3, a2, a3
+; CHECK-NEXT:    xor a2, a3, a2
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    bnone a3, a2, .LBB2_2
+; CHECK-NEXT:    beqz a2, .LBB2_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB2_2: # %if.end
@@ -85,10 +85,10 @@ define void @branch_nmask_eqz(i32 %a, i32 %b) {
 ; CHECK-LABEL: branch_nmask_eqz:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    addi a1, a1, -16
-; CHECK-NEXT:    movi.n a4, -1
-; CHECK-NEXT:    xor a3, a3, a4
+; CHECK-NEXT:    and a3, a2, a3
+; CHECK-NEXT:    xor a2, a3, a2
 ; CHECK-NEXT:    s32i.n a0, a1, 12 # 4-byte Spill
-; CHECK-NEXT:    bany a3, a2, .LBB3_2
+; CHECK-NEXT:    bnez a2, .LBB3_2
 ; CHECK-NEXT:  # %bb.1: # %if.then
 ; CHECK-NEXT:    call0 func
 ; CHECK-NEXT:  .LBB3_2: # %if.end

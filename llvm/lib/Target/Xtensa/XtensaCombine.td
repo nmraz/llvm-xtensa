@@ -15,6 +15,15 @@ def icmp_pow2_mask : GICombineRule<
   (apply [{ Helper.applyBuildFn(*${root}, ${matchinfo}); }])
 >;
 
+// Fold (and (not a), b) -> (xor (and a, b), b)
+// Because xtensa doesn't have a dedicated `not` instruction
+def and_not : GICombineRule<
+  (defs root:$root, build_fn_matchinfo:$matchinfo),
+  (match (wip_match_opcode G_AND):$root,
+    [{ return matchAndNot(MRI, *${root}, ${matchinfo}); }]),
+  (apply [{ Helper.applyBuildFn(*${root}, ${matchinfo}); }])
+>;
+
 // Fold (xor (xor a, C), C) -> a
 def repeated_xor_const : GICombineRule<
   (defs root:$root, register_matchinfo:$matchinfo),
@@ -126,7 +135,7 @@ def XtensaPostLegalizerCombinerHelper : GICombinerHelper<
   "XtensaGenPostLegalizerCombinerHelper",
   [xtensa_generic_combines,
    // Xtensa-specific
-   left_identity_zero, icmp_pow2_mask,
+   left_identity_zero, icmp_pow2_mask, and_not,
    repeated_xor_const, fold_expensive_icmp, mul_const]> {
   let DisableRuleOption = "xtensapostlegalizercombiner-disable-rule";
 }
