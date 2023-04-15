@@ -184,6 +184,38 @@ static bool matchExpensiveICmpOp(MachineRegisterInfo &MRI, MachineInstr &MI,
   return true;
 }
 
+static bool matchMulConstPow2(Register DestReg, Register InputReg,
+                              int64_t MulAmount, uint64_t AbsMulAmount,
+                              int Budget, BuildFnTy &BuildFn) {
+  int Cost = 0;
+  unsigned ShiftAmount = Log2_64(AbsMulAmount);
+  if (ShiftAmount > 0) {
+    // Need an explicit shift
+    Cost++;
+  }
+  if (MulAmount < 0) {
+    // Need an extra `neg`
+    Cost++;
+  }
+
+  if (Cost > Budget) {
+    return false;
+  }
+
+  BuildFn = [=](MachineIRBuilder &MIB) {
+    LLT S32 = LLT::scalar(32);
+    auto Shift =
+        MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, ShiftAmount));
+    if (MulAmount >= 0) {
+      MIB.buildCopy(DestReg, Shift);
+    } else {
+      MIB.buildSub(DestReg, MIB.buildConstant(S32, 0), Shift);
+    }
+  };
+
+  return true;
+}
+
 static bool getMulShifts(uint64_t MulAmount, unsigned &BaseShiftAmount,
                          unsigned &SmallShiftAmount) {
   for (unsigned I : {0, 1, 2, 3}) {
@@ -198,89 +230,9 @@ static bool getMulShifts(uint64_t MulAmount, unsigned &BaseShiftAmount,
   return false;
 }
 
-static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
-                          BuildFnTy &BuildFn) {
-  Register LHS = MI.getOperand(1).getReg();
-  Register RHS = MI.getOperand(2).getReg();
-
-  Register InputReg;
-  Register AmountReg;
-  int64_t MulAmount;
-
-  if (mi_match(LHS, MRI, m_ICst(MulAmount))) {
-    AmountReg = LHS;
-    InputReg = RHS;
-  } else if (mi_match(RHS, MRI, m_ICst(MulAmount))) {
-    AmountReg = RHS;
-    InputReg = LHS;
-  } else {
-    return false;
-  }
-
-  if (!MulAmount) {
-    // Will be handled by other combines.
-    return false;
-  }
-
-  Register DestReg = MI.getOperand(0).getReg();
-  const MachineFunction &MF = *MI.getParent()->getParent();
-
-  // This is measured in cycles/instructions, depending on whether we are
-  // optimizing for speed or size.
-  int Budget = 0;
-  // Note: we want to convert the multiply even if we end up exactly even in
-  // terms of latency/size, because the multiplier is typically not pipelined -
-  // any `mull` instruction we remove can help scheduling later.
-  if (MF.getFunction().hasMinSize()) {
-    if (XtensaII::isMoviNImm7(MulAmount)) {
-      // We can't compete with the 5 bytes required for a `movi.n` + `mull` in
-      // more than one instruction, as none of the instructions we emit have
-      // narrow variants.
-      Budget = 1;
-    } else if (MRI.hasOneNonDBGUse(AmountReg) && !isInt<12>(MulAmount)) {
-      // This multiplication would currently require 10 bytes:
-      // constant pool (4) + `l32r` (3) + `mull` (3)
-      // That leaves room for 3 (wide) instructions.
-      Budget = 3;
-    }
-  } else {
-    // The multiply itself should cost 2 cycles.
-    // If the amount is only used for the multiply, we also have the cycle
-    // required to load the immediate.
-    Budget = 2 + MRI.hasOneNonDBGUse(AmountReg);
-  }
-
-  int Cost = 0;
-  uint64_t AbsMulAmount = MulAmount < 0 ? -MulAmount : MulAmount;
-
-  if (isPowerOf2_64(AbsMulAmount)) {
-    unsigned ShiftAmount = Log2_64(AbsMulAmount);
-    if (ShiftAmount > 0) {
-      // Need an explicit shift
-      Cost++;
-    }
-    if (MulAmount < 0) {
-      // Need an extra `neg`
-      Cost++;
-    }
-
-    if (Cost > Budget) {
-      return false;
-    }
-
-    BuildFn = [=](MachineIRBuilder &MIB) {
-      LLT S32 = LLT::scalar(32);
-      auto Shift =
-          MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, ShiftAmount));
-      if (MulAmount >= 0) {
-        MIB.buildCopy(DestReg, Shift);
-      } else {
-        MIB.buildSub(DestReg, MIB.buildConstant(S32, 0), Shift);
-      }
-    };
-    return true;
-  }
-
+static bool matchMulConstGeneric(Register DestReg, Register InputReg,
+                                 int64_t MulAmount, uint64_t AbsMulAmount,
+                                 int Budget, BuildFnTy &BuildFn) {
   unsigned BaseShiftAmount = 0;
   unsigned SmallShiftAmount = 0;
 
@@ -289,7 +241,7 @@ static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
   }
 
   // Everything from now on costs at least 1 instruction (the `add`).
-  Cost = 1;
+  int Cost = 1;
   if (BaseShiftAmount <= 3 && SmallShiftAmount == 0) {
     // Special case a small base shift with no small shift, which can allow us
     // to form an ordinary add or `addx` in the opposite direction.
@@ -297,7 +249,6 @@ static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
     // Need an extra `slli`.
     Cost++;
   }
-
   if (MulAmount < 0) {
     // Need an extra `neg`.
     Cost++;
@@ -327,6 +278,67 @@ static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
   };
 
   return true;
+}
+
+static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
+                          BuildFnTy &BuildFn) {
+  Register LHS = MI.getOperand(1).getReg();
+  Register RHS = MI.getOperand(2).getReg();
+
+  Register InputReg;
+  Register AmountReg;
+  int64_t MulAmount;
+
+  if (mi_match(LHS, MRI, m_ICst(MulAmount))) {
+    AmountReg = LHS;
+    InputReg = RHS;
+  } else if (mi_match(RHS, MRI, m_ICst(MulAmount))) {
+    AmountReg = RHS;
+    InputReg = LHS;
+  } else {
+    return false;
+  }
+
+  if (!MulAmount) {
+    // Will be handled by other combines.
+    return false;
+  }
+
+  const MachineFunction &MF = *MI.getParent()->getParent();
+
+  // This is measured in cycles/instructions, depending on whether we are
+  // optimizing for speed or size.
+  int Budget = 0;
+  // Note: we want to convert the multiply even if we end up exactly even in
+  // terms of latency/size, because the multiplier is typically not pipelined -
+  // any `mull` instruction we remove can help scheduling later.
+  if (MF.getFunction().hasMinSize()) {
+    if (XtensaII::isMoviNImm7(MulAmount)) {
+      // We can't compete with the 5 bytes required for a `movi.n` + `mull` in
+      // more than one instruction, as none of the instructions we emit have
+      // narrow variants.
+      Budget = 1;
+    } else if (MRI.hasOneNonDBGUse(AmountReg) && !isInt<12>(MulAmount)) {
+      // This multiplication would currently require 10 bytes:
+      // constant pool (4) + `l32r` (3) + `mull` (3)
+      // That leaves room for 3 (wide) instructions.
+      Budget = 3;
+    }
+  } else {
+    // The multiply itself should cost 2 cycles.
+    // If the amount is only used for the multiply, we also have the cycle
+    // required to load the immediate.
+    Budget = 2 + MRI.hasOneNonDBGUse(AmountReg);
+  }
+
+  Register DestReg = MI.getOperand(0).getReg();
+  uint64_t AbsMulAmount = MulAmount < 0 ? -MulAmount : MulAmount;
+  if (isPowerOf2_64(AbsMulAmount)) {
+    return matchMulConstPow2(DestReg, InputReg, MulAmount, AbsMulAmount, Budget,
+                             BuildFn);
+  }
+  return matchMulConstGeneric(DestReg, InputReg, MulAmount, AbsMulAmount,
+                              Budget, BuildFn);
 }
 
 #define XTENSAPOSTLEGALIZERCOMBINERHELPER_GENCOMBINERHELPER_DEPS
