@@ -1,5 +1,6 @@
 #include "MCTargetDesc/XtensaBaseInfo.h"
 #include "XtensaInstrInfo.h"
+#include "XtensaMulConst.h"
 #include "XtensaSubtarget.h"
 #include "llvm/ADT/None.h"
 #include "llvm/ADT/Optional.h"
@@ -30,6 +31,7 @@
 #define DEBUG_TYPE "xtensa-postlegalizer-combiner"
 
 using namespace llvm;
+using namespace Xtensa;
 using namespace MIPatternMatch;
 
 static bool matchICmpPow2Mask(const MachineRegisterInfo &MRI, MachineInstr &MI,
@@ -184,145 +186,25 @@ static bool matchExpensiveICmpOp(MachineRegisterInfo &MRI, MachineInstr &MI,
   return true;
 }
 
-static void bumpMulCostIf(int &Cost, bool B) { Cost += B; }
-
 static bool matchMulConstPow2(Register DestReg, Register InputReg,
-                              uint64_t AbsMulAmount, bool IsNeg, int Budget,
-                              BuildFnTy &BuildFn) {
-  int Cost = 0;
-  unsigned ShiftAmount = Log2_64(AbsMulAmount);
-  bumpMulCostIf(Cost, ShiftAmount > 0); // Need an explicit shift
-  bumpMulCostIf(Cost, IsNeg);           // Need an extra `neg`
-  if (Cost > Budget) {
+                              uint64_t AbsMulAmount, bool IsNeg,
+                              unsigned Budget, BuildFnTy &BuildFn) {
+  MulConstPow2Parts Parts;
+  if (!Parts.matchFrom(AbsMulAmount, IsNeg) || Parts.getCost() > Budget) {
     return false;
   }
-
-  BuildFn = [=](MachineIRBuilder &MIB) {
-    LLT S32 = LLT::scalar(32);
-    auto Shift =
-        MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, ShiftAmount));
-    if (IsNeg) {
-      MIB.buildSub(DestReg, MIB.buildConstant(S32, 0), Shift);
-    } else {
-      MIB.buildCopy(DestReg, Shift);
-    }
-  };
-
+  BuildFn = [=](MachineIRBuilder &MIB) { Parts.build(MIB, DestReg, InputReg); };
   return true;
 }
 
-static bool getMulShifts(uint64_t MulAmount, unsigned &BaseShiftAmount,
-                         unsigned &SmallShiftAmount) {
-  for (unsigned I : {0, 1, 2, 3}) {
-    uint64_t AdjustedMulAmount = MulAmount - (1 << I);
-    if (isPowerOf2_64(AdjustedMulAmount)) {
-      BaseShiftAmount = Log2_64(AdjustedMulAmount);
-      SmallShiftAmount = I;
-      return true;
-    }
-  }
-  return false;
-}
-
-static bool breakDownMulConst(uint64_t AbsMulAmount, bool IsNeg,
-                              unsigned &LHSShiftAmount,
-                              unsigned &RHSShiftAmount, bool &NeedsSub,
-                              bool &NeedsNeg) {
-  // Try to break the amount down into `2^B + 2^S`, where `S <= 3`.
-  // This will enable us to use an `addx` instruction for the small amount.
-  if (getMulShifts(AbsMulAmount, LHSShiftAmount, RHSShiftAmount)) {
-    NeedsSub = false;
-    NeedsNeg = IsNeg;
-    return true;
-  }
-
-  // Try to break the amount down into `2^B - 1`.
-  uint64_t AdjustedMulAmount = AbsMulAmount + 1;
-  if (!isPowerOf2_64(AdjustedMulAmount)) {
+static bool matchMulConstWithAdd(Register DestReg, Register InputReg,
+                                 uint64_t AbsMulAmount, bool IsNeg,
+                                 unsigned Budget, BuildFnTy &BuildFn) {
+  MulConstWithAddParts Parts;
+  if (!Parts.matchFrom(AbsMulAmount, IsNeg) || Parts.getCost() > Budget) {
     return false;
   }
-  unsigned Shift = Log2_64(AdjustedMulAmount);
-
-  NeedsSub = true;
-  NeedsNeg = false;
-
-  if (!IsNeg) {
-    LHSShiftAmount = Shift;
-    RHSShiftAmount = 0;
-  } else {
-    LHSShiftAmount = 0;
-    RHSShiftAmount = Shift;
-  }
-
-  return true;
-}
-
-static bool canUseAddSubX(unsigned ShiftAmount) { return ShiftAmount <= 3; }
-
-static unsigned getMulConstGenericCost(unsigned LHSShiftAmount,
-                                       unsigned RHSShiftAmount, bool NeedsSub,
-                                       bool NeedsNeg) {
-  int Cost = 1; // For the add/sub itself
-  if (canUseAddSubX(LHSShiftAmount)) {
-    // The LHS shift can be folded into the add/sub, check only the RHS.
-    bumpMulCostIf(Cost, RHSShiftAmount != 0);
-  } else if (!NeedsSub && canUseAddSubX(RHSShiftAmount)) {
-    // The RHS shift can be folded into the add, check only the LHS.
-    bumpMulCostIf(Cost, LHSShiftAmount != 0);
-  } else {
-    // We may need an `slli` for each of the shifts.
-    bumpMulCostIf(Cost, LHSShiftAmount != 0);
-    bumpMulCostIf(Cost, RHSShiftAmount != 0);
-  }
-
-  bumpMulCostIf(Cost, NeedsNeg);
-  return Cost;
-}
-
-static bool matchMulConstGeneric(Register DestReg, Register InputReg,
-                                 uint64_t AbsMulAmount, bool IsNeg, int Budget,
-                                 BuildFnTy &BuildFn) {
-  unsigned LHSShiftAmount = 0;
-  unsigned RHSShiftAmount = 0;
-  bool NeedsSub = false;
-  bool NeedsNeg = false;
-
-  // Attempt to turn the multiply into one of:
-  // * (add (shl x, B), (shl x, S))
-  // * (neg (add (shl x, B), (shl x, S)))
-  // * (sub (shl x, B), x)
-  // * (sub x, (shl x, B))
-  //
-  // Where `S` is at most 3, enabling the shifts to be folded into the adds.
-  if (!breakDownMulConst(AbsMulAmount, IsNeg, LHSShiftAmount, RHSShiftAmount,
-                         NeedsSub, NeedsNeg)) {
-    return false;
-  }
-  int Cost = getMulConstGenericCost(LHSShiftAmount, RHSShiftAmount, NeedsSub,
-                                    NeedsNeg);
-  if (Cost > Budget) {
-    return false;
-  }
-
-  BuildFn = [=](MachineIRBuilder &MIB) {
-    LLT S32 = LLT::scalar(32);
-
-    auto BaseShift =
-        MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, LHSShiftAmount));
-    Register ExtraAddend =
-        RHSShiftAmount ? MIB.buildShl(S32, InputReg,
-                                      MIB.buildConstant(S32, RHSShiftAmount))
-                             .getReg(0)
-                       : InputReg;
-    auto Add = MIB.buildInstr(NeedsSub ? Xtensa::G_SUB : Xtensa::G_ADD, {S32},
-                              {BaseShift, ExtraAddend});
-    if (NeedsNeg) {
-      MIB.buildSub(DestReg, MIB.buildConstant(S32, 0), Add);
-    } else {
-      MIB.buildCopy(DestReg, Add);
-    }
-  };
-
+  BuildFn = [=](MachineIRBuilder &MIB) { Parts.build(MIB, DestReg, InputReg); };
   return true;
 }
 
@@ -354,7 +236,7 @@ static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
 
   // This is measured in cycles/instructions, depending on whether we are
   // optimizing for speed or size.
-  int Budget = 0;
+  unsigned Budget = 0;
   // Note: we want to convert the multiply even if we end up exactly even in
   // terms of latency/size, because the multiplier is typically not pipelined -
   // any `mull` instruction we remove can help scheduling later.
@@ -380,11 +262,13 @@ static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
   Register DestReg = MI.getOperand(0).getReg();
   bool IsNeg = MulAmount < 0;
   uint64_t AbsMulAmount = IsNeg ? -MulAmount : MulAmount;
-  if (isPowerOf2_64(AbsMulAmount)) {
-    return matchMulConstPow2(DestReg, InputReg, AbsMulAmount, IsNeg, Budget,
-                             BuildFn);
+
+  if (matchMulConstPow2(DestReg, InputReg, AbsMulAmount, IsNeg, Budget,
+                        BuildFn)) {
+    return true;
   }
-  return matchMulConstGeneric(DestReg, InputReg, AbsMulAmount, IsNeg, Budget,
+
+  return matchMulConstWithAdd(DestReg, InputReg, AbsMulAmount, IsNeg, Budget,
                               BuildFn);
 }
 
