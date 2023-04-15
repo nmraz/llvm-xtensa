@@ -76,6 +76,25 @@ define i32 @mul_neg_6(i32 %a) #0 {
   ret i32 %mul
 }
 
+define i32 @mul_7(i32 %a) #0 {
+; CHECK-LABEL: mul_7:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    subx8 a2, a2, a2
+; CHECK-NEXT:    ret.n
+  %mul = mul i32 %a, 7
+  ret i32 %mul
+}
+
+define i32 @mul_neg_7(i32 %a) #0 {
+; CHECK-LABEL: mul_neg_7:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    movi.n a3, -7
+; CHECK-NEXT:    mull a2, a2, a3
+; CHECK-NEXT:    ret.n
+  %mul = mul i32 %a, -7
+  ret i32 %mul
+}
+
 define i32 @mul_10(i32 %a) #0 {
 ; CHECK-LABEL: mul_10:
 ; CHECK:       # %bb.0:

@@ -184,20 +184,15 @@ static bool matchExpensiveICmpOp(MachineRegisterInfo &MRI, MachineInstr &MI,
   return true;
 }
 
+static void bumpMulCostIf(int &Cost, bool B) { Cost += B; }
+
 static bool matchMulConstPow2(Register DestReg, Register InputReg,
                               int64_t MulAmount, uint64_t AbsMulAmount,
                               int Budget, BuildFnTy &BuildFn) {
   int Cost = 0;
   unsigned ShiftAmount = Log2_64(AbsMulAmount);
-  if (ShiftAmount > 0) {
-    // Need an explicit shift
-    Cost++;
-  }
-  if (MulAmount < 0) {
-    // Need an extra `neg`
-    Cost++;
-  }
-
+  bumpMulCostIf(Cost, ShiftAmount > 0); // Need an explicit shift
+  bumpMulCostIf(Cost, MulAmount < 0);   // Need an extra `neg`
   if (Cost > Budget) {
     return false;
   }
@@ -226,34 +221,86 @@ static bool getMulShifts(uint64_t MulAmount, unsigned &BaseShiftAmount,
       return true;
     }
   }
-
   return false;
+}
+
+static bool breakDownMulConst(int64_t MulAmount, uint64_t AbsMulAmount,
+                              unsigned &LHSShiftAmount,
+                              unsigned &RHSShiftAmount, bool &NeedsSub,
+                              bool &NeedsNeg) {
+  // Try to break the amount down into `2^B + 2^S`, where `S <= 3`.
+  // This will enable us to use an `addx` instruction for the small amount.
+  if (getMulShifts(AbsMulAmount, LHSShiftAmount, RHSShiftAmount)) {
+    NeedsSub = false;
+    NeedsNeg = MulAmount < 0;
+    return true;
+  }
+
+  // Try to break the amount down into `2^B - 1`.
+  uint64_t AdjustedMulAmount = AbsMulAmount + 1;
+  if (!isPowerOf2_64(AdjustedMulAmount)) {
+    return false;
+  }
+  unsigned Shift = Log2_64(AdjustedMulAmount);
+
+  NeedsSub = true;
+  NeedsNeg = false;
+
+  if (MulAmount >= 0) {
+    LHSShiftAmount = Shift;
+    RHSShiftAmount = 0;
+  } else {
+    LHSShiftAmount = 0;
+    RHSShiftAmount = Shift;
+  }
+
+  return true;
+}
+
+static bool canUseAddSubX(unsigned ShiftAmount) { return ShiftAmount <= 3; }
+
+static unsigned getMulConstGenericCost(unsigned LHSShiftAmount,
+                                       unsigned RHSShiftAmount, bool NeedsSub,
+                                       bool NeedsNeg) {
+  int Cost = 1; // For the add/sub itself
+  if (canUseAddSubX(LHSShiftAmount)) {
+    // The LHS shift can be folded into the add/sub, check only the RHS.
+    bumpMulCostIf(Cost, RHSShiftAmount != 0);
+  } else if (!NeedsSub && canUseAddSubX(RHSShiftAmount)) {
+    // The RHS shift can be folded into the add, check only the LHS.
+    bumpMulCostIf(Cost, LHSShiftAmount != 0);
+  } else {
+    // We may need an `slli` for each of the shifts.
+    bumpMulCostIf(Cost, LHSShiftAmount != 0);
+    bumpMulCostIf(Cost, RHSShiftAmount != 0);
+  }
+
+  bumpMulCostIf(Cost, NeedsNeg);
+  return Cost;
 }
 
 static bool matchMulConstGeneric(Register DestReg, Register InputReg,
                                  int64_t MulAmount, uint64_t AbsMulAmount,
                                  int Budget, BuildFnTy &BuildFn) {
-  unsigned BaseShiftAmount = 0;
-  unsigned SmallShiftAmount = 0;
+  unsigned LHSShiftAmount = 0;
+  unsigned RHSShiftAmount = 0;
+  bool NeedsSub = false;
+  bool NeedsNeg = false;
 
-  if (!getMulShifts(AbsMulAmount, BaseShiftAmount, SmallShiftAmount)) {
+  // Attempt to turn the multiply into one of:
+  // * (add (shl x, B), (shl x, S))
+  // * (neg (add (shl x, B), (shl x, S)))
+  // * (sub (shl x, B), x)
+  // * (sub x, (shl x, B))
+  //
+  // Where `S` is at most 3, enabling the shifts to be folded into the adds.
+  if (!breakDownMulConst(MulAmount, AbsMulAmount, LHSShiftAmount,
+                         RHSShiftAmount, NeedsSub, NeedsNeg)) {
     return false;
   }
 
-  // Everything from now on costs at least 1 instruction (the `add`).
-  int Cost = 1;
-  if (BaseShiftAmount <= 3 && SmallShiftAmount == 0) {
-    // Special case a small base shift with no small shift, which can allow us
-    // to form an ordinary add or `addx` in the opposite direction.
-  } else if (BaseShiftAmount) {
-    // Need an extra `slli`.
-    Cost++;
-  }
-  if (MulAmount < 0) {
-    // Need an extra `neg`.
-    Cost++;
-  }
-
+  int Cost = getMulConstGenericCost(LHSShiftAmount, RHSShiftAmount, NeedsSub,
+                                    NeedsNeg);
   if (Cost > Budget) {
     return false;
   }
@@ -262,15 +309,15 @@ static bool matchMulConstGeneric(Register DestReg, Register InputReg,
     LLT S32 = LLT::scalar(32);
 
     auto BaseShift =
-        MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, BaseShiftAmount));
+        MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, LHSShiftAmount));
     Register ExtraAddend =
-        SmallShiftAmount
-            ? MIB.buildShl(S32, InputReg,
-                           MIB.buildConstant(S32, SmallShiftAmount))
-                  .getReg(0)
-            : InputReg;
-    auto Add = MIB.buildAdd(S32, BaseShift, ExtraAddend);
-    if (MulAmount < 0) {
+        RHSShiftAmount ? MIB.buildShl(S32, InputReg,
+                                      MIB.buildConstant(S32, RHSShiftAmount))
+                             .getReg(0)
+                       : InputReg;
+    auto Add = MIB.buildInstr(NeedsSub ? Xtensa::G_SUB : Xtensa::G_ADD, {S32},
+                              {BaseShift, ExtraAddend});
+    if (NeedsNeg) {
       MIB.buildSub(DestReg, MIB.buildConstant(S32, 0), Add);
     } else {
       MIB.buildCopy(DestReg, Add);
