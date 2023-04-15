@@ -1,6 +1,6 @@
 #include "MCTargetDesc/XtensaBaseInfo.h"
 #include "XtensaInstrInfo.h"
-#include "XtensaMulConst.h"
+#include "XtensaMulConstHelpers.h"
 #include "XtensaSubtarget.h"
 #include "llvm/ADT/None.h"
 #include "llvm/ADT/Optional.h"
@@ -189,58 +189,53 @@ static bool matchExpensiveICmpOp(MachineRegisterInfo &MRI, MachineInstr &MI,
 static bool matchMulConstPow2(Register DestReg, Register InputReg,
                               uint64_t AbsMulAmount, bool IsNeg,
                               unsigned Budget, BuildFnTy &BuildFn) {
-  MulConstPow2Parts Parts;
-  if (!Parts.matchFrom(AbsMulAmount, IsNeg) || Parts.getCost() > Budget) {
+  if (!isPowerOf2_64(AbsMulAmount)) {
     return false;
   }
-  BuildFn = [=](MachineIRBuilder &MIB) { Parts.build(MIB, DestReg, InputReg); };
+
+  unsigned ShiftAmount = Log2_64(AbsMulAmount);
+  unsigned Cost = (ShiftAmount != 0) + IsNeg;
+  if (Cost > Budget) {
+    return false;
+  }
+
+  BuildFn = [=](MachineIRBuilder &MIB) {
+    LLT S32 = LLT::scalar(32);
+    auto Shift =
+        MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, ShiftAmount));
+    if (IsNeg) {
+      MIB.buildSub(DestReg, MIB.buildConstant(S32, 0), Shift);
+    } else {
+      MIB.buildCopy(DestReg, Shift);
+    }
+  };
+
   return true;
 }
 
 static bool matchMulConstSpecial(Register DestReg, Register InputReg,
                                  uint64_t AbsMulAmount, bool IsNeg,
                                  unsigned Budget, BuildFnTy &BuildFn) {
-  bool PreMulSub = false;
-  unsigned PreMulShiftAmount = 0;
-  uint64_t RemainingMulAmount = 0;
-
-  // Attempt to match a pattern that we can create with `addx`/`subx` followed
-  // by the generic sum of powers of 2.
-
-  if (AbsMulAmount % 9 == 0) {
-    // 9 = 2^3 + 1
-    PreMulShiftAmount = 3;
-    RemainingMulAmount = AbsMulAmount / 9;
-  } else if (AbsMulAmount % 7 == 0) {
-    // 7 = 2^3 - 1
-    PreMulShiftAmount = 3;
-    PreMulSub = true;
-    RemainingMulAmount = AbsMulAmount / 7;
-  } else if (AbsMulAmount % 5 == 0) {
-    // 5 = 2^2 + 1
-    PreMulShiftAmount = 2;
-    RemainingMulAmount = AbsMulAmount / 5;
-  } else if (AbsMulAmount % 3 == 0) {
-    // 3 = 2^2 - 1
-    PreMulShiftAmount = 1;
-    RemainingMulAmount = AbsMulAmount / 3;
-  } else {
+  auto MaybePreParts = getPreMulParts(AbsMulAmount);
+  if (!MaybePreParts) {
     return false;
   }
+  PreMulParts PreParts = *MaybePreParts;
 
   MulConst2Pow2Parts Parts;
-  if (!Parts.matchFrom(RemainingMulAmount, IsNeg) ||
+  if (!Parts.matchFrom(PreParts.RemainingMulAmount, IsNeg) ||
       Parts.getCost() + 1 > Budget) {
     return false;
   }
 
   BuildFn = [=](MachineIRBuilder &MIB) {
     LLT S32 = LLT::scalar(32);
-    auto PreMulShift =
-        MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, PreMulShiftAmount));
-    Register PreMul = MIB.buildInstr(PreMulSub ? Xtensa::G_SUB : Xtensa::G_ADD,
-                                     {S32}, {PreMulShift, InputReg})
-                          .getReg(0);
+    auto PreMulShift = MIB.buildShl(
+        S32, InputReg, MIB.buildConstant(S32, PreParts.ShiftAmount));
+    Register PreMul =
+        MIB.buildInstr(PreParts.NeedsSub ? Xtensa::G_SUB : Xtensa::G_ADD, {S32},
+                       {PreMulShift, InputReg})
+            .getReg(0);
     Parts.build(MIB, DestReg, PreMul);
   };
   return true;

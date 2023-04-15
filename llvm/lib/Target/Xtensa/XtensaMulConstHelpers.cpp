@@ -1,41 +1,48 @@
-#include "XtensaMulConst.h"
+#include "XtensaMulConstHelpers.h"
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
+#include "llvm/ADT/Optional.h"
 #include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
 #include "llvm/Support/DivisionByConstantInfo.h"
 #include "llvm/Support/MathExtras.h"
 #include <cstdint>
 
 using namespace llvm;
-using namespace Xtensa;
 
 static void bumpCostIf(unsigned &Cost, bool B) { Cost += B; }
 
-bool MulConstPow2Parts::matchFrom(uint64_t AbsMulAmount, bool IsNeg) {
-  if (!isPowerOf2_64(AbsMulAmount)) {
-    return false;
-  }
+namespace llvm {
+namespace Xtensa {
 
-  ShiftAmount = Log2_64(AbsMulAmount);
-  NeedsNeg = IsNeg;
-  return true;
-}
+Optional<PreMulParts> getPreMulParts(uint64_t AbsMulAmount) {
+  unsigned ShiftAmount = 0;
+  bool NeedsSub = false;
+  uint64_t RemainingMulAmount = 0;
 
-unsigned MulConstPow2Parts::getCost() const {
-  unsigned Cost = 0;
-  bumpCostIf(Cost, ShiftAmount > 0); // Need an explicit shift
-  bumpCostIf(Cost, NeedsNeg);        // Need an extra `neg`
-  return Cost;
-}
+  // Attempt to match a pattern that we can create with `addx`/`subx` followed
+  // by the generic sum of powers of 2.
 
-void MulConstPow2Parts::build(MachineIRBuilder &MIB, Register DestReg,
-                              Register InputReg) const {
-  LLT S32 = LLT::scalar(32);
-  auto Shift = MIB.buildShl(S32, InputReg, MIB.buildConstant(S32, ShiftAmount));
-  if (NeedsNeg) {
-    MIB.buildSub(DestReg, MIB.buildConstant(S32, 0), Shift);
+  if (AbsMulAmount % 9 == 0) {
+    // 9 = 2^3 + 1
+    ShiftAmount = 3;
+    RemainingMulAmount = AbsMulAmount / 9;
+  } else if (AbsMulAmount % 7 == 0) {
+    // 7 = 2^3 - 1
+    ShiftAmount = 3;
+    NeedsSub = true;
+    RemainingMulAmount = AbsMulAmount / 7;
+  } else if (AbsMulAmount % 5 == 0) {
+    // 5 = 2^2 + 1
+    ShiftAmount = 2;
+    RemainingMulAmount = AbsMulAmount / 5;
+  } else if (AbsMulAmount % 3 == 0) {
+    // 3 = 2^2 - 1
+    ShiftAmount = 1;
+    RemainingMulAmount = AbsMulAmount / 3;
   } else {
-    MIB.buildCopy(DestReg, Shift);
+    return None;
   }
+
+  return {{ShiftAmount, NeedsSub, RemainingMulAmount}};
 }
 
 bool MulConst2Pow2Parts::matchFrom(uint64_t AbsMulAmount, bool IsNeg) {
@@ -114,3 +121,6 @@ void MulConst2Pow2Parts::build(MachineIRBuilder &MIB, Register DestReg,
     MIB.buildCopy(DestReg, AddSub);
   }
 }
+
+} // namespace Xtensa
+} // namespace llvm
