@@ -56,6 +56,8 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &STI) {
   getActionDefinitionsBuilder(G_BRCOND).legalFor({S32}).clampScalar(0, S32,
                                                                     S32);
 
+  getActionDefinitionsBuilder(G_BRJT).legalFor({{P0, S32}});
+
   getActionDefinitionsBuilder(G_SELECT)
       .legalFor({{S32, S32}})
       .customFor({{P0, S32}})
@@ -158,7 +160,8 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &STI) {
       .legalFor({{S32, P0}})
       .clampScalar(0, S32, S32);
 
-  getActionDefinitionsBuilder({G_FRAME_INDEX, G_GLOBAL_VALUE}).legalFor({P0});
+  getActionDefinitionsBuilder({G_FRAME_INDEX, G_GLOBAL_VALUE, G_JUMP_TABLE})
+      .legalFor({P0});
   getActionDefinitionsBuilder(G_DYN_STACKALLOC).lower();
 
   // Ext/trunc instructions should all be folded together during
