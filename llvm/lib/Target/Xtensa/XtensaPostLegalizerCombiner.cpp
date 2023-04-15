@@ -200,9 +200,17 @@ static bool getMulShifts(uint64_t MulAmount, unsigned &BaseShiftAmount,
 
 static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
                           BuildFnTy &BuildFn) {
+  Register LHS = MI.getOperand(1).getReg();
+  Register RHS = MI.getOperand(2).getReg();
+
   Register InputReg;
   int64_t MulAmount;
-  if (!mi_match(MI, MRI, m_GMul(m_Reg(InputReg), m_ICst(MulAmount)))) {
+
+  if (mi_match(LHS, MRI, m_ICst(MulAmount))) {
+    InputReg = RHS;
+  } else if (mi_match(RHS, MRI, m_ICst(MulAmount))) {
+    InputReg = LHS;
+  } else {
     return false;
   }
 
