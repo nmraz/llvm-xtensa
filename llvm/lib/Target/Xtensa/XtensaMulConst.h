@@ -20,14 +20,9 @@ public:
   void build(MachineIRBuilder &MIB, Register DestReg, Register InputReg) const;
 };
 
-/// Represents a multiply of one of the forms:
-/// * (add (shl x, B), (shl x, S))
-/// * (neg (add (shl x, B), (shl x, S)))
-/// * (sub (shl x, B), x)
-/// * (sub x, (shl x, B))
-///
-/// Where `S` is at most 3.
-class MulConstWithAddParts {
+/// Represents a multiply by a sum or difference of powers of 2, optionally
+/// negated.
+class MulConst2Pow2Parts {
   unsigned LHSShiftAmount = 0;
   unsigned RHSShiftAmount = 0;
   bool NeedsSub = false;

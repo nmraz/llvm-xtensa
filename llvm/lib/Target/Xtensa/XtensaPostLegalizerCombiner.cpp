@@ -197,10 +197,10 @@ static bool matchMulConstPow2(Register DestReg, Register InputReg,
   return true;
 }
 
-static bool matchMulConstWithAdd(Register DestReg, Register InputReg,
-                                 uint64_t AbsMulAmount, bool IsNeg,
-                                 unsigned Budget, BuildFnTy &BuildFn) {
-  MulConstWithAddParts Parts;
+static bool matchMulConst2Pow2(Register DestReg, Register InputReg,
+                               uint64_t AbsMulAmount, bool IsNeg,
+                               unsigned Budget, BuildFnTy &BuildFn) {
+  MulConst2Pow2Parts Parts;
   if (!Parts.matchFrom(AbsMulAmount, IsNeg) || Parts.getCost() > Budget) {
     return false;
   }
@@ -241,12 +241,14 @@ static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
   // terms of latency/size, because the multiplier is typically not pipelined -
   // any `mull` instruction we remove can help scheduling later.
   if (MF.getFunction().hasMinSize()) {
-    if (XtensaII::isMoviNImm7(MulAmount)) {
-      // We can't compete with the 5 bytes required for a `movi.n` + `mull` in
-      // more than one instruction, as none of the instructions we emit have
-      // narrow variants.
+    if (XtensaII::isMoviNImm7(MulAmount) || !MRI.hasOneNonDBGUse(AmountReg)) {
+      // We have either a plain `mull` or a `movi.n` + `mull`, but we can't
+      // compete with either in more than one instruction.
       Budget = 1;
-    } else if (MRI.hasOneNonDBGUse(AmountReg) && !isInt<12>(MulAmount)) {
+    } else if (isInt<12>(MulAmount)) {
+      // We have a `movi` + `mull`.
+      Budget = 2;
+    } else {
       // This multiplication would currently require 10 bytes:
       // constant pool (4) + `l32r` (3) + `mull` (3)
       // That leaves room for 3 (wide) instructions.
@@ -268,8 +270,8 @@ static bool matchMulConst(MachineRegisterInfo &MRI, MachineInstr &MI,
     return true;
   }
 
-  return matchMulConstWithAdd(DestReg, InputReg, AbsMulAmount, IsNeg, Budget,
-                              BuildFn);
+  return matchMulConst2Pow2(DestReg, InputReg, AbsMulAmount, IsNeg, Budget,
+                            BuildFn);
 }
 
 #define XTENSAPOSTLEGALIZERCOMBINERHELPER_GENCOMBINERHELPER_DEPS
