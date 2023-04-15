@@ -21,8 +21,7 @@ define i32 @mul_neg_1(i32 %a) #0 {
 define i32 @mul_3(i32 %a) #0 {
 ; CHECK-LABEL: mul_3:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi.n a3, 3
-; CHECK-NEXT:    mull a2, a2, a3
+; CHECK-NEXT:    addx2 a2, a2, a2
 ; CHECK-NEXT:    ret.n
   %mul = mul i32 %a, 3
   ret i32 %mul
@@ -41,8 +40,7 @@ define i32 @mul_neg_3(i32 %a) #0 {
 define i32 @mul_5(i32 %a) #0 {
 ; CHECK-LABEL: mul_5:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movi.n a3, 5
-; CHECK-NEXT:    mull a2, a2, a3
+; CHECK-NEXT:    addx4 a2, a2, a2
 ; CHECK-NEXT:    ret.n
   %mul = mul i32 %a, 5
   ret i32 %mul
