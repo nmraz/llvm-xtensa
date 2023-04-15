@@ -76,6 +76,10 @@ static bool isCondBranchOpcode(int Opcode) {
   case Xtensa::BGEZ:
   case Xtensa::BLTZ:
   case Xtensa::BNEZ:
+  case Xtensa::BALL:
+  case Xtensa::BANY:
+  case Xtensa::BNALL:
+  case Xtensa::BNONE:
     return true;
   }
   return false;
@@ -102,6 +106,10 @@ static void parseCondBranch(const MachineInstr &MI, MachineBasicBlock *&Target,
   case Xtensa::BLTUI:
   case Xtensa::BNE:
   case Xtensa::BNEI:
+  case Xtensa::BALL:
+  case Xtensa::BANY:
+  case Xtensa::BNALL:
+  case Xtensa::BNONE:
     Cond.push_back(MachineOperand::CreateImm(Opcode));
     Cond.push_back(MI.getOperand(0));
     Cond.push_back(MI.getOperand(1));
@@ -161,6 +169,14 @@ static Optional<unsigned> getReversedBranchOpcode(unsigned Opcode) {
     return Xtensa::BGEZ;
   case Xtensa::BNEZ:
     return Xtensa::BEQZ;
+  case Xtensa::BALL:
+    return Xtensa::BNALL;
+  case Xtensa::BANY:
+    return Xtensa::BNONE;
+  case Xtensa::BNALL:
+    return Xtensa::BALL;
+  case Xtensa::BNONE:
+    return Xtensa::BANY;
   }
 
   return None;
