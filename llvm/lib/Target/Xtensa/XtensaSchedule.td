@@ -8,4 +8,5 @@ def ReadSAR : SchedRead;
 def WriteBranch : SchedWrite;
 
 def WriteLd : SchedWrite;
+def WriteSt : SchedWrite;
 def WriteL32R : SchedWrite;

@@ -16,7 +16,7 @@ def XtensaUnitALU    : ProcResource<1> { let BufferSize = 0; }
 def XtensaUnitMul    : ProcResource<1> { let BufferSize = 0; }
 def XtensaUnitDiv    : ProcResource<1> { let BufferSize = 0; }
 def XtensaUnitBranch : ProcResource<1> { let BufferSize = 0; }
-def XtensaUnitLd     : ProcResource<1> { let BufferSize = 0; }
+def XtensaUnitLdSt     : ProcResource<1> { let BufferSize = 0; }
 
 let SchedModel = Xtensa7StageModel in {
 
@@ -45,10 +45,12 @@ def : WriteRes<WriteBranch, [XtensaUnitBranch]> {
   let Latency = 2;
 }
 
-def : WriteRes<WriteL32R, [XtensaUnitLd]>;
-def : WriteRes<WriteLd, [XtensaUnitLd]> {
+def : WriteRes<WriteL32R, [XtensaUnitLdSt]>;
+def : WriteRes<WriteLd, [XtensaUnitLdSt]> {
   let Latency = 2;
 }
+
+def : WriteRes<WriteSt, [XtensaUnitLdSt]>;
 
 def : InstRW<[WriteALU], (instrs COPY)>;
 
