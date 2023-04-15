@@ -6,51 +6,52 @@ define void @xor_loop(ptr %a, ptr %b, i32 %n) {
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    blti a4, 1, .LBB0_7
 ; CHECK-NEXT:  # %bb.1: # %for.body.preheader
-; CHECK-NEXT:    movi.n a6, 0
+; CHECK-NEXT:    movi.n a5, 0
 ; CHECK-NEXT:    addi.n a7, a4, -1
-; CHECK-NEXT:    extui a5, a4, 0, 2
+; CHECK-NEXT:    movi.n a6, 3
 ; CHECK-NEXT:    bltui a7, 3, .LBB0_4
 ; CHECK-NEXT:  # %bb.2: # %for.body.preheader.new
 ; CHECK-NEXT:    movi.n a7, -4
-; CHECK-NEXT:    movi.n a6, 0
-; CHECK-NEXT:    and a4, a4, a7
+; CHECK-NEXT:    movi.n a5, 0
+; CHECK-NEXT:    and a7, a4, a7
 ; CHECK-NEXT:  .LBB0_3: # %for.body
 ; CHECK-NEXT:    # =>This Inner Loop Header: Depth=1
-; CHECK-NEXT:    add.n a7, a3, a6
-; CHECK-NEXT:    add.n a9, a2, a6
-; CHECK-NEXT:    l8ui a8, a7, 0
-; CHECK-NEXT:    l8ui a10, a9, 0
-; CHECK-NEXT:    addi.n a6, a6, 4
-; CHECK-NEXT:    xor a8, a10, a8
-; CHECK-NEXT:    s8i a8, a9, 0
-; CHECK-NEXT:    l8ui a8, a7, 1
-; CHECK-NEXT:    l8ui a10, a9, 1
-; CHECK-NEXT:    xor a8, a10, a8
-; CHECK-NEXT:    s8i a8, a9, 1
-; CHECK-NEXT:    l8ui a8, a7, 2
-; CHECK-NEXT:    l8ui a10, a9, 2
-; CHECK-NEXT:    xor a8, a10, a8
-; CHECK-NEXT:    s8i a8, a9, 2
-; CHECK-NEXT:    l8ui a7, a7, 3
-; CHECK-NEXT:    l8ui a8, a9, 3
-; CHECK-NEXT:    xor a7, a8, a7
-; CHECK-NEXT:    s8i a7, a9, 3
-; CHECK-NEXT:    bne a4, a6, .LBB0_3
+; CHECK-NEXT:    add.n a8, a3, a5
+; CHECK-NEXT:    add.n a10, a2, a5
+; CHECK-NEXT:    l8ui a9, a8, 0
+; CHECK-NEXT:    l8ui a11, a10, 0
+; CHECK-NEXT:    addi.n a5, a5, 4
+; CHECK-NEXT:    xor a9, a11, a9
+; CHECK-NEXT:    s8i a9, a10, 0
+; CHECK-NEXT:    l8ui a9, a8, 1
+; CHECK-NEXT:    l8ui a11, a10, 1
+; CHECK-NEXT:    xor a9, a11, a9
+; CHECK-NEXT:    s8i a9, a10, 1
+; CHECK-NEXT:    l8ui a9, a8, 2
+; CHECK-NEXT:    l8ui a11, a10, 2
+; CHECK-NEXT:    xor a9, a11, a9
+; CHECK-NEXT:    s8i a9, a10, 2
+; CHECK-NEXT:    l8ui a8, a8, 3
+; CHECK-NEXT:    l8ui a9, a10, 3
+; CHECK-NEXT:    xor a8, a9, a8
+; CHECK-NEXT:    s8i a8, a10, 3
+; CHECK-NEXT:    bne a7, a5, .LBB0_3
 ; CHECK-NEXT:  .LBB0_4: # %for.cond.cleanup.loopexit.unr-lcssa
-; CHECK-NEXT:    beqz a5, .LBB0_7
+; CHECK-NEXT:    bnone a4, a6, .LBB0_7
 ; CHECK-NEXT:  # %bb.5: # %for.body.epil.preheader
-; CHECK-NEXT:    add.n a2, a2, a6
-; CHECK-NEXT:    add.n a3, a3, a6
+; CHECK-NEXT:    extui a4, a4, 0, 2
+; CHECK-NEXT:    add.n a2, a2, a5
+; CHECK-NEXT:    add.n a3, a3, a5
 ; CHECK-NEXT:  .LBB0_6: # %for.body.epil
 ; CHECK-NEXT:    # =>This Inner Loop Header: Depth=1
-; CHECK-NEXT:    l8ui a4, a3, 0
+; CHECK-NEXT:    l8ui a5, a3, 0
 ; CHECK-NEXT:    l8ui a6, a2, 0
-; CHECK-NEXT:    addi.n a5, a5, -1
-; CHECK-NEXT:    xor a4, a6, a4
-; CHECK-NEXT:    s8i a4, a2, 0
+; CHECK-NEXT:    addi.n a4, a4, -1
+; CHECK-NEXT:    xor a5, a6, a5
+; CHECK-NEXT:    s8i a5, a2, 0
 ; CHECK-NEXT:    addi.n a2, a2, 1
 ; CHECK-NEXT:    addi.n a3, a3, 1
-; CHECK-NEXT:    bnez a5, .LBB0_6
+; CHECK-NEXT:    bnez a4, .LBB0_6
 ; CHECK-NEXT:  .LBB0_7: # %for.cond.cleanup
 ; CHECK-NEXT:    ret.n
 entry:

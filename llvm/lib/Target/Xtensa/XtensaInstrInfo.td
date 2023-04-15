@@ -191,6 +191,13 @@ def : CondBranchPat<(xor (srl i32:$a, (i32 31)), 1),
 def : CondBranchPat<(xor (and (srl i32:$a, uimm5:$bit), 1), 1),
                     (BBCI i32:$a, uimm5:$bit, bb:$offset)>;
 
+// Bitwise masking branches
+
+def : CondBranchPat<(setne (and i32:$a, i32:$b), 0),
+                    (BANY i32:$a, i32:$b, bb:$offset)>;
+def : CondBranchPat<(seteq (and i32:$a, i32:$b), 0),
+                    (BNONE i32:$a, i32:$b, bb:$offset)>;
+
 // Arithmetic comparison branches
 
 def : CondBranchPat<(seteq i32:$a, 0), (BEQZ i32:$a, bb:$offset)>;
