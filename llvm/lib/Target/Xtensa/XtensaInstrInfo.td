@@ -79,6 +79,9 @@ class XtensaSelectCCPseudo<DAGOperand CmpRHS>
                   []> {
   let hasSideEffects = false;
   let usesCustomInserter = true;
+
+  // These are immediately expanded into branches
+  let hasNoSchedulingInfo = true;
 }
 
 def SELECT_LTU : XtensaSelectCCPseudo<GPR>;
@@ -341,7 +344,7 @@ def L32R : LoadRI16<0b0001, l32rtarget16, "l32r", []>, Sched<[WriteL32R]> {
 }
 
 // TODO: proper scheduling model
-def MEMW : I_Fixed24<0x0020c0, "memw", []>;
+def MEMW : I_Fixed24<0x0020c0, "memw", []>, Sched<[]>;
 
 let Predicates = [HasMinMax] in {
   def MAX : ArithRRRSched<0b0011, 0b0101, "max",

@@ -31,7 +31,7 @@ define void @f() {
 ; CHECK-NEXT:    call0 g
 ; CHECK-NEXT:    mov.n a14, a2
 ; CHECK-NEXT:    call0 g
-; CHECK-NEXT:    s32i.n a2, a1, 4
+; CHECK-NEXT:    mov.n a8, a2
 ; CHECK-NEXT:    l32i.n a2, a1, 24 # 4-byte Reload
 ; CHECK-NEXT:    l32i.n a3, a1, 20 # 4-byte Reload
 ; CHECK-NEXT:    l32i.n a4, a1, 16 # 4-byte Reload
@@ -39,6 +39,7 @@ define void @f() {
 ; CHECK-NEXT:    mov.n a6, a12
 ; CHECK-NEXT:    mov.n a7, a13
 ; CHECK-NEXT:    s32i.n a14, a1, 0
+; CHECK-NEXT:    s32i.n a8, a1, 4
 ; CHECK-NEXT:    call0 h
 ; CHECK-NEXT:    l32i.n a15, a1, 28 # 4-byte Reload
 ; CHECK-NEXT:    l32i.n a14, a1, 32 # 4-byte Reload

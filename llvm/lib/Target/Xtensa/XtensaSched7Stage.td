@@ -9,7 +9,7 @@ def Xtensa7StageModel : SchedMachineModel {
                              // an additional cycle when the target is
                              // unaligned, but let's assume that hot blocks will
                              // be aligned anyway.
-  let CompleteModel = false;
+  let CompleteModel = true;
 }
 
 def XtensaUnitALU    : ProcResource<1> { let BufferSize = 0; }
@@ -49,5 +49,7 @@ def : WriteRes<WriteL32R, [XtensaUnitLd]>;
 def : WriteRes<WriteLd, [XtensaUnitLd]> {
   let Latency = 2;
 }
+
+def : InstRW<[WriteALU], (instrs COPY)>;
 
 }

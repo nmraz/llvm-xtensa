@@ -381,22 +381,22 @@ define void @alloca_variable_and_overaligned_call_stack_formal_stack_arg(i32 %si
 ; CHECK-NEXT:    mov.n a15, a1
 ; CHECK-NEXT:    and a1, a1, a5
 ; CHECK-NEXT:    addi.n a2, a2, 15
-; CHECK-NEXT:    movi.n a5, -16
-; CHECK-NEXT:    and a2, a2, a5
-; CHECK-NEXT:    l32i a8, a15, 64
-; CHECK-NEXT:    sub a2, a1, a2
+; CHECK-NEXT:    movi.n a6, -16
+; CHECK-NEXT:    and a2, a2, a6
+; CHECK-NEXT:    l32i a5, a15, 64
+; CHECK-NEXT:    sub a8, a1, a2
 ; CHECK-NEXT:    mov.n a14, a1
-; CHECK-NEXT:    mov.n a1, a2
-; CHECK-NEXT:    s8i a3, a2, 0
+; CHECK-NEXT:    mov.n a1, a8
+; CHECK-NEXT:    s8i a3, a8, 0
 ; CHECK-NEXT:    s8i a4, a14, 0
 ; CHECK-NEXT:    addi a1, a1, -16
+; CHECK-NEXT:    mov.n a2, a5
 ; CHECK-NEXT:    movi.n a3, 0
 ; CHECK-NEXT:    movi.n a4, 0
 ; CHECK-NEXT:    movi.n a5, 0
 ; CHECK-NEXT:    movi.n a6, 0
 ; CHECK-NEXT:    movi.n a7, 0
-; CHECK-NEXT:    s32i.n a2, a1, 0
-; CHECK-NEXT:    mov.n a2, a8
+; CHECK-NEXT:    s32i.n a8, a1, 0
 ; CHECK-NEXT:    call0 f2
 ; CHECK-NEXT:    addi a1, a1, 16
 ; CHECK-NEXT:    mov.n a1, a15

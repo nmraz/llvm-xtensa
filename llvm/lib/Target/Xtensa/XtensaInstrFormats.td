@@ -217,6 +217,7 @@ class XtensaPseudo<dag outs, dag ins, list<dag> pattern>
 class XtensaAsmPseudo<dag outs, dag ins, list<dag> pattern>
    : XtensaPseudo<outs, ins, pattern> {
   let isAsmParserOnly = true;
+  let hasNoSchedulingInfo = true;
 }
 
 class Inst16<bits<4> op0, dag outs, dag ins, string asmstr, list<dag> pattern>
@@ -465,10 +466,7 @@ class ArithRRrt<bits<4> op1, bits<4> op2, bits<4> s, string name, list<dag> patt
 
 class ArithRRrtSched<bits<4> op1, bits<4> op2, bits<4> s, string name,
                      list<dag> pattern>
-  : ArithBaseRRR<op1, op2, (outs GPR:$ar), (ins GPR:$at),
-                 !strconcat(name, "\t$ar, $at"), pattern> {
-  let as = s;
-}
+  : ArithRRrt<op1, op2, s, name, pattern>, Sched<[WriteALU]>;
 
 class ArithRRrs<bits<4> op1, bits<4> op2, bits<4> t, string name, list<dag> pattern>
   : ArithBaseRRR<op1, op2, (outs GPR:$ar), (ins GPR:$as),
