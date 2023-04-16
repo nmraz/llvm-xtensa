@@ -47,6 +47,10 @@ public:
                                   const DebugLoc &DL, Register Dest,
                                   const Constant *Value) const;
 
+  MachineInstr *loadWithL32R(MachineBasicBlock &MBB,
+                             MachineBasicBlock::iterator I, const DebugLoc &DL,
+                             Register Dest, int CPIdx) const;
+
   void loadImm(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
                const DebugLoc &DL, Register Dest, int32_t Value) const;
 

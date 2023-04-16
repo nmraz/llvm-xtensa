@@ -1,5 +1,6 @@
 #include "XtensaInstrInfo.h"
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
+#include "XtensaConstantPoolValue.h"
 #include "XtensaFrameLowering.h"
 #include "XtensaInstrUtils.h"
 #include "XtensaRegisterInfo.h"
@@ -18,6 +19,7 @@
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DebugLoc.h"
 #include "llvm/IR/LLVMContext.h"
+#include "llvm/Support/Alignment.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/MathExtras.h"
@@ -250,14 +252,19 @@ MachineInstr *XtensaInstrInfo::loadConstWithL32R(MachineBasicBlock &MBB,
                                                  Register Dest,
                                                  const Constant *Value) const {
   MachineFunction &MF = *I->getMF();
-
   MachineConstantPool *MCP = MF.getConstantPool();
+  return loadWithL32R(MBB, I, DL, Dest,
+                      MCP->getConstantPoolIndex(Value, Align(4)));
+}
 
-  Align Alignment = Align(4);
-  unsigned CPIdx = MCP->getConstantPoolIndex(Value, Alignment);
+MachineInstr *XtensaInstrInfo::loadWithL32R(MachineBasicBlock &MBB,
+                                            MachineBasicBlock::iterator I,
+                                            const DebugLoc &DL, Register Dest,
+                                            int CPIdx) const {
+  MachineFunction &MF = *I->getMF();
   MachineMemOperand *MMO = MF.getMachineMemOperand(
       MachinePointerInfo::getConstantPool(MF), MachineMemOperand::MOLoad,
-      LLT::scalar(32), Alignment);
+      LLT::scalar(32), Align(4));
 
   return BuildMI(MBB, I, DL, get(Xtensa::L32R))
       .addDef(Dest)
