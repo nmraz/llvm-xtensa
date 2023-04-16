@@ -12,6 +12,7 @@
 
 #include "MCTargetDesc/XtensaBaseInfo.h"
 #include "MCTargetDesc/XtensaMCTargetDesc.h"
+#include "XtensaConstantPoolValue.h"
 #include "XtensaInstrInfo.h"
 #include "XtensaInstrUtils.h"
 #include "XtensaRegisterBankInfo.h"
@@ -127,6 +128,7 @@ private:
   bool selectAddSubConst(MachineInstr &I);
   bool selectFrameIndexOffset(MachineInstr &I, MachineInstr &OperandMI,
                               int64_t Offset);
+  bool selectJumpTable(MachineInstr &I);
 
   bool selectLate(MachineInstr &I);
   bool selectICmp(MachineInstr &I);
@@ -726,6 +728,8 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
     }
     I.eraseFromParent();
     return true;
+  case Xtensa::G_JUMP_TABLE:
+    return selectJumpTable(I);
   }
 
   return false;
@@ -917,6 +921,20 @@ bool XtensaInstructionSelector::selectFrameIndexOffset(MachineInstr &I,
                            .addImm(Offset);
   constrainInstrRegisters(*Addi);
 
+  I.eraseFromParent();
+  return true;
+}
+
+bool XtensaInstructionSelector::selectJumpTable(MachineInstr &I) {
+  Register Dest = I.getOperand(0).getReg();
+  int JTI = I.getOperand(1).getIndex();
+  XtensaConstantPoolJumpTableAddr *CPV =
+      XtensaConstantPoolJumpTableAddr::create(MF->getFunction().getContext(),
+                                              JTI);
+  int CPIdx = MF->getConstantPool()->getConstantPoolIndex(CPV, Align(4));
+  MachineInstr *L32R =
+      TII.loadWithL32R(*I.getParent(), I, I.getDebugLoc(), Dest, CPIdx);
+  constrainInstrRegisters(*L32R);
   I.eraseFromParent();
   return true;
 }

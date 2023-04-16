@@ -1,5 +1,6 @@
 #include "XtensaConstantPoolValue.h"
 #include "llvm/ADT/FoldingSet.h"
+#include "llvm/CodeGen/MachineConstantPool.h"
 #include "llvm/CodeGen/MachineJumpTableInfo.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/LLVMContext.h"
@@ -7,6 +8,9 @@
 #include "llvm/Support/Casting.h"
 
 using namespace llvm;
+
+XtensaConstantPoolValue::XtensaConstantPoolValue(Type *Ty, XtensaCPKind Kind)
+    : MachineConstantPoolValue(Ty), Kind(Kind) {}
 
 XtensaConstantPoolValue::~XtensaConstantPoolValue() = default;
 
