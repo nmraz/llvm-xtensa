@@ -16,15 +16,20 @@
 #include "MCTargetDesc/XtensaTargetStreamer.h"
 #include "TargetInfo/XtensaTargetInfo.h"
 #include "Xtensa.h"
+#include "XtensaConstantPoolValue.h"
 #include "XtensaTargetMachine.h"
 #include "llvm/CodeGen/AsmPrinter.h"
 #include "llvm/CodeGen/MachineConstantPool.h"
 #include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/IR/Constant.h"
+#include "llvm/MC/MCContext.h"
+#include "llvm/MC/MCExpr.h"
 #include "llvm/MC/MCInst.h"
 #include "llvm/MC/MCStreamer.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Support/Alignment.h"
+#include "llvm/Support/Casting.h"
+#include "llvm/Support/ErrorHandling.h"
 #include <cassert>
 
 using namespace llvm;
@@ -43,10 +48,22 @@ public:
         *OutStreamer->getTargetStreamer());
   }
 
+  const MCExpr *
+  lowerMachineConstantPoolEntry(const XtensaConstantPoolValue *CPV);
   void emitConstantPool() override;
   void emitInstruction(const MachineInstr *MI) override;
 };
 } // end of anonymous namespace
+
+const MCExpr *XtensaAsmPrinter::lowerMachineConstantPoolEntry(
+    const XtensaConstantPoolValue *CPV) {
+  if (auto *JumpTableCPV = dyn_cast<XtensaConstantPoolJumpTableAddr>(CPV)) {
+    return MCSymbolRefExpr::create(
+        GetJTISymbol(JumpTableCPV->getJumpTableIndex()), OutContext);
+  }
+
+  llvm_unreachable("unknown constant pool entry type");
+}
 
 void XtensaAsmPrinter::emitConstantPool() {
   const MachineConstantPool &MCP = *MF->getConstantPool();
@@ -63,14 +80,16 @@ void XtensaAsmPrinter::emitConstantPool() {
 
     assert(CPE.getAlign() == Align(4) &&
            "Invalid xtensa constant pool entry alignment");
-    assert(!CPE.isMachineConstantPoolEntry() &&
-           "Unexpected xtensa machine constant pool entry");
-
-    const Constant *C = CPE.Val.ConstVal;
-    assert(getDataLayout().getTypeStoreSize(C->getType()) == 4 &&
+    assert(CPE.getSizeInBytes(getDataLayout()) == 4 &&
            "Invalid constant pool entry size");
 
-    Streamer.emitLiteral(GetCPISymbol(I), lowerConstant(C));
+    const MCExpr *Expr =
+        CPE.isMachineConstantPoolEntry()
+            ? lowerMachineConstantPoolEntry(
+                  static_cast<XtensaConstantPoolValue *>(CPE.Val.MachineCPVal))
+            : lowerConstant(CPE.Val.ConstVal);
+
+    Streamer.emitLiteral(GetCPISymbol(I), Expr);
   }
 }
 
