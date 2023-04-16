@@ -33,6 +33,7 @@
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
+#include "llvm/CodeGen/MachineJumpTableInfo.h"
 #include "llvm/CodeGen/MachineMemOperand.h"
 #include "llvm/CodeGen/MachineOperand.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
@@ -129,6 +130,7 @@ private:
   bool selectFrameIndexOffset(MachineInstr &I, MachineInstr &OperandMI,
                               int64_t Offset);
   bool selectJumpTable(MachineInstr &I);
+  bool selectBrJT(MachineInstr &I);
 
   bool selectLate(MachineInstr &I);
   bool selectICmp(MachineInstr &I);
@@ -730,6 +732,8 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
     return true;
   case Xtensa::G_JUMP_TABLE:
     return selectJumpTable(I);
+  case Xtensa::G_BRJT:
+    return selectBrJT(I);
   }
 
   return false;
@@ -935,6 +939,40 @@ bool XtensaInstructionSelector::selectJumpTable(MachineInstr &I) {
   MachineInstr *L32R =
       TII.loadWithL32R(*I.getParent(), I, I.getDebugLoc(), Dest, CPIdx);
   constrainInstrRegisters(*L32R);
+  I.eraseFromParent();
+  return true;
+}
+
+bool XtensaInstructionSelector::selectBrJT(MachineInstr &I) {
+  MachineRegisterInfo &MRI = MF->getRegInfo();
+  unsigned EntrySize =
+      MF->getJumpTableInfo()->getEntrySize(MF->getDataLayout());
+  assert(EntrySize == 4 && "Jump table entry size should always be 4");
+
+  Register JTAddr = I.getOperand(0).getReg();
+  Register EntryIndex = I.getOperand(2).getReg();
+  Register DestAddr = MRI.createVirtualRegister(&Xtensa::GPRRegClass);
+  Register Dest = MRI.createVirtualRegister(&Xtensa::GPRRegClass);
+
+  MachineInstr *AddX = emitInstrFor(I, Xtensa::ADDX4)
+                           .addDef(DestAddr)
+                           .addReg(EntryIndex)
+                           .addReg(JTAddr);
+  constrainInstrRegisters(*AddX);
+
+  MachineMemOperand *LoadMMO =
+      MF->getMachineMemOperand(MachinePointerInfo::getJumpTable(*MF),
+                               MachineMemOperand::MOLoad, 4, Align(4));
+  MachineInstr *Load = emitInstrFor(I, Xtensa::L32I)
+                           .addDef(Dest)
+                           .addReg(DestAddr)
+                           .addImm(0)
+                           .addMemOperand(LoadMMO);
+  constrainInstrRegisters(*Load);
+
+  MachineInstr *JX = emitInstrFor(I, Xtensa::JX).addReg(Dest);
+  constrainInstrRegisters(*JX);
+
   I.eraseFromParent();
   return true;
 }
