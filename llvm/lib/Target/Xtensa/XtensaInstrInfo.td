@@ -71,6 +71,10 @@ let Uses = [A1], Defs = [A1] in {
                                     Sched<[]>;
 }
 
+// Dummy instruction just to use jump table operands, to prevent the
+// corresponding jump tables from being considered dead.
+def JUMPTABLE_USED : XtensaPseudo<(outs), (ins i32imm:$jti), []>, Sched<[]>;
+
 // Pseudos expanded to conditional branches when the `saltu` instruction is not
 // supported.
 class XtensaSelectCCPseudo<DAGOperand CmpRHS>

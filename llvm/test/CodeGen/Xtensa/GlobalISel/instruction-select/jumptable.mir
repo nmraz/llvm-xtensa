@@ -194,6 +194,7 @@ body:             |
   ; CHECK-NEXT: {{  $}}
   ; CHECK-NEXT:   [[MOVI1:%[0-9]+]]:gpr = MOVI 5
   ; CHECK-NEXT:   [[L32R:%[0-9]+]]:gpr = L32R %const.0 :: (load (s32) from constant-pool)
+  ; CHECK-NEXT:   JUMPTABLE_USED %jump-table.0
   ; CHECK-NEXT:   [[ADDX4_:%[0-9]+]]:gpr = ADDX4 [[COPY]], [[L32R]]
   ; CHECK-NEXT:   [[L32I:%[0-9]+]]:gpr = L32I [[ADDX4_]], 0 :: (load (s32) from jump-table)
   ; CHECK-NEXT:   JX [[L32I]]

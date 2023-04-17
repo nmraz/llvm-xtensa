@@ -97,6 +97,12 @@ void XtensaAsmPrinter::emitInstruction(const MachineInstr *MI) {
   Xtensa_MC::verifyInstructionPredicates(MI->getOpcode(),
                                          getSubtargetInfo().getFeatureBits());
 
+  if (MI->getOpcode() == Xtensa::JUMPTABLE_USED) {
+    // This pseudo is used just to prevent the jump table from being deleted
+    // during codegen, it doesn't correspond to any actual code.
+    return;
+  }
+
   MCInst TmpInst;
   LowerXtensaMachineInstrToMCInst(MI, TmpInst, *this);
   EmitToStreamer(*OutStreamer, TmpInst);

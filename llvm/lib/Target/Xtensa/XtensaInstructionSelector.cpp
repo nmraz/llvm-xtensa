@@ -939,6 +939,7 @@ bool XtensaInstructionSelector::selectJumpTable(MachineInstr &I) {
   MachineInstr *L32R =
       TII.loadWithL32R(*I.getParent(), I, I.getDebugLoc(), Dest, CPIdx);
   constrainInstrRegisters(*L32R);
+  emitInstrFor(I, Xtensa::JUMPTABLE_USED).addJumpTableIndex(JTI);
   I.eraseFromParent();
   return true;
 }
