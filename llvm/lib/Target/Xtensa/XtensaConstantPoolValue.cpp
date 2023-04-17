@@ -17,7 +17,8 @@ XtensaConstantPoolValue::~XtensaConstantPoolValue() = default;
 XtensaConstantPoolJumpTableAddr::XtensaConstantPoolJumpTableAddr(LLVMContext &C,
                                                                  int JTI)
     : XtensaConstantPoolValue(PointerType::get(C, 0),
-                              XtensaCPKind::JumpTableAddr) {}
+                              XtensaCPKind::JumpTableAddr),
+      JTI(JTI) {}
 
 XtensaConstantPoolJumpTableAddr *
 XtensaConstantPoolJumpTableAddr::create(LLVMContext &C, int JTI) {
