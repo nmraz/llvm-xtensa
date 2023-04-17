@@ -16,7 +16,7 @@ define i32 @test(i32 %a) {
 ; OPT-NEXT:    l32i.n a3, a2, 0
 ; OPT-NEXT:    movi.n a2, 5
 ; OPT-NEXT:    jx a3
-; OPT-NEXT:  # %bb.2: # %sw.bb1
+; OPT-NEXT:  .LBB0_2: # %sw.bb1
 ; OPT-NEXT:    movi.n a2, 17
 ; OPT-NEXT:    call0 func
 ; OPT-NEXT:    j .LBB0_17
@@ -83,7 +83,7 @@ define i32 @test(i32 %a) {
 ; UNOPT-NEXT:    l32i.n a2, a2, 0
 ; UNOPT-NEXT:    s32i.n a3, a1, 4 # 4-byte Spill
 ; UNOPT-NEXT:    jx a2
-; UNOPT-NEXT:  # %bb.2: # %sw.bb1
+; UNOPT-NEXT:  .LBB0_2: # %sw.bb1
 ; UNOPT-NEXT:    movi.n a2, 17
 ; UNOPT-NEXT:    call0 func
 ; UNOPT-NEXT:    s32i.n a2, a1, 4 # 4-byte Spill

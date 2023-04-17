@@ -323,7 +323,9 @@ def ISYNC : I_Fixed24<0x002000, "isync", []>, Sched<[]>;
 let isBranch = true, isTerminator = true, isBarrier = true in {
   def J : GenericCall<0b0110, 0b00, jmptarget18, "j", [(br bb:$offset)]>,
           Sched<[WriteBranch]>;
-  def JX : GenericCallX<0b10, 0b10, "jx", []>, Sched<[WriteBranch]>;
+  def JX : GenericCallX<0b10, 0b10, "jx", []>, Sched<[WriteBranch]> {
+    let isIndirectBranch = true;
+  }
 }
 
 def L8UI : LoadRRI8<0b0010, 0b0000, uimm8, "l8ui", []>;
