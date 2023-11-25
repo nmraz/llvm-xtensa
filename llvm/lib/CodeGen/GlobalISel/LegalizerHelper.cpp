@@ -507,6 +507,8 @@ static RTLIB::Libcall getRTLibDesc(unsigned Opcode, unsigned Size) {
     RTLIBCASE_INT(UREM_I);
   case TargetOpcode::G_CTLZ_ZERO_UNDEF:
     RTLIBCASE_INT(CTLZ_I);
+  case TargetOpcode::G_CTTZ_ZERO_UNDEF:
+    RTLIBCASE_INT(CTTZ_I);
   case TargetOpcode::G_FADD:
     RTLIBCASE(ADD_F);
   case TargetOpcode::G_FSUB:
@@ -667,6 +669,16 @@ simpleLibcall(MachineInstr &MI, MachineIRBuilder &MIRBuilder, unsigned Size,
                        {MI.getOperand(0).getReg(), OpType, 0}, Args);
 }
 
+static LegalizerHelper::LegalizeResult
+unaryLibcall(MachineInstr &MI, MachineIRBuilder &MIRBuilder, unsigned OpSize,
+             Type *OpType, Type *ResultType) {
+  auto Libcall = getRTLibDesc(MI.getOpcode(), OpSize);
+
+  CallLowering::ArgInfo Arg[] = {{MI.getOperand(1).getReg(), OpType, 0}};
+  return createLibcall(MIRBuilder, Libcall,
+                       {MI.getOperand(0).getReg(), ResultType, 0}, Arg);
+}
+
 LegalizerHelper::LegalizeResult
 llvm::createMemLibcall(MachineIRBuilder &MIRBuilder, MachineRegisterInfo &MRI,
                        MachineInstr &MI, LostDebugLocObserver &LocObserver) {
@@ -798,12 +810,23 @@ LegalizerHelper::libcall(MachineInstr &MI, LostDebugLocObserver &LocObserver) {
   case TargetOpcode::G_SDIV:
   case TargetOpcode::G_UDIV:
   case TargetOpcode::G_SREM:
-  case TargetOpcode::G_UREM:
-  case TargetOpcode::G_CTLZ_ZERO_UNDEF: {
+  case TargetOpcode::G_UREM: {
     Type *HLTy = IntegerType::get(Ctx, Size);
     auto Status = simpleLibcall(MI, MIRBuilder, Size, HLTy);
     if (Status != Legalized)
       return Status;
+    break;
+  }
+  case TargetOpcode::G_CTLZ_ZERO_UNDEF:
+  case TargetOpcode::G_CTTZ_ZERO_UNDEF: {
+    LLT LLOpTy = MRI.getType(MI.getOperand(1).getReg());
+    unsigned OpSize = LLOpTy.getSizeInBits();
+    Type *HLOpTy = IntegerType::get(Ctx, OpSize);
+    Type *HLResultTy = IntegerType::get(Ctx, Size);
+    auto Status = unaryLibcall(MI, MIRBuilder, OpSize, HLOpTy, HLResultTy);
+    if (Status != Legalized) {
+      return Status;
+    }
     break;
   }
   case TargetOpcode::G_FADD:
