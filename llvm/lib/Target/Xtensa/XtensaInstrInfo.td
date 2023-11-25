@@ -50,6 +50,7 @@ def b4constu_minus1 : ImmLeaf<i32, [{
 
 def HasMinMax : Predicate<"Subtarget->hasMinMax()">;
 def HasSalt : Predicate<"Subtarget->hasSalt()">;
+def HasNSA : Predicate<"Subtarget->hasNSA()">;
 
 // Pseudo-instructions for codegen/lowering
 
@@ -410,6 +411,11 @@ def NEG : ArithRRrtSched<0b0000, 0b0110, 0b0000, "neg",
 
 def NOP : I_Fixed24<0x0020f0, "nop", []>, Sched<[]>;
 def NOPN : I_Fixed16<0xf03d, "nop.n", []>, Sched<[]>;
+
+let Predicates = [HasNSA] in {
+  def NSA  : ArithRRtsSched<0b0000, 0b0100, 0b1110, "nsa", []>;
+  def NSAU : ArithRRtsSched<0b0000, 0b0100, 0b1111, "nsau", [(set i32:$at, (ctlz i32:$as))]>;
+}
 
 def OR : ArithRRRSched<0b0000, 0b0010, "or",
                        [(set i32:$ar, (or i32:$as, i32:$at))]>;

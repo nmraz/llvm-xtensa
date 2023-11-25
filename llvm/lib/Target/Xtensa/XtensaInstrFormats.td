@@ -474,6 +474,16 @@ class ArithRRrs<bits<4> op1, bits<4> op2, bits<4> t, string name, list<dag> patt
   let at = t;
 }
 
+class ArithRRts<bits<4> op1, bits<4> op2, bits<4> r, string name, list<dag> pattern>
+  : ArithBaseRRR<op1, op2, (outs GPR:$at), (ins GPR:$as),
+                 !strconcat(name, "\t$at, $as"), pattern> {
+  let ar = r;
+}
+
+class ArithRRtsSched<bits<4> op1, bits<4> op2, bits<4> r, string name,
+                     list<dag> pattern>
+  : ArithRRts<op1, op2, r, name, pattern>, Sched<[WriteALU]>;
+
 class ArithRs<bits<4> op1, bits<4> op2, bits<4> t, bits<4> r, string name, list<dag> pattern>
   : ArithBaseRRR<op1, op2, (outs), (ins GPR:$as),
           !strconcat(name, "\t$as"), pattern> {

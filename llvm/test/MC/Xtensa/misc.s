@@ -29,3 +29,13 @@ max a4, a5, a6
 # CHECK-INST: maxu a4, a5, a6
 # CHECK: encoding: [0x60,0x45,0x73]
 maxu a4, a5, a6
+
+# Instruction format RRR
+# CHECK-INST: nsa a2, a8
+# CHECK: encoding: [0x20,0xe8,0x40]
+nsa a2, a8
+
+# Instruction format RRR
+# CHECK-INST: nsau a2, a8
+# CHECK: encoding: [0x20,0xf8,0x40]
+nsau a2, a8
