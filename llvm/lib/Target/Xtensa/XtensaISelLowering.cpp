@@ -55,6 +55,14 @@ XtensaTargetLowering::XtensaTargetLowering(const TargetMachine &TM,
   MaxStoresPerMemmoveOptSize = 2;
 }
 
+bool XtensaTargetLowering::isCheapToSpeculateCtlz() const {
+  return Subtarget.hasNSA();
+}
+
+bool XtensaTargetLowering::isCheapToSpeculateCttz() const {
+  return Subtarget.hasNSA();
+}
+
 LLT XtensaTargetLowering::getOptimalMemOpLLT(
     const MemOp &Op, const AttributeList &FuncAttributes) const {
   if (Op.isMemset() && !Op.isZeroMemset()) {

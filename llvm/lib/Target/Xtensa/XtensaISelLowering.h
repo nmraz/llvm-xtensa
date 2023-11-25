@@ -14,6 +14,9 @@ public:
   explicit XtensaTargetLowering(const TargetMachine &TM,
                                 const XtensaSubtarget &STI);
 
+  bool isCheapToSpeculateCttz() const override;
+  bool isCheapToSpeculateCtlz() const override;
+
   LLT getOptimalMemOpLLT(const MemOp &Op,
                          const AttributeList &FuncAttributes) const override;
 

@@ -122,6 +122,50 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &STI) {
 
   getActionDefinitionsBuilder(G_SEXT_INREG).legalFor({S32}).lower();
 
+  if (STI.hasNSA()) {
+    getActionDefinitionsBuilder(G_CTLZ)
+        .legalFor({{S32, S32}})
+        .clampScalar(0, S32, S32)
+        .widenScalarToNextPow2(1)
+        .clampScalar(1, S32, S32);
+
+    getActionDefinitionsBuilder(G_CTLZ_ZERO_UNDEF)
+        .lowerFor({{S32, S32}})
+        .clampScalar(0, S32, S32)
+        .widenScalarToNextPow2(1)
+        .clampScalar(1, S32, S32);
+
+    // We don't have proper trailing-zero count instructions, and things can get
+    // pretty big at 64 bits.
+    getActionDefinitionsBuilder(G_CTTZ_ZERO_UNDEF)
+        .lowerFor({{S32, S32}})
+        .libcallFor({{S32, S64}})
+        .clampScalar(0, S32, S32)
+        .widenScalarToNextPow2(1)
+        .clampScalar(1, S32, S64);
+
+    // TODO: For 64 bits this speculates the actual calls and uses a conditional
+    // move, which is pretty bad for performance.
+    getActionDefinitionsBuilder(G_CTTZ)
+        .lowerFor({{S32, S32}, {S32, S64}})
+        .clampScalar(0, S32, S32)
+        .widenScalarToNextPow2(1)
+        .clampScalar(1, S32, S64);
+  } else {
+    // TODO: This speculates the actual calls and uses a conditional move, which
+    // is pretty bad for performance.
+    getActionDefinitionsBuilder({G_CTLZ, G_CTTZ})
+        .lowerFor({{S32, S64}, {S32, S32}})
+        .clampScalar(0, S32, S32)
+        .widenScalarToNextPow2(1)
+        .clampScalar(1, S32, S64);
+    getActionDefinitionsBuilder({G_CTLZ_ZERO_UNDEF, G_CTTZ_ZERO_UNDEF})
+        .libcallFor({{S32, S64}, {S32, S32}})
+        .clampScalar(0, S32, S32)
+        .widenScalarToNextPow2(1)
+        .clampScalar(1, S32, S64);
+  }
+
   getActionDefinitionsBuilder({G_LOAD, G_ZEXTLOAD})
       .legalForTypesWithMemDesc({
           {S32, P0, S8, 8},
