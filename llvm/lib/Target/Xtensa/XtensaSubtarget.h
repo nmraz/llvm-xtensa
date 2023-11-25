@@ -37,6 +37,7 @@ private:
 
   bool HasMinMax;
   bool HasSalt;
+  bool HasNSA;
   bool HasLX7;
 
 public:
@@ -63,6 +64,7 @@ public:
 
   bool hasMinMax() const { return HasMinMax; }
   bool hasSalt() const { return HasSalt; }
+  bool hasNSA() const { return HasNSA; }
 
   // GlobalISel
 
