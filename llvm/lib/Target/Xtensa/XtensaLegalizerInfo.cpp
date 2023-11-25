@@ -49,7 +49,7 @@ XtensaLegalizerInfo::XtensaLegalizerInfo(const XtensaSubtarget &STI) {
       .customFor({P0})
       .clampScalar(0, S32, S32);
 
-  getActionDefinitionsBuilder(G_IMPLICIT_DEF)
+  getActionDefinitionsBuilder({G_IMPLICIT_DEF, G_FREEZE})
       .legalFor({S32, P0})
       .clampScalar(0, S32, S32);
 

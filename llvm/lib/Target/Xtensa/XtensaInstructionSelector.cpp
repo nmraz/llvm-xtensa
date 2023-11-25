@@ -717,6 +717,7 @@ bool XtensaInstructionSelector::selectEarly(MachineInstr &I) {
     return selectAddSubConst(I);
   case Xtensa::G_PTRTOINT:
   case Xtensa::G_INTTOPTR:
+  case Xtensa::G_FREEZE:
     I.setDesc(TII.get(Xtensa::COPY));
     return forceConstrainInstrRegisters(I);
   case Xtensa::G_FRAME_INDEX:
